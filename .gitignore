@@ -2,6 +2,7 @@
 .kotlin
 .gradle
 **/build/
+**/DerivedData/
 xcuserdata
 !src/**/build/
 local.properties
@@ -18,6 +19,4 @@ captures
 **/xcshareddata/WorkspaceSettings.xcsettings
 
 # Ignore GoogleService-Info.plist in all directories
-**/GoogleService-Info.plist
-**/**/GoogleService-Info.plist
-GoogleService-Info.plist
+**/iosApp/GoogleService-Info.plist
