@@ -19,3 +19,5 @@ captures
 
 # Ignore GoogleService-Info.plist in all directories
 **/GoogleService-Info.plist
+**/**/GoogleService-Info.plist
+GoogleService-Info.plist
