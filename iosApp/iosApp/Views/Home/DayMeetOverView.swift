@@ -9,8 +9,18 @@
 import SwiftUI
 
 struct DayMeetOverView: View {
-    var name: String
-    var theme = Theme.shared
+    let date: Date
+    let mealList: [PlannedMeal]
+    
+    private var totalProtein: Int {
+        mealList.map { $0.protein }.reduce(0, +)
+    }
+    
+    private var totalKcal: Int {
+        mealList.map { $0.kcal }.reduce(0, +)
+    }
+    
+    private let theme = Theme.shared
     
     private let borderRadius: CGFloat = 20
     
@@ -19,16 +29,18 @@ struct DayMeetOverView: View {
             
         }, label: {
             VStack(alignment: .leading, spacing: 0) {
-                header(icon: "calendar", text: "Hallo")
+                header(icon: "calendar", date: date)
                 
-                content(count: 1, recipe: "Hallo", protein: 20, kcal: 10)
-                content(count: 2, recipe: "Hallo", protein: 50, kcal: 5)
-                footer(protein: 70, kcal: 15)
+                ForEach(Array(mealList.enumerated()), id: \.element.id) { index, meal in
+                    content(count: index + 1, recipe: meal.recipe, protein: meal.protein, kcal: meal.kcal)
+                }
+                
+                footer(protein: totalProtein, kcal: totalKcal)
             }
         })
     }
     
-    @ViewBuilder func header(icon: String, text: String) -> some View {
+    @ViewBuilder func header(icon: String, date: Date) -> some View {
         ZStack {
             HStack {
                 Image(systemName: icon)
@@ -37,7 +49,12 @@ struct DayMeetOverView: View {
                     .fontWeight(.semibold)
                     .multilineTextAlignment(.center)
                 
-                Text(name)
+                Text(date.getWeekday)
+                    .font(.body)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(theme.color(.textComplimentary))
+                
+                Text(date, style: .date)
                     .font(.body)
                     .fontWeight(.semibold)
                     .foregroundStyle(theme.color(.textComplimentary))
@@ -107,12 +124,29 @@ struct DayMeetOverView: View {
     }
 }
 
+struct PlannedMeal: Hashable {
+    var id = UUID()
+    var recipe: String
+    var protein: Int
+    var kcal: Int
+}
+
 #Preview("Light") {
-    DayMeetOverView(name: "dsads")
-        .preferredColorScheme(.light)
+    DayMeetOverView(
+        date: Date(),
+        mealList: [
+            PlannedMeal(recipe: "Spagetti", protein: 20, kcal: 5),
+            PlannedMeal(recipe: "Spagetti", protein: 20, kcal: 5)
+        ]
+    ).preferredColorScheme(.light)
 }
 
 #Preview("Dark") {
-    DayMeetOverView(name: "dsads")
-        .preferredColorScheme(.dark)
+    DayMeetOverView(
+        date: Date(),
+        mealList: [
+            PlannedMeal(recipe: "Spagetti", protein: 20, kcal: 5),
+            PlannedMeal(recipe: "Spagetti", protein: 20, kcal: 5)
+        ]
+    ).preferredColorScheme(.dark)
 }

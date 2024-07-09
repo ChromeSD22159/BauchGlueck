@@ -1,7 +1,7 @@
 import SwiftUI
 import Shared
 
-struct ContentView: View {
+struct HomeView: View {
     @State private var showContent = false
     @State private var searchText = ""
     @State private var content = ["A", "B", "C", "D", "E", "F", "G"]
@@ -9,19 +9,25 @@ struct ContentView: View {
     var theme = Theme.shared
     
     var body: some View {
-       
         NavigationView {
             
             ZStack {
                 theme.color(.background).ignoresSafeArea()
-            
-                ScrollView {
+                
+                ScrollView{
                     VStack(alignment: .leading, spacing: 16) {
                         ForEach(content, id: \.self) { name in
-                            DayMeetOverView(name: name)
+                            DayMeetOverView(
+                                date: Date(),
+                                mealList: [
+                                    PlannedMeal(recipe: "Spagetti", protein: 20, kcal: 5),
+                                    PlannedMeal(recipe: "Spagetti", protein: 20, kcal: 5)
+                                ]
+                            )
                         }
                     }
                 }
+                .scrollIndicators(.never)
                 .padding(.horizontal, 16)
                 .navigationTitle("BauchGlück")
                 .navigationBarTitleDisplayMode(.large)
@@ -59,5 +65,5 @@ struct ContentView: View {
 }
 
 #Preview("Hello World!") {
-    ContentView()
+    HomeView()
 }
