@@ -20,7 +20,7 @@ struct DayMeetOverView: View {
         mealList.map { $0.kcal }.reduce(0, +)
     }
     
-    private let theme = Theme.shared
+    @EnvironmentObject var theme: Theme
     
     private let borderRadius: CGFloat = 20
     

@@ -7,7 +7,7 @@ struct HomeView: View {
     @State private var content = ["A", "B", "C", "D", "E", "F", "G"]
     @State private var week: [Date] = []
     
-    var theme = Theme.shared
+    @EnvironmentObject var theme: Theme
     
     var body: some View {
         NavigationView {
@@ -38,7 +38,9 @@ struct HomeView: View {
                         RoundedHeaderButton(icon: "pencil") { }
                     }
                     ToolbarItem(placement: .navigationBarTrailing) {
-                        RoundedHeaderButton(icon: "magnifyingglass") { }
+                        RoundedHeaderButton(icon: "iphone.and.arrow.forward") {
+                            FirebaseAuthManager().signOut()
+                        }
                     }
                 }
             }
@@ -75,6 +77,12 @@ struct HomeView: View {
     }
 }
 
-#Preview("Hello World!") {
+#Preview("Light") {
     HomeView()
+}
+
+#Preview("Dark") {
+    HomeView()
+        .environmentObject(Theme())
+        .preferredColorScheme(.dark)
 }

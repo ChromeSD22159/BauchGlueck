@@ -11,34 +11,30 @@ import SwiftUI
 import UIKit
 
 
-class Theme {
-    static let shared = Theme()
-
-    @Environment(\.colorScheme) var colorScheme
+class Theme: ObservableObject {
+    var scheme: ColorScheme = .light
     
-    private init() {}
-
     // Light Mode Farben
-    let lightBackground = Color("Background")
-    let lightBackgroundVariant = Color("Background Variante")
-    let lightPrimary = Color("Primary")
-    let lightPrimaryVariant = Color("Primary Variante")
-    let lightSecondary = Color("Secondary")
-    let lightSecondaryVariant = Color("Secondary Variante")
-    let lightTextBackground = Color("Text Background")
-    let lightTextComplimentary = Color("Text Complimentary")
-    let lightTextRegular = Color("Text Regular")
+    private let lightBackground = Color("Background")
+    private let lightBackgroundVariant = Color("Background Variante")
+    private let lightPrimary = Color("Primary")
+    private let lightPrimaryVariant = Color("Primary Variante")
+    private let lightSecondary = Color("Secondary")
+    private let lightSecondaryVariant = Color("Secondary Variante")
+    private let lightTextBackground = Color("Text Background")
+    private let lightTextComplimentary = Color("Text Complimentary")
+    private let lightTextRegular = Color("Text Regular")
 
     // Dark Mode Farben
-    let darkBackground = Color("Background Variante")
-    let darkBackgroundVariant = Color("Background")
-    let darkPrimary = Color("Primary Variante")
-    let darkPrimaryVariant = Color("Primary")
-    let darkSecondary = Color("Secondary Variante")
-    let darkSecondaryVariant = Color("Secondary")
-    let darkTextBackground = Color("Text Background")
-    let darkTextComplimentary = Color("Text Complimentary")
-    let darkTextRegular = Color("Text Regular")
+    private let darkBackground = Color("Background Variante")
+    private let darkBackgroundVariant = Color("Background")
+    private let darkPrimary = Color("Primary Variante")
+    private let darkPrimaryVariant = Color("Primary")
+    private let darkSecondary = Color("Secondary Variante")
+    private let darkSecondaryVariant = Color("Secondary")
+    private let darkTextBackground = Color("Text Background")
+    private let darkTextComplimentary = Color("Text Complimentary")
+    private let darkTextRegular = Color("Text Regular")
 
     let cornerRadius: CGFloat = 16
     let paddingHorizontal: CGFloat = 16
@@ -50,7 +46,7 @@ class Theme {
 
     // Funktion zur Farbauswahl je nach Farbschema
     func color(_ type: ColorType) -> Color {
-        switch (colorScheme, type) {
+        switch (scheme, type) {
             case (.dark, .background): return darkBackground
             case (.dark, .backgroundVariant): return darkBackgroundVariant
             case (.dark, .primary): return darkPrimary
@@ -80,5 +76,9 @@ class Theme {
             startPoint: .top,
             endPoint: .bottom
         )
+    }
+    
+    func changeTheme(_ colorScheme: ColorScheme) {
+        scheme = colorScheme
     }
 }
