@@ -5,6 +5,7 @@ struct HomeView: View {
     @State private var showContent = false
     @State private var searchText = ""
     @State private var content = ["A", "B", "C", "D", "E", "F", "G"]
+    @State private var week: [Date] = []
     
     var theme = Theme.shared
     
@@ -16,12 +17,12 @@ struct HomeView: View {
                 
                 ScrollView{
                     VStack(alignment: .leading, spacing: 16) {
-                        ForEach(content, id: \.self) { name in
+                        ForEach(week, id: \.self) { date in
                             DayMeetOverView(
-                                date: Date(),
+                                date: date,
                                 mealList: [
-                                    PlannedMeal(recipe: "Spagetti", protein: 20, kcal: 5),
-                                    PlannedMeal(recipe: "Spagetti", protein: 20, kcal: 5)
+                                    PlannedMeal(recipe: "Spaghetti", protein: 20, kcal: 5),
+                                    PlannedMeal(recipe: "Brot", protein: 20, kcal: 5)
                                 ]
                             )
                         }
@@ -42,6 +43,8 @@ struct HomeView: View {
                 }
             }
             
+        }.onAppear {
+            self.week = HomeView.getCurrentWeekDates()
         }
     }
     
@@ -61,6 +64,14 @@ struct HomeView: View {
                 
             }
         }
+    }
+    
+    static func getCurrentWeekDates() -> [Date] {
+        let today = Date()
+        if let weekDates = today.datesOfWeek() {
+            return weekDates
+        }
+        return []
     }
 }
 
