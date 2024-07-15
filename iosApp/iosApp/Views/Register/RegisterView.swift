@@ -12,6 +12,7 @@ import SwiftUI
 struct RegisterView: View {
     @ObservedObject var viewModel = RegisterViewModel()
     @EnvironmentObject var authManager: FirebaseAuthManager
+    @EnvironmentObject var alertManager: AlertManager
     @EnvironmentObject var theme: Theme
     
     var body: some View {
@@ -106,9 +107,9 @@ struct RegisterView: View {
                     })
 
                     Button(action: {
-                        viewModel.signUp(complete: { res in
-                            if res {
-                                authManager.nav = .logged
+                        viewModel.signUp(complete: { error in
+                            if (error != nil) {
+                                alertManager.openAlert(error?.localizedDescription ?? "asds")
                             }
                         })
                     }) {

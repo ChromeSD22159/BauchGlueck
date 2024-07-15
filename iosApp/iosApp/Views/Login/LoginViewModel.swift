@@ -14,23 +14,16 @@ class LoginViewModel: ObservableObject {
     @Published var email = "info@frederikkohler.de"
     @Published var password = "Fr3d3rik@Kohler"
     @Published var errorMessage = ""
-    @AppStorage("Logged") var isLoggedIn = false
-    
-    init() {
-        Auth.auth().addStateDidChangeListener { _, user in
-            self.isLoggedIn = (user != nil)
-        }
-    }
 
-    func login() {
-        // Einfache Validierung (hier könntest du eine gründlichere Validierung hinzufügen)
+    func login(complete: @escaping (Error?) -> Void) {
         guard !email.isEmpty, !password.isEmpty else {
             errorMessage = "Please enter email and password."
             return
         }
         
-        FirebaseAuthManager().signIn(email: email, password: password, completion: {_,_ in 
-            
+        FirebaseAuthManager().signIn(email: email, password: password, complete: { error in
+            complete(error)
         })
+        
     }
 }

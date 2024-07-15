@@ -24,15 +24,9 @@ class RegisterViewModel: ObservableObject {
         
     private var authManager = FirebaseAuthManager()
     
-    func signUp(complete: @escaping(Bool) -> Void) {
-        authManager.signUp(email: email, password: password, completion: { user , error in
-            if (error == nil) {
-                complete(true)
-                print("User signs up successfully")
-            } else {
-                complete(false)
-                
-            }
+    func signUp(complete: @escaping (Error?) -> Void) {
+        authManager.signUp(email: email, password: password, complete: { error in
+            complete(error)
         })
     }
     

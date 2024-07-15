@@ -13,6 +13,7 @@ struct LoginView: View {
     @ObservedObject var viewModel = LoginViewModel()
     @EnvironmentObject var authManager: FirebaseAuthManager
     @EnvironmentObject var theme: Theme
+    @EnvironmentObject var alertManager: AlertManager
 
     var body: some View {
         ZStack {
@@ -82,7 +83,11 @@ struct LoginView: View {
                     
                     
                     Button(action: {
-                        viewModel.login()
+                        viewModel.login(complete: { error in
+                            if (error != nil) {
+                                alertManager.openAlert(error?.localizedDescription ?? "asds")
+                            }
+                        })
                     }) {
                         HStack {
                             Text("Log in")

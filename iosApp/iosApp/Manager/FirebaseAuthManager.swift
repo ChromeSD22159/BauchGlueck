@@ -13,77 +13,56 @@ import SwiftUI
 
 class FirebaseAuthManager: ObservableObject {
     
-    @AppStorage("Logged") var isLoggedIn = false
-    
     @Published var user: User? = nil
     
     @Published var nav: LoginNav = .login
-
-    @State var listener: AuthStateDidChangeListenerHandle? = nil
     
     init() {
         self.user = Auth.auth().currentUser
         stateChangeListener()
     }
     
-    func stateChangeListener() {
-        listener = Auth.auth().addStateDidChangeListener { (auth, user) in
-            self.user = user
-        }
-    }
+    let userError = NSError(domain: "AuthError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to sign in user"])
     
-    func removeStateListener() {
-        guard let listener = listener else { return }
-        Auth.auth().removeStateDidChangeListener(listener)
-    }
-
-    func signUp(email: String, password: String, completion: @escaping (User?, Error?) -> Void) {
-        Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
-            if let error = error {
-                self.isLoggedIn = false
-                completion(nil,error)
-            } else if let user = authResult?.user {
-                self.isLoggedIn = true
-                completion(user, nil)
+    func stateChangeListener() {
+        Auth.auth().addStateDidChangeListener { (auth, user) in
+            if (user != nil) {
+                self.user = user
+                self.nav = .logged
+            } else {
+                self.nav = .login
             }
         }
     }
 
-    func signIn(email: String, password: String, completion: @escaping (Bool, Error?) -> Void) {
+    func signUp(email: String, password: String, complete: @escaping (Error?) -> Void ) {
+        Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
+            if ((authResult?.user) != nil) {
+                self.signOut()
+                complete(nil)
+            }
+            
+            if (error != nil) {
+                complete(error)
+            }
+        }
+    }
+
+    func signIn(email: String, password: String, complete: @escaping (Error?) -> Void) {
         Auth.auth().signIn(withEmail: email, password: password) { authResult, error in
             if let error = error {
-                print("Sign-in error: \(error.localizedDescription)")
-                completion(false, error)
-                return
+                return complete(error)
             }
             
             guard let user = authResult?.user else {
-                print("User is nil after sign-in")
-                let userError = NSError(domain: "AuthError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to sign in user"])
-                completion(false, userError)
-                return
+                return complete(self.userError)
             }
+
+            self.user = user
             
-            // 3. Get ID token and save it
-            user.getIDTokenForcingRefresh(true) { idToken, error in
-                if let error = error {
-                    print("ID token refresh error: \(error.localizedDescription)")
-                    completion(false, error)
-                    return
-                }
-                
-                guard let idToken = idToken else {
-                    print("ID token is nil")
-                    let idTokenError = NSError(domain: "AuthError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to retrieve ID token"])
-                    completion(false, idTokenError)
-                    return
-                }
-                
-                ///
-            }
+            self.nav = .logged
             
-            //UserDefaults.standard.set(idToken, forKey: "user_id_token")
-            completion(true, nil)
+            complete(nil)
         }
     }
 
@@ -91,37 +70,9 @@ class FirebaseAuthManager: ObservableObject {
         do {
             try Auth.auth().signOut()
             self.user = nil
-            self.isLoggedIn = false
             print("Sign out")
         } catch {
           print("Sign out error")
-        }
-    }
-    
-    func isValidEmail(_ email: String) -> Bool {
-        let emailRegEx = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
-        let emailPred = NSPredicate(format:"SELF MATCHES %@", emailRegEx)
-        return emailPred.evaluate(with: email)
-    }
-      
-    func isValidPassword(_ password: String) -> Bool {
-        let minPasswordLength = 6
-        return password.count >= minPasswordLength
-    }
-    
-    func fetchAppCheckToken() {
-        AppCheck.appCheck().token(forcingRefresh: true) { token, error in
-            if let error = error {
-                print("Error fetching AppCheck token: \(error.localizedDescription)")
-                return
-            }
-            
-            guard let token = token else {
-                print("AppCheck token is nil")
-                return
-            }
-            
-            print("Received AppCheck token: \(token.token)")
         }
     }
 }

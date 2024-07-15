@@ -9,9 +9,11 @@
 import Foundation
 
 import SwiftUI
+import FirebaseAuth
 
 struct ContentView: View {
     @StateObject var authManager = FirebaseAuthManager()
+    @StateObject var alertManager = AlertManager()
     
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.scenePhase) var scenePhase
@@ -19,7 +21,6 @@ struct ContentView: View {
     @StateObject var theme = Theme()
     
     var body: some View {
-
         ZStack {
             switch authManager.nav {
                 case .logged: NavigationStack { HomeView() }
@@ -29,16 +30,17 @@ struct ContentView: View {
         }
         .onAppear {
             theme.changeTheme(colorScheme)
-            authManager.stateChangeListener()
-            authManager.fetchAppCheckToken()
-        }
-        .onDisappear {
-            authManager.removeStateListener()
         }
         .onChange(of: colorScheme) { newScheme in
             theme.changeTheme(newScheme)
         }
+        .alert(alertManager.message, isPresented: $alertManager.presentAlert, actions: {
+            Button("Ok") {
+                alertManager.closeAlert()
+            }
+        })
         .environmentObject(authManager)
+        .environmentObject(alertManager)
         .environmentObject(theme)
     }
 }
