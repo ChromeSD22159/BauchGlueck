@@ -19,11 +19,22 @@ class FirebaseAuthManager: ObservableObject {
     
     @Published var nav: LoginNav = .login
 
+    @State var listener: AuthStateDidChangeListenerHandle? = nil
+    
     init() {
         self.user = Auth.auth().currentUser
-        Auth.auth().addStateDidChangeListener { (auth, user) in
+        stateChangeListener()
+    }
+    
+    func stateChangeListener() {
+        listener = Auth.auth().addStateDidChangeListener { (auth, user) in
             self.user = user
         }
+    }
+    
+    func removeStateListener() {
+        guard let listener = listener else { return }
+        Auth.auth().removeStateDidChangeListener(listener)
     }
 
     func signUp(email: String, password: String, completion: @escaping (User?, Error?) -> Void) {
@@ -38,31 +49,41 @@ class FirebaseAuthManager: ObservableObject {
         }
     }
 
-    func signIn(email: String, password: String) {
-        // 1. Fetch App Check token
-        AppCheck.appCheck().token(forcingRefresh: false) { token, error in
+    func signIn(email: String, password: String, completion: @escaping (Bool, Error?) -> Void) {
+        Auth.auth().signIn(withEmail: email, password: password) { authResult, error in
             if let error = error {
-                print(error.localizedDescription)
+                print("Sign-in error: \(error.localizedDescription)")
+                completion(false, error)
                 return
             }
             
-            guard let token = token else {
-                print(token ?? "")
+            guard let user = authResult?.user else {
+                print("User is nil after sign-in")
+                let userError = NSError(domain: "AuthError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to sign in user"])
+                completion(false, userError)
                 return
             }
             
-            Auth.auth().signIn(withEmail: email, password: password) { authResult, error in
+            // 3. Get ID token and save it
+            user.getIDTokenForcingRefresh(true) { idToken, error in
                 if let error = error {
-                    print(error.localizedDescription)
-                } else if let user = authResult?.user {
-                    user.getIDTokenForcingRefresh(true) { idToken, error in
-                        if let error = error {// Handle ID token refresh error
-                        } else if let idToken = idToken {
-                            UserDefaults.standard.set(idToken, forKey: "user_id_token")
-                        }
-                    }
+                    print("ID token refresh error: \(error.localizedDescription)")
+                    completion(false, error)
+                    return
                 }
+                
+                guard let idToken = idToken else {
+                    print("ID token is nil")
+                    let idTokenError = NSError(domain: "AuthError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to retrieve ID token"])
+                    completion(false, idTokenError)
+                    return
+                }
+                
+                ///
             }
+            
+            //UserDefaults.standard.set(idToken, forKey: "user_id_token")
+            completion(true, nil)
         }
     }
 
@@ -86,6 +107,22 @@ class FirebaseAuthManager: ObservableObject {
     func isValidPassword(_ password: String) -> Bool {
         let minPasswordLength = 6
         return password.count >= minPasswordLength
+    }
+    
+    func fetchAppCheckToken() {
+        AppCheck.appCheck().token(forcingRefresh: true) { token, error in
+            if let error = error {
+                print("Error fetching AppCheck token: \(error.localizedDescription)")
+                return
+            }
+            
+            guard let token = token else {
+                print("AppCheck token is nil")
+                return
+            }
+            
+            print("Received AppCheck token: \(token.token)")
+        }
     }
 }
 

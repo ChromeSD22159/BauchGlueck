@@ -14,8 +14,8 @@ class RegisterViewModel: ObservableObject {
     @Published var firstName: String = "Frederik"
     @Published var lastName: String = "Kohler"
     @Published var email: String = "info@frederikkohler.de"
-    @Published var password: String = "Frederik@Kohler"
-    @Published var passwordVerify: String = "Frederik@Kohler"
+    @Published var password: String = "Fr3d3rik@Kohler"
+    @Published var passwordVerify: String = "Fr3d3rik@Kohler"
     @Published var surgeryDate: Date = Date()
     @Published var profilePicture: String = ""
     
@@ -25,7 +25,6 @@ class RegisterViewModel: ObservableObject {
     private var authManager = FirebaseAuthManager()
     
     func signUp(complete: @escaping(Bool) -> Void) {
-        let res = false
         authManager.signUp(email: email, password: password, completion: { user , error in
             if (error == nil) {
                 complete(true)
@@ -35,7 +34,6 @@ class RegisterViewModel: ObservableObject {
                 
             }
         })
-        
     }
     
     func isUserLoggedIn() -> Bool {

@@ -109,7 +109,6 @@ struct RegisterView: View {
                         viewModel.signUp(complete: { res in
                             if res {
                                 authManager.nav = .logged
-                                
                             }
                         })
                     }) {

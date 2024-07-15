@@ -29,6 +29,8 @@ class LoginViewModel: ObservableObject {
             return
         }
         
-        FirebaseAuthManager().signIn(email: email, password: password)
+        FirebaseAuthManager().signIn(email: email, password: password, completion: {_,_ in 
+            
+        })
     }
 }

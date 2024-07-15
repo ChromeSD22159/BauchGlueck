@@ -14,6 +14,7 @@ struct ContentView: View {
     @StateObject var authManager = FirebaseAuthManager()
     
     @Environment(\.colorScheme) var colorScheme
+    @Environment(\.scenePhase) var scenePhase
     
     @StateObject var theme = Theme()
     
@@ -28,6 +29,11 @@ struct ContentView: View {
         }
         .onAppear {
             theme.changeTheme(colorScheme)
+            authManager.stateChangeListener()
+            authManager.fetchAppCheckToken()
+        }
+        .onDisappear {
+            authManager.removeStateListener()
         }
         .onChange(of: colorScheme) { newScheme in
             theme.changeTheme(newScheme)
