@@ -17,6 +17,36 @@ extension View {
     func textFieldClearButton(text: Binding<String>) -> some View {
         modifier(TextFieldClearButton(text: text))
     }
+    
+    func navigationBackButton(color: Color, icon: String? = nil, text: String? = nil) -> some View {
+       modifier(NavigationBackButton(color: color, text: text))
+   }
+}
+
+struct NavigationBackButton: ViewModifier {
+
+    @Environment(\.presentationMode) var presentationMode
+    var color: Color
+    var icon: String?
+    var text: String?
+
+    func body(content: Content) -> some View {
+        return content
+            .navigationBarBackButtonHidden(true)
+            .navigationBarItems( leading: 
+                HStack(spacing: 16) {
+                    Image(systemName: icon ?? "arrow.backward")
+                    .font(.body)
+                    if let text = text {
+                        Text(text)
+                            .font(.callout)
+                    }
+                }
+                .onTapGesture {
+                    presentationMode.wrappedValue.dismiss()
+                }
+            )
+    }
 }
 
 struct TextFieldClearButton: ViewModifier {
@@ -47,20 +77,28 @@ struct TextFieldClearButton: ViewModifier {
     }
 }
 
-#Preview("SheetLight") {
-    ZStack{
-        
+#Preview("BackButton") {
+    NavigationView {
+        NavigationLink {
+            HStack {
+                Text("Hallo")
+            }
+            .navigationBackButton(color: Theme().color(.textRegular), text: "Settings")
+        } label: {
+            HStack {
+                Text("Hallo")
+            }
+            .listRowBackground(Theme().color(.backgroundVariant))
+        }
+        .navigationTitle("⚙️ Settings")
+        .navigationBarTitleDisplayMode(.inline)
     }
-    .settingSheet(isSettingSheet: .constant(true), authManager: FirebaseAuthManager())
-    .environmentObject(Theme())
-    .preferredColorScheme(.dark)
 }
 
-#Preview("SheetDark") {
+#Preview("Sheet") {
     ZStack{
         
     }
     .settingSheet(isSettingSheet: .constant(true), authManager: FirebaseAuthManager())
     .environmentObject(Theme())
-    .preferredColorScheme(.light)
 }

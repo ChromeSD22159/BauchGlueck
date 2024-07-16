@@ -42,6 +42,7 @@ struct SettingSheet: ViewModifier {
                             Section {
                                 NavigationLink {
                                     ProfileEditView(viewModel: viewModel)
+                                        .navigationBackButton(color: theme.color(.textRegular), text: "Settings")
                                 } label: {
                                     RowItem(icon: "person.fill", text: "Profile")
                                         .listRowBackground(theme.color(.backgroundVariant))
@@ -203,72 +204,84 @@ struct ProfileEditView: View {
     var body: some View {
         Form {
             List {
-                Section {
-                    HStack(spacing: 20) {
-                        Image(uiImage: viewModel.authManager.userProfileImage)
-                                .resizable()
-                                .cornerRadius(50)
-                                .padding(.all, 4)
-                                .frame(width: 100, height: 100)
-                                .background(Color.black.opacity(0.2))
-                                .aspectRatio(contentMode: .fill)
-                                .clipShape(Circle())
-                                .padding(8)
-                        
-                        Button(action: {
-                            viewModel.showImageSheet.toggle()
-                        }, label: {
-                            Text("Change photo")
-                                    .font(.headline)
-                                    .frame(maxWidth: .infinity)
-                                    .frame(height: 50)
-                                    .background(Theme().gradient(.primary))
-                                    .cornerRadius(16)
-                                    .foregroundColor(.white)
-                        })
-                    }
-                    .sheet(isPresented: $viewModel.showImageSheet, onDismiss: loadImage) {
-                        ImagePicker(sourceType: .photoLibrary, selectedImage: $viewModel.authManager.userProfileImage)
-                    }
-                } header: {
-                    Text("Profile Image")
-                }
+                ChangeImage()
                 
-                Section {
-                    HStack(spacing: 20) {
-                        Text("Firstname:")
-                        Spacer()
-                        TextField("Firstname", text: viewModel.firstNameBinding)
-                            .textFieldClearButton(text: viewModel.firstNameBinding)
-                            .multilineTextAlignment(.leading)
-                    }
-                    
-                    HStack(spacing: 20) {
-                        Text("Lastname:")
-                        Spacer()
-                        TextField("Lastname", text: viewModel.lastNameBinding)
-                            .textFieldClearButton(text: viewModel.lastNameBinding)
-                    }
-                } header: {
-                    Text("Personal Data")
-                }
+                PersonalData()
                 
-                Section {
-                    Stepper("Main meal:  \(viewModel.mainMeals.wrappedValue)",
-                            value: viewModel.mainMeals,
-                            in: 3...10,
-                            step: 1)
-                    
-                    Stepper("Between meals:  \(viewModel.betweenMeals.wrappedValue)",
-                            value: viewModel.betweenMeals,
-                            in: 3...10,
-                            step: 1)
-                    
-                    Text("Total number of meals: \(viewModel.betweenMeals.wrappedValue + viewModel.mainMeals.wrappedValue)")
-                } header: {
-                    Text("Meals")
-                }
+                MealsData()
             }
+        }
+    }
+    
+    @ViewBuilder func ChangeImage() -> some View {
+        Section {
+            HStack(spacing: 20) {
+                Image(uiImage: viewModel.authManager.userProfileImage)
+                        .resizable()
+                        .cornerRadius(50)
+                        .padding(.all, 4)
+                        .frame(width: 100, height: 100)
+                        .background(Theme().gradient(.primary)) // Color.black.opacity(0.2)
+                        .aspectRatio(contentMode: .fill)
+                        .clipShape(Circle())
+                        .padding(8)
+                
+                Button(action: {
+                    viewModel.showImageSheet.toggle()
+                }, label: {
+                    Text("Change photo")
+                            .font(.headline)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 50)
+                            .background(Theme().gradient(.primary))
+                            .cornerRadius(16)
+                            .foregroundColor(.white)
+                })
+            }
+            .sheet(isPresented: $viewModel.showImageSheet, onDismiss: loadImage) {
+                ImagePicker(sourceType: .photoLibrary, selectedImage: $viewModel.authManager.userProfileImage)
+            }
+        } header: {
+            Text("Profile Image")
+        }
+    }
+    
+    @ViewBuilder func PersonalData() -> some View {
+        Section {
+            HStack(spacing: 20) {
+                Text("Firstname:")
+                Spacer()
+                TextField("Firstname", text: viewModel.firstNameBinding)
+                    .textFieldClearButton(text: viewModel.firstNameBinding)
+                    .multilineTextAlignment(.leading)
+            }
+            
+            HStack(spacing: 20) {
+                Text("Lastname:")
+                Spacer()
+                TextField("Lastname", text: viewModel.lastNameBinding)
+                    .textFieldClearButton(text: viewModel.lastNameBinding)
+            }
+        } header: {
+            Text("Personal Data")
+        }
+    }
+    
+    @ViewBuilder func MealsData() -> some View {
+        Section {
+            Stepper("Main meal:  \(viewModel.mainMeals.wrappedValue)",
+                    value: viewModel.mainMeals,
+                    in: 3...10,
+                    step: 1)
+            
+            Stepper("Between meals:  \(viewModel.betweenMeals.wrappedValue)",
+                    value: viewModel.betweenMeals,
+                    in: 3...10,
+                    step: 1)
+            
+            Text("Total number of meals: \(viewModel.betweenMeals.wrappedValue + viewModel.mainMeals.wrappedValue)")
+        } header: {
+            Text("Meals")
         }
     }
     
