@@ -13,7 +13,7 @@ import Firebase
 class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         
-        let providerFactory = YourSimpleAppCheckProviderFactory()
+        let providerFactory = MySimpleAppCheckProviderFactory()
         AppCheck.setAppCheckProviderFactory(providerFactory)
         
         FirebaseApp.configure()
@@ -22,11 +22,21 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     }
     
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-       Auth.auth().setAPNSToken(deviceToken, type: .unknown)
-     }
+        //Auth.auth().setAPNSToken(deviceToken, type: .unknown)
+        
+        Messaging.messaging().apnsToken = deviceToken
+        
+        let tokenParts = deviceToken.map { data in String(format: "%02.2hhx", data) }
+        let token = tokenParts.joined()
+        print("Device Token: \(token)")
+    }
+    
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        completionHandler([.banner, .sound])
+    }
 }
 
-class YourSimpleAppCheckProviderFactory: NSObject, AppCheckProviderFactory {
+class MySimpleAppCheckProviderFactory: NSObject, AppCheckProviderFactory {
   func createProvider(with app: FirebaseApp) -> AppCheckProvider? {
     return AppAttestProvider(app: app)
   }

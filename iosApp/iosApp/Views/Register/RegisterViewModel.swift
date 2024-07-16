@@ -25,22 +25,23 @@ class RegisterViewModel: ObservableObject {
     private var authManager = FirebaseAuthManager()
     
     func signUp(complete: @escaping (Error?) -> Void) {
-        authManager.signUp(email: email, password: password, complete: { error in
+        authManager.signUp(email: email, password: password, complete: { error, user in
             complete(error)
+            
+            if let loggedUser = user {
+                let profile = UserProfile(
+                    uid: loggedUser.uid,
+                    firstName: self.firstName,
+                    lastName: self.lastName,
+                    email: self.email,
+                    surgeryDate: self.surgeryDate,
+                    profileImageURL: nil
+                )
+                
+                self.authManager.userProfile = profile
+                
+                self.authManager.saveUserProfile()
+            }
         })
     }
-    
-    func isUserLoggedIn() -> Bool {
-      return Auth.auth().currentUser != nil
-    }
-    
-    private func validatePasswords() -> Bool {
-       guard password == passwordVerify else {
-           print("Passwords stimmen nicht überein")
-           return false
-       }
-
-       let passwordRegex = NSPredicate(format: "SELF MATCHES %@", "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[A-Za-z\\d]{8,}$")
-       return passwordRegex.evaluate(with: password)
-   }
 }

@@ -6,8 +6,10 @@ struct HomeView: View {
     @State private var searchText = ""
     @State private var content = ["A", "B", "C", "D", "E", "F", "G"]
     @State private var week: [Date] = []
+    @State var isSettingSheet = false
     
     @EnvironmentObject var theme: Theme
+    @EnvironmentObject var authManager: FirebaseAuthManager
     
     var body: some View {
         NavigationView {
@@ -31,19 +33,17 @@ struct HomeView: View {
                 .scrollIndicators(.never)
                 .padding(.horizontal, 16)
                 .navigationTitle("BauchGlück")
-                .navigationBarTitleDisplayMode(.large)
+                .navigationBarTitleDisplayMode(.automatic)
                 .searchable(text: $searchText)
                 .toolbar {
                     ToolbarItem(placement: .navigationBarTrailing) {
-                        RoundedHeaderButton(icon: "pencil") { }
-                    }
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        RoundedHeaderButton(icon: "iphone.and.arrow.forward") {
-                            FirebaseAuthManager().signOut()
+                        RoundedHeaderButton(icon: "pencil") { 
+                            isSettingSheet.toggle()
                         }
                     }
                 }
             }
+            .settingSheet(isSettingSheet: $isSettingSheet, authManager: authManager)
             
         }.onAppear {
             self.week = HomeView.getCurrentWeekDates()

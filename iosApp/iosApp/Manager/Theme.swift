@@ -78,6 +78,16 @@ class Theme: ObservableObject {
         )
     }
     
+    enum GradientType {
+        case primary
+    }
+    
+    func gradient(_ type: GradientType) -> LinearGradient { 
+        switch ( type) {
+            case (.primary): return gradient(array: [color(.primary), color(.primaryVariant)])
+        }
+    }
+    
     func changeTheme(_ colorScheme: ColorScheme) {
         scheme = colorScheme
     }

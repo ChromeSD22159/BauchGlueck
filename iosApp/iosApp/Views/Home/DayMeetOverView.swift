@@ -65,7 +65,7 @@ struct DayMeetOverView: View {
         .padding(.horizontal, theme.paddingHorizontal)
         .padding(.vertical,  theme.paddingVertical)
         .background(
-            theme.gradient(array: [theme.color(.primary), theme.color(.primaryVariant)])
+            theme.gradient(.primary)
         )
         .clipShape(
             .rect(

@@ -14,12 +14,13 @@ import FirebaseAuth
 struct ContentView: View {
     @StateObject var authManager = FirebaseAuthManager()
     @StateObject var alertManager = AlertManager()
+    var notificationManager = NotificationManager()
     
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.scenePhase) var scenePhase
     
     @StateObject var theme = Theme()
-    
+  
     var body: some View {
         ZStack {
             switch authManager.nav {
@@ -28,8 +29,10 @@ struct ContentView: View {
                 case .signUp: RegisterView()
             }
         }
+        
         .onAppear {
             theme.changeTheme(colorScheme)
+            notificationManager.requestPermisson()
         }
         .onChange(of: colorScheme) { newScheme in
             theme.changeTheme(newScheme)
