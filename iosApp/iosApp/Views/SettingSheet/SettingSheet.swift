@@ -10,10 +10,13 @@ import FirebaseFirestore
 import FirebaseAuth
 import Firebase
 import SwiftUI
+import StoreKit
 
 struct SettingSheet: ViewModifier {
     @EnvironmentObject var theme: Theme
     @EnvironmentObject var authManager: FirebaseAuthManager
+    @Environment(\.requestReview) var requestReview
+    
     var isSettingSheet: Binding<Bool>
     @StateObject var viewModel: SettingViewModel
     
@@ -56,7 +59,12 @@ struct SettingSheet: ViewModifier {
                             
                             Section{
                                 RowItem(icon: "envelope", text: "Support + Feedback", url: "https://www.instagram.com/frederik.code/")
-                                
+                                RowItem(icon: "star.fill", text: "Rate 5 stars", action: { requestReview() })
+                            } header: {
+                                Text("Support")
+                            }
+                            
+                            Section{
                                 RowItem(icon: "globe", text: "Instagram Entwicklers", url: "https://www.instagram.com/frederik.code/")
                            
                                 RowItem(icon: "globe", text: "Website des Entwicklers", url: "https://www.appsbyfrederikkohler.de")
@@ -107,6 +115,7 @@ struct RowItem: View {
     var type: RowItem.RowItemType
     var surgeryDateBinding: Binding<Date>?
     var action: () -> Void
+    var toggle: Binding<Bool>?
     
     @EnvironmentObject var theme: Theme
     
@@ -117,6 +126,7 @@ struct RowItem: View {
         self.url = nil
         self.type = RowItem.RowItemType.text
         self.action = {}
+        self.toggle = nil
     }
     
     init(icon: String? = nil, image: ImageResource? = nil, text: String, url: String) {
@@ -126,6 +136,7 @@ struct RowItem: View {
         self.url = url
         self.type = RowItem.RowItemType.link
         self.action = {}
+        self.toggle = nil
     }
     
     init(icon: String? = nil, image: ImageResource? = nil, text: String, surgeryDateBinding: Binding<Date>) {
@@ -135,6 +146,7 @@ struct RowItem: View {
         self.type = RowItem.RowItemType.datePicker
         self.surgeryDateBinding = surgeryDateBinding
         self.action = {}
+        self.toggle = nil
     }
     
     init(icon: String? = nil, image: ImageResource? = nil, text: String, action: @escaping () -> Void) {
@@ -143,10 +155,20 @@ struct RowItem: View {
         self.text = text
         self.type = RowItem.RowItemType.button
         self.action = action
+        self.toggle = nil
+    }
+    
+    init(icon: String? = nil, image: ImageResource? = nil, text: String, toggle: Binding<Bool>) {
+        self.icon = icon
+        self.image = image
+        self.text = text
+        self.type = RowItem.RowItemType.toggle
+        self.action = {}
+        self.toggle = toggle
     }
     
     enum RowItemType {
-        case text, link, datePicker, button
+        case text, link, datePicker, button, toggle
     }
     
     var body: some View {
@@ -165,6 +187,7 @@ struct RowItem: View {
                         DatePicker("Operiert seit:", selection: surgeryDateBinding , displayedComponents: .date)
                     }
                     case .button: Text(text).foregroundStyle(theme.color(.textComplimentary))
+                    case .toggle: Toggle(isOn: toggle ?? .constant(false), label: {}).labelsHidden()
                 }
             }
         }
@@ -269,17 +292,17 @@ struct ProfileEditView: View {
     
     @ViewBuilder func MealsData() -> some View {
         Section {
-            Stepper("Main meal:  \(viewModel.mainMeals.wrappedValue)",
-                    value: viewModel.mainMeals,
+            Stepper("Main meal:  \(viewModel.mainMealsBinding.wrappedValue)",
+                    value: viewModel.mainMealsBinding,
                     in: 3...10,
                     step: 1)
             
-            Stepper("Between meals:  \(viewModel.betweenMeals.wrappedValue)",
-                    value: viewModel.betweenMeals,
+            Stepper("Between meals:  \(viewModel.betweenMealsBinding.wrappedValue)",
+                    value: viewModel.betweenMealsBinding,
                     in: 3...10,
                     step: 1)
             
-            Text("Total number of meals: \(viewModel.betweenMeals.wrappedValue + viewModel.mainMeals.wrappedValue)")
+            Text("Total number of meals: \(viewModel.betweenMealsBinding.wrappedValue + viewModel.mainMealsBinding.wrappedValue)")
         } header: {
             Text("Meals")
         }

@@ -101,7 +101,7 @@ class SettingViewModel: ObservableObject {
         )
     }
     
-    var mainMeals: Binding<Int> {
+    var mainMealsBinding: Binding<Int> {
         Binding(
             get: { self.authManager.userProfile?.mainMeals ?? 3 },
             set: { newValue in
@@ -110,7 +110,7 @@ class SettingViewModel: ObservableObject {
         )
     }
     
-    var betweenMeals: Binding<Int> {
+    var betweenMealsBinding: Binding<Int> {
         Binding(
             get: { self.authManager.userProfile?.betweenMeals ?? 3 },
             set: { newValue in
