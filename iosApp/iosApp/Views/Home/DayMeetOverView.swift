@@ -100,7 +100,7 @@ struct DayMeetOverView: View {
     
     @ViewBuilder func footer(protein: Int, kcal: Int) -> some View {
         HStack {
-            Text("Gesamt:")
+            Text("In total:")
                 .font(.body)
                 .foregroundStyle(theme.color(.textRegular))
             

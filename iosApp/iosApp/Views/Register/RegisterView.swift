@@ -22,7 +22,7 @@ struct RegisterView: View {
             VStack(alignment: .center) {
                 Spacer()
                 
-                Text("hallo!")
+                Text("Hello!")
                     .font(.largeTitle)
                     .foregroundColor(theme.color(.textRegular))
                     .padding(.top, 20)
@@ -32,33 +32,32 @@ struct RegisterView: View {
                     .padding(.bottom, 20)
                 
                 VStack(alignment: .leading) {
-                    TextField("Firstname:", text: $viewModel.firstName)
+  
+                    TextField(text: $viewModel.firstName, label: { Text("Firstname:") })
+                        .foregroundStyle(theme.color(.textRegular))
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .padding(.vertical, 5)
+                    
+                    TextField(text: $viewModel.lastName, label: { Text("Lastname:") })
                         //.background(theme.color(.backgroundVariant))
                         .foregroundStyle(theme.color(.textRegular))
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .padding(.vertical, 5)
                     
-                    TextField("Lastname:", text: $viewModel.lastName)
-                        //.background(theme.color(.backgroundVariant))
-                        .foregroundStyle(theme.color(.textRegular))
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .padding(.vertical, 5)
-                    
-                    TextField("E-Mail:", text: $viewModel.email)
+                    TextField(text: $viewModel.email, label: { Text("E-Mail:") })
                         //.background(theme.color(.backgroundVariant))
                         .foregroundStyle(theme.color(.textRegular))
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .padding(.vertical, 5)
                         .keyboardType(.emailAddress)
                     
-                    DatePicker("Surgery Date:", selection: $viewModel.surgeryDate, displayedComponents: .date)
-                        //.background(theme.color(.backgroundVariant))
+                    DatePicker(selection: $viewModel.surgeryDate, displayedComponents: .date, label: { Text("Surgery Date:") })
                         .foregroundStyle(theme.color(.textRegular))
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .datePickerStyle(CompactDatePickerStyle())
                         .padding(.vertical, 5)
                     
-                    SecureField("Password:", text: $viewModel.password)
+                    SecureField(text: $viewModel.password, label: { Text("Password:") })
                         //.background(theme.color(.backgroundVariant))
                         .foregroundStyle(theme.color(.textRegular))
                         .textFieldStyle(RoundedBorderTextFieldStyle())
@@ -66,7 +65,7 @@ struct RegisterView: View {
                         .autocorrectionDisabled(true)
                         .textInputAutocapitalization(.never)
                     
-                    SecureField("Repeat password:", text: $viewModel.passwordVerify)
+                    SecureField(text: $viewModel.passwordVerify, label: { Text("Repeat password:") })
                         //.background(theme.color(.backgroundVariant))
                         .foregroundStyle(theme.color(.textRegular))
                         .textFieldStyle(RoundedBorderTextFieldStyle())

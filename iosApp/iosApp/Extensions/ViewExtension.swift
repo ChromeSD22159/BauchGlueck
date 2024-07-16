@@ -18,9 +18,23 @@ extension View {
         modifier(TextFieldClearButton(text: text))
     }
     
-    func navigationBackButton(color: Color, icon: String? = nil, text: String? = nil) -> some View {
+    func navigationBackButton(color: Color, icon: String? = nil, text: LocalizedStringKey? = nil) -> some View {
        modifier(NavigationBackButton(color: color, text: text))
    }
+}
+
+extension LocalizedStringKey {
+    var stringKey: String {
+        let mirror = Mirror(reflecting: self)
+        let key = mirror.children.first(where: { $0.label == "key" })?.value as? String
+        return key ?? ""
+    }
+}
+
+extension String {
+    var toLocalizedStringKey: LocalizedStringKey {
+        return LocalizedStringKey(self)
+    }
 }
 
 struct NavigationBackButton: ViewModifier {
@@ -28,7 +42,7 @@ struct NavigationBackButton: ViewModifier {
     @Environment(\.presentationMode) var presentationMode
     var color: Color
     var icon: String?
-    var text: String?
+    var text: LocalizedStringKey?
 
     func body(content: Content) -> some View {
         return content
@@ -81,12 +95,12 @@ struct TextFieldClearButton: ViewModifier {
     NavigationView {
         NavigationLink {
             HStack {
-                Text("Hallo")
+                Text("Hello")
             }
             .navigationBackButton(color: Theme().color(.textRegular), text: "Settings")
         } label: {
             HStack {
-                Text("Hallo")
+                Text("Hello")
             }
             .listRowBackground(Theme().color(.backgroundVariant))
         }

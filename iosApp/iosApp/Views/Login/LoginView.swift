@@ -32,7 +32,7 @@ struct LoginView: View {
                     .padding(.bottom, 20)
 
                 VStack(alignment: .leading) {
-                    TextField("E-Mail:", text: $viewModel.email)
+                    TextField(text: $viewModel.email, label: { Text("E-Mail:") })
                         .foregroundStyle(theme.color(.textRegular))
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .keyboardType(.emailAddress)
@@ -40,7 +40,7 @@ struct LoginView: View {
                         .padding(.vertical, 5)
 
                     // SecureField for password input
-                    SecureField("Password:", text: $viewModel.password)
+                    SecureField(text: $viewModel.password, label: { Text("Password:") })
                         .foregroundStyle(theme.color(.textRegular))
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .padding(.vertical, 5)

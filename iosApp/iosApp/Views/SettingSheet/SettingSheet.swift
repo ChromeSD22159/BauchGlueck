@@ -51,7 +51,7 @@ struct SettingSheet: ViewModifier {
                                         .listRowBackground(theme.color(.backgroundVariant))
                                 }
        
-                                RowItem(image: .stromach, text: "Operiert seit:", surgeryDateBinding: viewModel.surgeryDateBinding)
+                                RowItem(image: .stromach, text: "Bypass since:", surgeryDateBinding: viewModel.surgeryDateBinding)
                                 
                             } header: {
                                 Text("Profile")
@@ -65,15 +65,18 @@ struct SettingSheet: ViewModifier {
                             }
                             
                             Section{
-                                RowItem(icon: "globe", text: "Instagram Entwicklers", url: "https://www.instagram.com/frederik.code/")
+                                RowItem(icon: "globe", text: "Developer's Instagram", url: "https://www.instagram.com/frederik.code/")
                            
-                                RowItem(icon: "globe", text: "Website des Entwicklers", url: "https://www.appsbyfrederikkohler.de")
+                                RowItem(icon: "globe", text: "Developer's website", url: "https://www.appsbyfrederikkohler.de")
                                 
-                                RowItem(icon: "square.grid.2x2.fill", text: "Apps des Entwicklers", url: "https://apps.apple.com/at/developer/frederik-kohler/id1692240999")
+                                RowItem(icon: "square.grid.2x2.fill", text: "Developer's apps", url: "https://apps.apple.com/at/developer/frederik-kohler/id1692240999")
                                 
-                                RowItem(icon: "info.circle", text: "Version \(Bundle.main.infoDictionary!["CFBundleShortVersionString"] ?? "1.0")")
+                                let version = Bundle.main.infoDictionary!["CFBundleShortVersionString"] as! String
+                                let build = Bundle.main.infoDictionary?["CFBundleVersion"] as! String
+                                let string = "Version \(version) (Build Number: \(build))"
+                                RowItem(icon: "info.circle", text: string)
                             } header: {
-                                Text("Entwickler")
+                                Text("Developer")
                             }
                             
                             RowItem(icon: "iphone.and.arrow.forward", text: "Sign out", action: { viewModel.authManager.signOut() })
@@ -94,7 +97,7 @@ struct SettingSheet: ViewModifier {
                     .font(.largeTitle)
                 
                 VStack(alignment: .leading, spacing: 5) {
-                    Text("Unglaublich, wie die Zeit vergeht!")
+                    Text("Unbelieveable how the time goes by!")
                     Text(viewModel.timeSinceSurgery)
                 }
                 .font(.callout)

@@ -28,7 +28,7 @@ class SettingViewModel: ObservableObject {
         guard let surgeryDate = authManager.userProfile?.surgeryDate else { return "No surgery date" }
 
         if surgeryDate < Date() {
-            return calculateTimeSinceSurgery(surgeryDate: surgeryDate) + " seit deinem Neustart."
+            return "\(calculateTimeSinceSurgery(surgeryDate: surgeryDate)) since you restarted."
         } else {
             return calculateCountownSurgery(surgeryDate: surgeryDate)
         }
@@ -39,10 +39,10 @@ class SettingViewModel: ObservableObject {
         let hour = cal.component(.hour, from: Date())
         let user = (authManager.userProfile?.firstName ?? "") + " " + (authManager.userProfile?.lastName ?? "")
         switch hour {
-            case 2 ... 11 : return "Guten Morgen, \(user)"
-            case 11 ... 18 : return "Guten Tag, \(user)"
-            case 18 ... 22 : return "Guten Abend, \(user)"
-            default: return "Hallo, \(user)"
+            case 2 ... 11 : return "Good morning, \(user)"
+            case 11 ... 18 : return "Hello, \(user)"
+            case 18 ... 22 : return "Good evening, \(user)"
+            default: return "Hello, \(user)"
         }
     }
     
@@ -56,7 +56,7 @@ class SettingViewModel: ObservableObject {
         let months = components.month ?? 0
         let days = components.day ?? 0
         
-        return "\(years) Jahre, \(months) Monate, \(days) Tage"
+        return "\(years) years, \(months) months, \(days) days"
     }
     
     private func calculateCountownSurgery(surgeryDate: Date) -> String {
@@ -68,7 +68,7 @@ class SettingViewModel: ObservableObject {
         let months = abs(components.month ?? 0)
         let days = abs(components.day ?? 0)
         
-        return "Nur noch \(months) Monate, \(days) Tage"
+        return "Only \(months) months, \(days) days"
     }
     
     var firstNameBinding: Binding<String> {
