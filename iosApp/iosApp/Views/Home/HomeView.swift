@@ -6,10 +6,15 @@ struct HomeView: View {
     @State private var searchText = ""
     @State private var content = ["A", "B", "C", "D", "E", "F", "G"]
     @State private var week: [Date] = []
-    @State var isSettingSheet = false
     
+   
     @EnvironmentObject var theme: Theme
     @EnvironmentObject var authManager: FirebaseAuthManager
+    
+    
+    @State var isSettingSheet = false
+    @State var isAddRecipeSheet = false
+    @State var isAddWaterSheet = false
     
     var body: some View {
         NavigationView {
@@ -41,9 +46,83 @@ struct HomeView: View {
                             isSettingSheet.toggle()
                         }
                     }
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Menu(content: {
+                            Button {
+                                isAddRecipeSheet.toggle()
+                            } label: {
+                                Label("Add Recipe", systemImage: "fork.knife.circle.fill")
+                            }
+                            
+                            Button {
+                                isAddWaterSheet.toggle()
+                            } label: {
+                                Label("Add Water", systemImage: "waterbottle.fill")
+                            }
+                        }, label: {
+                            ZStack {
+                                theme.gradient(array: [theme.color(.primary), theme.color(.primaryVariant)])
+                                    .frame(width: 33, height: 33)
+                                    .clipShape(Circle())
+                                
+                                Image(systemName: "plus")
+                                    .font(Font.custom("SF Pro", size: 16))
+                                    .foregroundColor(.white)
+                                    .padding(8)
+                            }
+                        })
+                    }
+                   
                 }
             }
             .settingSheet(isSettingSheet: $isSettingSheet, authManager: authManager)
+            .fullScreenCover(isPresented: $isAddWaterSheet, onDismiss: {}, content: {
+                ZStack {
+                    theme.color(.backgroundVariant).ignoresSafeArea()
+                    VStack {
+                        HStack {
+                            Text("Add Water")
+                                .font(.title3)
+                            
+                            Spacer()
+                            
+                            Button {
+                                isAddWaterSheet.toggle()
+                            } label: {
+                                HStack {
+                                    Image(systemName: "xmark")
+                                    
+                                }.foregroundStyle(theme.color(.textRegular))
+                            }
+                        }.padding(16)
+                        
+                        Spacer()
+                    }
+                }
+            })
+            .fullScreenCover(isPresented: $isAddRecipeSheet, onDismiss: {}, content: {
+                ZStack {
+                    theme.color(.backgroundVariant).ignoresSafeArea()
+                    VStack {
+                        HStack {
+                            Text("Add your recipe")
+                                .font(.title3)
+                            
+                            Spacer()
+                            
+                            Button {
+                                isAddRecipeSheet.toggle()
+                            } label: {
+                                HStack {
+                                    Image(systemName: "xmark")
+                                }.foregroundStyle(theme.color(.textRegular))
+                            }
+                        }.padding(16)
+                        
+                        Spacer()
+                    }
+                }
+            })
             
         }.onAppear {
             self.week = HomeView.getCurrentWeekDates()

@@ -81,12 +81,6 @@ class FirebaseAuthManager: ObservableObject {
     func signUp(email: String, password: String, complete: @escaping (Error?, User?) -> Void ) {
         Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
             if ((authResult?.user) != nil) {
-                let data = password.data(using: .utf8)!
-                if KeyChainHelper.storeData(data: data, account: email) {
-                    print("Password Stored in KeyChain")
-                } else {
-                    print("Password not Stored in KeyChain")
-                }
                 complete(nil, authResult?.user)
             }
             
@@ -104,14 +98,6 @@ class FirebaseAuthManager: ObservableObject {
             
             guard let user = authResult?.user else {
                 return complete(self.userError)
-            }
-            
-            guard let mail = user.email else { return }
-            
-            if KeyChainHelper.storeData(data: password.data(using: .utf8)!, account: mail) {
-                print("Password Stored in KeyChain")
-            } else {
-                print("Password not Stored in KeyChain")
             }
 
             self.user = user
@@ -236,53 +222,6 @@ class FirebaseAuthManager: ObservableObject {
             )
             
             completion(userProfile)
-        }
-    }
-}
-
-import Security
-class KeyChainHelper {
-    static private let service = "de.frederikkohler.bauchglueck"
-    
-    enum KeychainError: Error {
-        case noPassword
-        case unexpectedPasswordData
-        case unhandledError(status: OSStatus) // Include the original OSStatus
-    }
-    
-    static func storeData(data: Data, account: String) -> Bool {
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: service,
-            kSecAttrAccount as String: account,
-            kSecValueData as String: data
-        ]
-        
-        let status = SecItemAdd(query as CFDictionary, nil)
-        return status == errSecSuccess
-    }
-    
-    static func receiveData(account: String) -> Result<Data, KeychainError> {
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: service,
-            kSecAttrAccount as String: account,
-            kSecReturnData as String: true,
-            kSecMatchLimit as String: kSecMatchLimitOne
-        ]
-        var item: CFTypeRef?
-        let status = SecItemCopyMatching(query as CFDictionary, &item)
-
-        if status == errSecSuccess, let data = item as? Data {
-            return .success(data)
-        } else {
-            if status == errSecItemNotFound {
-                return .failure(.noPassword)
-            } else if status == errSecSuccess, item == nil {
-                return .failure(.unexpectedPasswordData)
-            } else {
-                return .failure(.unhandledError(status: status))
-            }
         }
     }
 }
