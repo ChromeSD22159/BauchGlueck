@@ -78,7 +78,7 @@ struct HomeView: View {
             .settingSheet(isSettingSheet: $isSettingSheet, authManager: authManager)
             .fullScreenCover(isPresented: $isAddWaterSheet, onDismiss: {}, content: {
                 ZStack {
-                    theme.color(.backgroundVariant).ignoresSafeArea()
+                    backgroundImage()
                     VStack {
                         HStack {
                             Text("Add Water")
@@ -102,7 +102,7 @@ struct HomeView: View {
             })
             .fullScreenCover(isPresented: $isAddRecipeSheet, onDismiss: {}, content: {
                 ZStack {
-                    theme.color(.backgroundVariant).ignoresSafeArea()
+                    backgroundImage()
                     VStack {
                         HStack {
                             Text("Add your recipe")
@@ -130,8 +130,7 @@ struct HomeView: View {
     }
     
     
-    @ViewBuilder
-    func RoundedHeaderButton(icon: String, action: @escaping () -> Void) -> some View {
+    @ViewBuilder func RoundedHeaderButton(icon: String, action: @escaping () -> Void) -> some View {
         Button(action: { action() }) {
             ZStack {
                 theme.gradient(array: [theme.color(.primary), theme.color(.primaryVariant)])
@@ -145,6 +144,36 @@ struct HomeView: View {
                 
             }
         }
+    }
+    
+    @ViewBuilder func backgroundImage() -> some View {
+        VStack(alignment: .trailing) {
+            HStack(alignment: .top) {
+                Spacer()
+                ZStack(alignment: .topTrailing) {
+                    
+                    Image(.waveBehinde)
+                        .opacity(0.3)
+                        .frame(width: 266.15442, height: 283.81583, alignment: .topTrailing)
+                    
+                    Image(.waveAbove)
+                        .opacity(0.3)
+                        .frame(width: 266.15442, height: 283.81583, alignment: .topTrailing)
+
+                    Image(.logoTransparent)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 140, height: 140)
+                        .padding(.top, 80)
+                        .padding(.trailing, 30)
+                        .clipped()
+               }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .background(theme.color(.background))
+        .edgesIgnoringSafeArea(.all)
     }
     
     static func getCurrentWeekDates() -> [Date] {
