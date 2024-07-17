@@ -83,7 +83,9 @@ struct TextFieldClearButton: ViewModifier {
     func body(content: Content) -> some View {
         HStack {
             content
-
+                
+            Spacer()
+            
             Image(systemName: dynamicImage)
                 .foregroundColor(dynamicColor)
             

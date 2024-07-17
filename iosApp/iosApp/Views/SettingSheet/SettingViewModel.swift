@@ -23,54 +23,54 @@ class SettingViewModel: ObservableObject {
     func updateUserProfileUser() {
         authManager.saveUserProfile()
     }
-    
-    var timeSinceSurgery: String {
-        guard let surgeryDate = authManager.userProfile?.surgeryDate else { return "No surgery date" }
 
-        if surgeryDate < Date() {
-            return "\(calculateTimeSinceSurgery(surgeryDate: surgeryDate)) since you restarted."
-        } else {
-            return calculateCountownSurgery(surgeryDate: surgeryDate)
-        }
-    }
-    
-    var greeting: String {
+    var greeting: LocalizedStringKey {
         let cal = Calendar.current
         let hour = cal.component(.hour, from: Date())
-        let user = (authManager.userProfile?.firstName ?? "") + " " + (authManager.userProfile?.lastName ?? "")
+        let user = "\(authManager.userProfile?.firstName ?? "Unknown")!"
+        
+        let formattedString: String
+        
         switch hour {
-            case 2 ... 11 : return "Good morning, \(user)"
-            case 11 ... 18 : return "Hello, \(user)"
-            case 18 ... 22 : return "Good evening, \(user)"
-            default: return "Hello, \(user)"
+            case 2 ... 11 : formattedString = String(format: NSLocalizedString("Good morning, %@", comment: ""), user)
+            case 11 ... 18 : formattedString = String(format: NSLocalizedString("Hello, %@", comment: ""), user)
+            case 18 ... 22 : formattedString = String(format: NSLocalizedString("Good evening, %@", comment: ""), user)
+            default: formattedString = String(format: NSLocalizedString("Hello, %@", comment: ""), user)
         }
+        
+        return LocalizedStringKey(formattedString)
     }
     
-    private func calculateTimeSinceSurgery(surgeryDate: Date) -> String {
+    var timeSinceSurgery: LocalizedStringKey {
+        guard let surgeryDate = authManager.userProfile?.surgeryDate else { return "No surgery date" }
+
         let calendar = Calendar.current
         let today = Date()
         
         let components = calendar.dateComponents([.year, .month, .day], from: surgeryDate, to: today)
 
-        let years = components.year ?? 0
-        let months = components.month ?? 0
-        let days = components.day ?? 0
-        
-        return "\(years) years, \(months) months, \(days) days"
+        let years: Int = abs(components.year ?? 0)
+        let months: Int = abs(components.month ?? 0)
+        let days: Int = abs(components.day ?? 0)
+
+        if surgeryDate < today {
+            let formattedString = String(format: NSLocalizedString("%d years, %d months, %d days since you restarted.", comment: ""), years, months, days)
+            return LocalizedStringKey(formattedString)
+        } else {
+            let formattedString: String
+            
+            if years > 0 {
+                formattedString = String(format: NSLocalizedString("Only %d years, %d months, %d days until you restart.", comment: ""), years, months, days)
+            } else if months > 0 {
+                formattedString = String(format: NSLocalizedString("Only %d months, %d days until you restart.", comment: ""), months, days)
+            } else {
+                formattedString = String(format: NSLocalizedString("Only %d days until you restart.", comment: ""), days)
+            }
+            
+            return LocalizedStringKey(formattedString)
+        }
     }
-    
-    private func calculateCountownSurgery(surgeryDate: Date) -> String {
-        let calendar = Calendar.current
-        let today = Date()
-        
-        let components = calendar.dateComponents([.month, .day], from: surgeryDate, to: today)
-        
-        let months = abs(components.month ?? 0)
-        let days = abs(components.day ?? 0)
-        
-        return "Only \(months) months, \(days) days"
-    }
-    
+
     var firstNameBinding: Binding<String> {
         Binding(
             get: { self.authManager.userProfile?.firstName ?? "" },
@@ -118,4 +118,12 @@ class SettingViewModel: ObservableObject {
             }
         )
     }
+}
+
+
+
+extension String {
+    func translate(with values: [CVarArg]) -> String {
+           return String(format: NSLocalizedString(self, comment: ""), arguments: values)
+       }
 }

@@ -35,9 +35,6 @@ struct SettingSheet: ViewModifier {
                         theme.color(.backgroundVariant).ignoresSafeArea()
                         
                         List {
-                            Section{
-                                Text(viewModel.greeting)
-                            }
                             
                             TimeSinceSurgeryBadge()
                             
@@ -59,12 +56,13 @@ struct SettingSheet: ViewModifier {
                             
                             Section{
                                 RowItem(icon: "envelope", text: "Support + Feedback", url: "https://www.instagram.com/frederik.code/")
-                                RowItem(icon: "star.fill", text: "Rate 5 stars", action: { requestReview() })
+                                RowItem(icon: "star.fill", text: "Rate 5 stars", action: { requestReview() }, background: .regular)
+                                    .foregroundStyle(theme.color(.textRegular))
                             } header: {
                                 Text("Support")
                             }
                             
-                            Section{
+                            Section {
                                 RowItem(icon: "globe", text: "Developer's Instagram", url: "https://www.instagram.com/frederik.code/")
                            
                                 RowItem(icon: "globe", text: "Developer's website", url: "https://www.appsbyfrederikkohler.de")
@@ -74,14 +72,14 @@ struct SettingSheet: ViewModifier {
                                 let version = Bundle.main.infoDictionary!["CFBundleShortVersionString"] as! String
                                 let build = Bundle.main.infoDictionary?["CFBundleVersion"] as! String
                                 let string = "Version \(version) (Build Number: \(build))"
-                                RowItem(icon: "info.circle", text: string)
+                                RowItem(icon: "info.circle", text: LocalizedStringKey(string))
                             } header: {
                                 Text("Developer")
                             }
                             
-                            RowItem(icon: "iphone.and.arrow.forward", text: "Sign out", action: { viewModel.authManager.signOut() })
+                            RowItem(icon: "iphone.and.arrow.forward", text: "Sign out", action: { viewModel.authManager.signOut() }, background: .backgroundGradient)
                                 .listRowBackground(theme.gradient(.primary))
-                                .foregroundStyle(theme.color(.textComplimentary))
+                                
                         }
                     }
                     .navigationTitle("⚙️ Settings")
@@ -92,19 +90,26 @@ struct SettingSheet: ViewModifier {
     
     @ViewBuilder func TimeSinceSurgeryBadge() -> some View {
         Section {
-            HStack(alignment: .center, spacing: 10) {
-                Image(.stromach)
-                    .font(.largeTitle)
-                
-                VStack(alignment: .leading, spacing: 5) {
-                    Text("Unbelieveable how the time goes by!")
-                    Text(viewModel.timeSinceSurgery)
+            VStack {
+                HStack(alignment: .top, spacing: 10) {
+                    Image(.stromach)
+                        .font(.largeTitle)
+                    
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text(viewModel.greeting)
+                            .font(.title3)
+                            .fontWeight(.bold)
+                        
+                        Text("Unbelieveable how the time goes by!")
+                        Text(viewModel.timeSinceSurgery)
+                    }
+                    .font(.callout)
+                    .frame(maxWidth: .infinity)
                 }
-                .font(.callout)
+                .padding(.vertical, 10)
             }
-            .foregroundStyle(theme.color(.textComplimentary))
-            .padding(.vertical, 10)
         }
+        .foregroundStyle(theme.color(.textComplimentary))
         .listRowBackground(theme.gradient(.primary))
         
     }
@@ -113,16 +118,17 @@ struct SettingSheet: ViewModifier {
 struct RowItem: View {
     var icon: String?
     var image: ImageResource?
-    var text: String
+    var text: LocalizedStringKey
     var url: String?
     var type: RowItem.RowItemType
+    var fill: RowItem.RowItemFill
     var surgeryDateBinding: Binding<Date>?
     var action: () -> Void
     var toggle: Binding<Bool>?
     
     @EnvironmentObject var theme: Theme
     
-    init(icon: String? = "", image: ImageResource? = nil, text: String) {
+    init(icon: String? = "", image: ImageResource? = nil, text: LocalizedStringKey) {
         self.icon = icon
         self.text = text
         self.image = image
@@ -130,9 +136,10 @@ struct RowItem: View {
         self.type = RowItem.RowItemType.text
         self.action = {}
         self.toggle = nil
+        self.fill = .regular
     }
     
-    init(icon: String? = nil, image: ImageResource? = nil, text: String, url: String) {
+    init(icon: String? = nil, image: ImageResource? = nil, text: LocalizedStringKey, url: String) {
         self.icon = icon
         self.text = text
         self.image = image
@@ -140,9 +147,10 @@ struct RowItem: View {
         self.type = RowItem.RowItemType.link
         self.action = {}
         self.toggle = nil
+        self.fill = .regular
     }
     
-    init(icon: String? = nil, image: ImageResource? = nil, text: String, surgeryDateBinding: Binding<Date>) {
+    init(icon: String? = nil, image: ImageResource? = nil, text: LocalizedStringKey, surgeryDateBinding: Binding<Date>) {
         self.icon = icon
         self.image = image
         self.text = text
@@ -150,51 +158,56 @@ struct RowItem: View {
         self.surgeryDateBinding = surgeryDateBinding
         self.action = {}
         self.toggle = nil
+        self.fill = .regular
     }
     
-    init(icon: String? = nil, image: ImageResource? = nil, text: String, action: @escaping () -> Void) {
+    init(icon: String? = nil, image: ImageResource? = nil, text: LocalizedStringKey, action: @escaping () -> Void, background: RowItem.RowItemFill) {
         self.icon = icon
         self.image = image
         self.text = text
         self.type = RowItem.RowItemType.button
         self.action = action
         self.toggle = nil
+        self.fill = background
     }
     
-    init(icon: String? = nil, image: ImageResource? = nil, text: String, toggle: Binding<Bool>) {
+    init(icon: String? = nil, image: ImageResource? = nil, text: LocalizedStringKey, toggle: Binding<Bool>) {
         self.icon = icon
         self.image = image
         self.text = text
         self.type = RowItem.RowItemType.toggle
         self.action = {}
         self.toggle = toggle
+        self.fill = .regular
     }
     
     enum RowItemType {
         case text, link, datePicker, button, toggle
     }
     
+    enum RowItemFill {
+        case regular, backgroundGradient
+    }
+    
     var body: some View {
-        Button(action: action ) {
-            HStack {
-                if let icon = icon {
-                    BackgroundCircleIcon(icon: icon)
-                } else if let image = image {
-                    BackgroundCircleImage(image: image)
+        HStack {
+            if let icon = icon {
+                BackgroundCircleIcon(icon: icon)
+            } else if let image = image {
+                BackgroundCircleImage(image: image)
+            }
+           
+            switch type {
+                case .text: Text(text)
+                case .link: Link(text, destination: URL(string: url ?? "")!)
+                case .datePicker: if let surgeryDateBinding = surgeryDateBinding {
+                    DatePicker("Operiert seit:", selection: surgeryDateBinding , displayedComponents: .date)
                 }
-               
-                switch type {
-                    case .text: Text(text)
-                    case .link: Link(text, destination: URL(string: url ?? "")!)
-                    case .datePicker: if let surgeryDateBinding = surgeryDateBinding {
-                        DatePicker("Operiert seit:", selection: surgeryDateBinding , displayedComponents: .date)
-                    }
-                    case .button: Text(text).foregroundStyle(theme.color(.textComplimentary))
-                    case .toggle: Toggle(isOn: toggle ?? .constant(false), label: {}).labelsHidden()
-                }
+                case .button: Text(text).onTapGesture { action() }
+                case .toggle: Toggle(isOn: toggle ?? .constant(false), label: {}).labelsHidden()
             }
         }
-        .foregroundStyle(theme.color(.textRegular))
+        .foregroundStyle(fill == .regular ? theme.color(.textRegular) : theme.color(.textComplimentary))
         .font(.callout)
         .padding(.vertical, 5)
     }
@@ -240,17 +253,36 @@ struct ProfileEditView: View {
     }
     
     @ViewBuilder func ChangeImage() -> some View {
+        
+        
         Section {
             HStack(spacing: 20) {
-                Image(uiImage: viewModel.authManager.userProfileImage)
-                        .resizable()
-                        .cornerRadius(50)
-                        .padding(.all, 4)
-                        .frame(width: 100, height: 100)
-                        .background(Theme().gradient(.primary)) // Color.black.opacity(0.2)
-                        .aspectRatio(contentMode: .fill)
-                        .clipShape(Circle())
-                        .padding(8)
+
+                if viewModel.authManager.userProfileImage.size != .zero {
+                    Image(uiImage: viewModel.authManager.userProfileImage)
+                            .resizable()
+                            .cornerRadius(50)
+                            .padding(.all, 4)
+                            .frame(width: 100, height: 100)
+                            .background(Theme().gradient(.primary))
+                            .aspectRatio(contentMode: .fill)
+                            .clipShape(Circle())
+                            .padding(8)
+                } else {
+                    ZStack{
+                        Color(.opaqueSeparator)
+                        Text(viewModel.authManager.initials)
+                            .font(.largeTitle)
+                    }
+                    .cornerRadius(50)
+                    .padding(.all, 4)
+                    .frame(width: 100, height: 100)
+                    .background(Theme().gradient(.primary))
+                    .aspectRatio(contentMode: .fill)
+                    .clipShape(Circle())
+                    .padding(8)
+                }
+                
                 
                 Button(action: {
                     viewModel.showImageSheet.toggle()
@@ -273,39 +305,53 @@ struct ProfileEditView: View {
     }
     
     @ViewBuilder func PersonalData() -> some View {
+        
         Section {
             HStack(spacing: 20) {
                 Text("Firstname:")
-                Spacer()
-                TextField("Firstname", text: viewModel.firstNameBinding)
+                    .frame(width: .infinity, alignment: .leading)
+                
+                TextField("Max", text: viewModel.firstNameBinding)
                     .textFieldClearButton(text: viewModel.firstNameBinding)
-                    .multilineTextAlignment(.leading)
-            }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }.frame(maxWidth: .infinity)
             
             HStack(spacing: 20) {
                 Text("Lastname:")
-                Spacer()
-                TextField("Lastname", text: viewModel.lastNameBinding)
+                    .frame(width: .infinity, alignment: .leading)
+                
+                TextField("Mustermann", text: viewModel.lastNameBinding)
                     .textFieldClearButton(text: viewModel.lastNameBinding)
-            }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }.frame(maxWidth: .infinity)
         } header: {
             Text("Personal Data")
         }
+        
     }
     
     @ViewBuilder func MealsData() -> some View {
         Section {
-            Stepper("Main meal:  \(viewModel.mainMealsBinding.wrappedValue)",
-                    value: viewModel.mainMealsBinding,
-                    in: 3...10,
-                    step: 1)
             
-            Stepper("Between meals:  \(viewModel.betweenMealsBinding.wrappedValue)",
-                    value: viewModel.betweenMealsBinding,
-                    in: 3...10,
-                    step: 1)
+            Stepper(
+                value: viewModel.mainMealsBinding,
+                in: 3...10, 
+                step: 1, 
+                label: {
+                    Text(String(format: NSLocalizedString("Main meal: %d", comment: ""), viewModel.mainMealsBinding.wrappedValue))
+                }
+            )
             
-            Text("Total number of meals: \(viewModel.betweenMealsBinding.wrappedValue + viewModel.mainMealsBinding.wrappedValue)")
+            Stepper(
+                value: viewModel.betweenMealsBinding,
+                in: 3...10,
+                step: 1,
+                label: {
+                    Text(String(format: NSLocalizedString("Between meals: %d", comment: ""), viewModel.betweenMealsBinding.wrappedValue))
+                }
+            )
+            
+            Text(String(format: NSLocalizedString("Total number of meals: %d", comment: ""), viewModel.betweenMealsBinding.wrappedValue + viewModel.mainMealsBinding.wrappedValue))
         } header: {
             Text("Meals")
         }

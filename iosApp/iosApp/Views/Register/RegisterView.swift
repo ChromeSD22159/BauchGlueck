@@ -35,17 +35,17 @@ struct RegisterView: View {
   
                     TextField(text: $viewModel.firstName, label: { Text("Firstname:") })
                         .foregroundStyle(theme.color(.textRegular))
+                        .keyboardType(.alphabet)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .padding(.vertical, 5)
                     
                     TextField(text: $viewModel.lastName, label: { Text("Lastname:") })
-                        //.background(theme.color(.backgroundVariant))
+                        .keyboardType(.alphabet)
                         .foregroundStyle(theme.color(.textRegular))
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .padding(.vertical, 5)
                     
                     TextField(text: $viewModel.email, label: { Text("E-Mail:") })
-                        //.background(theme.color(.backgroundVariant))
                         .foregroundStyle(theme.color(.textRegular))
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .padding(.vertical, 5)
@@ -58,7 +58,6 @@ struct RegisterView: View {
                         .padding(.vertical, 5)
                     
                     SecureField(text: $viewModel.password, label: { Text("Password:") })
-                        //.background(theme.color(.backgroundVariant))
                         .foregroundStyle(theme.color(.textRegular))
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .padding(.vertical, 5)
@@ -66,7 +65,6 @@ struct RegisterView: View {
                         .textInputAutocapitalization(.never)
                     
                     SecureField(text: $viewModel.passwordVerify, label: { Text("Repeat password:") })
-                        //.background(theme.color(.backgroundVariant))
                         .foregroundStyle(theme.color(.textRegular))
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .padding(.vertical, 5)
@@ -83,9 +81,9 @@ struct RegisterView: View {
                         authManager.nav = .login
                     }, label: {
                         HStack {
-                            Text("Log in")
+                            Text("To the login")
                             
-                            Image(systemName: "person.crop.circle.fill")
+                            Image(systemName: "person.fill.checkmark")
                                
                         }
                         .padding(.horizontal, theme.paddingHorizontal)
@@ -115,7 +113,7 @@ struct RegisterView: View {
                         HStack {
                             Text("Sign up")
                             
-                            Image(systemName: "person.crop.circle.fill")
+                            Image(systemName: "person.crop.circle.fill.badge.plus")
                                
                         }
                         .padding(.horizontal, theme.paddingHorizontal)

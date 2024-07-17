@@ -22,6 +22,8 @@ class FirebaseAuthManager: ObservableObject {
     
     @Published var nav: LoginNav = .login
     
+    @Published var showSyn = false
+    
     let db = Firestore.firestore()
     let storage = Storage.storage()
     
@@ -30,9 +32,21 @@ class FirebaseAuthManager: ObservableObject {
         stateChangeListener()
     }
     
+    var initials: String {
+        guard
+            let firstName = userProfile?.firstName, !firstName.isEmpty,
+            let lastName = userProfile?.lastName, !lastName.isEmpty
+        else { return "" }
+
+        let firstInitial = String(firstName.prefix(1)).uppercased()
+        let lastInitial = String(lastName.prefix(1)).uppercased()
+        return firstInitial + lastInitial
+    }
+    
     let userError = NSError(domain: "AuthError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to sign in user"])
     
     func stateChangeListener() {
+        self.showSyn = true
         Auth.auth().addStateDidChangeListener { (auth, user) in
             if (user != nil) {
                 self.user = user
@@ -43,9 +57,11 @@ class FirebaseAuthManager: ObservableObject {
                         if let profileImageURL = user.profileImageURL {
                             self.downloadProfileImage(imageURL: profileImageURL, completion: { result in
                                 switch result {
-                                    case .success(let image): self.userProfileImage = image
+                                    case .success(let image):  self.userProfileImage = image
                                     case .failure(let error): print("Error downloading profile image: \(error.localizedDescription)")
                                 }
+                                
+                                self.showSyn = false
                             })
                         }
                         
@@ -65,6 +81,12 @@ class FirebaseAuthManager: ObservableObject {
     func signUp(email: String, password: String, complete: @escaping (Error?, User?) -> Void ) {
         Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
             if ((authResult?.user) != nil) {
+                let data = password.data(using: .utf8)!
+                if KeyChainHelper.storeData(data: data, account: email) {
+                    print("Password Stored in KeyChain")
+                } else {
+                    print("Password not Stored in KeyChain")
+                }
                 complete(nil, authResult?.user)
             }
             
@@ -82,6 +104,14 @@ class FirebaseAuthManager: ObservableObject {
             
             guard let user = authResult?.user else {
                 return complete(self.userError)
+            }
+            
+            guard let mail = user.email else { return }
+            
+            if KeyChainHelper.storeData(data: password.data(using: .utf8)!, account: mail) {
+                print("Password Stored in KeyChain")
+            } else {
+                print("Password not Stored in KeyChain")
             }
 
             self.user = user
@@ -206,6 +236,53 @@ class FirebaseAuthManager: ObservableObject {
             )
             
             completion(userProfile)
+        }
+    }
+}
+
+import Security
+class KeyChainHelper {
+    static private let service = "de.frederikkohler.bauchglueck"
+    
+    enum KeychainError: Error {
+        case noPassword
+        case unexpectedPasswordData
+        case unhandledError(status: OSStatus) // Include the original OSStatus
+    }
+    
+    static func storeData(data: Data, account: String) -> Bool {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service,
+            kSecAttrAccount as String: account,
+            kSecValueData as String: data
+        ]
+        
+        let status = SecItemAdd(query as CFDictionary, nil)
+        return status == errSecSuccess
+    }
+    
+    static func receiveData(account: String) -> Result<Data, KeychainError> {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service,
+            kSecAttrAccount as String: account,
+            kSecReturnData as String: true,
+            kSecMatchLimit as String: kSecMatchLimitOne
+        ]
+        var item: CFTypeRef?
+        let status = SecItemCopyMatching(query as CFDictionary, &item)
+
+        if status == errSecSuccess, let data = item as? Data {
+            return .success(data)
+        } else {
+            if status == errSecItemNotFound {
+                return .failure(.noPassword)
+            } else if status == errSecSuccess, item == nil {
+                return .failure(.unexpectedPasswordData)
+            } else {
+                return .failure(.unhandledError(status: status))
+            }
         }
     }
 }

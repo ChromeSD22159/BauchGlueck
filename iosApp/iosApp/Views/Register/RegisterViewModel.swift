@@ -11,11 +11,11 @@ import FirebaseAuth
 
 class RegisterViewModel: ObservableObject {
     
-    @Published var firstName: String = "Frederik"
-    @Published var lastName: String = "Kohler"
-    @Published var email: String = "info@frederikkohler.de"
-    @Published var password: String = "Fr3d3rik@Kohler"
-    @Published var passwordVerify: String = "Fr3d3rik@Kohler"
+    @Published var firstName: String = ""
+    @Published var lastName: String = ""
+    @Published var email: String = ""
+    @Published var password: String = ""
+    @Published var passwordVerify: String = ""
     @Published var surgeryDate: Date = Date()
     @Published var profilePicture: String = ""
     

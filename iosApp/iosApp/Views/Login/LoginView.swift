@@ -39,9 +39,9 @@ struct LoginView: View {
                         .textInputAutocapitalization(.never)
                         .padding(.vertical, 5)
 
-                    // SecureField for password input
                     SecureField(text: $viewModel.password, label: { Text("Password:") })
                         .foregroundStyle(theme.color(.textRegular))
+                        .keyboardType(.default)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .padding(.vertical, 5)
                 }
@@ -58,9 +58,9 @@ struct LoginView: View {
                         authManager.nav = .signUp
                     }, label: {
                         HStack {
-                            Text("Sign up")
+                            Text("To register")
                             
-                            Image(systemName: "person.crop.circle.fill")
+                            Image(systemName: "person.crop.circle.fill.badge.plus")
                                
                         }
                         .padding(.horizontal, theme.paddingHorizontal)
@@ -92,7 +92,7 @@ struct LoginView: View {
                         HStack {
                             Text("Log in")
                             
-                            Image(systemName: "person.crop.circle.fill")
+                            Image(systemName: "person.fill.checkmark")
                                
                         }
                         .padding(.horizontal, theme.paddingHorizontal)
@@ -160,4 +160,5 @@ struct LoginView: View {
         .environmentObject(Theme())
         .preferredColorScheme(.dark)
 }
+
 

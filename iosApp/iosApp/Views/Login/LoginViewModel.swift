@@ -11,8 +11,8 @@ import FirebaseAuth
 import SwiftUI
 
 class LoginViewModel: ObservableObject {
-    @Published var email = "info@frederikkohler.de"
-    @Published var password = "Fr3d3rik@Kohler"
+    @Published var email = ""
+    @Published var password = ""
     @Published var errorMessage = ""
 
     func login(complete: @escaping (Error?) -> Void) {
