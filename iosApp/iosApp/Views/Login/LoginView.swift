@@ -15,19 +15,16 @@ struct LoginView: View {
     @EnvironmentObject var theme: Theme
     @EnvironmentObject var alertManager: AlertManager
 
-    // Shared/Fonts/Kodchasan/kodchasan-bold.ttf
-    // Shared/Fonts/Kodchasan/kodchasan-bold.ttf
-    
     var body: some View {
         ZStack {
-            backgroundImage() // Reusing for branding consistency
+            BackgroundImage()
 
             VStack(alignment: .center) {
                 Spacer()
 
                 Text("Welcome Back!")
-                    .font(.custom("kodchasanBold", size: 32))
-                    .foregroundColor(theme.color(.textRegular))
+                    .font(.kodchasanBold(size: .largeTitle))
+                    .foregroundColor(theme.color(.secondary))
                     .padding(.top, 20)
 
                 Text("Log in to your account.") // Changed text
@@ -118,36 +115,6 @@ struct LoginView: View {
             .padding(.horizontal, theme.paddingHorizontal)
         }
     }
-
-    @ViewBuilder func backgroundImage() -> some View {
-        VStack(alignment: .trailing) {
-            HStack(alignment: .top) {
-                Spacer()
-                ZStack(alignment: .topTrailing) {
-                    
-                    Image(.waveBehinde)
-                        .opacity(0.3)
-                        .frame(width: 266.15442, height: 283.81583, alignment: .topTrailing)
-                    
-                    Image(.waveAbove)
-                        .opacity(0.3)
-                        .frame(width: 266.15442, height: 283.81583, alignment: .topTrailing)
-
-                    Image(.logoTransparent)
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 140, height: 140)
-                        .padding(.top, 80)
-                        .padding(.trailing, 30)
-                        .clipped()
-               }
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .background(theme.color(.background))
-        .edgesIgnoringSafeArea(.all)
-    }
 }
 
 #Preview("Light") {
@@ -159,16 +126,4 @@ struct LoginView: View {
     LoginView()
         .environmentObject(Theme())
         .preferredColorScheme(.dark)
-}
-
-
-// TODO: REFACTOR
-extension Font {
-    static func kodchasanBold(size: CGFloat) -> Font {
-        return .custom("kodchasanBold", size: size)
-    }
-
-    static func kodchasanRegular(size: CGFloat) -> Font {
-        return .custom("kodchasanRegular", size: size)
-    }
 }

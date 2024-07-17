@@ -46,6 +46,22 @@ struct ContentView: View {
         .environmentObject(alertManager)
         .environmentObject(theme)
     }
+    
+    init() {
+        printFonts(false)
+    }
+    
+    private func printFonts(_ bool: Bool) {
+        if bool {
+            for familyName in UIFont.familyNames {
+                print(familyName)
+                
+                for fontName in UIFont.fontNames(forFamilyName: familyName) {
+                    print("-- \(fontName)")
+                }
+            }
+        }
+    }
 }
 
 

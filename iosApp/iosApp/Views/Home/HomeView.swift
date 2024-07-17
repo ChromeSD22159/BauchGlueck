@@ -11,10 +11,11 @@ struct HomeView: View {
     @EnvironmentObject var theme: Theme
     @EnvironmentObject var authManager: FirebaseAuthManager
     
+    @StateObject var arvm: AddRecipeViewModel = AddRecipeViewModel()
+    @StateObject var awvm: AddWaterViewModel = AddWaterViewModel()
+    @StateObject var atvm: AddTimerViewModel = AddTimerViewModel()
     
     @State var isSettingSheet = false
-    @State var isAddRecipeSheet = false
-    @State var isAddWaterSheet = false
     
     var body: some View {
         NavigationView {
@@ -42,22 +43,28 @@ struct HomeView: View {
                 .searchable(text: $searchText)
                 .toolbar {
                     ToolbarItem(placement: .navigationBarTrailing) {
-                        RoundedHeaderButton(icon: "pencil") { 
+                        RoundedHeaderButton(icon: "gear") { 
                             isSettingSheet.toggle()
                         }
                     }
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Menu(content: {
                             Button {
-                                isAddRecipeSheet.toggle()
+                                arvm.isAddRecipeSheet.toggle()
                             } label: {
                                 Label("Add Recipe", systemImage: "fork.knife.circle.fill")
                             }
                             
                             Button {
-                                isAddWaterSheet.toggle()
+                                awvm.isAddWaterSheet.toggle()
                             } label: {
                                 Label("Add Water", systemImage: "waterbottle.fill")
+                            }
+                            
+                            Button {
+                                atvm.isAddTimerSheet.toggle()
+                            } label: {
+                                Label("Add Timer", systemImage: "timer.circle.fill")
                             }
                         }, label: {
                             ZStack {
@@ -76,52 +83,14 @@ struct HomeView: View {
                 }
             }
             .settingSheet(isSettingSheet: $isSettingSheet, authManager: authManager)
-            .fullScreenCover(isPresented: $isAddWaterSheet, onDismiss: {}, content: {
-                ZStack {
-                    backgroundImage()
-                    VStack {
-                        HStack {
-                            Text("Add Water")
-                                .font(.title3)
-                            
-                            Spacer()
-                            
-                            Button {
-                                isAddWaterSheet.toggle()
-                            } label: {
-                                HStack {
-                                    Image(systemName: "xmark")
-                                    
-                                }.foregroundStyle(theme.color(.textRegular))
-                            }
-                        }.padding(16)
-                        
-                        Spacer()
-                    }
-                }
+            .fullScreenCover(isPresented: $awvm.isAddWaterSheet, onDismiss: {}, content: {
+                AddWaterView(awvm: awvm)
             })
-            .fullScreenCover(isPresented: $isAddRecipeSheet, onDismiss: {}, content: {
-                ZStack {
-                    backgroundImage()
-                    VStack {
-                        HStack {
-                            Text("Add your recipe")
-                                .font(.title3)
-                            
-                            Spacer()
-                            
-                            Button {
-                                isAddRecipeSheet.toggle()
-                            } label: {
-                                HStack {
-                                    Image(systemName: "xmark")
-                                }.foregroundStyle(theme.color(.textRegular))
-                            }
-                        }.padding(16)
-                        
-                        Spacer()
-                    }
-                }
+            .fullScreenCover(isPresented: $arvm.isAddRecipeSheet, onDismiss: {}, content: {
+                AddRecipeView(arvm: arvm)
+            })
+            .fullScreenCover(isPresented: $atvm.isAddTimerSheet, onDismiss: {}, content: {
+                AddTimerView(atvm: atvm)
             })
             
         }.onAppear {
@@ -146,36 +115,6 @@ struct HomeView: View {
         }
     }
     
-    @ViewBuilder func backgroundImage() -> some View {
-        VStack(alignment: .trailing) {
-            HStack(alignment: .top) {
-                Spacer()
-                ZStack(alignment: .topTrailing) {
-                    
-                    Image(.waveBehinde)
-                        .opacity(0.3)
-                        .frame(width: 266.15442, height: 283.81583, alignment: .topTrailing)
-                    
-                    Image(.waveAbove)
-                        .opacity(0.3)
-                        .frame(width: 266.15442, height: 283.81583, alignment: .topTrailing)
-
-                    Image(.logoTransparent)
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 140, height: 140)
-                        .padding(.top, 80)
-                        .padding(.trailing, 30)
-                        .clipped()
-               }
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .background(theme.color(.background))
-        .edgesIgnoringSafeArea(.all)
-    }
-    
     static func getCurrentWeekDates() -> [Date] {
         let today = Date()
         if let weekDates = today.datesOfWeek() {
@@ -194,3 +133,5 @@ struct HomeView: View {
         .environmentObject(Theme())
         .preferredColorScheme(.dark)
 }
+
+

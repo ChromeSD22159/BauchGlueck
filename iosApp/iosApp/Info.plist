@@ -28,14 +28,11 @@
 	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
-    <key>UIAppFonts</key>
-    <array>
-
-        <string>Fonts/Kodchasan/KodchasanRegular.ttf</string>
-
-        <string>Fonts/Kodchasan/KodchasanBold.ttf</string>
-
-    </array>
+	<key>UIAppFonts</key>
+	<array>
+		<string>KodchasanBold.ttf</string>
+		<string>KodchasanRegular.ttf</string>
+	</array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

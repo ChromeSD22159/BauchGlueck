@@ -144,6 +144,32 @@ class FirebaseAuthManager: ObservableObject {
         }
     }
     
+    private func fetchUserProfile(completion: @escaping (UserProfile?) -> Void) {
+        guard let user = self.user else { return }
+        let userRef = db.collection("users").document(user.uid)
+
+        userRef.getDocument { (document, error) in
+            guard let document = document, document.exists, let data = document.data() else {
+                print("User profile not found or error fetching: \(error?.localizedDescription ?? "")")
+                completion(nil)
+                return
+            }
+
+            let userProfile = UserProfile(
+                uid: user.uid,
+                firstName: data["firstName"] as? String ?? "",
+                lastName: data["lastName"] as? String ?? "",
+                email: data["email"] as? String ?? "",
+                surgeryDate: (data["surgeryDate"] as? Timestamp)?.dateValue() ?? Date(),
+                mainMeals: data["mainMeals"] as? Int ?? 3,
+                betweenMeals: data["betweenMeals"] as? Int ?? 3,
+                profileImageURL: data["profileImageURL"] as? String
+            )
+            
+            completion(userProfile)
+        }
+    }
+    
     func uploadAndSaveProfileImage(uiImage: UIImage, completion: @escaping (Result<Void, Error>) -> Void) {
         guard let user = self.user else {
             completion(.failure(NSError(domain: "AuthError", code: -2, userInfo: [NSLocalizedDescriptionKey: "User not logged in"])))
@@ -199,29 +225,5 @@ class FirebaseAuthManager: ObservableObject {
         }
     }
     
-    private func fetchUserProfile(completion: @escaping (UserProfile?) -> Void) {
-        guard let user = self.user else { return }
-        let userRef = db.collection("users").document(user.uid)
-
-        userRef.getDocument { (document, error) in
-            guard let document = document, document.exists, let data = document.data() else {
-                print("User profile not found or error fetching: \(error?.localizedDescription ?? "")")
-                completion(nil)
-                return
-            }
-
-            let userProfile = UserProfile(
-                uid: user.uid,
-                firstName: data["firstName"] as? String ?? "",
-                lastName: data["lastName"] as? String ?? "",
-                email: data["email"] as? String ?? "",
-                surgeryDate: (data["surgeryDate"] as? Timestamp)?.dateValue() ?? Date(),
-                mainMeals: data["mainMeals"] as? Int ?? 3,
-                betweenMeals: data["betweenMeals"] as? Int ?? 3,
-                profileImageURL: data["profileImageURL"] as? String
-            )
-            
-            completion(userProfile)
-        }
-    }
+    
 }
