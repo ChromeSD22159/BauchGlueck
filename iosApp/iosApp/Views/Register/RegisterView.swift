@@ -23,7 +23,7 @@ struct RegisterView: View {
                 Spacer()
                 
                 Text("Hello!")
-                    .font(.largeTitle)
+                    .font(.custom("kodchasanBold", size: 32))
                     .foregroundColor(theme.color(.textRegular))
                     .padding(.top, 20)
                 
@@ -88,9 +88,6 @@ struct RegisterView: View {
                         }
                         .padding(.horizontal, theme.paddingHorizontal)
                         .padding(.vertical,  theme.paddingVertical)
-                        .background(
-                            theme.gradient(array: [theme.color(.primary), theme.color(.primaryVariant)])
-                        )
                         .foregroundColor(.white)
                         .clipShape(
                             .rect(

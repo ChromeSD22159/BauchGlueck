@@ -15,6 +15,9 @@ struct LoginView: View {
     @EnvironmentObject var theme: Theme
     @EnvironmentObject var alertManager: AlertManager
 
+    // Shared/Fonts/Kodchasan/kodchasan-bold.ttf
+    // Shared/Fonts/Kodchasan/kodchasan-bold.ttf
+    
     var body: some View {
         ZStack {
             backgroundImage() // Reusing for branding consistency
@@ -22,8 +25,8 @@ struct LoginView: View {
             VStack(alignment: .center) {
                 Spacer()
 
-                Text("Welcome Back!") // Changed text
-                    .font(.largeTitle)
+                Text("Welcome Back!")
+                    .font(.custom("kodchasanBold", size: 32))
                     .foregroundColor(theme.color(.textRegular))
                     .padding(.top, 20)
 
@@ -65,9 +68,6 @@ struct LoginView: View {
                         }
                         .padding(.horizontal, theme.paddingHorizontal)
                         .padding(.vertical,  theme.paddingVertical)
-                        .background(
-                            theme.gradient(array: [theme.color(.primary), theme.color(.primaryVariant)])
-                        )
                         .foregroundColor(.white)
                         .clipShape(
                             .rect(
@@ -162,3 +162,13 @@ struct LoginView: View {
 }
 
 
+// TODO: REFACTOR
+extension Font {
+    static func kodchasanBold(size: CGFloat) -> Font {
+        return .custom("kodchasanBold", size: size)
+    }
+
+    static func kodchasanRegular(size: CGFloat) -> Font {
+        return .custom("kodchasanRegular", size: size)
+    }
+}
