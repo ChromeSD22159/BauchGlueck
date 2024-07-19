@@ -14,13 +14,15 @@ import FirebaseAuth
 struct ContentView: View {
     @StateObject var authManager = FirebaseAuthManager()
     @StateObject var alertManager = AlertManager()
+    
     var notificationManager = NotificationManager()
     
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.scenePhase) var scenePhase
     
     @StateObject var theme = Theme()
-  
+    @StateObject var timerManager = FirestoreTimerManager()
+    
     var body: some View {
         ZStack {
             switch authManager.nav {
@@ -29,10 +31,16 @@ struct ContentView: View {
                 case .signUp: RegisterView()
             }
         }
-        
         .onAppear {
             theme.changeTheme(colorScheme)
             notificationManager.requestPermisson()
+            
+            Task {
+                if let user = authManager.user {
+                    //FirestoreTimerManager.shared.initialize(userId: user.uid, loadLokal: true)
+                    timerManager.initialize(userId: user.uid, loadLokal: false)
+                }
+            }
         }
         .onChange(of: colorScheme) { newScheme in
             theme.changeTheme(newScheme)
@@ -45,6 +53,7 @@ struct ContentView: View {
         .environmentObject(authManager)
         .environmentObject(alertManager)
         .environmentObject(theme)
+        .environmentObject(timerManager)
     }
     
     init() {

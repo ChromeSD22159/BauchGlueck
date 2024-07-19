@@ -2,15 +2,9 @@ import SwiftUI
 import Shared
 
 struct HomeView: View {
-    @State private var showContent = false
-    @State private var searchText = ""
-    @State private var content = ["A", "B", "C", "D", "E", "F", "G"]
-    @State private var week: [Date] = []
-    
    
     @EnvironmentObject var theme: Theme
     @EnvironmentObject var authManager: FirebaseAuthManager
-    
     @StateObject var arvm: AddRecipeViewModel = AddRecipeViewModel()
     @StateObject var awvm: AddWaterViewModel = AddWaterViewModel()
     @StateObject var atvm: AddTimerViewModel = AddTimerViewModel()
@@ -19,20 +13,37 @@ struct HomeView: View {
     
     var body: some View {
         NavigationView {
-            
             ZStack {
-                theme.color(.background).ignoresSafeArea()
+                theme.color(.backgroundVariant).ignoresSafeArea()
                 
                 ScrollView{
                     VStack(alignment: .leading, spacing: 16) {
-                        ForEach(week, id: \.self) { date in
-                            DayMeetOverView(
-                                date: date,
-                                mealList: [
-                                    PlannedMeal(recipe: "Spaghetti", protein: 20, kcal: 5),
-                                    PlannedMeal(recipe: "Brot", protein: 20, kcal: 5)
-                                ]
-                            )
+                        NavigationLink{
+                            EmptyView()
+                                .navigationBackButton(color: theme.color(.textRegular), text: "Home")
+                        } label: {
+                            LinkCard(name: "Mahlzeiten", explicitColor: Theme().color(.primary))
+                        }
+                        
+                        NavigationLink{
+                            EmptyView()
+                                .navigationBackButton(color: theme.color(.textRegular), text: "Home")
+                        } label: {
+                            LinkCard(name: "Medikation", explicitColor: Theme().color(.primaryVariant))
+                        }
+                        
+                        NavigationLink{
+                            TimerOverView()
+                                .navigationBackButton(color: theme.color(.textRegular), text: "Home")
+                        } label: {
+                            LinkCard(name: "Timer", explicitColor: Theme().color(.secondary))
+                        }
+                        
+                        NavigationLink{
+                            EmptyView()
+                                .navigationBackButton(color: theme.color(.textRegular), text: "Home")
+                        } label: {
+                            LinkCard(name: "Einkaufsliste", explicitColor: Theme().color(.secondaryVariant))
                         }
                     }
                 }
@@ -40,46 +51,16 @@ struct HomeView: View {
                 .padding(.horizontal, 16)
                 .navigationTitle("BauchGlück")
                 .navigationBarTitleDisplayMode(.automatic)
-                .searchable(text: $searchText)
                 .toolbar {
                     ToolbarItem(placement: .navigationBarTrailing) {
-                        RoundedHeaderButton(icon: "gear") { 
-                            isSettingSheet.toggle()
+                        HStack {
+                            RoundedHeaderButton(icon: "gear") {
+                                isSettingSheet.toggle()
+                            }
+                            
+                            ContextMenu()
                         }
                     }
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Menu(content: {
-                            Button {
-                                arvm.isAddRecipeSheet.toggle()
-                            } label: {
-                                Label("Add Recipe", systemImage: "fork.knife.circle.fill")
-                            }
-                            
-                            Button {
-                                awvm.isAddWaterSheet.toggle()
-                            } label: {
-                                Label("Add Water", systemImage: "waterbottle.fill")
-                            }
-                            
-                            Button {
-                                atvm.isAddTimerSheet.toggle()
-                            } label: {
-                                Label("Add Timer", systemImage: "timer.circle.fill")
-                            }
-                        }, label: {
-                            ZStack {
-                                theme.gradient(array: [theme.color(.primary), theme.color(.primaryVariant)])
-                                    .frame(width: 33, height: 33)
-                                    .clipShape(Circle())
-                                
-                                Image(systemName: "plus")
-                                    .font(Font.custom("SF Pro", size: 16))
-                                    .foregroundColor(.white)
-                                    .padding(8)
-                            }
-                        })
-                    }
-                   
                 }
             }
             .settingSheet(isSettingSheet: $isSettingSheet, authManager: authManager)
@@ -93,8 +74,6 @@ struct HomeView: View {
                 AddTimerView(atvm: atvm)
             })
             
-        }.onAppear {
-            self.week = HomeView.getCurrentWeekDates()
         }
     }
     
@@ -113,6 +92,39 @@ struct HomeView: View {
                 
             }
         }
+    }
+    
+    @ViewBuilder func ContextMenu() -> some View {
+        Menu(content: {
+            Button {
+                arvm.isAddRecipeSheet.toggle()
+            } label: {
+                Label("Add Recipe", systemImage: "fork.knife.circle.fill")
+            }
+            
+            Button {
+                awvm.isAddWaterSheet.toggle()
+            } label: {
+                Label("Add Water", systemImage: "waterbottle.fill")
+            }
+            
+            Button {
+                atvm.isAddTimerSheet.toggle()
+            } label: {
+                Label("Add Timer", systemImage: "timer.circle.fill")
+            }
+        }, label: {
+            ZStack {
+                theme.gradient(array: [theme.color(.primary), theme.color(.primaryVariant)])
+                    .frame(width: 33, height: 33)
+                    .clipShape(Circle())
+                
+                Image(systemName: "plus")
+                    .font(Font.custom("SF Pro", size: 16))
+                    .foregroundColor(.white)
+                    .padding(8)
+            }
+        })
     }
     
     static func getCurrentWeekDates() -> [Date] {

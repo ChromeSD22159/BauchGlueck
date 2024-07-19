@@ -1,19 +1,20 @@
 //
-//  AddTimerView.swift
+//  EditTimerView.swift
 //  BauchGlück
 //
-//  Created by Frederik Kohler on 17.07.24.
+//  Created by Frederik Kohler on 19.07.24.
 //  Copyright © 2024 orgName. All rights reserved.
 //
 
 import Foundation
 import SwiftUI
 
-struct AddTimerView: View {
+struct EditTimerView: View {
     @EnvironmentObject var theme: Theme
-    @EnvironmentObject var authManager: FirebaseAuthManager
-    @ObservedObject var atvm: AddTimerViewModel
+    @ObservedObject var vm: EditTimerViewModel = EditTimerViewModel.shared
+    @EnvironmentObject var firestoreTimerManager: FirestoreTimerManager
     @State private var shouldSaveTimer = false
+    var countdown: CountDownTimer
     
     var body: some View {
         ZStack {
@@ -24,15 +25,15 @@ struct AddTimerView: View {
                 
                 List {
                     Section {
-                        Text("Anzahl Timer: \(FirestoreTimerManager.shared.timerList.count)")
+                        Text("Anzahl Timer: \(firestoreTimerManager.timerList.count)")
                             .foregroundStyle(theme.color(.primary))
                             .font(.kodchasanBold(size: .title))
                     }
                     .listRowBackground(theme.color(.backgroundVariant).opacity(0.9))
                     .listRowSeparator(.hidden)
                     
-                    Picker("", selection: atvm.timerTypeBinding) {
-                        ForEach(atvm.pickerChoose, id: \.rawValue) { choose in
+                    Picker("", selection: vm.timerTypeBinding) {
+                        ForEach(vm.pickerChoose, id: \.rawValue) { choose in
                             Text(choose.rawValue).tag(choose.rawValue)
                         }
                     }
@@ -42,8 +43,8 @@ struct AddTimerView: View {
                     .listRowSeparator(.hidden)
                     
                     Section {
-                        TextField(text: atvm.timerNameBinding, label: { Text("Timer Name:") })
-                            .textFieldClearButton(text: atvm.timerNameBinding)
+                        TextField(text: vm.timerNameBinding, label: { Text("Timer Name:") })
+                            .textFieldClearButton(text: vm.timerNameBinding)
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }
                     .listRowBackground(theme.color(.backgroundVariant).opacity(0.9))
@@ -51,8 +52,8 @@ struct AddTimerView: View {
                     
                     Section {
                         Stepper(
-                            "\(atvm.timerDurationBinding.wrappedValue / 60) minute timer",
-                            value: atvm.timerDurationBinding,
+                            "\(vm.timerDurationBinding.wrappedValue / 60) minute timer",
+                            value: vm.timerDurationBinding,
                             in: (5 * 60)...(60 * 60),
                             step: (5 * 60)
                         )
@@ -63,7 +64,8 @@ struct AddTimerView: View {
                     Section{
                         HStack(spacing: 20){
                             Button {
-                                atvm.isAddTimerSheet = false
+                                vm.resetTimer()
+                                vm.isEditTimerSheet = false
                             } label: {
                                 HStack {
                                     Spacer()
@@ -77,29 +79,29 @@ struct AddTimerView: View {
                                     shouldSaveTimer = true
                                     
                                     withAnimation(.linear(duration: 0.250)) {
-                                        atvm.isSyncAnimation = true
+                                        vm.isSyncAnimation = true
                                     }
                                     
                                     DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
                                         withAnimation(.linear(duration: 0.250)) {
-                                            atvm.isSyncAnimation = false
+                                            vm.isSyncAnimation = false
                                         }
                                     }
                                     
                                     DispatchQueue.main.asyncAfter(deadline: .now() + 2.25) {
                                         withAnimation(.linear(duration: 0.250)) {
-                                            atvm.isSyncDoneAnimation = true
+                                            vm.isSyncDoneAnimation = true
                                         }
                                     }
                                     
                                     DispatchQueue.main.asyncAfter(deadline: .now() + 3.75) {
                                         withAnimation(.linear(duration: 0.250)) {
-                                            atvm.isSyncDoneAnimation = false
+                                            vm.isSyncDoneAnimation = false
                                         }
                                     }
                                     
                                     if shouldSaveTimer {
-                                        atvm.saveTimer(complete: { timer, bool in
+                                        vm.saveTimer(complete: { timer, bool in
                                             if let timer = timer {
                                                 FirestoreTimerManager.shared.timerList.append(timer)
                                             }
@@ -108,7 +110,7 @@ struct AddTimerView: View {
                                     }
                                     
                                     DispatchQueue.main.asyncAfter(deadline: .now() + 6.25) {
-                                        atvm.isAddTimerSheet = false
+                                        vm.isEditTimerSheet = false
                                     }
                                 }
                             } label: {
@@ -132,12 +134,12 @@ struct AddTimerView: View {
                             ZStack {
                                 Text("Saved!")
                                     .foregroundStyle(theme.color(.secondaryVariant))
-                                    .opacity(atvm.isSyncDoneAnimation ? 1 : 0)
+                                    .opacity(vm.isSyncDoneAnimation ? 1 : 0)
                                 
                                 ProgressView()
                                     .progressViewStyle(CircularProgressViewStyle(tint: theme.color(.secondaryVariant)))
                                      .scaleEffect(2.0, anchor: .center)
-                                     .opacity(atvm.isSyncAnimation ? 1 : 0)
+                                     .opacity(vm.isSyncAnimation ? 1 : 0)
                             
                             }
                            
@@ -153,15 +155,14 @@ struct AddTimerView: View {
             }
         }
         .onAppear(perform: {
-            if let user = authManager.user {
-                atvm.initTimer(user: user)
-            }
+            vm.selectedCountdown = countdown
+            vm.selectedCountdownCopy = countdown
         })
     }
     
     @ViewBuilder func Header() -> some View {
         HStack {
-            Text("Add Timer")
+            Text("Edit Timer")
                 .foregroundStyle(theme.color(.primary))
                 .font(.kodchasanBold(size: .title))
                 
@@ -169,7 +170,7 @@ struct AddTimerView: View {
             Spacer()
             
             Button {
-                atvm.isAddTimerSheet.toggle()
+                vm.isEditTimerSheet.toggle()
             } label: {
                 HStack {
                     Image(systemName: "xmark")
@@ -180,11 +181,4 @@ struct AddTimerView: View {
         .foregroundStyle(theme.color(.textRegular))
         .padding(32)
     }
-}
-
-#Preview {
-    AddTimerView(atvm: AddTimerViewModel())
-     .environmentObject(Theme())
-     .environmentObject(FirebaseAuthManager())
-     .preferredColorScheme(.dark)
 }
