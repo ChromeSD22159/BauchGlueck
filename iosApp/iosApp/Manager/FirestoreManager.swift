@@ -15,7 +15,7 @@ class FirestoreTimerManager: ObservableObject {
 
     private let db = Firestore.firestore()
     
-    @Published var timerList: [CountDownTimer] = []
+    @Published var timerList: [CountdownTimer] = []
 
     func initialize(userId: String, loadLokal: Bool) {
         guard let userId = Auth.auth().currentUser?.uid else { return } // Get current user
@@ -37,7 +37,7 @@ class FirestoreTimerManager: ObservableObject {
                     print("Error fetching timers: \(error?.localizedDescription ?? "Unknown error")")
                     return
                 }
-                self?.timerList = documents.compactMap { try? $0.data(as: CountDownTimer.self) }
+                self?.timerList = documents.compactMap { try? $0.data(as: CountdownTimer.self) }
                 print("initialized \(self?.timerList.count ?? -1)")
             }
     }
@@ -52,7 +52,7 @@ class FirestoreTimerManager: ObservableObject {
                     print("Error fetching timers: \(error?.localizedDescription ?? "Unknown error")")
                     return
                 }
-                self?.timerList = documents.compactMap { try? $0.data(as: CountDownTimer.self) }
+                self?.timerList = documents.compactMap { try? $0.data(as: CountdownTimer.self) }
                 
                 print("synronized \(self?.timerList.count ?? -1)")
             }
@@ -68,11 +68,11 @@ class FirestoreTimerManager: ObservableObject {
                     print("Error fetching timers: \(error?.localizedDescription ?? "Unknown error")")
                     return
                 }
-                self?.timerList = documents.compactMap { try? $0.data(as: CountDownTimer.self) }
+                self?.timerList = documents.compactMap { try? $0.data(as: CountdownTimer.self) }
             }
     }
 
-    func saveTimer(countdown: CountDownTimer, complete: @escaping (CountDownTimer?, Bool) -> Void) {
+    func saveTimer(countdown: CountdownTimer, complete: @escaping (CountdownTimer?, Bool) -> Void) {
         do {
             guard let userId = Auth.auth().currentUser?.uid else { return }
             var updatedCountdown = countdown
@@ -85,7 +85,7 @@ class FirestoreTimerManager: ObservableObject {
         }
     }
 
-    func editTimer(countdown: CountDownTimer) {
+    func editTimer(countdown: CountdownTimer) {
         guard let userId = Auth.auth().currentUser?.uid else {
             print("No authenticated user")
             return
@@ -113,7 +113,7 @@ class FirestoreTimerManager: ObservableObject {
         }
     }
     
-    func deleteTimer(countdown: CountDownTimer) {
+    func deleteTimer(countdown: CountdownTimer) {
         Firestore.firestore().collection("timers").document(countdown.id).delete { error in
             if let error = error {
                 print("Error deleting timer: \(error.localizedDescription)")

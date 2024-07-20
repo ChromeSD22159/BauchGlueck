@@ -8,15 +8,14 @@
 
 import Foundation
 
-/*
-struct CountDownTimer: Identifiable, Codable {
-    var id: String = UUID().uuidString
+struct CountdownTimer: Identifiable, Codable {
+    var id: String
     var userId: String
     var name: String
-    var timerType: String
     var duration: Int
     var startDate: Date?
+    var endDate: Date?
     var timerState: String
-    var remainingDuration: Int?
+    var timerType: String
+    var remainingDuration: Int
 }
-*/

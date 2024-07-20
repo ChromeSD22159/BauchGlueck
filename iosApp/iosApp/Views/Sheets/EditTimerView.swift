@@ -14,7 +14,7 @@ struct EditTimerView: View {
     @ObservedObject var vm: EditTimerViewModel = EditTimerViewModel.shared
     @EnvironmentObject var firestoreTimerManager: FirestoreTimerManager
     @State private var shouldSaveTimer = false
-    var countdown: CountDownTimer
+    var countdown: CountdownTimer
     
     var body: some View {
         ZStack {

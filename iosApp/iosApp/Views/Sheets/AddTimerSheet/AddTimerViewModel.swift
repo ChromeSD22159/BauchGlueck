@@ -16,7 +16,7 @@ class AddTimerViewModel: ObservableObject {
     @Published var isSyncAnimation: Bool = false
     @Published var isSyncDoneAnimation: Bool = false
     
-    @Published var selectedCountdown: CountDownTimer? = nil
+    @Published var selectedCountdown: CountdownTimer? = nil
     
     @Published var pickerChoose: [TimerType] = [TimerType.meal, TimerType.water]
     @Published var pickerActive: String = TimerType.water.rawValue
@@ -53,7 +53,7 @@ class AddTimerViewModel: ObservableObject {
     
     func initTimer(user: User) {
         let defaulTime = 30 * 60
-        self.selectedCountdown =  CountDownTimer(
+        self.selectedCountdown =  CountdownTimer(
             id: UUID().uuidString,
             userId: user.uid,
             name: "",
@@ -66,7 +66,7 @@ class AddTimerViewModel: ObservableObject {
         )
     }
     
-    func saveTimer(complete: @escaping(CountDownTimer?, Bool) -> Void) {
+    func saveTimer(complete: @escaping(CountdownTimer?, Bool) -> Void) {
         if let countdown = selectedCountdown {
             FirestoreTimerManager.shared.saveTimer(countdown: countdown, complete: { timer , bool in
                 complete(timer, bool)
@@ -82,8 +82,8 @@ class EditTimerViewModel: ObservableObject {
     @Published var isSyncAnimation: Bool = false
     @Published var isSyncDoneAnimation: Bool = false
     
-    @Published var selectedCountdown: CountDownTimer? = nil
-    @Published var selectedCountdownCopy: CountDownTimer? = nil
+    @Published var selectedCountdown: CountdownTimer? = nil
+    @Published var selectedCountdownCopy: CountdownTimer? = nil
     
     @Published var pickerChoose: [TimerType] = [TimerType.meal, TimerType.water]
     @Published var pickerActive: String = TimerType.water.rawValue
@@ -126,7 +126,7 @@ class EditTimerViewModel: ObservableObject {
         isEditTimerSheet = false
     }
     
-    func saveTimer(complete: @escaping(CountDownTimer?, Bool) -> Void) {
+    func saveTimer(complete: @escaping(CountdownTimer?, Bool) -> Void) {
         if let countdown = selectedCountdown {
             FirestoreTimerManager.shared.editTimer(countdown: countdown)
             
