@@ -14,11 +14,11 @@ struct EditTimerView: View {
     @ObservedObject var vm: EditTimerViewModel = EditTimerViewModel.shared
     @EnvironmentObject var firestoreTimerManager: FirestoreTimerManager
     @State private var shouldSaveTimer = false
-    var countdown: CountdownTimer
     
     var body: some View {
         ZStack {
             BackgroundImage()
+            
             VStack {
                 Header()
                     .padding(.bottom, 175)
@@ -101,12 +101,7 @@ struct EditTimerView: View {
                                     }
                                     
                                     if shouldSaveTimer {
-                                        vm.saveTimer(complete: { timer, bool in
-                                            if let timer = timer {
-                                                FirestoreTimerManager.shared.timerList.append(timer)
-                                            }
-                                        })
-                                        
+                                        vm.saveEditTimer()
                                     }
                                     
                                     DispatchQueue.main.asyncAfter(deadline: .now() + 6.25) {
@@ -154,10 +149,6 @@ struct EditTimerView: View {
                 .background(Color.clear)
             }
         }
-        .onAppear(perform: {
-            vm.selectedCountdown = countdown
-            vm.selectedCountdownCopy = countdown
-        })
     }
     
     @ViewBuilder func Header() -> some View {
@@ -170,7 +161,7 @@ struct EditTimerView: View {
             Spacer()
             
             Button {
-                vm.isEditTimerSheet.toggle()
+                vm.closeEditSheet()
             } label: {
                 HStack {
                     Image(systemName: "xmark")

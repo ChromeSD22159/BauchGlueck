@@ -1,18 +1,19 @@
 //
-//  File.swift
+//  EditTimerViewModel.swift
 //  BauchGlück
 //
-//  Created by Frederik Kohler on 17.07.24.
+//  Created by Frederik Kohler on 21.07.24.
 //  Copyright © 2024 orgName. All rights reserved.
 //
 
 import Foundation
-import FirebaseAuth
-import FirebaseFirestore
 import SwiftUI
+import FirebaseAuth
 
-class AddTimerViewModel: ObservableObject {
-    @Published var isAddTimerSheet: Bool = false
+class EditTimerViewModel: ObservableObject {
+    static var shared = EditTimerViewModel()
+    
+    @Published var isEditTimerSheet: Bool = false
     @Published var isSyncAnimation: Bool = false
     @Published var isSyncDoneAnimation: Bool = false
     
@@ -21,9 +22,11 @@ class AddTimerViewModel: ObservableObject {
     @Published var pickerChoose: [TimerType] = [TimerType.meal, TimerType.water]
     @Published var pickerActive: String = TimerType.water.rawValue
 
+    let ftm = FirestoreTimerManager.shared
+    
     var timerNameBinding: Binding<String> {
         Binding(
-            get: { self.selectedCountdown?.name ?? "" },
+            get: { self.selectedCountdown?.name ?? ""  },
             set: { newName in
                 if self.selectedCountdown != nil {
                     self.selectedCountdown?.name = newName
@@ -51,26 +54,36 @@ class AddTimerViewModel: ObservableObject {
         )
     }
     
-    func initTimer(user: User) {
-        let defaulTime = 30 * 60
-        self.selectedCountdown =  CountdownTimer(
-            id: UUID().uuidString,
-            userId: user.uid,
-            name: "",
-            duration: defaulTime,
-            startDate: nil,
-            endDate: nil,
-            timerState: TimerState.notRunning.rawValue,
-            timerType: TimerType.meal.rawValue,
-            remainingDuration: defaulTime
-        )
+    func openEditSheet(countdown: CountdownTimer) {
+        isEditTimerSheet = true
+        selectedCountdown = countdown
     }
     
-    func saveTimer(complete: @escaping(CountdownTimer?, Bool) -> Void) {
+    func closeEditSheet() {
+        isEditTimerSheet = false
+        selectedCountdown = nil
+    }
+    
+    func resetTimer() {
+        isEditTimerSheet = false
+    }
+    
+    func saveEditTimer() {
         if let countdown = selectedCountdown {
-            FirestoreTimerManager.shared.saveTimer(countdown: countdown, complete: { timer , bool in
-                complete(timer, bool)
-            })
+            
+            let updateTimer = CountdownTimer(
+                id: countdown.id,
+                userId: countdown.userId,
+                name: countdown.name,
+                duration: countdown.duration,
+                startDate: countdown.startDate,
+                endDate: countdown.endDate,
+                timerState: countdown.timerState,
+                timerType: countdown.timerType,
+                remainingDuration: countdown.remainingDuration
+            )
+            
+            ftm.editTimer(countdown: updateTimer)
         }
     }
 }

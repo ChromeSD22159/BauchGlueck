@@ -115,6 +115,6 @@ struct TextFieldClearButton: ViewModifier {
     ZStack{
         
     }
-    .settingSheet(isSettingSheet: .constant(true), authManager: FirebaseAuthManager())
+    .settingSheet(isSettingSheet: .constant(true), authManager: FirebaseAuthManager.shared)
     .environmentObject(Theme())
 }

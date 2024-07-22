@@ -33,6 +33,7 @@ struct LoginView: View {
 
                 VStack(alignment: .leading) {
                     TextField(text: $viewModel.email, label: { Text("E-Mail:") })
+                        .textContentType(.username)
                         .foregroundStyle(theme.color(.textRegular))
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .keyboardType(.emailAddress)
@@ -40,6 +41,7 @@ struct LoginView: View {
                         .padding(.vertical, 5)
 
                     SecureField(text: $viewModel.password, label: { Text("Password:") })
+                        .textContentType(.password) 
                         .foregroundStyle(theme.color(.textRegular))
                         .keyboardType(.default)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
@@ -83,6 +85,8 @@ struct LoginView: View {
                         viewModel.login(complete: { error in
                             if (error != nil) {
                                 alertManager.openAlert(error?.localizedDescription ?? "asds")
+                            } else {
+                                //viewModel.saveLoginData(mail: viewModel.email, password: viewModel.password)
                             }
                         })
                     }) {

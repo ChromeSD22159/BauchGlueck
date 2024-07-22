@@ -15,12 +15,144 @@ import SwiftUI
 struct CountdownLiveActivityLiveActivity: Widget {
     @StateObject var theme = Theme()
     
-    @State var isDone = false
-    
     var body: some WidgetConfiguration {
         return ActivityConfiguration(for: CountdownLiveActivityAttributes.self) { context in
-            ZStack {
-                theme.color(.backgroundVariant)
+            
+            lockScreen(endDate: context.state.endDate, name: context.attributes.name)
+            
+
+        } dynamicIsland: { context in
+            DynamicIsland {
+                    DynamicIslandExpandedRegion(.leading) {
+                        DynamicIslandCompact(endDate: context.state.endDate, name: context.attributes.name, position: .LargeLeading)
+                    }
+                
+                    DynamicIslandExpandedRegion(.trailing) {
+                        DynamicIslandCompact(endDate: context.state.endDate, name: context.attributes.name, position: .LargeTrailing)
+                    }
+                    
+                    DynamicIslandExpandedRegion(.bottom) {
+                        DynamicIslandCompact(endDate: context.state.endDate, name: context.attributes.name, position: .LargeBottom)
+                    }
+            } compactLeading: {
+                DynamicIslandCompact(endDate: context.state.endDate, name: context.attributes.name, position: .SmallLeading)
+            } compactTrailing: {
+                DynamicIslandCompact(endDate: context.state.endDate, name: context.attributes.name, position: .SmallTrailing)
+            } minimal: {
+                DynamicIslandCompact(endDate: context.state.endDate, name: context.attributes.name, position: .Minimal)
+            }
+            .widgetURL(URL(string: "BachGlueck://test"))
+            .keylineTint(Color.red)
+        }
+    }
+    
+    @ViewBuilder func TimerView(date: Date) -> some View {
+       HStack {
+           let range = Date()...Date().addingTimeInterval((date.timeIntervalSinceNow))
+           Text(
+              timerInterval: range,
+              pauseTime: range.lowerBound
+           )
+           .multilineTextAlignment(.trailing)
+           .foregroundStyle(Color.textRegular)
+       }
+   }
+    
+    @ViewBuilder func lockScreen(endDate: Date, name:String) -> some View {
+        let range = Date()...Date().addingTimeInterval((endDate.timeIntervalSinceNow))
+        
+        ZStack {
+            theme.color(.backgroundVariant)
+            
+            VStack {
+                HStack(spacing: 12) {
+                    Image(.stromach)
+                        .font(.subheadline)
+                        .foregroundStyle(theme.color(.textRegular))
+                    
+                    Text("BachGlück")
+                        .font(.seat(size: .subheadline))
+                }
+                
+                Spacer()
+
+                Text(
+                   timerInterval: range,
+                   pauseTime: range.lowerBound
+                )
+                .font(.seat(size: .largeTitle))
+                .multilineTextAlignment(.center)
+                
+                Spacer()
+                
+                Text("skip \(name)")
+                    .font(.seat(size: .caption))
+                    .foregroundStyle(theme.color(.textRegular))
+                    .padding(.vertical, 5)
+                    .padding(.horizontal, 10)
+                    .background {
+                        RoundedRectangle(cornerRadius: theme.cornerRadius)
+                            .fill(.ultraThinMaterial)
+                            .strokeBorder(theme.gradient(.primary), lineWidth: 1)
+                    }
+                    
+            }
+            .padding()
+            .background {
+                ZStack {
+                    HStack {
+                        Image(.stromach)
+                            .font(.system(size: 150))
+                            .foregroundStyle(theme.color(.textRegular).opacity(0.05))
+                        
+                        Text("BauchGlück")
+                            .font(.seat(size: 75))
+                            .foregroundStyle(theme.color(.textRegular).opacity(0.0))
+                    }
+                    
+                    Text("BauchGlück")
+                        .font(.seat(size: 50))
+                        .foregroundStyle(theme.color(.textRegular).opacity(0.05))
+                }
+            }
+            
+            
+            /*
+            VStack {
+                Spacer()
+                HStack {
+                    VStack(alignment: .leading) {
+                        Spacer()
+                        
+                        HStack(alignment: .bottom, spacing: 12) {
+                            Image(systemName: "timer")
+                                .font(.system(size: 48))
+                                .foregroundStyle(theme.color(.textRegular))
+                        }
+                    }
+                    Spacer()
+                    VStack(alignment: .trailing) {
+                        Spacer()
+                        
+                        TimerView(date: endDate)
+                            .font(.seat(size: 36))
+                        
+                        Text(name)
+                            .font(.seat(size: .title))
+                            .foregroundStyle(theme.color(.textRegular))
+                    }
+                }
+            }
+            .padding(16)
+             */
+        }
+    }
+    
+    @ViewBuilder func DynamicIslandCompact(endDate: Date, name:String, position: ActivityPosition) -> some View {
+        switch position {
+            case .LargeLeading: Image(.stromach).foregroundStyle(theme.color(.secondary))
+            case .LargeTrailing: Text(name).font(.seat(size: .footnote))
+            case .LargeBottom: ZStack {
                 
                 VStack {
                     Spacer()
@@ -30,107 +162,34 @@ struct CountdownLiveActivityLiveActivity: Widget {
                             
                             HStack(alignment: .bottom, spacing: 12) {
                                 Image(systemName: "timer")
-                                    .font(.system(size: 48))
+                                    .font(.system(size: 36))
                                     .foregroundStyle(theme.color(.textRegular))
                             }
                         }
                         Spacer()
                         VStack(alignment: .trailing) {
                             Spacer()
-                            Text(remainingTimeInterval(endDate: context.state.endDate, name: context.attributes.name), style: .timer)
-                                .font(.kodchasanBold(size: 52))
-                                .foregroundStyle(theme.color(.textRegular))
-                                .monospacedDigit()
-                            Text(context.attributes.name)
-                                .font(.kodchasanBold(size: .title))
-                                .foregroundStyle(theme.color(.textRegular))
+                            
+                            TimerView(date: endDate)
+                                .font(.seat(size: 36))
+                            
                         }
                     }
                 }
-                .padding(16)
+                .padding(12)
             }
-            .environmentObject(theme)
-
-        } dynamicIsland: { context in
-            DynamicIsland {
-                    
-                    DynamicIslandExpandedRegion(.leading) {
-                        Image(.stromach)
-                            .foregroundStyle(theme.color(.secondary))
-                    }
-                
-                    DynamicIslandExpandedRegion(.trailing) {
-                        Text(context.attributes.name)
-                    }
-                    
-                    DynamicIslandExpandedRegion(.bottom) {
-                        ZStack {
-                            
-                            VStack {
-                                Spacer()
-                                HStack {
-                                    VStack(alignment: .leading) {
-                                        Spacer()
-                                        
-                                        HStack(alignment: .bottom, spacing: 12) {
-                                            Image(systemName: "timer")
-                                                .font(.system(size: 36))
-                                                .foregroundStyle(theme.color(.textRegular))
-                                        }
-                                    }
-                                    Spacer()
-                                    VStack(alignment: .trailing) {
-                                        Spacer()
-                                        Text(remainingTimeInterval(endDate: context.state.endDate, name: context.attributes.name), style: .timer)
-                                            .font(.kodchasanBold(size: 36))
-                                            .foregroundStyle(theme.color(.textRegular))
-                                            .monospacedDigit()
-                                    }
-                                }
-                            }
-                            .padding(12)
-                        }
-   
-                    }
-            } compactLeading: {
-                Image(systemName: "timer")
-            } compactTrailing: {
-                Text(remainingTimeInterval(endDate: context.state.endDate, name: context.attributes.name), style: .timer)
-            } minimal: {
-                Text(remainingTimeInterval(endDate: context.state.endDate, name: context.attributes.name), style: .timer)
-            }
-            .widgetURL(URL(string: "BachGlueck://test"))
-            .keylineTint(Color.red)
+            case .SmallLeading: Image(systemName: "timer")
+            case .SmallTrailing: TimerView(date: endDate).font(.seat(size: .body))
+            case .Minimal: TimerView(date: endDate).font(.seat(size: .caption2))
         }
-    }
-
-    func timerString(_ remainingDuration: Int) -> String {
-        let min = remainingDuration / 60
-        let sec = remainingDuration % 60
-        return String(format: "%02d:%02d", min, sec)
+        
     }
     
-    func remainingTimeInterval(endDate: Date, name: String) -> Date {
-        let remainingSeconds = endDate.timeIntervalSinceNow
-        
-        if remainingSeconds <= 0 {
-            return Date() // Return the current time to show "00:00"
-        } else {
-            return Date().addingTimeInterval(remainingSeconds)
-        }
-    }
     
-    func sendNotification(title: String, body: String, delay: TimeInterval = 5) {
-        let content = UNMutableNotificationContent()
-        content.title = title
-        content.body = body
-        content.sound = UNNotificationSound.default
+}
 
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: delay, repeats: false)
-        let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger) // Use the trigger here
-        
-        UNUserNotificationCenter.current().add(request)
-    }
+enum ActivityPosition {
+    case LargeLeading, LargeTrailing, LargeBottom, SmallLeading, SmallTrailing, Minimal
 }
 
 extension CountdownLiveActivityAttributes {
@@ -141,17 +200,12 @@ extension CountdownLiveActivityAttributes {
 
 extension CountdownLiveActivityAttributes.ContentState {
     fileprivate static var smiley: CountdownLiveActivityAttributes.ContentState {
-        CountdownLiveActivityAttributes.ContentState(state: "notRunning", startDate: Date(), endDate: Date(), remainingDuration: 2200)
-     }
-     
-     fileprivate static var starEyes: CountdownLiveActivityAttributes.ContentState {
-         CountdownLiveActivityAttributes.ContentState(state: "notRunning", startDate: Date(), endDate: Date(), remainingDuration: 2200)
+        CountdownLiveActivityAttributes.ContentState(state: "running", startDate: Date(), endDate: Calendar.current.date(byAdding: .second, value: 60, to: Date())!, remainingDuration: 2200)
      }
 }
 
-#Preview("Notification", as: .content, using: CountdownLiveActivityAttributes.preview) {
+#Preview("Notification", as: .dynamicIsland(.minimal), using: CountdownLiveActivityAttributes.preview) {
    CountdownLiveActivityLiveActivity()
 } contentStates: {
     CountdownLiveActivityAttributes.ContentState.smiley
-    CountdownLiveActivityAttributes.ContentState.starEyes
 }

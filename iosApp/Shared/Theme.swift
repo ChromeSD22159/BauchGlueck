@@ -91,4 +91,34 @@ class Theme: ObservableObject {
     func changeTheme(_ colorScheme: ColorScheme) {
         scheme = colorScheme
     }
+    
+    @ViewBuilder func backgroundImage () -> some View {
+        VStack(alignment: .trailing) {
+            HStack(alignment: .top) {
+                Spacer()
+                ZStack(alignment: .topTrailing) {
+                    
+                    Image(.waveBehinde)
+                        .opacity(0.3)
+                        .frame(width: 266.15442, height: 283.81583, alignment: .topTrailing)
+                    
+                    Image(.waveAbove)
+                        .opacity(0.3)
+                        .frame(width: 266.15442, height: 283.81583, alignment: .topTrailing)
+
+                    Image(.logoTransparent)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 140, height: 140)
+                        .padding(.top, 80)
+                        .padding(.trailing, 30)
+                        .clipped()
+               }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .background(self.color(.background))
+        .edgesIgnoringSafeArea(.all)
+    }
 }

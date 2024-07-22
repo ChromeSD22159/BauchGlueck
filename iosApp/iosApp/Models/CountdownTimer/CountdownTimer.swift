@@ -18,4 +18,6 @@ struct CountdownTimer: Identifiable, Codable {
     var timerState: String
     var timerType: String
     var remainingDuration: Int
+    var notificate: Bool = true
+    var showAvtivity: Bool = true
 }

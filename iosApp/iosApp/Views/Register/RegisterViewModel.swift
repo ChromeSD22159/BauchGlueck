@@ -22,7 +22,7 @@ class RegisterViewModel: ObservableObject {
     @Published var errorMessage: String = ""
     @Published var isAuthenticated: Bool = false
         
-    private var authManager = FirebaseAuthManager()
+    private var authManager = FirebaseAuthManager.shared
     
     func signUp(complete: @escaping (Error?) -> Void) {
         authManager.signUp(email: email, password: password, complete: { error, user in

@@ -32,6 +32,7 @@
 	<array>
 		<string>KodchasanBold.ttf</string>
 		<string>KodchasanRegular.ttf</string>
+		<string>Seat.ttf</string>
 	</array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>

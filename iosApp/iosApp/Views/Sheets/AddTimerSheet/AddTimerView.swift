@@ -185,6 +185,6 @@ struct AddTimerView: View {
 #Preview {
     AddTimerView(atvm: AddTimerViewModel())
      .environmentObject(Theme())
-     .environmentObject(FirebaseAuthManager())
+     .environmentObject(FirebaseAuthManager.shared)
      .preferredColorScheme(.dark)
 }

@@ -24,6 +24,14 @@ extension Font {
     static func kodchasanRegular(size: CGFloat) -> Font {
         return .custom("Kodchasan-Regular", size: size)
     }
+    
+    static func seat(size: CGFloat) -> Font {
+        return .custom("Audiowide", size: size)
+    }
+    
+    static func seat(size: Font.Size) -> Font {
+        return .custom("Audiowide", size: size.rawValue)
+    }
 
     enum Size: CGFloat {
         case largeTitle = 34

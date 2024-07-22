@@ -11,8 +11,11 @@ import FirebaseStorage
 import Firebase
 import FirebaseAuth
 import SwiftUI
+import AuthenticationServices
 
 class FirebaseAuthManager: ObservableObject {
+    
+    static var shared = FirebaseAuthManager()
     
     @Published var user: User? = nil
     
@@ -26,6 +29,7 @@ class FirebaseAuthManager: ObservableObject {
     
     let db = Firestore.firestore()
     let storage = Storage.storage()
+    let appName = "de.frederikkohler.bauchGlueck"
     
     init() {
         let _ = Auth.auth().currentUser
@@ -95,13 +99,13 @@ class FirebaseAuthManager: ObservableObject {
             if let error = error {
                 return complete(error)
             }
-            
+               
             guard let user = authResult?.user else {
                 return complete(self.userError)
             }
 
             self.user = user
-            
+                        
             self.nav = .logged
             
             complete(nil)
@@ -224,6 +228,4 @@ class FirebaseAuthManager: ObservableObject {
             }
         }
     }
-    
-    
 }

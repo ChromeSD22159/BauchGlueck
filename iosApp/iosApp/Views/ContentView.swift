@@ -12,7 +12,7 @@ import SwiftUI
 import FirebaseAuth
 
 struct ContentView: View {
-    @StateObject var authManager = FirebaseAuthManager()
+    @StateObject var authManager = FirebaseAuthManager.shared
     @StateObject var alertManager = AlertManager()
     
     var notificationManager = NotificationManager()
@@ -21,7 +21,7 @@ struct ContentView: View {
     @Environment(\.scenePhase) var scenePhase
     
     @StateObject var theme = Theme()
-    @StateObject var timerManager = FirestoreTimerManager()
+    @StateObject var timerManager = FirestoreTimerManager.shared
     
     var body: some View {
         ZStack {
@@ -36,10 +36,7 @@ struct ContentView: View {
             notificationManager.requestPermisson()
             
             Task {
-                if let user = authManager.user {
-                    //FirestoreTimerManager.shared.initialize(userId: user.uid, loadLokal: true)
-                    timerManager.initialize(userId: user.uid, loadLokal: false)
-                }
+                timerManager.initialize(loadLokal: false)
             }
         }
         .onChange(of: colorScheme) { newScheme in
@@ -57,7 +54,7 @@ struct ContentView: View {
     }
     
     init() {
-        printFonts(false)
+        printFonts(true)
     }
     
     private func printFonts(_ bool: Bool) {

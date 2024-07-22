@@ -11,8 +11,9 @@ import SwiftUI
 struct TimerOverView: View {
     @EnvironmentObject var theme: Theme
     @EnvironmentObject var auth: FirebaseAuthManager
-    @EnvironmentObject var firestoreTimerManager: FirestoreTimerManager
     @Environment(\.scenePhase) var scenePhase
+    
+    @ObservedObject var firestoreTimerManager = FirestoreTimerManager.shared
     var body: some View {
         ZStack {
             theme.color(.backgroundVariant).ignoresSafeArea()
@@ -29,9 +30,7 @@ struct TimerOverView: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     HStack {
                         RoundedHeaderButton(icon: "arrow.triangle.2.circlepath") {
-                            if let user = auth.user {
-                                FirestoreTimerManager.shared.synronize(userId: user.uid)
-                            }
+                            FirestoreTimerManager.shared.synronize()
                         }
                     }
                 }

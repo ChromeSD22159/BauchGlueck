@@ -9,21 +9,21 @@
 import Foundation
 import FirebaseAuth
 import SwiftUI
+import AuthenticationServices
 
 class LoginViewModel: ObservableObject {
     @Published var email = ""
     @Published var password = ""
     @Published var errorMessage = ""
-
+    
     func login(complete: @escaping (Error?) -> Void) {
         guard !email.isEmpty, !password.isEmpty else {
             errorMessage = "Please enter email and password."
             return
         }
         
-        FirebaseAuthManager().signIn(email: email, password: password, complete: { error in
+        FirebaseAuthManager.shared.signIn(email: email, password: password, complete: { error in
             complete(error)
         })
-        
     }
 }

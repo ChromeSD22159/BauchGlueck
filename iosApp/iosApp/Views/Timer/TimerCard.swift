@@ -13,11 +13,11 @@ struct TimerCard: View {
     @Environment(\.scenePhase) var scenePhase
     @StateObject var viewModel: TimerCardViewModel
     @State var countdown: CountdownTimer
-
+    
     @StateObject var editViewModel = EditTimerViewModel.shared
     
     init(countdown: CountdownTimer) {
-        self._countdown = State(wrappedValue: countdown)
+        self._countdown = State(initialValue: countdown)
         self._viewModel = StateObject(wrappedValue: TimerCardViewModel(countdown: countdown))
     }
     
@@ -35,6 +35,13 @@ struct TimerCard: View {
             }
             // Content
             VStack {
+                
+                HStack {
+                    Text(viewModel.countdown.name)
+                    Spacer()
+                    ContextMenu()
+                }
+                
                 Spacer()
                 HStack {
                     VStack(alignment: .leading) {
@@ -53,13 +60,14 @@ struct TimerCard: View {
                     Spacer()
                     VStack(alignment: .trailing) {
                         Spacer()
-                        Text(viewModel.formatTime)
+                        
+                        Text(viewModel.remainingTimeString)
                             .font(.kodchasanBold(size: 52))
                             .foregroundStyle(theme.color(.textComplimentary))
                             .monospacedDigit()
-                        Text(viewModel.countdown.name)
-                            .font(.kodchasanBold(size: .title))
-                            .foregroundStyle(theme.color(.textComplimentary))
+                            .onReceive(viewModel.ticker, perform: {_ in
+                                
+                            })
                     }
                 }
             }
@@ -68,33 +76,25 @@ struct TimerCard: View {
         .frame(maxHeight: 200)
         .cornerRadius(16)
         .onAppear(perform: {
-            viewModel.resumeAppStart()
-        })
-        .onDisappear(perform: {
-            viewModel.saveCountdownToUserDefaults()
+            viewModel.resumeAppStart("onAppear")
         })
         .onChange(of: scenePhase) { newPhase in
             viewModel.checkScenePhasesToRestart(newPhase)
         }
-        .onReceive(viewModel.ticker, perform: { value in
-            viewModel.updateTimer(sendNote: false)
-        })
-        .onChange(of: viewModel.countdown.duration, perform: { newDuration in
-            print(newDuration)
-        })
         .contextMenu {
-            /*
-            Button(action: { editViewModel.openEditSheet() }) {
+            
+            Button(action: { editViewModel.openEditSheet(countdown: viewModel.countdown) }) {
                 Label("Edit \(viewModel.countdown.name)", systemImage: "pencil")
             }
-            */
             
             Button(action: { viewModel.delete() }) {
                 Label("Delete \(viewModel.countdown.name)", systemImage: "trash")
             }
         }
-        .fullScreenCover(isPresented: $editViewModel.isEditTimerSheet, onDismiss: {}, content: {
-            EditTimerView(countdown: countdown)
+        .fullScreenCover(isPresented: $editViewModel.isEditTimerSheet, onDismiss: {
+            viewModel.resumeAppStart("onDismiss EditTimerView")
+        }, content: {
+            EditTimerView()
         })
     }
     
@@ -116,7 +116,7 @@ struct TimerCard: View {
                     .foregroundStyle(theme.color(.textComplimentary))
             }
             
-            Button(action: { viewModel.stop(sendNote: false) }) {
+            Button(action: { viewModel.stop() }) {
                 Image(systemName: "stop.circle.fill")
                     .font(.system(size: 48))
                     .foregroundStyle(theme.color(.textComplimentary))
@@ -136,6 +136,39 @@ struct TimerCard: View {
                 Image(systemName: "stop.circle.fill")
                     .font(.system(size: 48))
                     .foregroundStyle(theme.color(.textComplimentary))
+            }
+        }
+    }
+    
+    @ViewBuilder func ContextMenu() -> some View {
+        Menu {
+            Text("Show this Timer on your Lock Screen and Dynamic Island.")
+            
+            Button {
+                self.countdown.showAvtivity = true
+                FirestoreTimerManager.shared.editTimer(countdown: self.countdown)
+            } label: {
+                Label("Show", systemImage: "bolt.fill")
+            }
+            
+            Button {
+                self.countdown.showAvtivity = false
+                FirestoreTimerManager.shared.editTimer(countdown: self.countdown)
+            } label: {
+                Label("Don`t Show", systemImage: "bolt.slash")
+            }
+        } label: {
+            HStack(spacing: 5) {
+                Image(systemName: viewModel.countdown.showAvtivity ? "bolt.fill" : "bolt.slash")
+                Text("Live Activity")
+                Image(systemName: "chevron.down")
+            }
+            .foregroundStyle(theme.color(.textRegular))
+            .padding(.vertical, 5)
+            .padding(.horizontal, 10)
+            .background {
+                RoundedRectangle(cornerRadius: theme.cornerRadius)
+                    .strokeBorder(theme.color(.textRegular), lineWidth: 1)
             }
         }
     }
