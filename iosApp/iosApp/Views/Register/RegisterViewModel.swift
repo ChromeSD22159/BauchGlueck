@@ -28,6 +28,8 @@ class RegisterViewModel: ObservableObject {
         authManager.signUp(email: email, password: password, complete: { error, user in
             complete(error)
             
+            // TODO STARTWEIGHT
+            
             if let loggedUser = user {
                 let profile = UserProfile(
                     uid: loggedUser.uid,
@@ -35,7 +37,8 @@ class RegisterViewModel: ObservableObject {
                     lastName: self.lastName,
                     email: self.email,
                     surgeryDate: self.surgeryDate,
-                    profileImageURL: nil
+                    profileImageURL: nil,
+                    startWeight: 70
                 )
                 
                 self.authManager.userProfile = profile

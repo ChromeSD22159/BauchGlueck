@@ -11,6 +11,12 @@
 "Add Timer" = "Timer hinzufügen";
 
 /* No comment provided by engineer. */
+"Add Recipe" = "Rezept hinzufügen";
+
+/* No comment provided by engineer. */
+"Add Weight" = "Gewicht hinzufügen";
+
+/* No comment provided by engineer. */
 "Add Water" = "Wasser hinzufügen";
 
 /* No comment provided by engineer. */
@@ -172,3 +178,20 @@
 /* No comment provided by engineer. */
 "Welcome Back!" = "Willkommen zurück!";
 
+/* No comment provided by engineer. */
+"Ascending" = "Aufsteigend";
+
+/* No comment provided by engineer. */
+"Descending" = "Absteigend";
+
+/* No comment provided by engineer. */
+"Consistent" = "Gleichbleibend";
+
+/* No comment provided by engineer. */
+"Water absorption" = "Wasseraufnahme";
+
+/* No comment provided by engineer. */
+"Not enough data" = "Nicht genug Daten";
+
+/* No comment provided by engineer. */
+"Starting weight: %dkg" = "Startgewicht: %dkg";

@@ -70,7 +70,13 @@ struct AddTimerView: View {
                                     Text("Cancel")
                                     Spacer()
                                 }
+                                .background(theme.gradient(.primary))
+                                .cornerRadius(theme.cornerRadius)
                             }
+                            .padding(.vertical, 5)
+                            .foregroundColor(theme.color(.textComplimentary))
+                            .background(theme.gradient(.primary))
+                            .cornerRadius(theme.cornerRadius)
                             
                             Button {
                                 Task {
@@ -117,7 +123,13 @@ struct AddTimerView: View {
                                     Text("Save")
                                     Spacer()
                                 }
+                                .background(theme.gradient(.primary))
+                                .cornerRadius(theme.cornerRadius)
                             }
+                            .padding(.vertical, 5)
+                            .foregroundColor(theme.color(.textComplimentary))
+                            .background(theme.gradient(.primary))
+                            .cornerRadius(theme.cornerRadius)
                            
                         }
                         .foregroundStyle(theme.color(.textRegular))

@@ -16,6 +16,7 @@ struct ContentView: View {
     @StateObject var alertManager = AlertManager()
     
     var notificationManager = NotificationManager()
+    var healthManager = HealthManager.shared
     
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.scenePhase) var scenePhase
@@ -33,7 +34,9 @@ struct ContentView: View {
         }
         .onAppear {
             theme.changeTheme(colorScheme)
+            
             notificationManager.requestPermisson()
+            healthManager.requestAuthorization()
             
             Task {
                 timerManager.initialize(loadLokal: false)

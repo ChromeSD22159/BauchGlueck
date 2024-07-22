@@ -101,6 +101,16 @@ class SettingViewModel: ObservableObject {
         )
     }
     
+    var startWeigtBinding: Binding<Double> {
+        Binding(
+            get: { self.authManager.userProfile?.startWeight ?? 100 },
+            set: { newValue in
+                self.authManager.userProfile?.startWeight = newValue
+                //self.updateUserProfileUser()
+            }
+        )
+    }
+    
     var mainMealsBinding: Binding<Int> {
         Binding(
             get: { self.authManager.userProfile?.mainMeals ?? 3 },

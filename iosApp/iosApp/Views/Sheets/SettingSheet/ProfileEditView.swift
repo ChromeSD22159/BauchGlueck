@@ -77,7 +77,6 @@ struct ProfileEditView: View {
     }
     
     @ViewBuilder func PersonalData() -> some View {
-        
         Section {
             HStack(spacing: 20) {
                 Text("Firstname:")
@@ -96,6 +95,27 @@ struct ProfileEditView: View {
                     .textFieldClearButton(text: viewModel.lastNameBinding)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }.frame(maxWidth: .infinity)
+            
+            VStack(alignment: .leading) {
+                Text(
+                    String(
+                        format: NSLocalizedString(
+                            "Starting weight: %dkg",
+                            comment: "Label for starting weight with placeholder"
+                        ),
+                        Int(viewModel.startWeigtBinding.wrappedValue)
+                    )
+                )
+                
+                Slider(
+                    value: viewModel.startWeigtBinding,
+                    in: 40...300,
+                    step: 1,
+                    label: {
+                        Text(String(format: NSLocalizedString("Main meal: %d", comment: ""), viewModel.mainMealsBinding.wrappedValue))
+                    }
+                )
+            }
         } header: {
             Text("Personal Data")
         }

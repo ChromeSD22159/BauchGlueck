@@ -180,8 +180,6 @@ class FirestoreTimerManager: ObservableObject {
     }
 }
 
-
-
 struct CountdownUserDefaultsState: Codable {
     var id: String
     var state: String

@@ -1,3 +1,8 @@
 /* Bundle name */
 "CFBundleName" = "BauchGlueck";
 
+"This app uses notifications to inform you about important events." = "Diese App verwendet Benachrichtigungen, um dich über wichtige Ereignisse zu informieren.";
+
+"This app uses HealthKit to record and track your weight and water intake. This helps you monitor your health and achieve your fitness goals." = "Diese App verwendet HealthKit, um Ihr Gewicht und Ihre Wasseraufnahme aufzuzeichnen und zu verfolgen. Dies hilft Ihnen, Ihre Gesundheit zu überwachen und Ihre Fitnessziele zu erreichen.";
+
+"This app uses HealthKit to record and track your weight and water intake. This helps you monitor your health and achieve your fitness goals." = "Diese App verwendet HealthKit, um Ihr Gewicht und Ihre Wasseraufnahme aufzuzeichnen und zu verfolgen. Dies hilft Ihnen, Ihre Gesundheit zu überwachen und Ihre Fitnessziele zu erreichen.";

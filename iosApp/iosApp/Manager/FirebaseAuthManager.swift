@@ -135,7 +135,8 @@ class FirebaseAuthManager: ObservableObject {
             "surgeryDate": userProfil.surgeryDate,
             "mainMeals": userProfil.mainMeals,
             "betweenMeals": userProfil.betweenMeals,
-            "profileImageURL": userProfil.profileImageURL ?? ""
+            "profileImageURL": userProfil.profileImageURL ?? "",
+            "startWeight": userProfil.startWeight
         ]
 
         // Setze die Daten in Firestore
@@ -167,7 +168,8 @@ class FirebaseAuthManager: ObservableObject {
                 surgeryDate: (data["surgeryDate"] as? Timestamp)?.dateValue() ?? Date(),
                 mainMeals: data["mainMeals"] as? Int ?? 3,
                 betweenMeals: data["betweenMeals"] as? Int ?? 3,
-                profileImageURL: data["profileImageURL"] as? String
+                profileImageURL: data["profileImageURL"] as? String,
+                startWeight: data["startWeight"] as? Double ?? 100
             )
             
             completion(userProfile)

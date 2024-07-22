@@ -8,6 +8,7 @@ struct HomeView: View {
     @StateObject var arvm: AddRecipeViewModel = AddRecipeViewModel()
     @StateObject var awvm: AddWaterViewModel = AddWaterViewModel()
     @StateObject var atvm: AddTimerViewModel = AddTimerViewModel()
+    @StateObject var awwvm: AddWeightViewModel = AddWeightViewModel()
     
     @State var isSettingSheet = false
     
@@ -24,6 +25,10 @@ struct HomeView: View {
                         } label: {
                             LinkCard(name: "Mahlzeiten", explicitColor: Theme().color(.primary))
                         }
+                        
+                        WeightCardView()
+                        
+                        WaterIntakeCardView()
                         
                         NavigationLink{
                             EmptyView()
@@ -64,16 +69,6 @@ struct HomeView: View {
                 }
             }
             .settingSheet(isSettingSheet: $isSettingSheet, authManager: authManager)
-            .fullScreenCover(isPresented: $awvm.isAddWaterSheet, onDismiss: {}, content: {
-                AddWaterView(awvm: awvm)
-            })
-            .fullScreenCover(isPresented: $arvm.isAddRecipeSheet, onDismiss: {}, content: {
-                AddRecipeView(arvm: arvm)
-            })
-            .fullScreenCover(isPresented: $atvm.isAddTimerSheet, onDismiss: {}, content: {
-                AddTimerView(atvm: atvm)
-            })
-            
         }
     }
     
@@ -104,6 +99,7 @@ struct HomeView: View {
             
             Button {
                 awvm.isAddWaterSheet.toggle()
+                awwvm.objectWillChange.send()
             } label: {
                 Label("Add Water", systemImage: "waterbottle.fill")
             }
@@ -112,6 +108,13 @@ struct HomeView: View {
                 atvm.isAddTimerSheet.toggle()
             } label: {
                 Label("Add Timer", systemImage: "timer.circle.fill")
+            }
+            
+            Button {
+                awwvm.isAddWeightSheet.toggle()
+                awwvm.objectWillChange.send()
+            } label: {
+                Label("Add Weight", systemImage: "chart.line.downtrend.xyaxis.circle")
             }
         }, label: {
             ZStack {
@@ -124,6 +127,18 @@ struct HomeView: View {
                     .foregroundColor(.white)
                     .padding(8)
             }
+        })
+        .fullScreenCover(isPresented: $awvm.isAddWaterSheet, onDismiss: {}, content: {
+            AddWaterView(awvm: awvm)
+        })
+        .fullScreenCover(isPresented: $arvm.isAddRecipeSheet, onDismiss: {}, content: {
+            AddRecipeView(arvm: arvm)
+        })
+        .fullScreenCover(isPresented: $atvm.isAddTimerSheet, onDismiss: {}, content: {
+            AddTimerView(atvm: atvm)
+        })
+        .fullScreenCover(isPresented: $awwvm.isAddWeightSheet, onDismiss: {}, content: {
+            AddWeightView(awvm: awwvm)
         })
     }
     
@@ -174,6 +189,7 @@ struct LinkCard: View {
 #Preview("Dark") {
     HomeView()
         .environmentObject(Theme())
+        .environmentObject(FirebaseAuthManager())
         .preferredColorScheme(.dark)
 }
 

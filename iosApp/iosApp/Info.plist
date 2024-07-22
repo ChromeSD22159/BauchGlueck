@@ -28,6 +28,23 @@
 	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+
+    <key>NSHealthShareUsageDescription</key>
+    <string>This app uses HealthKit to record and track your weight and water intake. This helps you monitor your health and achieve your fitness goals.</string>
+    <key>NSHealthUpdateUsageDescription</key>
+    <string>This app uses HealthKit to record and track your weight and water intake. This helps you monitor your health and achieve your fitness goals.</string>
+    
+    
+	<key>NSSupportsLiveActivities</key>
+	<true/>
+	<key>NSUserNotificationTypes</key>
+	<array>
+		<string>alert</string>
+		<string>sound</string>
+		<string>badge</string>
+	</array>
+	<key>NSUserNotificationsUsageDescription</key>
+	<string>This app uses notifications to inform you about important events.</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>KodchasanBold.ttf</string>
@@ -39,31 +56,31 @@
 		<key>UIApplicationSupportsMultipleScenes</key>
 		<false/>
 	</dict>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+	</array>
 	<key>UILaunchScreen</key>
 	<dict/>
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
 		<string>armv7</string>
 	</array>
+	<key>UIStatusBarHidden</key>
+	<true/>
 	<key>UIStatusBarStyle</key>
 	<string></string>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 	</array>
-	<key>NSSupportsLiveActivities</key>
-	<true/>
-    <key>UIBackgroundModes</key>
-    <array>
-        <string>remote-notification</string>
-    </array>
-    <key>NSUserNotificationTypes</key>
-    <array>
-        <string>alert</string>
-        <string>sound</string>
-        <string>badge</string>
-    </array>
-    <key>NSUserNotificationsUsageDescription</key>
-    <string>Diese App verwendet Benachrichtigungen, um dich über wichtige Ereignisse zu informieren.</string>
+	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+	</array>
 </dict>
 </plist>
