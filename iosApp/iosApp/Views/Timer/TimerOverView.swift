@@ -16,7 +16,12 @@ struct TimerOverView: View {
     @ObservedObject var firestoreTimerManager = FirestoreTimerManager.shared
     var body: some View {
         ZStack {
-            theme.color(.backgroundVariant).ignoresSafeArea()
+            theme.color(.background).ignoresSafeArea()
+            
+            theme.backgroundImageWithOutImage(
+                background: .backgroundVariant,
+                backgroundOpacity: 1
+            )
       
             ScrollView{
                 VStack(alignment: .leading, spacing: 16) {
@@ -57,4 +62,6 @@ struct TimerOverView: View {
 
 #Preview {
     TimerOverView()
+        .environmentObject(Theme())
+        .environmentObject(FirebaseAuthManager())
 }

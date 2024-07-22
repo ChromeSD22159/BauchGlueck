@@ -53,5 +53,17 @@
 	</array>
 	<key>NSSupportsLiveActivities</key>
 	<true/>
+    <key>UIBackgroundModes</key>
+    <array>
+        <string>remote-notification</string>
+    </array>
+    <key>NSUserNotificationTypes</key>
+    <array>
+        <string>alert</string>
+        <string>sound</string>
+        <string>badge</string>
+    </array>
+    <key>NSUserNotificationsUsageDescription</key>
+    <string>Diese App verwendet Benachrichtigungen, um dich über wichtige Ereignisse zu informieren.</string>
 </dict>
 </plist>

@@ -1,4 +1,28 @@
 /* No comment provided by engineer. */
+"%@." = "%@.";
+
+/* No comment provided by engineer. */
+"%@g/%@g" = "%1$@g/%2$@g";
+
+/* No comment provided by engineer. */
+"%d years, %d months, %d days since you restarted." = "%d Jahre, %d Monate, %d Tage seit dem Neustart.";
+
+/* No comment provided by engineer. */
+"Add Timer" = "Timer hinzufügen";
+
+/* No comment provided by engineer. */
+"Add Water" = "Wasser hinzufügen";
+
+/* No comment provided by engineer. */
+"Add your recipe" = "Rezept hinzufügen";
+
+/* No comment provided by engineer. */
+"Between meals: %d" = "Zwischenmahlzeiten: %d";
+
+/* No comment provided by engineer. */
+"Cancel" = "Abbrechen";
+
+/* No comment provided by engineer. */
 "Change photo" = "Foto ändern";
 
 /* No comment provided by engineer. */
@@ -11,76 +35,22 @@
 "E-Mail:" = "E-Mail:";
 
 /* No comment provided by engineer. */
+"Edit Timer" = "Timer bearbeiten";
+
+/* No comment provided by engineer. */
 "Firstname:" = "Vorname:";
-
-/* No comment provided by engineer. */
-"Support + Feedback" = "Unterstützung + Feedback"; 
-
-/* No comment provided by engineer. */
-"Rate 5 stars" = "Bewerten Sie mit 5 Sternen";
-
-/* No comment provided by engineer. */
-"%d years, %d months, %d days since you restarted." = "%d Jahre, %d Monate, %d Tage seit dem Neustart.";
-
-/* No comment provided by engineer. */
-"Settings" = "Einstellungen";
-
-/* No comment provided by engineer. */
-"⚙️ Settings" = "⚙️ Einstellungen";
-
-/* No comment provided by engineer. */
-"Total number of meals: %d" = "Gesamtzahl der Mahlzeiten: %d";
-
-/* No comment provided by engineer. */
-"Only %d years, %d months, %d days until you restart." = "Nur noch %d Jahre, %d Monate, %d Tage bis zum Neustart.";
-
-/* No comment provided by engineer. */
-"Only %d months, %d days until you restart." = "Nur noch %d Monate, %d Tage bis zum Neustart.";
-
-/* No comment provided by engineer. */
-"Only %d days until you restart." = "Nur noch %d Tage bis zum Neustart.";
-
- /* No surgery date */
-"No surgery date" = "Kein Operationsdatum";
-
-/* No comment provided by engineer. */
-"Developer's Instagram" = "Instagram des Entwicklers";
-
-/* No comment provided by engineer. */
-"Developer's website" = "Webseite des Entwicklers";
-
-/* No comment provided by engineer. */
-"Developer's apps" = "Apps des Entwicklers";
-
-/* No comment provided by engineer. */
-"Version %@ (Build Number: %@)" = "Version %@ (Build-Nummer: %@)";
-
-/* No comment provided by engineer. */
-"Main meal: %d" = "Hauptmahlzeiten: %d";
-
-/* No comment provided by engineer. */
-"Good morning, %@" = "Guten Morgen, %@";
 
 /* No comment provided by engineer. */
 "Good evening, %@" = "Guten Abend, %@";
 
 /* No comment provided by engineer. */
-"Hello, %@" = "Hallo, %@";
-
-/* No comment provided by engineer. */
-"Between meals: %d" = "Zwischenmahlzeiten: %d";
-
-/* No comment provided by engineer. */
-"Total number of meals:  %d" = "Gesamtanzahl der Mahlzeiten:  %d";
-
-/* No comment provided by engineer. */
-"Developer" = "Entwickler";
-
-/* No comment provided by engineer. */
-"Sign out" = "Abmelden";
+"Good morning, %@" = "Guten Morgen, %@";
 
 /* No comment provided by engineer. */
 "Hello" = "Hello";
+
+/* No comment provided by engineer. */
+"Hello, %@" = "Hallo, %@";
 
 /* No comment provided by engineer. */
 "Hello!" = "Hallo!";
@@ -92,19 +62,28 @@
 "Lastname:" = "Nachname:";
 
 /* No comment provided by engineer. */
-"To register" = "Zur Registrierung";
+"Live Activity" = "Live Activity";
 
 /* No comment provided by engineer. */
 "Log in" = "Login";
 
 /* No comment provided by engineer. */
-"To the login" = "Zum Login";
-
-/* No comment provided by engineer. */
 "Log in to your account." = "Mit deinem Konto anmelden.";
 
 /* No comment provided by engineer. */
+"Main meal: %d" = "Hauptmahlzeiten: %d";
+
+/* No comment provided by engineer. */
 "Meals" = "Mahlzeiten";
+
+/* No comment provided by engineer. */
+"Only %d days until you restart." = "Nur noch %d Tage bis zum Neustart.";
+
+/* No comment provided by engineer. */
+"Only %d months, %d days until you restart." = "Nur noch %d Monate, %d Tage bis zum Neustart.";
+
+/* No comment provided by engineer. */
+"Only %d years, %d months, %d days until you restart." = "Nur noch %d Jahre, %d Monate, %d Tage bis zum Neustart.";
 
 /* No comment provided by engineer. */
 "Password:" = "Passwort:";
@@ -122,7 +101,52 @@
 "Repeat password:" = "Passwort wiederholen:";
 
 /* No comment provided by engineer. */
+"Save" = "Speichern";
+
+/* No comment provided by engineer. */
+"Saved!" = "gespeichert!";
+
+/* No comment provided by engineer. */
+"Show this Timer on your Lock Screen and Dynamic Island." = "Zeigen Sie diesen Timer auf Ihrem Sperrbildschirm und Dynamic Island an.";
+
+/* No comment provided by engineer. */
+"Show" = "Anzeigen";
+
+/* No comment provided by engineer. */
+"Don`t Show" = "Nicht anzeigen";
+
+/* No comment provided by engineer. */
+"Edit %@" = "%@ bearbeiten";
+
+/* No comment provided by engineer. */
+"Delete %@" = "%@ löschen";
+
+/* No comment provided by engineer. */
 "Sign up" = "Registieren";
+
+/* No comment provided by engineer. */
+"Sign out" = "Ausloggen";
+
+/* No comment provided by engineer. */
+"Settings" = "Einstellungen";
+
+/* No comment provided by engineer. */
+"⚙️ Settings" = "⚙️ Einstellungen";
+
+/* No comment provided by engineer. */
+"Developer's Instagram" = "Instagram des Entwicklers";
+
+/* No comment provided by engineer. */
+"Rate 5 stars" = "Bewerte die App mit 5 Sterne";
+
+/* No comment provided by engineer. */
+"Support + Feedback" = "Unterstützung + Feedback";
+
+/* No comment provided by engineer. */
+"Developer's website" = "Website des Entwicklers";
+
+/* No comment provided by engineer. */
+"Developer's apps" = "Apps des Entwicklers";
 
 /* No comment provided by engineer. */
 "Support" = "Support";
@@ -131,10 +155,20 @@
 "Surgery Date:" = "Operationsdatum:";
 
 /* No comment provided by engineer. */
-"Total number of meals: %@" = "Gesamtzahl der Mahlzeiten: %@";
+"Timer Name:" = "Timer Name:";
+
+/* No comment provided by engineer. */
+"To register" = "Zur Registrierung";
+
+/* No comment provided by engineer. */
+"To the login" = "Zum Login";
+
+/* No comment provided by engineer. */
+"Total number of meals: %d" = "Gesamtzahl der Mahlzeiten: %d";
 
 /* No comment provided by engineer. */
 "Unbelieveable how the time goes by!" = "Unglaublich, wie die Zeit vergeht!";
 
 /* No comment provided by engineer. */
 "Welcome Back!" = "Willkommen zurück!";
+

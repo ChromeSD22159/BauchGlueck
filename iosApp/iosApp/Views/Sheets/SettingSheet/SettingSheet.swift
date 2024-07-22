@@ -54,7 +54,7 @@ struct SettingSheet: ViewModifier {
                                 Text("Profile")
                             }
                             
-                            Section{
+                            Section{ 
                                 RowItem(icon: "envelope", text: "Support + Feedback", url: "https://www.instagram.com/frederik.code/")
                                 RowItem(icon: "star.fill", text: "Rate 5 stars", action: { requestReview() }, background: .regular)
                                     .foregroundStyle(theme.color(.textRegular))
@@ -62,7 +62,7 @@ struct SettingSheet: ViewModifier {
                                 Text("Support")
                             }
                             
-                            Section {
+                            Section { 
                                 RowItem(icon: "globe", text: "Developer's Instagram", url: "https://www.instagram.com/frederik.code/")
                            
                                 RowItem(icon: "globe", text: "Developer's website", url: "https://www.appsbyfrederikkohler.de")

@@ -11,6 +11,7 @@ import SwiftUI
 struct TimerCard: View {
     @EnvironmentObject var theme: Theme
     @Environment(\.scenePhase) var scenePhase
+    @Environment(\.colorScheme) var colorScheme
     @StateObject var viewModel: TimerCardViewModel
     @State var countdown: CountdownTimer
     
@@ -23,21 +24,26 @@ struct TimerCard: View {
     
     var body: some View {
         ZStack {
-            theme.color(.backgroundVariant)
+            //theme.color(.backgroundVariant)
             // BACKGROUND
+            
             HStack {
                 GeometryReader { geo in
                     Rectangle()
-                        .fill(theme.color(.secondary))
-                        .frame(width: viewModel.calcRectangleWidth(geometryReader: geo), height: .infinity)
+                        .fill(theme.color(.secondary).opacity(0.3))
+                        .frame(width: viewModel.calcRectangleWidth(geometryReader: geo) , height: .infinity)
                     Spacer()
                 }
             }
+            .background(Material.ultraThin.opacity(0.2))
+            
             // Content
             VStack {
                 
                 HStack {
                     Text(viewModel.countdown.name)
+                        .font(.seat(size: .title))
+                    
                     Spacer()
                     ContextMenu()
                 }
@@ -62,17 +68,16 @@ struct TimerCard: View {
                         Spacer()
                         
                         Text(viewModel.remainingTimeString)
-                            .font(.kodchasanBold(size: 52))
-                            .foregroundStyle(theme.color(.textComplimentary))
+                            .font(.seat(size: .largeTitle))
+                            .foregroundStyle(theme.color(.textRegular))
                             .monospacedDigit()
-                            .onReceive(viewModel.ticker, perform: {_ in
-                                
-                            })
                     }
                 }
             }
             .padding(16)
         }
+        .background(colorScheme == .dark ? Material.ultraThinMaterial.opacity(0.8) : Material.thickMaterial.opacity(0.5))
+        
         .frame(maxHeight: 200)
         .cornerRadius(16)
         .onAppear(perform: {
@@ -103,7 +108,7 @@ struct TimerCard: View {
             Button(action: { viewModel.start() }) {
                 Image(systemName: "play.circle.fill")
                     .font(.system(size: 48))
-                    .foregroundStyle(theme.color(.textComplimentary))
+                    .foregroundStyle(theme.color(.textRegular))
             }
         }
     }
@@ -113,13 +118,13 @@ struct TimerCard: View {
             Button(action: { viewModel.pause() }) {
                 Image(systemName: "pause.circle.fill")
                     .font(.system(size: 48))
-                    .foregroundStyle(theme.color(.textComplimentary))
+                    .foregroundStyle(theme.color(.textRegular))
             }
             
             Button(action: { viewModel.stop() }) {
                 Image(systemName: "stop.circle.fill")
                     .font(.system(size: 48))
-                    .foregroundStyle(theme.color(.textComplimentary))
+                    .foregroundStyle(theme.color(.textRegular))
             }
         }
     }
@@ -129,13 +134,13 @@ struct TimerCard: View {
             Button(action: { viewModel.resume() }) {
                 Image(systemName: "play.circle.fill")
                     .font(.system(size: 48))
-                    .foregroundStyle(theme.color(.textComplimentary))
+                    .foregroundStyle(theme.color(.textRegular))
             }
             
             Button(action: { viewModel.stop() }) {
                 Image(systemName: "stop.circle.fill")
                     .font(.system(size: 48))
-                    .foregroundStyle(theme.color(.textComplimentary))
+                    .foregroundStyle(theme.color(.textRegular))
             }
         }
     }
@@ -167,9 +172,45 @@ struct TimerCard: View {
             .padding(.vertical, 5)
             .padding(.horizontal, 10)
             .background {
-                RoundedRectangle(cornerRadius: theme.cornerRadius)
-                    .strokeBorder(theme.color(.textRegular), lineWidth: 1)
+                ZStack{
+                    RoundedRectangle(cornerRadius: theme.cornerRadius)
+                        .strokeBorder(theme.color(.textRegular), lineWidth: 1)
+                }
+                .frame(width: .infinity, height: .infinity)
+                .background(.ultraThinMaterial.opacity(0.5))
+                .cornerRadius(theme.cornerRadius)
             }
         }
+    }
+}
+
+
+#Preview("Timer") {
+    ZStack {
+        Theme().backgroundImageWithOutImage(background: .background, backgroundOpacity: 1)
+        
+        VStack {
+            TimerCard(countdown: CountdownTimer(
+                id: UUID().uuidString,
+                userId: UUID().uuidString,
+                name: "Test",
+                duration: 50,
+                timerState: TimerState.running.rawValue,
+                timerType: TimerType.meal.rawValue,
+                remainingDuration: 600)
+            )
+            
+            
+            TimerCard(countdown: CountdownTimer(
+                id: UUID().uuidString,
+                userId: UUID().uuidString,
+                name: "Test",
+                duration: 50,
+                timerState: TimerState.running.rawValue,
+                timerType: TimerType.meal.rawValue,
+                remainingDuration: 600)
+            )
+        }
+        .environmentObject(Theme())
     }
 }

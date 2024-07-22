@@ -41,7 +41,7 @@ struct CountdownLiveActivityLiveActivity: Widget {
             } minimal: {
                 DynamicIslandCompact(endDate: context.state.endDate, name: context.attributes.name, position: .Minimal)
             }
-            .widgetURL(URL(string: "BachGlueck://test"))
+            .widgetURL(URL(string: "BauchGlueck://test"))
             .keylineTint(Color.red)
         }
     }
@@ -58,7 +58,7 @@ struct CountdownLiveActivityLiveActivity: Widget {
        }
    }
     
-    @ViewBuilder func lockScreen(endDate: Date, name:String) -> some View {
+    @ViewBuilder func lockScreen(endDate: Date, name: String) -> some View {
         let range = Date()...Date().addingTimeInterval((endDate.timeIntervalSinceNow))
         
         ZStack {
@@ -70,7 +70,7 @@ struct CountdownLiveActivityLiveActivity: Widget {
                         .font(.subheadline)
                         .foregroundStyle(theme.color(.textRegular))
                     
-                    Text("BachGlück")
+                    Text("\(name) timer")
                         .font(.seat(size: .subheadline))
                 }
                 
@@ -85,7 +85,7 @@ struct CountdownLiveActivityLiveActivity: Widget {
                 
                 Spacer()
                 
-                Text("skip \(name)")
+                Text("end \(name)")
                     .font(.seat(size: .caption))
                     .foregroundStyle(theme.color(.textRegular))
                     .padding(.vertical, 5)
@@ -115,36 +115,7 @@ struct CountdownLiveActivityLiveActivity: Widget {
                         .foregroundStyle(theme.color(.textRegular).opacity(0.05))
                 }
             }
-            
-            
-            /*
-            VStack {
-                Spacer()
-                HStack {
-                    VStack(alignment: .leading) {
-                        Spacer()
-                        
-                        HStack(alignment: .bottom, spacing: 12) {
-                            Image(systemName: "timer")
-                                .font(.system(size: 48))
-                                .foregroundStyle(theme.color(.textRegular))
-                        }
-                    }
-                    Spacer()
-                    VStack(alignment: .trailing) {
-                        Spacer()
-                        
-                        TimerView(date: endDate)
-                            .font(.seat(size: 36))
-                        
-                        Text(name)
-                            .font(.seat(size: .title))
-                            .foregroundStyle(theme.color(.textRegular))
-                    }
-                }
-            }
-            .padding(16)
-             */
+
         }
     }
     
