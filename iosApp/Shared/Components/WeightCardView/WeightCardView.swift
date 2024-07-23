@@ -87,6 +87,7 @@ struct WeightCardView: View {
             Text(calculateTrend)
                 .font(.caption)
         }
+        .foregroundStyle(theme.color(.textComplimentary))
     }
     
     func formatDateToInt(_ date: Date) -> String {

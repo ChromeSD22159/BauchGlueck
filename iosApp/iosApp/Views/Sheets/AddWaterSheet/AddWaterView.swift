@@ -14,46 +14,27 @@ struct AddWaterView: View {
     @ObservedObject var awvm: AddWaterViewModel
     
     var body: some View {
-        ZStack {
-            BackgroundImage()
-            VStack {
-                Header()
+        SheetView(sheetName: "Add Water", closeBinding: $awvm.isAddWaterSheet) {
+            VStack(spacing: 50) {
+                Spacer()
+                ProgressCircle()
+                
+                Text("Getränkemenge")
+                    .font(.title2)
+                    .bold()
+                
+                ControlButtons()
                 
                 Spacer()
+            }
+        } closeFunc: {
+            // closeClock
+        } addFunc: {
+            // ActionBlock
+            Task {
+                awvm.saveWaterToHealth()
                 
-                VStack(spacing: 50) {
-                    Spacer()
-                    ProgressCircle()
-                    
-                    Text("Getränkemenge")
-                        .font(.title2)
-                        .bold()
-                    
-                    ControlButtons()
-                    
-                    SaveControlButtons()
-                    
-                    Spacer()
-                }
-                
-            }.padding(16)
-        }
-    }
-    
-    @ViewBuilder func Header() -> some View {
-        HStack {
-            Text("Add Water")
-                .foregroundStyle(theme.color(.primary))
-                .font(.kodchasanBold(size: .title3))
-            
-            Spacer()
-            
-            Button {
-                awvm.isAddWaterSheet.toggle()
-            } label: {
-                HStack {
-                    Image(systemName: "xmark")
-                }.foregroundStyle(theme.color(.textRegular))
+                await awvm.wait(forSeconds: 0.75)
             }
         }
     }
@@ -104,49 +85,6 @@ struct AddWaterView: View {
                     .frame(width: 50, height: 50)
                     .foregroundColor(theme.color(.primary))
             }
-        }
-    }
-    
-     
-    
-    @ViewBuilder func SaveControlButtons() -> some View {
-        HStack(spacing: 20){
-            Button {
-                awvm.isAddWaterSheet.toggle()
-            } label: {
-                HStack {
-                    Spacer()
-                    Text("Save")
-                    Spacer()
-                }
-                .background(theme.gradient(.primary))
-                .cornerRadius(theme.cornerRadius)
-            }
-            .padding(.vertical, 5)
-            .foregroundColor(theme.color(.textComplimentary))
-            .background(theme.gradient(.primary))
-            .cornerRadius(theme.cornerRadius)
-            
-            Button {
-                Task {
-                    awvm.saveWaterToHealth()
-                    
-                    await awvm.wait(forSeconds: 0.75)
-                    
-                    awvm.isAddWaterSheet.toggle()
-                }
-            } label: {
-                HStack {
-                    Spacer()
-                    Text("Save")
-                        .font(.body)
-                    Spacer()
-                }
-            }
-            .padding(.vertical, 5)
-            .foregroundColor(theme.color(.textComplimentary))
-            .background(theme.gradient(.primary))
-            .cornerRadius(theme.cornerRadius)
         }
     }
 }

@@ -7,6 +7,9 @@ struct iOSApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .onAppear {
+                    Helper.shared.printFonts(false)
+                }
         }
     }
 }

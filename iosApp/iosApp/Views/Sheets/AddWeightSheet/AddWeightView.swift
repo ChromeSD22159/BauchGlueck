@@ -13,46 +13,27 @@ struct AddWeightView: View {
     @ObservedObject var awvm: AddWeightViewModel
     
     var body: some View {
-        ZStack {
-            BackgroundImage()
-            VStack {
-                Header()
+        SheetView(sheetName: "Add Weight", closeBinding: $awvm.isAddWeightSheet) {
+            VStack(spacing: 50) {
+                Spacer()
+                ProgressCircle()
+                
+                Text("Gewicht")
+                    .font(.title2)
+                    .bold()
+                
+                ControlButtons()
                 
                 Spacer()
+            }
+        } closeFunc: {
+            // closeClock
+        } addFunc: {
+            // ActionBlock
+            Task {
+                awvm.saveWeightToHealth()
                 
-                VStack(spacing: 50) {
-                    Spacer()
-                    ProgressCircle()
-                    
-                    Text("Gewicht")
-                        .font(.title2)
-                        .bold()
-                    
-                    ControlButtons()
-                    
-                    SaveControlButtons()
-                    
-                    Spacer()
-                }
-                
-            }.padding(16)
-        }
-    }
-    
-    @ViewBuilder func Header() -> some View {
-        HStack {
-            Text("Add Weight")
-                .foregroundStyle(theme.color(.primary))
-                .font(.kodchasanBold(size: .title3))
-            
-            Spacer()
-            
-            Button {
-                awvm.isAddWeightSheet.toggle()
-            } label: {
-                HStack {
-                    Image(systemName: "xmark")
-                }.foregroundStyle(theme.color(.textRegular))
+                await awvm.wait(forSeconds: 0.75)
             }
         }
     }
@@ -121,47 +102,6 @@ struct AddWeightView: View {
             }
             
             
-        }
-    }
-    
-    @ViewBuilder func SaveControlButtons() -> some View {
-        HStack(spacing: 20) {
-            Button {
-                awvm.isAddWeightSheet.toggle()
-            } label: {
-                HStack {
-                    Spacer()
-                    Text("Cancel")
-                    Spacer()
-                }
-                .background(theme.gradient(.primary))
-                .cornerRadius(theme.cornerRadius)
-            }
-            .padding(.vertical, 5)
-            .foregroundColor(theme.color(.textComplimentary))
-            .background(theme.gradient(.primary))
-            .cornerRadius(theme.cornerRadius)
-            
-            Button {
-                Task {
-                    awvm.saveWeightToHealth()
-                    
-                    await awvm.wait(forSeconds: 0.75)
-                    
-                    awvm.isAddWeightSheet.toggle()
-                }
-            } label: {
-                HStack {
-                    Spacer()
-                    Text("Save")
-                        .font(.body)
-                    Spacer()
-                }
-            }
-            .padding(.vertical, 5)
-            .foregroundColor(theme.color(.textComplimentary))
-            .background(theme.gradient(.primary))
-            .cornerRadius(theme.cornerRadius)
         }
     }
 }

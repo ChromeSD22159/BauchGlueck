@@ -23,8 +23,6 @@ class HealthManager: ObservableObject {
         HKObjectType.quantityType(forIdentifier: .bodyMass)!
     ])
 
-    
-    
     // Initialisierung und Berechtigungen anfordern
     init() {
         requestAuthorization()
@@ -81,14 +79,15 @@ class HealthManager: ObservableObject {
         // Berechne die Start- und Enddaten für die Abfragen
         let calendar = Calendar.current
         let endDate = Date()
-        let startDate = calendar.date(byAdding: .day, value: -days + 1, to: endDate)!
+        _ = calendar.date(byAdding: .day, value: -days + 1, to: endDate)!
         
         var weightRecords = [WeightRecord]()
         let dispatchGroup = DispatchGroup()
         
         for dayOffset in 0..<days {
-            let queryStartDate = calendar.date(byAdding: .day, value: -dayOffset, to: endDate)!
-            let queryEndDate = calendar.date(byAdding: .day, value: -dayOffset + 1, to: endDate)!
+            
+            let queryStartDate = calendar.startOfDay(for: calendar.date(byAdding: .day, value: -dayOffset, to: endDate)!)
+            let queryEndDate = calendar.date(byAdding: .day, value: 1, to: queryStartDate)!
             
             let predicate = HKQuery.predicateForSamples(withStart: queryStartDate, end: queryEndDate, options: .strictStartDate)
             let query = HKStatisticsQuery(quantityType: weightType, quantitySamplePredicate: predicate, options: .discreteAverage) { _, result, error in
@@ -96,8 +95,7 @@ class HealthManager: ObservableObject {
                     dispatchGroup.leave()
                 }
                 
-                if let error = error {
-                    print("Error fetching weight data for \(queryStartDate): \(error.localizedDescription)")
+                if error != nil {
                     weightRecords.append(WeightRecord(weight: 0.0, date: queryStartDate))
                     return
                 }
@@ -144,12 +142,13 @@ class HealthManager: ObservableObject {
         }
 
         let waterType = HKObjectType.quantityType(forIdentifier: .dietaryWater)!
+        let healthStore = HKHealthStore()
         
         // Berechne die Start- und Enddaten für die Abfragen
         let calendar = Calendar.current
         let endDate = Date()
-        var startDate = calendar.date(byAdding: .day, value: -days + 1, to: endDate)!
-        
+        _ = calendar.startOfDay(for: calendar.date(byAdding: .day, value: -days + 1, to: endDate)!)
+
         var waterIntakes = [WaterIntake]()
         let dispatchGroup = DispatchGroup()
         
@@ -159,8 +158,8 @@ class HealthManager: ObservableObject {
         }
         
         for dayOffset in 0..<days {
-            let queryStartDate = calendar.date(byAdding: .day, value: -dayOffset, to: endDate)!
-            let queryEndDate = calendar.date(byAdding: .day, value: -dayOffset + 1, to: endDate)!
+            let queryStartDate = calendar.startOfDay(for: calendar.date(byAdding: .day, value: -dayOffset, to: endDate)!)
+            let queryEndDate = calendar.date(byAdding: .day, value: 1, to: queryStartDate)!
             
             let predicate = HKQuery.predicateForSamples(withStart: queryStartDate, end: queryEndDate, options: .strictStartDate)
             let query = HKStatisticsQuery(quantityType: waterType, quantitySamplePredicate: predicate, options: .cumulativeSum) { _, result, error in
@@ -168,7 +167,7 @@ class HealthManager: ObservableObject {
                     dispatchGroup.leave()
                 }
                 
-                if let error = error {
+                if error != nil {
                     addWaterIntake(for: queryStartDate, intake: 0.0)
                     return
                 }
@@ -184,7 +183,6 @@ class HealthManager: ObservableObject {
         dispatchGroup.notify(queue: .main) {
             // Sortiere die Daten nach Datum (optional, falls gewünscht)
             let sortedWaterIntakes = waterIntakes.sorted { $0.date < $1.date }
-            print(sortedWaterIntakes)
             completion(sortedWaterIntakes)
         }
     }

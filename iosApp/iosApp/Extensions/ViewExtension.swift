@@ -20,20 +20,18 @@ extension View {
     
     func navigationBackButton(color: Color, icon: String? = nil, text: LocalizedStringKey? = nil) -> some View {
        modifier(NavigationBackButton(color: color, text: text))
-   }
-}
-
-extension LocalizedStringKey {
-    var stringKey: String {
-        let mirror = Mirror(reflecting: self)
-        let key = mirror.children.first(where: { $0.label == "key" })?.value as? String
-        return key ?? ""
     }
-}
-
-extension String {
-    var toLocalizedStringKey: LocalizedStringKey {
-        return LocalizedStringKey(self)
+    
+    func appear(notificationManager: NotificationManager, healthManager: HealthManager, timerManager: FirestoreTimerManager) -> some View {
+        modifier(AppearModifier(notificationManager: notificationManager, healthManager: healthManager, timerManager: timerManager))
+    }
+    
+    func onChangeScene(healthManager: HealthManager) -> some View {
+        modifier(OnChangeSceneModifier(healthManager: healthManager))
+    }
+    
+    func onChangeColorScheme() -> some View {
+        modifier(OnChangeColorSchemeModifier())
     }
 }
 
@@ -93,28 +91,55 @@ struct TextFieldClearButton: ViewModifier {
     }
 }
 
-#Preview("BackButton") {
-    NavigationView {
-        NavigationLink {
-            HStack {
-                Text("Hello")
+struct AppearModifier: ViewModifier {
+    @EnvironmentObject var theme: Theme
+    @Environment(\.colorScheme) var colorScheme
+    
+    var notificationManager: NotificationManager
+    var healthManager: HealthManager
+    var timerManager: FirestoreTimerManager
+    
+    func body(content: Content) -> some View {
+        content
+            .onAppear {
+                theme.changeTheme(colorScheme)
+                
+                notificationManager.requestPermisson()
+                healthManager.requestAuthorization()
+                healthManager.fetchLists(days: 7)
+                
+                Task {
+                    timerManager.initialize(loadLokal: false)
+                }
             }
-            .navigationBackButton(color: Theme().color(.textRegular), text: "Settings")
-        } label: {
-            HStack {
-                Text("Hello")
-            }
-            .listRowBackground(Theme().color(.backgroundVariant))
-        }
-        .navigationTitle("⚙️ Settings")
-        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
-#Preview("Sheet") {
-    ZStack{
-        
+struct OnChangeSceneModifier: ViewModifier {
+    @Environment(\.scenePhase) var scenePhase
+    var healthManager: HealthManager
+    
+    func body(content: Content) -> some View {
+        content
+            .onChange(of: scenePhase) { value in
+                switch value {
+                    case .background: return
+                    case .inactive: return
+                    case .active: healthManager.fetchLists(days: 7)
+                    @unknown default: return
+                }
+            }
     }
-    .settingSheet(isSettingSheet: .constant(true), authManager: FirebaseAuthManager.shared)
-    .environmentObject(Theme())
+}
+
+struct OnChangeColorSchemeModifier: ViewModifier {
+    @EnvironmentObject var theme: Theme
+    @Environment(\.colorScheme) var colorScheme
+    
+    func body(content: Content) -> some View {
+        content
+            .onChange(of: colorScheme) { newScheme in
+                theme.changeTheme(newScheme)
+            }
+    }
 }

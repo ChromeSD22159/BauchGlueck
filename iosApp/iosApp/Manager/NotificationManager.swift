@@ -8,7 +8,9 @@
 
 import UserNotifications
 
-class NotificationManager {
+class NotificationManager: ObservableObject {
+    static var shared = NotificationManager()
+    
     func requestPermisson() {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { success, error in
             if success {

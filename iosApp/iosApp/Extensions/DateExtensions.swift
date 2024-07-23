@@ -32,4 +32,12 @@ extension Date {
 
         return dates
     }
+    
+    func getCurrentWeekDates() -> [Date] {
+        let today = self
+        if let weekDates = today.datesOfWeek() {
+            return weekDates
+        }
+        return []
+    }
 }

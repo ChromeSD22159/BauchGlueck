@@ -79,7 +79,6 @@ struct WaterIntakeCardView: View {
         HStack {
             Text("Water absorption")
                 .font(.seat(size: .headline))
-                .foregroundStyle(theme.color(.textComplimentary))
             
             Spacer()
             
@@ -88,6 +87,7 @@ struct WaterIntakeCardView: View {
             Text(calculateTrend)
                 .font(.caption)
         }
+        .foregroundStyle(theme.color(.textComplimentary))
     }
     
     func formatDateToInt(_ date: Date) -> String {

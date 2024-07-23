@@ -5,6 +5,7 @@ struct HomeView: View {
    
     @EnvironmentObject var theme: Theme
     @EnvironmentObject var authManager: FirebaseAuthManager
+    
     @StateObject var arvm: AddRecipeViewModel = AddRecipeViewModel()
     @StateObject var awvm: AddWaterViewModel = AddWaterViewModel()
     @StateObject var atvm: AddTimerViewModel = AddTimerViewModel()
@@ -13,47 +14,56 @@ struct HomeView: View {
     @State var isSettingSheet = false
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ZStack {
                 theme.color(.backgroundVariant).ignoresSafeArea()
-                
-                ScrollView{
+
+                ScrollView {
                     VStack(alignment: .leading, spacing: 16) {
-                        NavigationLink{
-                            EmptyView()
-                                .navigationBackButton(color: theme.color(.textRegular), text: "Home")
-                        } label: {
-                            LinkCard(name: "Mahlzeiten", explicitColor: Theme().color(.primary))
+                        LazyVGrid(
+                            columns: [
+                                GridItem(.flexible()),
+                                GridItem(.flexible())
+                            ],
+                            spacing: 16
+                        ) {
+                            NavigationLink {
+                                RecipesOverView()
+                                    .navigationBackButton(color: theme.color(.textRegular), text: "Home")
+                                    .environmentObject(arvm)
+                            } label: {
+                                LinkCard(name: "Mahlzeiten", explicitColor: Theme().color(.primary))
+                            }
+
+                            NavigationLink {
+                                EmptyView()
+                                    .navigationBackButton(color: theme.color(.textRegular), text: "Home")
+                            } label: {
+                                LinkCard(name: "Medikation", explicitColor: Theme().color(.primaryVariant))
+                            }
+
+                            NavigationLink {
+                                TimerOverView()
+                                    .navigationBackButton(color: theme.color(.textRegular), text: "Home")
+                            } label: {
+                                LinkCard(name: "Timer", explicitColor: Theme().color(.secondary))
+                            }
+
+                            NavigationLink {
+                                EmptyView()
+                                    .navigationBackButton(color: theme.color(.textRegular), text: "Home")
+                            } label: {
+                                LinkCard(name: "Einkaufsliste", explicitColor: Theme().color(.secondaryVariant))
+                            }
                         }
-                        
+
                         WeightCardView()
-                        
+
                         WaterIntakeCardView()
-                        
-                        NavigationLink{
-                            EmptyView()
-                                .navigationBackButton(color: theme.color(.textRegular), text: "Home")
-                        } label: {
-                            LinkCard(name: "Medikation", explicitColor: Theme().color(.primaryVariant))
-                        }
-                        
-                        NavigationLink{
-                            TimerOverView()
-                                .navigationBackButton(color: theme.color(.textRegular), text: "Home")
-                        } label: {
-                            LinkCard(name: "Timer", explicitColor: Theme().color(.secondary))
-                        }
-                        
-                        NavigationLink{
-                            EmptyView()
-                                .navigationBackButton(color: theme.color(.textRegular), text: "Home")
-                        } label: {
-                            LinkCard(name: "Einkaufsliste", explicitColor: Theme().color(.secondaryVariant))
-                        }
                     }
+                    .padding(.horizontal, 16)
                 }
                 .scrollIndicators(.never)
-                .padding(.horizontal, 16)
                 .navigationTitle("BauchGlück")
                 .navigationBarTitleDisplayMode(.automatic)
                 .toolbar {
@@ -62,7 +72,7 @@ struct HomeView: View {
                             RoundedHeaderButton(icon: "gear") {
                                 isSettingSheet.toggle()
                             }
-                            
+
                             ContextMenu()
                         }
                     }
@@ -71,8 +81,7 @@ struct HomeView: View {
             .settingSheet(isSettingSheet: $isSettingSheet, authManager: authManager)
         }
     }
-    
-    
+
     @ViewBuilder func RoundedHeaderButton(icon: String, action: @escaping () -> Void) -> some View {
         Button(action: { action() }) {
             ZStack {
@@ -140,45 +149,6 @@ struct HomeView: View {
         .fullScreenCover(isPresented: $awwvm.isAddWeightSheet, onDismiss: {}, content: {
             AddWeightView(awvm: awwvm)
         })
-    }
-    
-    static func getCurrentWeekDates() -> [Date] {
-        let today = Date()
-        if let weekDates = today.datesOfWeek() {
-            return weekDates
-        }
-        return []
-    }
-}
-
-struct LinkCard: View {
-    @EnvironmentObject var theme: Theme
-    var name: String
-    var color: Color
-
-    init(name: String, explicitColor: Color) {
-        self.name = name
-        self.color = explicitColor
-    }
-    
-    var body: some View {
-        ZStack {
-            color
-            
-            VStack {
-                Spacer(minLength: 75)
-                
-                HStack {
-                    Spacer()
-                    
-                    Text(name)
-                        .font(.kodchasanBold(size: .title))
-                        .foregroundStyle(theme.color(.textComplimentary))
-                }
-            }
-            .padding(16)
-        }
-        .cornerRadius(16)
     }
 }
 
