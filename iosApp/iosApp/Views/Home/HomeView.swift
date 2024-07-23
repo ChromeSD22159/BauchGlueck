@@ -32,28 +32,28 @@ struct HomeView: View {
                                     .navigationBackButton(color: theme.color(.textRegular), text: "Home")
                                     .environmentObject(arvm)
                             } label: {
-                                LinkCard(name: "Mahlzeiten", explicitColor: Theme().color(.primary))
+                                LinkCard(name: "Mahlzeiten", icon: "fork.knife", explicitColor: Theme().color(.primary))
                             }
 
                             NavigationLink {
                                 EmptyView()
                                     .navigationBackButton(color: theme.color(.textRegular), text: "Home")
                             } label: {
-                                LinkCard(name: "Medikation", explicitColor: Theme().color(.primaryVariant))
+                                LinkCard(name: "Medikation", icon: "pills.fill", explicitColor: Theme().color(.primaryVariant))
                             }
 
                             NavigationLink {
                                 TimerOverView()
                                     .navigationBackButton(color: theme.color(.textRegular), text: "Home")
                             } label: {
-                                LinkCard(name: "Timer", explicitColor: Theme().color(.secondary))
+                                LinkCard(name: "Timer", icon: "stopwatch", explicitColor: Theme().color(.secondary))
                             }
 
                             NavigationLink {
                                 EmptyView()
                                     .navigationBackButton(color: theme.color(.textRegular), text: "Home")
                             } label: {
-                                LinkCard(name: "Einkaufsliste", explicitColor: Theme().color(.secondaryVariant))
+                                LinkCard(name: "Einkaufsliste", icon: "cart", explicitColor: Theme().color(.secondaryVariant))
                             }
                         }
 
