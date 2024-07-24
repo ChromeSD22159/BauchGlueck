@@ -18,7 +18,7 @@ struct AddWeightView: View {
                 Spacer()
                 ProgressCircle()
                 
-                Text("Gewicht")
+                Text("Weight")
                     .font(.title2)
                     .bold()
                 

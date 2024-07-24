@@ -29,7 +29,7 @@ class AddRecipeViewModel: ObservableObject {
         portion_size: "",
         preparation_time: "",
         cooking_time: "",
-        ingredients: [Ingredients(val: "", name: "", form: nil, unit: .gram)], 
+        ingredients: [],
         preparation: "",
         rating: 0,
         notes: "",
@@ -38,7 +38,7 @@ class AddRecipeViewModel: ObservableObject {
         last_updated: Date()
     )
     
-    func reset() {
+    func resetRecipeUIImage() {
         recipe = nilRecipe
         recipeImage = UIImage()
     }
@@ -55,74 +55,35 @@ class AddRecipeViewModel: ObservableObject {
             }
         )
     }
-}
+    
+    var isSendable: Bool {
+        var missingFields: [String] = []
 
-enum AddRecipeSegmentedOtions: String, CaseIterable {
-    case infomation = "Infomation"
-    case image = "Image"
-    case ingredients = "Ingredients"
-    case preparation = "Preparation"
-    case notes = "Notes"
-}
+        if recipe.id == "" { missingFields.append("id") }
+        if recipe.user_id == "" { missingFields.append("user_id") }
+        if recipe.title == "" { missingFields.append("title") }
+        if recipe.portion_size == "" { missingFields.append("portion_size") }
+        if recipe.preparation_time == "" { missingFields.append("preparation_time") }
+        if recipe.cooking_time == "" { missingFields.append("cooking_time") }
+        if recipe.preparation == "" { missingFields.append("preparation") }
 
-enum RecipeCategories: String, CaseIterable {
-    case none = "Not categorized"
-    case highProtein = "High Protein"
-    case lightMeals = "Light Meals"
-    case pureed = "Pureed"
-    case soupsAndStews = "Soups & Stews"
-    case smoothiesAndShakes = "Smoothies & Shakes"
-    case vegetarian = "Vegetarian"
-    case snacks = "Snacks"
-    case desserts = "Desserts"
-}
+        if !missingFields.isEmpty {
+            print("Folgende Pflichtfelder sind nicht ausgefüllt: \(missingFields.joined(separator: ", "))")
+            return false
+        }
 
-struct Recipe {
-    var id: String
-    var user_id: String
-    var title: String
-    var recipeCategory: RecipeCategories
-    var portion_size: String
-    var preparation_time: String
-    var cooking_time: String
-    var ingredients: [Ingredients]
-    var preparation: String
-    var rating: Int
-    var notes: String
-    var image: String
-    var is_private: Bool
-    var last_updated: Date
-}
-
-struct Ingredients {
-    var val: String // Menge (z.B. "2")
-    var name: String // Name der Zutat (z.B. "Zwiebel")
-    var form: IngredientForm? = nil // Optionale Form (z.B. .gehackt)
-    var unit: MeasurementUnit // Maßeinheit (z.B. .stück)
-}
-
-enum IngredientForm: String, CaseIterable {
-    case chopped = "Chopped"
-    case diced = "Diced"
-    case grated = "Grated"
-    case sliced = "Sliced"
-    case pieces = "Pieces"
-    case pureed = "Pureed"
-    case whole = "Whole"
-    case ground = "Ground"
-    case cut = "Cut"
-    case minced = "Minced"
-    case cubed = "Cubed"
-}
-
-enum MeasurementUnit: String, CaseIterable {
-    case gram = "g"
-    case kilogram = "kg"
-    case milliliter = "ml"
-    case liter = "l"
-    case teaspoon = "tsp"
-    case tablespoon = "tbsp"
-    case cup = "cup"
-    case piece = "piece"
-    case pinch = "pinch"
+        return true
+    }
+    
+    func addRecipe() {
+        if let userID = FirebaseAuthManager.shared.user?.uid {
+            
+            recipe.id = UUID().uuidString
+            recipe.user_id = userID
+            
+            if isSendable {
+                FirebaseRecipeManager.shared.addRecipe(recipe: recipe)
+            }
+        }
+    }
 }

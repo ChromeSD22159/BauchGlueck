@@ -38,7 +38,9 @@ class RegisterViewModel: ObservableObject {
                     email: self.email,
                     surgeryDate: self.surgeryDate,
                     profileImageURL: nil,
-                    startWeight: 70
+                    startWeight: 70,
+                    waterIntake: 200,
+                    waterDayIntake: 2000
                 )
                 
                 self.authManager.userProfile = profile

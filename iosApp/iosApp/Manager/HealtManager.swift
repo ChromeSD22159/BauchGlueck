@@ -115,6 +115,10 @@ class HealthManager: ObservableObject {
         }
     }
     
+    func getLastWeightData() -> WeightRecord? {
+        return weightList.sorted { $0.date > $1.date }.first { $0.weight > 0.0 } 
+    }
+    
     // Getränke speichern
     func saveWater(intakeLiter: Double, date: Date) {
         let waterType = HKQuantityType.quantityType(forIdentifier: .dietaryWater)!

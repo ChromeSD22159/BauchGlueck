@@ -19,7 +19,7 @@ struct AddTimerView: View {
         SheetView(sheetName: "Add Timer", closeBinding: $atvm.isAddTimerSheet) {
             List {
                 Section {
-                    Text("Anzahl Timer: \(FirestoreTimerManager.shared.timerList.count)")
+                    Text("Number of timers: \(FirestoreTimerManager.shared.timerList.count)")
                         .foregroundStyle(theme.color(.primary))
                         .font(.kodchasanBold(size: .title))
                 }

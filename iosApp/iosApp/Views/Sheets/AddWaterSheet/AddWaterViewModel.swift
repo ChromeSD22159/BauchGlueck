@@ -12,15 +12,25 @@ class AddWaterViewModel: ObservableObject {
     @Published var isAddWaterSheet: Bool = false
     
     @Published var drinkAmount: Int = 0
-    @Published var totalAmount: Int = 2000
     
     private var healthManager = HealthManager.shared
     private var value = 100
     
+    var intakePerDay: Int {
+        guard let intakePerDay = FirebaseAuthManager.shared.userProfile?.waterDayIntake else { return 2000 }
+        return Int(intakePerDay)
+    }
+    
+    var trimPercent: CGFloat {
+        CGFloat(min(Double(drinkAmount) / Double(intakePerDay), 1.0))
+    }
+    
+    var intakePercentPerDay: Int {
+        Int(Double(drinkAmount) / Double(intakePerDay) * 100)
+    }
+    
     func increase() {
-        if drinkAmount < totalAmount {
-            drinkAmount += value
-        }
+        drinkAmount += value
     }
     
     func decrease() {
@@ -37,5 +47,9 @@ class AddWaterViewModel: ObservableObject {
     func wait(forSeconds: Double) async -> ()? {
         let nanoseconds = UInt64(forSeconds * 1_000_000_000)
         return try? await Task.sleep(nanoseconds: nanoseconds)
+    }
+    
+    func resetDrinkAmount() {
+        drinkAmount = 0
     }
 }

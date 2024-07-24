@@ -22,8 +22,8 @@ struct HomeView: View {
                     VStack(alignment: .leading, spacing: 16) {
                         LazyVGrid(
                             columns: [
-                                GridItem(.flexible()),
-                                GridItem(.flexible())
+                                GridItem(.flexible(), spacing: 16),
+                                GridItem(.flexible(), spacing: 16)
                             ],
                             spacing: 16
                         ) {
@@ -137,16 +137,16 @@ struct HomeView: View {
                     .padding(8)
             }
         })
-        .fullScreenCover(isPresented: $awvm.isAddWaterSheet, onDismiss: {}, content: {
+        .fullScreenCover(isPresented: $awvm.isAddWaterSheet, onDismiss: { awvm.resetDrinkAmount() }, content: {
             AddWaterView(awvm: awvm)
         })
         .fullScreenCover(isPresented: $arvm.isAddRecipeSheet, onDismiss: {}, content: {
             AddRecipeView(arvm: arvm)
         })
-        .fullScreenCover(isPresented: $atvm.isAddTimerSheet, onDismiss: {}, content: {
+        .fullScreenCover(isPresented: $atvm.isAddTimerSheet, onDismiss: { }, content: {
             AddTimerView(atvm: atvm)
         })
-        .fullScreenCover(isPresented: $awwvm.isAddWeightSheet, onDismiss: {}, content: {
+        .fullScreenCover(isPresented: $awwvm.isAddWeightSheet, onDismiss: { awwvm.resetWeightAmount()  }, content: {
             AddWeightView(awvm: awwvm)
         })
     }

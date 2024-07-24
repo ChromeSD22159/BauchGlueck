@@ -17,6 +17,12 @@
 "Add Weight" = "Gewicht hinzufügen";
 
 /* No comment provided by engineer. */
+"Number of timers: %@" = "Anzahl Timer: %@";
+
+/* No comment provided by engineer. */
+"Weight" = "Gewicht";
+
+/* No comment provided by engineer. */
 "Add Water" = "Wasser hinzufügen";
 
 /* No comment provided by engineer. */
@@ -195,3 +201,105 @@
 
 /* No comment provided by engineer. */
 "Starting weight: %dkg" = "Startgewicht: %dkg";
+
+/* No comment provided by engineer. */
+"Infomation" = "Informationen";
+
+/* No comment provided by engineer. */
+"Image" = "Bild";
+
+/* No comment provided by engineer. */
+"Ingredients" = "Zutaten";
+
+/* No comment provided by engineer. */
+"Preparation" = "Zubereitung";
+
+/* No comment provided by engineer. */
+"Notes" = "Notizen";
+
+/* No comment provided by engineer. */
+"Not categorized" = "Nicht kategorisiert";
+
+/* No comment provided by engineer. */
+"High Protein" = "Proteinreich";
+
+/* No comment provided by engineer. */
+"Light Meals" = "Leichte Gerichte";
+
+/* No comment provided by engineer. */
+"Pureed" = "Püriert";
+
+/* No comment provided by engineer. */
+"Soups & Stews" = "Suppen & Eintöpfe";
+
+/* No comment provided by engineer. */
+"Smoothies & Shakes" = "Smoothies & Shakes";
+
+/* No comment provided by engineer. */
+"Vegetarian" = "Vegetarisch";
+
+/* No comment provided by engineer. */
+"Snacks" = "Snacks";
+
+/* No comment provided by engineer. */
+"Desserts" = "Desserts";
+
+/* No comment provided by engineer. */
+"Chopped" = "Gehackt";
+
+/* No comment provided by engineer. */
+"Diced" = "Gewürfelt";
+
+/* No comment provided by engineer. */
+"Grated" = "Gerieben";
+
+/* No comment provided by engineer. */
+"Sliced" = "Geschnitten";
+
+/* No comment provided by engineer. */
+"Pieces" = "Stücke";
+
+/* No comment provided by engineer. */
+"Pureed" = "Püriert";
+
+/* No comment provided by engineer. */
+"Whole" = "Ganz";
+
+/* No comment provided by engineer. */
+"Ground" = "Gemahlen";
+
+/* No comment provided by engineer. */
+"Cut" = "Geschnitten";
+
+/* No comment provided by engineer. */
+"Minced" = "Gehackt";
+
+/* No comment provided by engineer. */
+"Cubed" = "Gewürfelt";
+
+/* No comment provided by engineer. */
+"g" = "g";
+
+/* No comment provided by engineer. */
+"kg" = "kg";
+
+/* No comment provided by engineer. */
+"ml" = "ml";
+
+/* No comment provided by engineer. */
+"l" = "l";
+
+/* No comment provided by engineer. */
+"tsp" = "TL";
+
+/* No comment provided by engineer. */
+"tbsp" = "EL";
+
+/* No comment provided by engineer. */
+"cup" = "Tasse";
+
+/* No comment provided by engineer. */
+"piece" = "Stück";
+
+/* No comment provided by engineer. */
+"pinch" = "Prise";

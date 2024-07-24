@@ -18,4 +18,6 @@ struct UserProfile {
     var betweenMeals: Int = 3
     var profileImageURL: String?
     var startWeight: Double
+    var waterIntake: Double
+    var waterDayIntake: Double
 }

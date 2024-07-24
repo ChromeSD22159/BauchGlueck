@@ -27,7 +27,7 @@ struct WeightCardView: View {
                 ForEach(data, id: \.date) { record in
                     BarMark(
                         x: .value("Datum", record.date, unit: .day),
-                        y: .value("Gewicht", record.weight)
+                        y: .value("Weight", record.weight)
                     )
                     .foregroundStyle(color)
                 }

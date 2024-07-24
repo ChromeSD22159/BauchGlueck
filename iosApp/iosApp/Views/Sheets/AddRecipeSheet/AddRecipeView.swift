@@ -114,14 +114,23 @@ struct AddRecipeView: View {
                             HStack(spacing: 16) {
 
                                 if arvm.recipeImage.size != .zero {
-                                    Image(uiImage: arvm.recipeImage)
-                                            .resizable()
-                                            .cornerRadius(50)
-                                            .padding(.all, 4)
-                                            .frame(width: 100, height: 100)
-                                            .background(Theme().gradient(.primary))
-                                            .aspectRatio(contentMode: .fill)
-                                            .padding(8)
+                                    ZStack{
+                                        Image(uiImage: arvm.recipeImage)
+                                                .resizable()
+                                                .cornerRadius(50)
+                                                .padding(.all, 4)
+                                                .frame(width: 100, height: 100)
+                                                .background(Theme().gradient(.primary))
+                                                .aspectRatio(contentMode: .fill)
+                                                .padding(8)
+                                    }
+                                    .cornerRadius(50)
+                                    .padding(.all, 4)
+                                    .frame(width: 100, height: 100)
+                                    .background(Theme().gradient(.primary))
+                                    .aspectRatio(contentMode: .fill)
+                                    .clipShape(Circle())
+                                    .padding(8)
                                 } else {
                                     ZStack{
                                         Image(.placeholderrecipe)
@@ -201,10 +210,13 @@ struct AddRecipeView: View {
             }
         } closeFunc: {
             // closeClock
-            arvm.reset()
+            arvm.resetRecipeUIImage()
         } addFunc: {
             // ActionBlock
-            arvm.reset()
+         
+            arvm.addRecipe()
+            
+            arvm.resetRecipeUIImage()
         }
     }
     

@@ -25,7 +25,7 @@ struct EditTimerView: View {
                 
                 List {
                     Section {
-                        Text("Anzahl Timer: \(firestoreTimerManager.timerList.count)")
+                        Text("Number of timers: \(firestoreTimerManager.timerList.count)")
                             .foregroundStyle(theme.color(.primary))
                             .font(.kodchasanBold(size: .title))
                     }

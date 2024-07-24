@@ -18,9 +18,7 @@ class AddWeightViewModel: ObservableObject {
     let weights = Array(stride(from: 50.0, through: 150.0, by: 10.0))
     
     func increase() {
-        if currentWeight < targetWeight {
-            currentWeight += incrementValue
-        }
+        currentWeight += incrementValue
     }
     
     func decrease() {
@@ -38,5 +36,16 @@ class AddWeightViewModel: ObservableObject {
     func wait(forSeconds: Double) async -> ()? {
         let nanoseconds = UInt64(forSeconds * 1_000_000_000)
         return try? await Task.sleep(nanoseconds: nanoseconds)
+    }
+    
+    func resetWeightAmount() {
+        guard let data = HealthManager.shared.getLastWeightData() else {
+            if let user = FirebaseAuthManager.shared.userProfile {
+                currentWeight = user.startWeight
+            }
+            return
+        }
+        
+        currentWeight = data.weight
     }
 }

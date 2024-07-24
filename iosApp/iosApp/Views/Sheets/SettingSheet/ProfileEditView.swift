@@ -20,6 +20,52 @@ struct ProfileEditView: View {
                 PersonalData()
                 
                 MealsData()
+                
+                Section {
+                    VStack(alignment: .leading) {
+                        Text(
+                            String(
+                                format: NSLocalizedString(
+                                    "Water intake per unit: %dml",
+                                    comment: "Label for starting weight with placeholder"
+                                ),
+                                Int(viewModel.waterIntakeBinding.wrappedValue)
+                            )
+                        )
+                        
+                        Slider(
+                            value: viewModel.waterIntakeBinding,
+                            in: 50...1500,
+                            step: 50,
+                            label: {
+                                Text(String(format: NSLocalizedString("Water intake per unit: %dml", comment: ""), viewModel.waterIntakeBinding.wrappedValue))
+                            }
+                        )
+                    }
+                    
+                    VStack(alignment: .leading) {
+                        Text(
+                            String(
+                                format: NSLocalizedString(
+                                    "Water intake per Day: %dl",
+                                    comment: "Label for starting weight with placeholder"
+                                ),
+                                Int(viewModel.waterDayIntakeBinding.wrappedValue)
+                            )
+                        )
+                        
+                        Slider(
+                            value: viewModel.waterDayIntakeBinding,
+                            in: 1000...4000,
+                            step: 50,
+                            label: {
+                                Text(String(format: NSLocalizedString("Water intake per Day: %d", comment: ""), viewModel.waterDayIntakeBinding.wrappedValue))
+                            }
+                        )
+                    }
+                } header: {
+                    Text("Water intake")
+                }
             }
         }
     }

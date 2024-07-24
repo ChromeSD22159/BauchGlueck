@@ -111,6 +111,26 @@ class SettingViewModel: ObservableObject {
         )
     }
     
+    var waterIntakeBinding: Binding<Double> {
+        Binding(
+            get: { self.authManager.userProfile?.waterIntake ?? 200 },
+            set: { newValue in
+                self.authManager.userProfile?.waterIntake = newValue
+                //self.updateUserProfileUser()
+            }
+        )
+    }
+    
+    var waterDayIntakeBinding: Binding<Double> {
+        Binding(
+            get: { self.authManager.userProfile?.waterDayIntake ?? 2000 },
+            set: { newValue in
+                self.authManager.userProfile?.waterDayIntake = newValue
+                //self.updateUserProfileUser()
+            }
+        )
+    }
+    
     var mainMealsBinding: Binding<Int> {
         Binding(
             get: { self.authManager.userProfile?.mainMeals ?? 3 },

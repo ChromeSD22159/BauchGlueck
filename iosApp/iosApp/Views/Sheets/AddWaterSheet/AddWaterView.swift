@@ -19,7 +19,7 @@ struct AddWaterView: View {
                 Spacer()
                 ProgressCircle()
                 
-                Text("Getränkemenge")
+                Text("Amount of drink")
                     .font(.title2)
                     .bold()
                 
@@ -41,23 +41,33 @@ struct AddWaterView: View {
     
     @ViewBuilder func ProgressCircle() -> some View {
         ZStack {
-            Circle()
-                .stroke(lineWidth: 20)
-                .opacity(0.3)
-                .foregroundColor(theme.color(.primary))
-
-            Circle()
-                .trim(from: 0.0, to: CGFloat(min(Double(awvm.drinkAmount) / Double(awvm.totalAmount), 1.0)))
-                .stroke(style: StrokeStyle(lineWidth: 20, lineCap: .round, lineJoin: .round))
-                .foregroundColor(theme.color(.primary))
-                .rotationEffect(Angle(degrees: 270.0))
-                .animation(.linear, value: 5)
-
-            Text("\(Int((Double(awvm.drinkAmount) / Double(awvm.totalAmount)) * 100))%")
-                .font(.seat(size: .title))
-                .bold()
+            ProgressBackgroundCircle()
+            ProgressCircleTrim()
+            ProgressText()
         }
         .frame(width: 150, height: 150)
+    }
+
+    private func ProgressBackgroundCircle() -> some View {
+        Circle()
+            .stroke(lineWidth: 20)
+            .opacity(0.3)
+            .foregroundColor(theme.color(.primary))
+    }
+
+    private func ProgressCircleTrim() -> some View {
+        Circle()
+            .trim(from: 0.0, to: awvm.trimPercent)
+            .stroke(style: StrokeStyle(lineWidth: 20, lineCap: .round, lineJoin: .round))
+            .foregroundColor(theme.color(.primary))
+            .rotationEffect(Angle(degrees: 270.0))
+            .animation(.linear, value: awvm.trimPercent) // Animate trimPercent changes
+    }
+
+    private func ProgressText() -> some View {
+        Text("\(awvm.intakePercentPerDay)%")
+            .font(.seat(size: .title))
+            .bold()
     }
     
     @ViewBuilder func ControlButtons() -> some View {
