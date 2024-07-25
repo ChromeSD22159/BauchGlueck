@@ -142,7 +142,7 @@ class FirebaseRecipeManager: ObservableObject {
 
                 
                     
-                var recipe = Recipe(
+                let recipe = Recipe(
                     id: id,
                     user_id: userId,
                     title: title,
