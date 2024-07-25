@@ -69,6 +69,12 @@ android {
     }
     dependencies {
         debugImplementation(compose.uiTooling)
+        debugImplementation("androidx.compose.ui:ui-tooling:1.6.8")
+        debugImplementation("androidx.compose.ui:ui-test-manifest:1.6.8")
     }
+}
+dependencies {
+    implementation(libs.androidx.material3.android)
+    implementation(libs.androidx.ui.text.google.fonts)
 }
 

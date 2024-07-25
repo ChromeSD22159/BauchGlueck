@@ -26,6 +26,9 @@ kotlin {
     }
     
     sourceSets {
+        androidMain.dependencies {
+
+        }
         commonMain.dependencies {
 
         }
