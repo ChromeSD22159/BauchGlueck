@@ -39,10 +39,7 @@ class FirestoreTimerManager: ObservableObject {
                 
                 let list = documents.compactMap { try? $0.data(as: CountdownTimer.self) }
                 
-                print(list)
-                
                 FirestoreTimerManager.shared.timerList = list
-                print("initialized \(self?.timerList.count ?? -1)")
             }
     }
     

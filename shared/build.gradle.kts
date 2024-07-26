@@ -27,7 +27,10 @@ kotlin {
     
     sourceSets {
         androidMain.dependencies {
-
+            implementation(project.dependencies.platform("com.google.firebase:firebase-bom:33.1.2"))
+            implementation(libs.firebase.analytics.ktx)
+            implementation(libs.firebase.auth.ktx)
+            implementation(libs.firebase.database.ktx)
         }
         commonMain.dependencies {
 

@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.compose.compiler)
+    id("com.google.gms.google-services")
 }
 
 kotlin {
@@ -76,5 +77,9 @@ android {
 dependencies {
     implementation(libs.androidx.material3.android)
     implementation(libs.androidx.ui.text.google.fonts)
+    implementation(libs.play.services.measurement.api)
+    implementation(libs.firebase.database.ktx)
+    implementation(libs.firebase.auth.ktx)
+    implementation(libs.firebase.firestore.ktx)
 }
 

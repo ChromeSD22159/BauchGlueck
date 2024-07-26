@@ -18,8 +18,13 @@ koin = "3.6.0-alpha3"
 lifecycleViewModel = "2.8.3"
 material3Android = "1.2.1"
 uiTextGoogleFonts = "1.6.8"
+playServicesMeasurementApi = "22.0.2"
+firebaseDatabaseKtx = "21.0.0"
+firebaseAuthKtx = "23.0.0"
+firebaseFirestoreKtx = "25.0.0"
 
 [libraries]
+firebase-analytics-ktx = { module = "com.google.firebase:firebase-analytics-ktx" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -37,6 +42,10 @@ koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
 lifecycle-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel", version.ref = "lifecycleViewModel"}
 androidx-material3-android = { group = "androidx.compose.material3", name = "material3-android", version.ref = "material3Android" }
 androidx-ui-text-google-fonts = { group = "androidx.compose.ui", name = "ui-text-google-fonts", version.ref = "uiTextGoogleFonts" }
+play-services-measurement-api = { group = "com.google.android.gms", name = "play-services-measurement-api", version.ref = "playServicesMeasurementApi" }
+firebase-database-ktx = { group = "com.google.firebase", name = "firebase-database-ktx", version.ref = "firebaseDatabaseKtx" }
+firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth-ktx", version.ref = "firebaseAuthKtx" }
+firebase-firestore-ktx = { group = "com.google.firebase", name = "firebase-firestore-ktx", version.ref = "firebaseFirestoreKtx" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

@@ -75,7 +75,6 @@ class FirebaseAuthManager: ObservableObject {
                     }
                 })
                 self.nav = .logged
-                print("logged")
             } else {
                 self.nav = .login
             }
