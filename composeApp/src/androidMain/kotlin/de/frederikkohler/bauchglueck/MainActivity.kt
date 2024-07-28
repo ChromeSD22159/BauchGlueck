@@ -1,32 +1,70 @@
 package de.frederikkohler.bauchglueck
 
 import App
+import android.content.res.Configuration
+import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import com.google.firebase.Firebase
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.analytics
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.database
-import de.frederikkohler.bauchglueck.ui.theme.BkTheme
+import de.frederikkohler.bauchglueck.ui.theme.AppTheme
 
 
 class MainActivity : ComponentActivity() {
     private lateinit var firebaseAnalytics: FirebaseAnalytics
-
     private val database = Firebase.database.reference.child("onlineUsers")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         firebaseAnalytics = Firebase.analytics
 
+        setSystemBars()
+
+
         setContent {
-            BkTheme {
+
+            AppTheme {
                 App()
+            }
+        }
+    }
+
+    private fun setSystemBars() {
+        // Set decor to draw behind system bars (status bar)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
+        // Set the status bar to transparent
+        window.statusBarColor = Color.TRANSPARENT
+
+        // Adjust the appearance of status bar icons and text
+        val controller = WindowInsetsControllerCompat(window, window.decorView)
+
+        when (applicationContext.resources.configuration.uiMode.and(Configuration.UI_MODE_NIGHT_MASK)) {
+            Configuration.UI_MODE_NIGHT_YES -> {
+                // Dark mode: Light text and icons on status bar
+                controller.isAppearanceLightStatusBars = false
+            }
+            Configuration.UI_MODE_NIGHT_NO -> {
+                // Light mode: Dark text and icons on status bar
+                controller.isAppearanceLightStatusBars = true
+            }
+            Configuration.UI_MODE_NIGHT_UNDEFINED -> {
+                // Undefined mode: Use default setting (optional)
+                controller.isAppearanceLightStatusBars = false // or true based on preference
             }
         }
     }
@@ -47,10 +85,16 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@Composable
+fun isSystemInDarkTheme(): Boolean {
+    val configuration = LocalConfiguration.current
+    return configuration.uiMode.and(Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+}
+
 @Preview
 @Composable
 fun AppAndroidLightPreview() {
-    BkTheme {
+    AppTheme {
         App()
     }
 }

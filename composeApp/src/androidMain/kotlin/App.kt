@@ -1,62 +1,44 @@
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
+import android.content.res.Configuration.UI_MODE_NIGHT_NO
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-
-import bauchglueck.composeapp.generated.resources.Res
-import bauchglueck.composeapp.generated.resources.compose_multiplatform
-import de.frederikkohler.bauchglueck.ui.theme.BkTheme
+import de.frederikkohler.bauchglueck.ui.theme.AppTheme
+import de.frederikkohler.bauchglueck.ui.components.BackgroundBlobWithStomach
 
 @Composable
 fun App() {
-    BkTheme {
-        var showContent by remember { mutableStateOf(false) }
-        Column(
-            Modifier.fillMaxWidth()
-                .background(MaterialTheme.colorScheme.primary),
-            horizontalAlignment = Alignment.CenterHorizontally
+    AppTheme {
+        Box(
+            modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background),
+            contentAlignment = Alignment.TopEnd
         ) {
-            Button(
-                onClick = { showContent = !showContent },
-                colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.onSurfaceVariant)
-            ) {
-                Text(
-                    text = "Click me!",
-                )
-            }
-            AnimatedVisibility(showContent) {
-                val greeting = remember { Greeting().greet() }
-                Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Image(painterResource(Res.drawable.compose_multiplatform), null)
-                    Text("Compose: $greeting")
-                }
-            }
+            BackgroundBlobWithStomach()
         }
     }
 }
 
+
+
 @Composable
-@Preview
+@Preview(showBackground = true, uiMode = UI_MODE_NIGHT_YES)
 fun AppButtonDarkPreview() {
-    BkTheme(darkTheme = true) {
+    AppTheme(darkTheme = true) {
         App()
     }
 }
 
 @Composable
-@Preview
+@Preview(showBackground = true, uiMode = UI_MODE_NIGHT_NO)
 fun AppButtonLightPreview() {
-    BkTheme(darkTheme = false) {
+    AppTheme(darkTheme = false) {
         App()
     }
 }
