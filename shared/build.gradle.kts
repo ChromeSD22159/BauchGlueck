@@ -22,6 +22,10 @@ kotlin {
         iosTarget.binaries.framework {
             baseName = "Shared"
             isStatic = true
+
+            // sharedViewModel
+            export(libs.mvvm.core)
+            export(libs.mvvm.flow)
         }
     }
     
@@ -31,12 +35,24 @@ kotlin {
             implementation(libs.firebase.analytics.ktx)
             implementation(libs.firebase.auth.ktx)
             implementation(libs.firebase.database.ktx)
+
+            // sharedViewModel
+            api(libs.mvvm.core)
+            api(libs.mvvm.flow)
+            api(libs.mvvm.flow.compose)
+
+
         }
         commonMain.dependencies {
-
+            // sharedViewModel
+            implementation(libs.mvvm.core)
+            implementation(libs.mvvm.flow)
+           // implementation(projects.shared)
         }
         iosMain.dependencies {
-
+            // sharedViewModel
+            api(libs.mvvm.core)
+            api(libs.mvvm.flow)
         }
     }
 }

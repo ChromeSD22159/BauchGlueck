@@ -19,6 +19,8 @@ struct ContentView: View {
     @StateObject var timerManager = FirestoreTimerManager.shared
     
     var body: some View {
+        LoginTest()
+        /*
            ZStack {
                switch authManager.nav {
                    case .logged: NavigationStack { HomeView() }
@@ -38,5 +40,7 @@ struct ContentView: View {
            .environmentObject(alertManager)
            .environmentObject(themeManager)
            .environmentObject(timerManager)
-       }
+       
+         */
+    }
 }
