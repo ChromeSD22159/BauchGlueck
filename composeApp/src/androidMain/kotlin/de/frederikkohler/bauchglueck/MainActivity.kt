@@ -5,14 +5,9 @@ import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
-import androidx.compose.material3.MaterialTheme
+import androidx.activity.viewModels
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -22,11 +17,15 @@ import com.google.firebase.analytics.analytics
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.database
 import de.frederikkohler.bauchglueck.ui.theme.AppTheme
+import de.frederikkohler.bauchglueck.ui.views.FirebaseAuthViewModel
+import de.frederikkohler.bauchglueck.ui.views.LoginView
 
 
 class MainActivity : ComponentActivity() {
     private lateinit var firebaseAnalytics: FirebaseAnalytics
     private val database = Firebase.database.reference.child("onlineUsers")
+
+    private val viewModel: FirebaseAuthViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,6 +38,8 @@ class MainActivity : ComponentActivity() {
 
             AppTheme {
                 App()
+
+                LoginView(viewModel)
             }
         }
     }
@@ -83,12 +84,6 @@ class MainActivity : ComponentActivity() {
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         database.child(userId).removeValue() // Status auf "offline" setzen
     }
-}
-
-@Composable
-fun isSystemInDarkTheme(): Boolean {
-    val configuration = LocalConfiguration.current
-    return configuration.uiMode.and(Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
 }
 
 @Preview
