@@ -30,6 +30,12 @@ class FirebaseAuthViewModel: ViewModel() {
     private val _showSyn = MutableLiveData<Boolean>()
     val showSyn: LiveData<Boolean> = _showSyn
 
+    private val _email = MutableLiveData<String>()
+    var email: LiveData<String> = _email
+
+    private val _password = MutableLiveData<String>()
+    val password: LiveData<String> = _password
+
     init {
         stateChangeListener()
     }

@@ -37,9 +37,9 @@ class MainActivity : ComponentActivity() {
         setContent {
 
             AppTheme {
-                App()
+                //App()
 
-                LoginView(viewModel)
+                LoginView()
             }
         }
     }
@@ -90,6 +90,6 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun AppAndroidLightPreview() {
     AppTheme {
-        App()
+        LoginView()
     }
 }
