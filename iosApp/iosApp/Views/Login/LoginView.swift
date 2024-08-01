@@ -7,11 +7,12 @@
 //
 
 import Foundation
+import Shared
 import SwiftUI
 
 struct LoginView: View {
-    @ObservedObject var viewModel = LoginViewModel()
-    @EnvironmentObject var authManager: FirebaseAuthManager
+    @ObservedObject var viewModel: LoginViewModel = LoginViewModel()
+    
     @EnvironmentObject var theme: Theme
     @EnvironmentObject var alertManager: AlertManager
 
@@ -32,7 +33,7 @@ struct LoginView: View {
                     .padding(.bottom, 20)
 
                 VStack(alignment: .leading) {
-                    TextField(text: $viewModel.email, label: { Text("E-Mail:") })
+                    TextField("Mail", text: viewModel.binding(\.mail))
                         .textContentType(.username)
                         .foregroundStyle(theme.color(.textRegular))
                         .textFieldStyle(RoundedBorderTextFieldStyle())
@@ -40,7 +41,7 @@ struct LoginView: View {
                         .textInputAutocapitalization(.never)
                         .padding(.vertical, 5)
 
-                    SecureField(text: $viewModel.password, label: { Text("Password:") })
+                    SecureField("Password", text: viewModel.binding(\.password))
                         .textContentType(.password) 
                         .foregroundStyle(theme.color(.textRegular))
                         .keyboardType(.default)
@@ -49,74 +50,109 @@ struct LoginView: View {
                 }
                 .padding(.horizontal, 10)
 
-                HStack {
-                    Spacer()
-                    
-                    NavigationLink(destination: RegisterView()) {
+                if viewModel.state(\.isProcessing) {
+                    ProgressView()
+                } else {
+                    HStack {
+                        Spacer()
                         
-                    }
-                    
-                    Button(action: {
-                        authManager.nav = .signUp
-                    }, label: {
-                        HStack {
-                            Text("To register")
+                        NavigationLink(destination: RegisterView()) {
                             
-                            Image(systemName: "person.crop.circle.fill.badge.plus")
-                               
                         }
-                        .padding(.horizontal, theme.paddingHorizontal)
-                        .padding(.vertical,  theme.paddingVertical)
-                        .foregroundColor(.white)
-                        .clipShape(
-                            .rect(
-                                topLeadingRadius: theme.cornerRadius,
-                                bottomLeadingRadius: theme.cornerRadius,
-                                bottomTrailingRadius: theme.cornerRadius,
-                                topTrailingRadius: theme.cornerRadius
-                            )
-                        )
-                        .padding(.top, 20)
-                    })
-                    
-                    
-                    
-                    Button(action: {
-                        viewModel.login(complete: { error in
-                            if (error != nil) {
-                                alertManager.openAlert(error?.localizedDescription ?? "asds")
-                            } else {
-                                //viewModel.saveLoginData(mail: viewModel.email, password: viewModel.password)
+                        
+                        Button(action: {
+                            FirebaseAuthManager.shared.navigateTo(view: .signup)
+                        }, label: {
+                            HStack {
+                                Text("To register")
+                                
+                                Image(systemName: "person.crop.circle.fill.badge.plus")
+                                   
                             }
-                        })
-                    }) {
-                        HStack {
-                            Text("Log in")
-                            
-                            Image(systemName: "person.fill.checkmark")
-                               
-                        }
-                        .padding(.horizontal, theme.paddingHorizontal)
-                        .padding(.vertical,  theme.paddingVertical)
-                        .background(
-                            theme.gradient(array: [theme.color(.primary), theme.color(.primaryVariant)])
-                        )
-                        .foregroundColor(.white)
-                        .clipShape(
-                            .rect(
-                                topLeadingRadius: theme.cornerRadius,
-                                bottomLeadingRadius: theme.cornerRadius,
-                                bottomTrailingRadius: theme.cornerRadius,
-                                topTrailingRadius: theme.cornerRadius
+                            .padding(.horizontal, theme.paddingHorizontal)
+                            .padding(.vertical,  theme.paddingVertical)
+                            .foregroundColor(.white)
+                            .clipShape(
+                                .rect(
+                                    topLeadingRadius: theme.cornerRadius,
+                                    bottomLeadingRadius: theme.cornerRadius,
+                                    bottomTrailingRadius: theme.cornerRadius,
+                                    topTrailingRadius: theme.cornerRadius
+                                )
                             )
-                        )
+                            .padding(.top, 20)
+                        })
+                        
+                        
+                        Button(action: {
+                            login()
+                        }) {
+                            HStack {
+                                Text("Log in")
+                                
+                                Image(systemName: "person.fill.checkmark")
+                                   
+                            }
+                            .padding(.horizontal, theme.paddingHorizontal)
+                            .padding(.vertical,  theme.paddingVertical)
+                            .background(
+                                theme.gradient(array: [theme.color(.primary), theme.color(.primaryVariant)])
+                            )
+                            .foregroundColor(.white)
+                            .clipShape(
+                                .rect(
+                                    topLeadingRadius: theme.cornerRadius,
+                                    bottomLeadingRadius: theme.cornerRadius,
+                                    bottomTrailingRadius: theme.cornerRadius,
+                                    topTrailingRadius: theme.cornerRadius
+                                )
+                            )
+                        }
+                        .padding(.top, 20)
                     }
-                    .padding(.top, 20)
                 }
 
                 Spacer()
             }
             .padding(.horizontal, theme.paddingHorizontal)
+        }
+        .onReceive(createPublisher(viewModel.actions), perform: { action in
+            switch(action) {
+            case is LoginViewModel.ActionLoginSuccess:
+                //Navigate to HomeScreen
+                //showAlert = true
+                break
+            default:
+                break
+            }
+        })
+        .onAppear {
+            viewModel.isProcessing.subscribe { state in
+                if let isProcessingState = state {
+                    //isProcessing = state as! Bool
+                }
+            }
+
+        }
+    }
+    
+    func login() {
+        viewModel.onLoginButtonPressed { loginState in
+
+            FirebaseAuthManager.shared.signIn(email: loginState.mail, password: loginState.password) { result in
+                
+                switch result {
+                    case .success(let authResult):
+                        alertManager.openAlert("Login Successful")
+                        loginState.isSignedIn = true
+                    case .failure(let error):
+                        alertManager.openAlert(error.localizedDescription)
+                        loginState.isSignedIn = false
+                }
+                
+            }
+            
+            return loginState
         }
     }
 }

@@ -41,13 +41,12 @@ kotlin {
             api(libs.mvvm.flow)
             api(libs.mvvm.flow.compose)
 
-
         }
         commonMain.dependencies {
             // sharedViewModel
             implementation(libs.mvvm.core)
             implementation(libs.mvvm.flow)
-           // implementation(projects.shared)
+            implementation(libs.kotlinx.datetime)
         }
         iosMain.dependencies {
             // sharedViewModel
@@ -68,3 +67,9 @@ android {
         minSdk = libs.versions.android.minSdk.get().toInt()
     }
 }
+
+/*
+api: Macht Abhängigkeiten für andere Module sowohl zur Kompilierungs- als auch zur Laufzeit sichtbar.
+implementation: Macht Abhängigkeiten für andere Module nur zur Laufzeit sichtbar.
+Wahl der Konfiguration: Wähle api, wenn du eine Bibliothek entwickelst und die APIs der Abhängigkeiten Teil deiner öffentlichen API sein sollen. Wähle implementation für interne Abhängigkeiten, die nicht von anderen Modulen direkt verwendet werden sollen.
+ */

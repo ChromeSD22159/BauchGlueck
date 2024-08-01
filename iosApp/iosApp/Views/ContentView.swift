@@ -9,6 +9,7 @@
 import Foundation
 import SwiftUI
 import FirebaseAuth
+import Shared
 
 struct ContentView: View {
     @StateObject var authManager = FirebaseAuthManager.shared
@@ -19,14 +20,14 @@ struct ContentView: View {
     @StateObject var timerManager = FirestoreTimerManager.shared
     
     var body: some View {
-        LoginTest()
-        /*
+        //LoginTest()
            ZStack {
-               switch authManager.nav {
-                   case .logged: NavigationStack { HomeView() }
-                   case .login: LoginView()
-                   case .signUp: RegisterView()
-               }
+                switch authManager.nav {
+                    case .logged: NavigationStack { HomeView() }
+                    case .login: LoginView()
+                    case LoginNav.signup: RegisterView()
+                    default: LoginView()
+                }
            }
            .appear(notificationManager: notificationManager, healthManager: healthManager, timerManager: timerManager)
            .onChangeScene(healthManager: healthManager)
@@ -40,7 +41,5 @@ struct ContentView: View {
            .environmentObject(alertManager)
            .environmentObject(themeManager)
            .environmentObject(timerManager)
-       
-         */
     }
 }

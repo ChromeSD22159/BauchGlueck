@@ -28,12 +28,26 @@ class LoginViewModel : ViewModel() {
     private val _actions = Channel<Action>()
     val actions = _actions.receiveAsFlow().cFlow()
 
-    fun onLoginButtonPressed() {
+    fun onLoginButtonPressed(action: (LoginState) -> LoginState) {
         _isProcessing.value = true
         viewModelScope.launch {
-            delay(1000)//simulate api
+            //  delay(1000)
+
+            val loginResult = action(
+                LoginState(
+                    mail = this@LoginViewModel.mail.value,
+                    password = this@LoginViewModel.password.value,
+                    isSignedIn = false
+                )
+            )
+
+            if (loginResult.isSignedIn) {
+                _actions.send(Action.LoginSuccess)
+            } else {
+                _actions.send(Action.LoginError)
+            }
+
             _isProcessing.value = false
-            _actions.send(Action.LoginSuccess)
         }
     }
 
@@ -61,3 +75,10 @@ class LoginViewModel : ViewModel() {
         data object Cancel : Action("Cancel")
     }
 }
+
+data class LoginState (
+    val mail: String,
+    val password: String,
+    var isSignedIn: Boolean = false
+)
+

@@ -31,6 +31,7 @@ fragmentKtx = "1.8.1"
 media3Common = "1.4.0"
 mvvmCore = "0.16.1"
 lifecycleRuntimeComposeAndroid = "2.8.4"
+kotlinx-datetime="0.4.1"
 
 [libraries]
 firebase-analytics-ktx = { module = "com.google.firebase:firebase-analytics-ktx" }
@@ -59,8 +60,9 @@ firebase-storage-ktx = { group = "com.google.firebase", name = "firebase-storage
 androidx-legacy-support-v4 = { group = "androidx.legacy", name = "legacy-support-v4", version.ref = "legacySupportV4" }
 androidx-lifecycle-livedata-ktx = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", version.ref = "lifecycleLivedataKtx" }
 androidx-lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
-androidx-fragment-ktx = { group = "androidx.fragment", name = "fragment-ktx", version.ref = "fragmentKtx" }
-androidx-media3-common = { group = "androidx.media3", name = "media3-common", version.ref = "media3Common" }
+kotlinx-datetime= { module ="org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
+
+
 
 mvvm-core = { module = "dev.icerock.moko:mvvm-core", version.ref = "mvvmCore" }
 mvvm-flow = { module = "dev.icerock.moko:mvvm-flow", version.ref = "mvvmCore" }
