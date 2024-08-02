@@ -19,12 +19,15 @@ import com.google.firebase.database.database
 import de.frederikkohler.bauchglueck.ui.theme.AppTheme
 import de.frederikkohler.bauchglueck.ui.views.FirebaseAuthViewModel
 import de.frederikkohler.bauchglueck.ui.views.LoginView
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 
 
 class MainActivity : ComponentActivity() {
     private lateinit var firebaseAnalytics: FirebaseAnalytics
     private val database = Firebase.database.reference.child("onlineUsers")
-
     private val viewModel: FirebaseAuthViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,7 +35,6 @@ class MainActivity : ComponentActivity() {
         firebaseAnalytics = Firebase.analytics
 
         setSystemBars()
-
 
         setContent {
 

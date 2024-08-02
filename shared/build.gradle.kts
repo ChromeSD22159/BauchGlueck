@@ -28,6 +28,8 @@ kotlin {
             export(libs.mvvm.flow)
         }
     }
+
+    jvm()
     
     sourceSets {
         androidMain.dependencies {

@@ -13,12 +13,9 @@ androidx-test-junit = "1.2.1"
 compose-plugin = "1.6.11"
 junit = "4.13.2"
 kotlin = "2.0.0"
-ktor = "2.3.12"
 logback = "1.5.6"
-
-
 koin = "3.6.0-alpha3"
-lifecycleViewModel = "2.8.3"
+lifecycleViewModel = "2.8.4"
 material3Android = "1.2.1"
 uiTextGoogleFonts = "1.6.8"
 playServicesMeasurementApi = "22.0.2"
@@ -26,13 +23,19 @@ firebaseDatabaseKtx = "21.0.0"
 firebaseAuthKtx = "23.0.0"
 firebaseFirestoreKtx = "25.0.0"
 firebaseStorageKtx = "21.0.0"
-kotlinVersion = "1.9.0"
+kotlinVersion = "1.9.10"
 legacySupportV4 = "1.0.0"
 lifecycleLivedataKtx = "2.8.4"
 lifecycleViewmodelKtx = "2.8.4"
 mvvmCore = "0.16.1"
 lifecycleRuntimeComposeAndroid = "2.8.4"
-kotlinx-datetime="0.4.1"
+kotlinx-datetime="0.6.0"
+kotlinx_serialization_json = "1.7.1"
+exposed = "0.50.1"
+koin_ktor = "3.4.1"
+ktor = "2.3.12"
+h2 = "2.3.230"
+cdimascio = "6.4.1"
 
 [libraries]
 firebase-analytics-ktx = { module = "com.google.firebase:firebase-analytics-ktx" }
@@ -53,12 +56,30 @@ ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "k
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-client-android = { module = "io.ktor:ktor-client-android", version.ref = "ktor" }
 ktor-client-ios = { module = "io.ktor:ktor-client-ios", version.ref = "ktor" }
-logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
-ktor-server-core = { module = "io.ktor:ktor-server-core-jvm", version.ref = "ktor" }
-ktor-server-netty = { module = "io.ktor:ktor-server-netty-jvm", version.ref = "ktor" }
-ktor-server-tests = { module = "io.ktor:ktor-server-tests-jvm", version.ref = "ktor" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx_serialization_json" }
 
+exposed-core = { module = "org.jetbrains.exposed:exposed-core", version.ref = "exposed" }
+exposed-jdbc = { module = "org.jetbrains.exposed:exposed-jdbc", version.ref = "exposed" }
+exposed-java-time = { module = "org.jetbrains.exposed:exposed-java-time", version.ref = "exposed" }
+
+
+
+
+
+logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
+
+ktor-server-core = { module = "io.ktor:ktor-server-core-jvm", version.ref = "ktor" }
+ktor-server-call-logging = { module = "io.ktor:ktor-server-call-logging-jvm", version.ref = "ktor" }
+ktor-server-content-negotiation = { module = "io.ktor:ktor-server-content-negotiation-jvm", version.ref = "ktor" }
+ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
+ktor-server-netty = { module = "io.ktor:ktor-server-netty-jvm", version.ref = "ktor" }
+ktor-server-config-yaml = { module = "io.ktor:ktor-server-config-yaml", version.ref = "ktor" }
+ktor-client-cio-jvm = { module = "io.ktor:ktor-client-cio-jvm", version = "2.3.12" }
+ktor-koin = { module = "io.insert-koin:koin-ktor", version.ref = "koin_ktor" }
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
+h2database = { module = "com.h2database:h2" , version.ref = "h2" }
+cdimascio-dotenv = { module = "io.github.cdimascio:dotenv-kotlin", version.ref = "cdimascio" }
+
 koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
 lifecycle-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel", version.ref = "lifecycleViewModel"}
 androidx-material3-android = { group = "androidx.compose.material3", name = "material3-android", version.ref = "material3Android" }
@@ -89,3 +110,4 @@ kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 ktor = { id = "io.ktor.plugin", version.ref = "ktor" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlinVersion" }
+kotlin-serialization = { id ="org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
