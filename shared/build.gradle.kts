@@ -22,8 +22,14 @@ kotlin {
         iosTarget.binaries.framework {
             baseName = "Shared"
             isStatic = true
+
+            // sharedViewModel
+            export(libs.mvvm.core)
+            export(libs.mvvm.flow)
         }
     }
+
+    jvm()
     
     sourceSets {
         androidMain.dependencies {
@@ -31,12 +37,37 @@ kotlin {
             implementation(libs.firebase.analytics.ktx)
             implementation(libs.firebase.auth.ktx)
             implementation(libs.firebase.database.ktx)
+
+            // sharedViewModel
+            api(libs.mvvm.core)
+            api(libs.mvvm.flow)
+            api(libs.mvvm.flow.compose)
+
+
+            implementation(libs.ktor.client.android)
+
         }
         commonMain.dependencies {
+            // sharedViewModel
+            implementation(libs.mvvm.core)
+            implementation(libs.mvvm.flow)
+            implementation(libs.kotlinx.datetime)
 
+            // Ktor dependencies
+            implementation(libs.ktor.client.core)
+
+
+            // Other Ktor features as needed
+            implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.serialization.kotlinx.json)
+            implementation(libs.ktor.client.logging)
         }
         iosMain.dependencies {
+            // sharedViewModel
+            api(libs.mvvm.core)
+            api(libs.mvvm.flow)
 
+            implementation(libs.ktor.client.ios)
         }
     }
 }
@@ -52,3 +83,9 @@ android {
         minSdk = libs.versions.android.minSdk.get().toInt()
     }
 }
+
+/*
+api: Macht Abhängigkeiten für andere Module sowohl zur Kompilierungs- als auch zur Laufzeit sichtbar.
+implementation: Macht Abhängigkeiten für andere Module nur zur Laufzeit sichtbar.
+Wahl der Konfiguration: Wähle api, wenn du eine Bibliothek entwickelst und die APIs der Abhängigkeiten Teil deiner öffentlichen API sein sollen. Wähle implementation für interne Abhängigkeiten, die nicht von anderen Modulen direkt verwendet werden sollen.
+ */

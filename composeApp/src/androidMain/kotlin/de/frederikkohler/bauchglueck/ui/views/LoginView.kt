@@ -1,32 +1,29 @@
 package de.frederikkohler.bauchglueck.ui.views
 
-import android.util.Log
+import LoginViewModel
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -36,13 +33,24 @@ import de.frederikkohler.bauchglueck.ui.components.BackgroundBlobWithStomach
 import de.frederikkohler.bauchglueck.ui.theme.AppTheme
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
+import dev.icerock.moko.mvvm.flow.compose.observeAsActions
 
 @Preview
 @Composable
-fun LoginView() {
-    //var viewModel: FirebaseAuthViewModel = viewModel { FirebaseAuthViewModel() }
-    var mail by remember { mutableStateOf("") }
-    var password by rememberSaveable { mutableStateOf("") }
+fun LoginView(
+    loginViewModel: LoginViewModel = viewModel()
+) {
+
+    val mail by loginViewModel.mail.collectAsStateWithLifecycle()
+    val password by loginViewModel.password.collectAsStateWithLifecycle()
+    val isProcessing by loginViewModel.isProcessing.collectAsStateWithLifecycle()
+    val isButtonEnabled by loginViewModel.isButtonEnabled.collectAsStateWithLifecycle()
+
+    val context = LocalContext.current
+
+    loginViewModel.actions.observeAsActions { action ->
+        Toast.makeText(context, action.toString(), Toast.LENGTH_LONG).show()
+    }
 
     Box(
         modifier = Modifier
@@ -63,7 +71,7 @@ fun LoginView() {
 
             TextField(
                 value = mail,
-                onValueChange = { mail = it },
+                onValueChange = { loginViewModel.mail.value = it },
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)),
@@ -79,7 +87,7 @@ fun LoginView() {
                 value = password,
                 modifier = Modifier
                     .fillMaxWidth(),
-                onValueChange = { password = it },
+                onValueChange = { loginViewModel.password.value = it },
                 label = { Text("Enter password") },
                 visualTransformation = PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
@@ -87,35 +95,35 @@ fun LoginView() {
 
             Spacer(modifier = Modifier.padding(16.dp))
 
-            Row(
-                modifier = Modifier,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Button(
-                    onClick = {
-                        //login(mail, password, viewModel)
-                    }
-                ) {
-                    Text("Register")
-                }
 
-                Button(
-                    onClick = {
-                        //login(mail, password, viewModel)
-                    }
+            if (isProcessing) {
+                CircularProgressIndicator()
+            } else {
+                Row(
+                    modifier = Modifier,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text("Login")
+                    Button(
+                        onClick = {
+                            loginViewModel.onCancelButtonPressed()
+                        }
+                    ) {
+                        Text("Cancel")
+                    }
+
+                    Button(
+                        enabled = isButtonEnabled,
+                        onClick = {
+                            loginViewModel.onLoginButtonPressed()
+                        }
+                    ) {
+                        Text("Login")
+                    }
                 }
             }
 
             Spacer(modifier = Modifier)
         }
-    }
-}
-
-fun login(mail: String, password: String, viewModel: FirebaseAuthViewModel) {
-    viewModel.signIn(mail, password) { result ->
-        Log.i("LoginView", "Sign in result: $result")
     }
 }
 

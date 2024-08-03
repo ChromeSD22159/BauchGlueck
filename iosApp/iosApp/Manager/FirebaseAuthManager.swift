@@ -11,6 +11,7 @@ import FirebaseStorage
 import Firebase
 import FirebaseAuth
 import SwiftUI
+import Shared
 import AuthenticationServices
 
 class FirebaseAuthManager: ObservableObject {
@@ -27,6 +28,7 @@ class FirebaseAuthManager: ObservableObject {
     
     @Published var showSyn = false
     
+    let auth = Auth.auth()
     let db = Firestore.firestore()
     let storage = Storage.storage()
     let appName = "de.frederikkohler.bauchGlueck"
@@ -93,21 +95,27 @@ class FirebaseAuthManager: ObservableObject {
         }
     }
 
-    func signIn(email: String, password: String, complete: @escaping (Error?) -> Void) {
+    func signIn(email: String, password: String, completion: @escaping (Result<AuthDataResult?, Error>) -> Void) {
         Auth.auth().signIn(withEmail: email, password: password) { authResult, error in
-            if let error = error {
-                return complete(error)
-            }
                
-            guard let user = authResult?.user else {
-                return complete(self.userError)
+            if let error = error {
+                completion(.failure(error))
+
+                return
             }
 
+            
+            guard let user = authResult?.user else {
+               completion(.failure(self.userError)) // Pass your custom error
+               return
+           }
+            
+            
             self.user = user
                         
             self.nav = .logged
             
-            complete(nil)
+            completion(.success(authResult))
         }
     }
 
@@ -232,5 +240,9 @@ class FirebaseAuthManager: ObservableObject {
                 }
             }
         }
+    }
+    
+    func navigateTo(view: LoginNav) {
+        nav = view
     }
 }
