@@ -30,26 +30,18 @@ fun Application.configureDatabases(
         throw e
     }
 
-    var tables = arrayOf(
-        RecipeIngredients,
-        Recipes,
-        Ingredients,
-        IngredientForms,
-        MeasurementUnits,
-        RecipeCategories)
-
-
+    val tables = arrayOf(
+                    RecipeIngredients,
+                    Recipes,
+                    Ingredients,
+                    IngredientForms,
+                    MeasurementUnits,
+                    RecipeCategories
+                )
 
     transaction(db){
-        SchemaUtils.createMissingTablesAndColumns(
-            Recipes,
-            RecipeIngredients,
-            RecipeCategories,
-            MeasurementUnits,
-            IngredientForms,
-            Ingredients
-        )
 
+        initializeTables(tables)
         initializeMeasurementUnits()
         initializeRecipeCategories()
 
@@ -65,6 +57,12 @@ fun Application.configureDatabases(
 
 suspend fun <T> dbQuery(block:suspend ()->T):T{
     return newSuspendedTransaction(Dispatchers.IO) { block() }
+}
+
+fun initializeTables(tables: Array<Table>) {
+    SchemaUtils.createMissingTablesAndColumns(
+        *tables
+    )
 }
 
 fun initializeMeasurementUnits() {
@@ -83,8 +81,6 @@ fun initializeMeasurementUnits() {
                 this[MeasurementUnits.displayName] = displayName
                 this[MeasurementUnits.symbol] = symbol
             }
-
-            println("Measurement units initialized.")
     }
 }
 
