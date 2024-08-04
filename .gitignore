@@ -20,3 +20,6 @@ captures
 
 # Ignore GoogleService-Info.plist in all directories
 **/iosApp/GoogleService-Info.plist
+
+# Server ENVIROMENTS
+*.env.development
