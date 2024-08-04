@@ -16,6 +16,8 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.ktor.server.core)
     implementation(libs.ktor.server.call.logging)
+    implementation(libs.ktor.serialization.kotlinx.json)
+    implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.server.content.negotiation)
     implementation(libs.ktor.client.logging)
     implementation(libs.ktor.client.core)
@@ -30,7 +32,7 @@ dependencies {
     implementation(libs.exposed.java.time)
     implementation(libs.h2database)
     implementation(libs.cdimascio.dotenv) // ENV Loader
-
+    implementation(libs.logback.classic)
     implementation("mysql:mysql-connector-java:8.0.28") // DB CONNECTOR
     implementation("com.zaxxer:HikariCP:5.1.0") // DB DRIVER
     implementation("org.flywaydb:flyway-core:9.16.0") // Version control for your database
