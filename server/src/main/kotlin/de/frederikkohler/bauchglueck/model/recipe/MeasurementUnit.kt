@@ -1,4 +1,4 @@
-package model.recipe
+package de.frederikkohler.bauchglueck.model.recipe
 
 import kotlinx.serialization.Serializable
 

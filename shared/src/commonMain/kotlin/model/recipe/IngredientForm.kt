@@ -4,6 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class IngredientForm(
-    var id: Int,
+    val id: Int = 0,
     var displayName: String
 )

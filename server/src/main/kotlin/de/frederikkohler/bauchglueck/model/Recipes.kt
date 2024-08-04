@@ -6,13 +6,14 @@ import org.jetbrains.exposed.sql.javatime.datetime
 
 object Recipes : Table() {
     val id = integer("id").autoIncrement().uniqueIndex()
-    val userID = varchar("userID", 255)
+    val userID = varchar("userId", 255)
     val title = varchar("title", 255)
-    val recipeCategory = reference("recipeCategoryID", RecipeCategories.id)
+    val recipeCategory = reference("recipeCategoryId", RecipeCategories.id)
     val portionSize = varchar("portionSize", 255)
+    val portionUnit = varchar("portionUnit", 50).default("servings")
     val preparationTime = varchar("preparationTime", 255)
     val cookingTime = varchar("cookingTime", 255)
-    val ingredients = reference("recipeIngredients", RecipeIngredients.id)
+    val ingredient = reference("ingredientId", Ingredients.id) // many to many relationship
     val preparation = text("preparation")
     val rating = integer("rating")
     val notes = text("notes")

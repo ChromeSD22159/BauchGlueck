@@ -1,5 +1,7 @@
-package model.recipe
+package de.frederikkohler.bauchglueck.model.recipe
 
+import de.frederikkohler.bauchglueck.model.recipe.IngredientForm
+import de.frederikkohler.bauchglueck.model.recipe.MeasurementUnit
 import kotlinx.serialization.Serializable
 
 @Serializable

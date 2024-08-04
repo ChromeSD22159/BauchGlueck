@@ -3,9 +3,9 @@ package de.frederikkohler.bauchglueck.services
 import de.frederikkohler.bauchglueck.model.IngredientForms
 import de.frederikkohler.bauchglueck.model.Ingredients
 import de.frederikkohler.bauchglueck.model.MeasurementUnits
-import model.recipe.Ingredient
-import model.recipe.IngredientForm
-import model.recipe.MeasurementUnit
+import de.frederikkohler.bauchglueck.model.recipe.Ingredient
+import de.frederikkohler.bauchglueck.model.recipe.IngredientForm
+import de.frederikkohler.bauchglueck.model.recipe.MeasurementUnit
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
@@ -19,7 +19,6 @@ interface IngredientService {
 }
 
 class IngredientsDatabaseService : IngredientService {
-    // Function to map a ResultRow to an Ingredient object
     private fun resultRowToIngredient(row: ResultRow): Ingredient {
         return Ingredient(
             id = row[Ingredients.id],
@@ -31,7 +30,13 @@ class IngredientsDatabaseService : IngredientService {
                     .singleOrNull()
             },
             unit = MeasurementUnits.select { MeasurementUnits.id eq row[Ingredients.unit] }
-                .map { unitRow -> MeasurementUnit(id = unitRow[MeasurementUnits.id], displayName = unitRow[MeasurementUnits.displayName]) }
+                .map { unitRow ->
+                    MeasurementUnit(
+                        id = unitRow[MeasurementUnits.id],
+                        displayName = unitRow[MeasurementUnits.displayName],
+                        symbol = unitRow[MeasurementUnits.symbol]
+                    )
+                }
                 .single()
         )
     }
@@ -57,7 +62,7 @@ class IngredientsDatabaseService : IngredientService {
             it[value] = ingredient.value
             it[name] = ingredient.name
             it[form] = ingredient.form?.id
-            it[unit] = ingredient.unit.id
+            it[unit] = ingredient.unit.id ?:0
         }
         if (updateStatement > 0) findIngredientById(ingredient.id) else null
     }

@@ -29,8 +29,19 @@ fun Application.configureDatabases(
         throw e
     }
 
+    var tables = arrayOf(
+        RecipeIngredients,
+        Recipes,
+        Ingredients,
+        IngredientForms,
+        MeasurementUnits,
+        RecipeCategories)
+
+
+
     transaction(db){
-        SchemaUtils.create(
+
+        SchemaUtils.createMissingTablesAndColumns(
             Recipes,
             RecipeIngredients,
             RecipeCategories,

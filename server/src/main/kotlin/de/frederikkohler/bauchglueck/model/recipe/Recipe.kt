@@ -1,6 +1,5 @@
-package model.recipe
+package de.frederikkohler.bauchglueck.model.recipe
 
-import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Serializable
 
 @Serializable

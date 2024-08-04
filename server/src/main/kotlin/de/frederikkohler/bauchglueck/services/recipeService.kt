@@ -7,11 +7,11 @@ import de.frederikkohler.bauchglueck.model.RecipeCategories
 import de.frederikkohler.bauchglueck.model.RecipeIngredients
 import de.frederikkohler.bauchglueck.model.Recipes
 import de.frederikkohler.bauchglueck.plugins.dbQuery
-import model.recipe.Ingredient
-import model.recipe.IngredientForm
-import model.recipe.MeasurementUnit
-import model.recipe.Recipe
-import model.recipe.RecipeCategory
+import de.frederikkohler.bauchglueck.model.recipe.Ingredient
+import de.frederikkohler.bauchglueck.model.recipe.IngredientForm
+import de.frederikkohler.bauchglueck.model.recipe.MeasurementUnit
+import de.frederikkohler.bauchglueck.model.recipe.Recipe
+import de.frederikkohler.bauchglueck.model.recipe.RecipeCategory
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
@@ -29,8 +29,8 @@ class RecipeDatabaseService: RecipeService {
         val ingredients = loadIngredients(row[Recipes.id])
 
         return Recipe(
-            id = row[Recipes.id].toString(),
-            userID = row[Recipes.userID],
+            id = row[Recipes.id],
+            userID = row[Recipes.userID].toString(),
             title = row[Recipes.title],
             recipeCategory = recipeCategory,
             portionSize = row[Recipes.portionSize],
@@ -84,7 +84,8 @@ class RecipeDatabaseService: RecipeService {
                             .map { unitRow ->
                                 MeasurementUnit(
                                     id = unitRow[MeasurementUnits.id],
-                                    displayName = unitRow[MeasurementUnits.displayName]
+                                    displayName = unitRow[MeasurementUnits.displayName],
+                                    symbol = unitRow[MeasurementUnits.symbol]
                                 )
                             }
                             .single()
