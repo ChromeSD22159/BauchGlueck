@@ -1,7 +1,7 @@
 package de.frederikkohler.bauchglueck.services
 
 import de.frederikkohler.bauchglueck.model.RecipeCategories
-import de.frederikkohler.bauchglueck.model.recipe.RecipeCategory
+import model.recipe.RecipeCategory
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.deleteWhere

@@ -11,6 +11,7 @@ import de.frederikkohler.bauchglueck.utils.EnvService
 import io.ktor.server.application.Application
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import model.recipe.RecipeCategory
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -40,7 +41,6 @@ fun Application.configureDatabases(
 
 
     transaction(db){
-
         SchemaUtils.createMissingTablesAndColumns(
             Recipes,
             RecipeIngredients,
@@ -49,6 +49,9 @@ fun Application.configureDatabases(
             IngredientForms,
             Ingredients
         )
+
+        initializeMeasurementUnits()
+        initializeRecipeCategories()
 
         launch(Dispatchers.IO) {
             DatabaseService(
@@ -62,4 +65,46 @@ fun Application.configureDatabases(
 
 suspend fun <T> dbQuery(block:suspend ()->T):T{
     return newSuspendedTransaction(Dispatchers.IO) { block() }
+}
+
+fun initializeMeasurementUnits() {
+    if (MeasurementUnits.selectAll().empty()) {
+            MeasurementUnits.batchInsert(listOf(
+                "Gramm" to "g",
+                "Kilogramm" to "kg",
+                "Milliliter" to "ml",
+                "Liter" to "l",
+                "Teelöffel" to "TL",
+                "Esslöffel" to "EL",
+                "Tasse" to "Tasse",
+                "Prise" to "Prise",
+                "Stück" to "Stück"
+            )) { (displayName, symbol) ->
+                this[MeasurementUnits.displayName] = displayName
+                this[MeasurementUnits.symbol] = symbol
+            }
+
+            println("Measurement units initialized.")
+    }
+}
+
+fun initializeRecipeCategories() {
+    val recipeCategories = listOf(
+        RecipeCategory(1, "Flüssigphase"),
+        RecipeCategory(2, "Pürierte Kost"),
+        RecipeCategory(3, "Weiche Kost"),
+        RecipeCategory(4, "Normalkost"),
+        RecipeCategory(5, "Proteinreich"),
+        RecipeCategory(6, "Zuckerarm"),
+        RecipeCategory(7, "Laktosefrei"),
+        RecipeCategory(8, "Glutenfrei"),
+        RecipeCategory(9, "Vegetarisch"),
+        RecipeCategory(10, "Vegan")
+    )
+
+    if (RecipeCategories.selectAll().empty()) {
+        RecipeCategories.batchInsert(recipeCategories) { recipeCategory ->
+            this[RecipeCategories.displayName] = recipeCategory.displayName
+        }
+    }
 }

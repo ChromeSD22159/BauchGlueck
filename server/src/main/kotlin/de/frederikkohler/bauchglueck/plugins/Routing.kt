@@ -5,18 +5,26 @@ import de.frederikkohler.bauchglueck.services.MeasurementUnitsDatabaseService
 import io.ktor.server.application.*
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.request.receive
-import io.ktor.server.request.receiveParameters
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import de.frederikkohler.bauchglueck.model.recipe.IngredientForm
-import de.frederikkohler.bauchglueck.model.recipe.MeasurementUnit
+import io.ktor.serialization.kotlinx.json.json
+import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
+import model.recipe.IngredientForm
+import model.recipe.MeasurementUnit
 import org.koin.ktor.ext.inject
 
 fun Application.configureRouting() {
 
+    measurementUnitsRoute()
+
+    ingredientForms()
+
+}
+
+fun Application.ingredientForms() {
     routing {
         route("/ingredient_forms") {
             val service: IngredientFormsDatabaseService by inject()
@@ -67,22 +75,29 @@ fun Application.configureRouting() {
                 call.respond(HttpStatusCode.OK, ingredientForms)
             }
         }
+    }
+}
 
+fun Application.measurementUnitsRoute() {
+    routing {
         route("/measurementUnits") {
             val service: MeasurementUnitsDatabaseService by inject() // Assuming you have this service
 
+            /**
+             * POST /measurementUnits
+             * Creates a new measurement unit.
+             * Expects a JSON body containing the 'displayName' and 'symbol' of the measurement unit.
+             * Returns:
+             * - 201 Created: The newly created measurement unit.
+             * - 400 Bad Request: If the request data is invalid.
+             * - 500 Internal Server Error: If there's an error adding the measurement unit to the database.
+             * curl -X POST http://localhost:8080/measurementUnits -H "Content-Type: application/json" -d '{ "id": 1, "displayName": "Kilogram", "symbol": "kg"}'
+             */
             post {
-                val formParameters = call.receiveParameters()
-                val displayName = formParameters["displayName"]
-                val symbol = formParameters["symbol"]
-
-                if (displayName == null || symbol == null) {
-                    call.respond(HttpStatusCode.BadRequest, "Missing displayName or symbol parameter")
-                    return@post
-                }
-
+                val formParameters = call.receive<MeasurementUnit>()
+                formParameters.symbol
                 try {
-                    val measurementUnit = MeasurementUnit(null, displayName, symbol) // Create MeasurementUnit without ID
+                    val measurementUnit = MeasurementUnit(null, formParameters.displayName, formParameters.symbol)
                     val addedMeasurementUnit = service.addMeasurementUnit(measurementUnit)
 
                     if (addedMeasurementUnit != null) {
@@ -95,6 +110,21 @@ fun Application.configureRouting() {
                 }
             }
 
+
+            /**
+             * PUT /measurementUnits/{id}
+             * Updates an existing measurement unit.
+             * Expects a JSON body containing the updated 'displayName' and the 'id' in the path parameter.
+             * Returns:
+             * - 200 OK: The updated measurement unit.
+             * - 400 Bad Request: If the ID is invalid or missing.
+             * - 500 Internal Server Error: If there's an error updating the measurement unit in the database.
+             *
+             * Example using curl:
+             * ```bash
+             * curl -X PUT http://localhost:8080/measurementUnits/2 -H "Content-Type: application/json" -d '{ "displayName": "test", "symbol": "kg" }
+             * ```
+             */
             put("/{id}") {
                 val id = call.parameters["id"]?.toIntOrNull()
                 if (id == null) {
@@ -112,6 +142,21 @@ fun Application.configureRouting() {
                 }
             }
 
+
+            /**
+             * DELETE /measurementUnits/{id}
+             * Deletes a measurement unit by its ID.
+             * Expects the 'id' in the path parameter.
+             * Returns:
+             * - 204 No Content: If the deletion was successful.
+             * - 400 Bad Request: If the ID is invalid or missing.
+             * - 500 Internal Server Error: If there's an error deleting the measurement unit from the database.
+             *
+             * Example using curl:
+             * ```bash
+             * curl -X DELETE http://localhost:8080/measurementUnits/123 # Replace 123 with the actual ID
+             * ```
+             */
             delete("/{id}") {
                 val id = call.parameters["id"]?.toIntOrNull()
                 if (id == null) {
@@ -127,6 +172,18 @@ fun Application.configureRouting() {
                 }
             }
 
+
+            /**
+             * GET /measurementUnits
+             * Retrieves a list of all measurement units.
+             * Returns:
+             * - 200 OK: A list of all measurement units.
+             *
+             * Example using curl:
+             * ```bash
+             * curl http://localhost:8080/measurementUnits
+             * ```
+             */
             get("/") {
                 val measurementUnits = CoroutineScope(Dispatchers.IO).async {
                     service.listAllMeasurementUnits()

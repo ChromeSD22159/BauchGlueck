@@ -2,7 +2,7 @@ package de.frederikkohler.bauchglueck.services
 
 import de.frederikkohler.bauchglueck.model.MeasurementUnits
 import de.frederikkohler.bauchglueck.plugins.dbQuery
-import de.frederikkohler.bauchglueck.model.recipe.MeasurementUnit
+import model.recipe.MeasurementUnit
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.deleteWhere

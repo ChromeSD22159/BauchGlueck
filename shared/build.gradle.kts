@@ -4,6 +4,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 kotlin {
@@ -45,7 +46,6 @@ kotlin {
 
 
             implementation(libs.ktor.client.android)
-
         }
         commonMain.dependencies {
             // sharedViewModel
@@ -59,6 +59,7 @@ kotlin {
 
             // Other Ktor features as needed
             implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.kotlinx.serialization.json)
             implementation(libs.ktor.serialization.kotlinx.json)
             implementation(libs.ktor.client.logging)
         }

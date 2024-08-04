@@ -3,9 +3,14 @@ package de.frederikkohler.bauchglueck.services
 import de.frederikkohler.bauchglueck.model.IngredientForms
 import de.frederikkohler.bauchglueck.model.Ingredients
 import de.frederikkohler.bauchglueck.model.MeasurementUnits
-import de.frederikkohler.bauchglueck.model.recipe.Ingredient
-import de.frederikkohler.bauchglueck.model.recipe.IngredientForm
-import de.frederikkohler.bauchglueck.model.recipe.MeasurementUnit
+import de.frederikkohler.bauchglueck.model.RecipeIngredients
+import de.frederikkohler.bauchglueck.model.RecipeCategories
+import de.frederikkohler.bauchglueck.model.Recipes
+import model.recipe.Ingredient
+import model.recipe.IngredientForm
+import model.recipe.MeasurementUnit
+import model.recipe.RecipeCategory
+import model.recipe.Recipe
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
@@ -25,7 +30,7 @@ class IngredientsDatabaseService : IngredientService {
             value = row[Ingredients.value],
             name = row[Ingredients.name],
             form = row[Ingredients.form]?.let { formId ->
-                IngredientForms.select { IngredientForms.id eq formId }
+                IngredientForms.selectAll().where { IngredientForms.id eq formId }
                     .map { formRow -> IngredientForm(id = formRow[IngredientForms.id], displayName = formRow[IngredientForms.displayName]) }
                     .singleOrNull()
             },
@@ -51,7 +56,6 @@ class IngredientsDatabaseService : IngredientService {
             it[value] = ingredient.value
             it[name] = ingredient.name
             it[form] = ingredient.form?.id
-            it[unit] = ingredient.unit.id
         }
         insertStatement.resultedValues?.singleOrNull()?.let { resultRowToIngredient(it) }
     }

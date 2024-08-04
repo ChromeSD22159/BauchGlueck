@@ -4,7 +4,7 @@ import org.jetbrains.exposed.sql.Table
 
 object RecipeIngredients: Table() {
     val id = integer("id")
-    val recipe = reference("recipeID", Recipes.id)
-    val ingredient = reference("ingredientID", Ingredients.id)
-    override val primaryKey = PrimaryKey(recipe)
+    val recipeID = reference("recipeID", Recipes.id)
+    val ingredientID = reference("ingredientID", Ingredients.id)
+    override val primaryKey = PrimaryKey(recipeID)
 }

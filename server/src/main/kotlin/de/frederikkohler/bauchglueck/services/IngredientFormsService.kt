@@ -1,7 +1,7 @@
 package de.frederikkohler.bauchglueck.services
 
 import de.frederikkohler.bauchglueck.model.IngredientForms
-import de.frederikkohler.bauchglueck.model.recipe.IngredientForm
+import model.recipe.IngredientForm
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.deleteWhere

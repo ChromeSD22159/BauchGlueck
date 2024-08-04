@@ -5,10 +5,13 @@ import de.frederikkohler.bauchglueck.plugins.configureDatabases
 import de.frederikkohler.bauchglueck.plugins.configureMonitoring
 import de.frederikkohler.bauchglueck.plugins.configureRouting
 import de.frederikkohler.bauchglueck.plugins.configureSerialization
+import de.frederikkohler.bauchglueck.services.MeasurementUnitsDatabaseService
 import de.frederikkohler.bauchglueck.utils.ENV
 import io.ktor.server.application.*
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
+import org.koin.dsl.module
+import org.koin.mp.KoinPlatform.startKoin
 
 fun main(args: Array<String>) {
     // io.ktor.server.netty.EngineMain.main(args)

@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.kotlinJvm)
     alias(libs.plugins.ktor)
+    alias(libs.plugins.kotlin.serialization)
     application
 }
 
@@ -17,7 +18,6 @@ dependencies {
     implementation(libs.ktor.server.core)
     implementation(libs.ktor.server.call.logging)
     implementation(libs.ktor.serialization.kotlinx.json)
-    implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.server.content.negotiation)
     implementation(libs.ktor.client.logging)
     implementation(libs.ktor.client.core)
@@ -35,7 +35,5 @@ dependencies {
     implementation(libs.logback.classic)
     implementation(libs.mysql.connector.java) // DB CONNECTOR
     implementation(libs.hikaricp) // DB DRIVER
-    implementation(libs.flyway.core)
-    implementation(libs.androidx.room.ktx)
-    implementation(libs.androidx.room.runtime.android) // Version control for your database
+    implementation(libs.flyway.core) // Version control for your database
 }
