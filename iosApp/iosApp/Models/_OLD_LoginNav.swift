@@ -7,9 +7,10 @@
 //
 
 import Foundation
-
+/*
 enum LoginNav {
     case login
     case signUp
     case logged
 }
+*/

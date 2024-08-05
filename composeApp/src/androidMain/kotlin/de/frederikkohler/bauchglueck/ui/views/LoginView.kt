@@ -114,7 +114,13 @@ fun LoginView(
                     Button(
                         enabled = isButtonEnabled,
                         onClick = {
-                            loginViewModel.onLoginButtonPressed()
+                            loginViewModel.onLoginButtonPressed { result ->
+                                // Android specific code
+
+                                result.isSignedIn = true
+
+                                return@onLoginButtonPressed result
+                            }
                         }
                     ) {
                         Text("Login")
