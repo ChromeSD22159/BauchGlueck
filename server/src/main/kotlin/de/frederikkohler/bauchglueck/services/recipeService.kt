@@ -23,6 +23,11 @@ import java.time.LocalDateTime
 interface RecipeService {
     suspend fun addRecipe(recipe: Recipe): Recipe?
     suspend fun listAllRecipes(): List<Recipe>
+    suspend fun editRecipe(recipe: Recipe): Recipe
+    suspend fun deleteRecipe(id: Int): Boolean
+    suspend fun searchRecipes(query: String): List<Recipe>
+    suspend fun getRecipesByCategory(categoryId: Int): List<Recipe>
+    suspend fun getRecipeById(id: Int): Recipe
 }
 
 class RecipeDatabaseService: RecipeService {
@@ -139,6 +144,26 @@ class RecipeDatabaseService: RecipeService {
         Recipes.selectAll().where { Recipes.id eq newRecipeId }
             .map { resultRowRecipe(it) }
             .singleOrNull()
+    }
+
+    override suspend fun editRecipe(recipe: Recipe): Recipe = dbQuery {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun deleteRecipe(id: Int): Boolean = dbQuery {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun searchRecipes(query: String): List<Recipe> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun getRecipesByCategory(categoryId: Int): List<Recipe> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun getRecipeById(id: Int): Recipe {
+        TODO("Not yet implemented")
     }
 
     override suspend fun listAllRecipes(): List<Recipe> = dbQuery {

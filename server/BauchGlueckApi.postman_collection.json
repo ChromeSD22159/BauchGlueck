@@ -1,0 +1,155 @@
+{
+	"info": {
+		"_postman_id": "5fb9d74a-ca6b-49f5-818d-8806bdbe42e6",
+		"name": "BauchGlück Api",
+		"description": "This document describes the different routes of the BauchGlückApi and how they can be tested with Postman. Additionally, it explains how two environment variables can be set up to switch between the local development environment and the live environment.\n\n1. **KTOR LOCAL**\n    \n    - **Variable Name**: `base_url`\n        \n    - **Initial Value**: `http://localhost:8080` (Customize to your local URL)\n        \n    - **Current Value**: `http://localhost:8080`\n        \n2. **KTOR ProthesenApi Live**\n    \n    - **Variable Name**: `base_url`\n        \n    - **Initial Value**: `https://api.appsbyfrederikkohler.de/bauchglueck`\n        \n    - **Current Value**: `https://api.appsbyfrederikkohler.de/bauchglueck`",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "12938676"
+	},
+	"item": [
+		{
+			"name": "MeasurementUnits",
+			"item": [
+				{
+					"name": "Add MeasurementUnit",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"displayName\": \"Milliliter\",\n    \"symbol\": \"ml\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://0.0.0.0:8080/measurementUnits",
+							"protocol": "http",
+							"host": [
+								"0",
+								"0",
+								"0",
+								"0"
+							],
+							"port": "8080",
+							"path": [
+								"measurementUnits"
+							],
+							"query": [
+								{
+									"key": "displayName",
+									"value": "Milliliter",
+									"disabled": true
+								},
+								{
+									"key": "symbol",
+									"value": "ml",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Edit MeasurementUnit",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"displayName\": \"Milliliter\",\n    \"symbol\": \"ml\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://0.0.0.0:8080/measurementUnits/2",
+							"protocol": "http",
+							"host": [
+								"0",
+								"0",
+								"0",
+								"0"
+							],
+							"port": "8080",
+							"path": [
+								"measurementUnits",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete MeasurementUnit",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://0.0.0.0:8080/measurementUnits/2",
+							"protocol": "http",
+							"host": [
+								"0",
+								"0",
+								"0",
+								"0"
+							],
+							"port": "8080",
+							"path": [
+								"measurementUnits",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get MeasurementUnits",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://0.0.0.0:8080/measurementUnits/",
+							"protocol": "http",
+							"host": [
+								"0",
+								"0",
+								"0",
+								"0"
+							],
+							"port": "8080",
+							"path": [
+								"measurementUnits",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
