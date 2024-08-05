@@ -44,7 +44,7 @@ kotlin {
             api(libs.mvvm.flow)
             api(libs.mvvm.flow.compose)
 
-
+            // dataManager
             implementation(libs.ktor.client.android)
         }
         commonMain.dependencies {
@@ -68,6 +68,7 @@ kotlin {
             api(libs.mvvm.core)
             api(libs.mvvm.flow)
 
+            // dataManager
             implementation(libs.ktor.client.ios)
         }
     }
@@ -83,6 +84,10 @@ android {
     defaultConfig {
         minSdk = libs.versions.android.minSdk.get().toInt()
     }
+}
+dependencies {
+    implementation(libs.androidx.room.runtime.android)
+    implementation(libs.androidx.work.runtime.ktx)
 }
 
 /*

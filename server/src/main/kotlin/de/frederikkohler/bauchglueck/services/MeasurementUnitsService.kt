@@ -1,6 +1,6 @@
 package de.frederikkohler.bauchglueck.services
 
-import de.frederikkohler.bauchglueck.model.MeasurementUnits
+import de.frederikkohler.bauchglueck.tables.MeasurementUnits
 import de.frederikkohler.bauchglueck.plugins.dbQuery
 import model.recipe.MeasurementUnit
 import org.jetbrains.exposed.sql.ResultRow

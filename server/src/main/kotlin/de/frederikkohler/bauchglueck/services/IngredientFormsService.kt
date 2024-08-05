@@ -1,6 +1,6 @@
 package de.frederikkohler.bauchglueck.services
 
-import de.frederikkohler.bauchglueck.model.IngredientForms
+import de.frederikkohler.bauchglueck.tables.IngredientForms
 import model.recipe.IngredientForm
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq

@@ -1,13 +1,13 @@
 package de.frederikkohler.bauchglueck.services
 
-import de.frederikkohler.bauchglueck.model.IngredientForms
-import de.frederikkohler.bauchglueck.model.Ingredients
-import de.frederikkohler.bauchglueck.model.MeasurementUnits
-import de.frederikkohler.bauchglueck.model.RecipeCategories
-import de.frederikkohler.bauchglueck.model.RecipeImages
-import de.frederikkohler.bauchglueck.model.RecipeImages.recipeID
-import de.frederikkohler.bauchglueck.model.RecipeIngredients
-import de.frederikkohler.bauchglueck.model.Recipes
+import de.frederikkohler.bauchglueck.tables.IngredientForms
+import de.frederikkohler.bauchglueck.tables.Ingredients
+import de.frederikkohler.bauchglueck.tables.MeasurementUnits
+import de.frederikkohler.bauchglueck.tables.RecipeCategories
+import de.frederikkohler.bauchglueck.tables.RecipeImages
+import de.frederikkohler.bauchglueck.tables.RecipeImages.recipeID
+import de.frederikkohler.bauchglueck.tables.RecipeIngredients
+import de.frederikkohler.bauchglueck.tables.Recipes
 import de.frederikkohler.bauchglueck.plugins.dbQuery
 import model.recipe.Ingredient
 import model.recipe.IngredientForm

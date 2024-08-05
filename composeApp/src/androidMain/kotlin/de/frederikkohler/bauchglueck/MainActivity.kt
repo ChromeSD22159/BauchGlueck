@@ -23,6 +23,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import scheduleRecipeSync
 
 
 class MainActivity : ComponentActivity() {
@@ -36,6 +37,11 @@ class MainActivity : ComponentActivity() {
 
         setSystemBars()
 
+
+        CoroutineScope(Dispatchers.IO).launch {
+            syncData()
+        }
+
         setContent {
 
             AppTheme {
@@ -45,6 +51,20 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        CoroutineScope(Dispatchers.IO).launch {
+            syncData()
+        }
+    }
+
+    private fun syncData() {
+        scheduleRecipeSync(applicationContext)
+    }
+
+
 
     private fun setSystemBars() {
         // Set decor to draw behind system bars (status bar)

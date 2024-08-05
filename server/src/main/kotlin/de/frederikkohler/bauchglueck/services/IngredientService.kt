@@ -1,16 +1,11 @@
 package de.frederikkohler.bauchglueck.services
 
-import de.frederikkohler.bauchglueck.model.IngredientForms
-import de.frederikkohler.bauchglueck.model.Ingredients
-import de.frederikkohler.bauchglueck.model.MeasurementUnits
-import de.frederikkohler.bauchglueck.model.RecipeIngredients
-import de.frederikkohler.bauchglueck.model.RecipeCategories
-import de.frederikkohler.bauchglueck.model.Recipes
+import de.frederikkohler.bauchglueck.tables.IngredientForms
+import de.frederikkohler.bauchglueck.tables.Ingredients
+import de.frederikkohler.bauchglueck.tables.MeasurementUnits
 import model.recipe.Ingredient
 import model.recipe.IngredientForm
 import model.recipe.MeasurementUnit
-import model.recipe.RecipeCategory
-import model.recipe.Recipe
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq

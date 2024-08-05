@@ -1,4 +1,4 @@
-package de.frederikkohler.bauchglueck.model
+package de.frederikkohler.bauchglueck.tables
 
 import org.jetbrains.exposed.sql.Table
 
