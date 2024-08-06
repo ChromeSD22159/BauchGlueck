@@ -2,6 +2,7 @@ package de.frederikkohler.bauchglueck.plugins
 
 import de.frederikkohler.bauchglueck.services.IngredientFormsDatabaseService
 import de.frederikkohler.bauchglueck.services.MeasurementUnitsDatabaseService
+import de.frederikkohler.bauchglueck.services.RecipeCategoryDatabaseService
 import de.frederikkohler.bauchglueck.services.RecipeDatabaseService
 import io.ktor.server.application.*
 import io.ktor.http.HttpStatusCode
@@ -16,11 +17,14 @@ import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import model.recipe.IngredientForm
 import model.recipe.MeasurementUnit
 import model.recipe.Recipe
+import model.recipe.RecipeCategory
 import org.koin.ktor.ext.inject
 
 fun Application.configureRouting() {
 
     measurementUnitsRoute()
+
+    recipeCategoryRoute()
 
     ingredientForms()
 
@@ -110,7 +114,7 @@ fun Application.recipe() {
             }
 
             /**
-             * GET /recipe
+             * GET /recipes/
              * Retrieves a list of all recipes or searches for recipes based on query parameters.
              * Query Parameters:
              * - q: Search query (optional)
@@ -118,7 +122,7 @@ fun Application.recipe() {
              * Returns:
              * - 200 OK: A list of recipes matching the search criteria or all recipes if no criteria are provided
              */
-            get("/") {
+            get("s/") {
                 val query = call.request.queryParameters["q"]
                 val categoryId = call.request.queryParameters["categoryId"]?.toIntOrNull()
 
@@ -213,7 +217,7 @@ fun Application.ingredientForms() {
 fun Application.measurementUnitsRoute() {
     routing {
         route("/measurementUnits") {
-            val service: MeasurementUnitsDatabaseService by inject() // Assuming you have this service
+            val service: MeasurementUnitsDatabaseService by inject()
 
             /**
              * POST /measurementUnits
@@ -227,7 +231,6 @@ fun Application.measurementUnitsRoute() {
              */
             post {
                 val formParameters = call.receive<MeasurementUnit>()
-                formParameters.symbol
                 try {
                     val measurementUnit = MeasurementUnit(null, formParameters.displayName, formParameters.symbol)
                     val addedMeasurementUnit = service.addMeasurementUnit(measurementUnit)
@@ -306,21 +309,136 @@ fun Application.measurementUnitsRoute() {
 
 
             /**
-             * GET /measurementUnits
+             * GET /measurementUnits/
              * Retrieves a list of all measurement units.
              * Returns:
              * - 200 OK: A list of all measurement units.
              *
              * Example using curl:
              * ```bash
-             * curl http://localhost:8080/measurementUnits
+             * curl http://localhost:8080/measurementUnits/
              * ```
              */
             get("/") {
                 val measurementUnits = CoroutineScope(Dispatchers.IO).async {
                     service.listAllMeasurementUnits()
                 }.await()
+                println("measurementUnits fetched: ${measurementUnits.size}")
                 call.respond(HttpStatusCode.OK, measurementUnits)
+            }
+        }
+    }
+}
+
+fun Application.recipeCategoryRoute() {
+    routing {
+        val service: RecipeCategoryDatabaseService by inject()
+
+        /**
+         * POST /recipeCategory
+         * Creates a new measurement unit.
+         * Expects a JSON body containing the 'displayName' and 'symbol' of the measurement unit.
+         * Returns:
+         * - 201 Created: The newly created measurement unit.
+         * - 400 Bad Request: If the request data is invalid.
+         * - 500 Internal Server Error: If there's an error adding the measurement unit to the database.
+         * curl -X POST http://localhost:8080/measurementUnits -H "Content-Type: application/json" -d '{ "id": 1, "displayName": "Kilogram", "symbol": "kg"}'
+         */
+        post("/recipeCategory") {
+            val formParameters = call.receive<RecipeCategory>()
+            try {
+                val recipeCategory = RecipeCategory(0, formParameters.displayName)
+                val addedRecipeCategory = service.addCategory(recipeCategory)
+
+                if (addedRecipeCategory != null) {
+                    call.respond(HttpStatusCode.Created, addedRecipeCategory)
+                } else {
+                    call.respond(
+                        HttpStatusCode.InternalServerError,
+                        "Failed to add measurement unit"
+                    )
+                }
+            } catch (e: Exception) {
+                call.respond(HttpStatusCode.BadRequest, "Invalid request data")
+            }
+        }
+
+        /**
+         * GET /recipeCategories
+         * Retrieves a list of all measurement units.
+         * Returns:
+         * - 200 OK: A list of all measurement units.
+         *
+         * Example using curl:
+         * ```bash
+         * curl http://localhost:8080/recipeCategories
+         * ```
+         */
+        get("/recipeCategories/") {
+            val measurementUnits = CoroutineScope(Dispatchers.IO).async {
+                service.listAllCategories()
+            }.await()
+            call.respond(HttpStatusCode.OK, measurementUnits)
+        }
+
+        /**
+         * PUT /recipeCategory/{id}
+         * Updates an existing recipeCategory unit.
+         * Expects a JSON body containing the updated 'displayName' and the 'id' in the path parameter.
+         * Returns:
+         * - 200 OK: The updated recipeCategory unit.
+         * - 400 Bad Request: If the ID is invalid or missing.
+         * - 500 Internal Server Error: If there's an error updating the measurement unit in the database.
+         *
+         * Example using curl:
+         * ```bash
+         * curl -X PUT http://localhost:8080/recipeCategory/2 -H "Content-Type: application/json" -d '{ "displayName": "test" }
+         * ```
+         */
+        put("/recipeCategory/{id}") {
+            val id = call.parameters["id"]?.toIntOrNull()
+            if (id == null) {
+                call.respond(HttpStatusCode.BadRequest, "Invalid or missing ID")
+                return@put
+            }
+
+            val recipeCategory = call.receive<RecipeCategory>().copy(id = id)
+
+            val updatedRecipeCategory = service.editCategory(recipeCategory)
+
+            if (updatedRecipeCategory != null) {
+                call.respond(HttpStatusCode.OK, updatedRecipeCategory)
+            } else {
+                call.respond(HttpStatusCode.InternalServerError, "Failed to update measurement unit")
+            }
+        }
+
+        /**
+         * DELETE /recipeCategory/{id}
+         * Deletes a recipeCategory unit by its ID.
+         * Expects the 'id' in the path parameter.
+         * Returns:
+         * - 204 No Content: If the deletion was successful.
+         * - 400 Bad Request: If the ID is invalid or missing.
+         * - 500 Internal Server Error: If there's an error deleting the measurement unit from the database.
+         *
+         * Example using curl:
+         * ```bash
+         * curl -X DELETE http://localhost:8080/recipeCategory/123 # Replace 123 with the actual ID
+         * ```
+         */
+        delete("/recipeCategory/{id}") {
+            val id = call.parameters["id"]?.toIntOrNull()
+            if (id == null) {
+                call.respond(HttpStatusCode.BadRequest, "Invalid or missing ID")
+                return@delete
+            }
+
+            val deleted = service.deleteCategory(id)
+            if (deleted) {
+                call.respond(HttpStatusCode.NoContent)
+            } else {
+                call.respond(HttpStatusCode.InternalServerError, "Failed to delete measurement unit")
             }
         }
     }

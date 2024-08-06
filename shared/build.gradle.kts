@@ -45,7 +45,7 @@ kotlin {
             api(libs.mvvm.flow.compose)
 
 
-            implementation(libs.ktor.client.android)
+            implementation(libs.ktor.client.okhttp)
         }
         commonMain.dependencies {
             // sharedViewModel
@@ -54,21 +54,14 @@ kotlin {
             implementation(libs.kotlinx.datetime)
 
             // Ktor dependencies
-            implementation(libs.ktor.client.core)
-
-
-            // Other Ktor features as needed
-            implementation(libs.ktor.client.content.negotiation)
-            implementation(libs.kotlinx.serialization.json)
-            implementation(libs.ktor.serialization.kotlinx.json)
-            implementation(libs.ktor.client.logging)
+            implementation(libs.bundles.ktor)
         }
         iosMain.dependencies {
             // sharedViewModel
             api(libs.mvvm.core)
             api(libs.mvvm.flow)
 
-            implementation(libs.ktor.client.ios)
+            implementation(libs.ktor.client.darwin)
         }
     }
 }
@@ -84,9 +77,3 @@ android {
         minSdk = libs.versions.android.minSdk.get().toInt()
     }
 }
-
-/*
-api: Macht Abhängigkeiten für andere Module sowohl zur Kompilierungs- als auch zur Laufzeit sichtbar.
-implementation: Macht Abhängigkeiten für andere Module nur zur Laufzeit sichtbar.
-Wahl der Konfiguration: Wähle api, wenn du eine Bibliothek entwickelst und die APIs der Abhängigkeiten Teil deiner öffentlichen API sein sollen. Wähle implementation für interne Abhängigkeiten, die nicht von anderen Modulen direkt verwendet werden sollen.
- */

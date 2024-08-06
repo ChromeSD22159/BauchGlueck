@@ -1,3 +1,5 @@
+package viewModels
+
 import dev.icerock.moko.mvvm.flow.CMutableStateFlow
 import dev.icerock.moko.mvvm.flow.cFlow
 import dev.icerock.moko.mvvm.flow.cMutableStateFlow

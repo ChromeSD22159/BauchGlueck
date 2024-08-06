@@ -1,16 +1,19 @@
 package de.frederikkohler.bauchglueck
 
-import App
+import android.content.ContentUris
 import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.lifecycle.viewModelScope
 import com.google.firebase.Firebase
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.analytics
@@ -19,20 +22,31 @@ import com.google.firebase.database.database
 import de.frederikkohler.bauchglueck.ui.theme.AppTheme
 import de.frederikkohler.bauchglueck.ui.views.FirebaseAuthViewModel
 import de.frederikkohler.bauchglueck.ui.views.LoginView
+import dev.icerock.moko.mvvm.flow.cStateFlow
+import io.ktor.client.HttpClient
+import network.createHttpClient
+import viewModels.SharedRecipeViewModel
+import io.ktor.client.engine.okhttp.OkHttp
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import network.BauchGlueckClient
+import util.onSuccess
 
 
 class MainActivity : ComponentActivity() {
     private lateinit var firebaseAnalytics: FirebaseAnalytics
     private val database = Firebase.database.reference.child("onlineUsers")
     private val viewModel: FirebaseAuthViewModel by viewModels()
+    private val sharedRecipeViewModel: SharedRecipeViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         firebaseAnalytics = Firebase.analytics
+
+        sharedRecipeViewModel.fetchMeasureUnits(createHttpClient(OkHttp.create()))
+        sharedRecipeViewModel.fetchRecipeCategories(createHttpClient(OkHttp.create()))
 
         setSystemBars()
 
@@ -42,6 +56,7 @@ class MainActivity : ComponentActivity() {
                 //App()
 
                 LoginView()
+
             }
         }
     }
@@ -75,7 +90,7 @@ class MainActivity : ComponentActivity() {
     override fun onStart() {
         super.onStart()
         val currentUser = FirebaseAuth.getInstance().currentUser ?: return
-        val userStatusRef = database.child(currentUser.uid) // Correct reference chaining
+        val userStatusRef = database.child(currentUser.uid)
 
         userStatusRef.setValue(true)
         userStatusRef.onDisconnect().removeValue()

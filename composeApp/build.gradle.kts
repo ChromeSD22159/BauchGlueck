@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.kotlin.serialization)
     id("com.google.gms.google-services")
 }
 
@@ -23,6 +24,7 @@ kotlin {
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
+            implementation(libs.ktor.client.okhttp)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -32,7 +34,7 @@ kotlin {
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
             implementation(projects.shared)
-            implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose:2.8.0")
+            implementation(libs.lifecycle.viewmodel.compose)
         }
     }
 }
@@ -69,10 +71,11 @@ android {
     buildFeatures {
         compose = true
     }
+
     dependencies {
         debugImplementation(compose.uiTooling)
-        debugImplementation("androidx.compose.ui:ui-tooling:1.6.8")
-        debugImplementation("androidx.compose.ui:ui-test-manifest:1.6.8")
+        debugImplementation(libs.androidx.ui.tooling)
+        debugImplementation(libs.androidx.ui.test.manifest)
     }
 }
 dependencies {

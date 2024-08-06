@@ -8,8 +8,19 @@ plugins {
 group = "de.frederikkohler.bauchglueck"
 version = "1.0.0"
 application {
-    mainClass.set("de.frederikkohler.bauchglueck.ApplicationKt")
-    applicationDefaultJvmArgs = listOf("-Dio.ktor.development=${extra["io.ktor.development"] ?: "false"}")
+    mainClass.set("de.frederikkohler.bauchglueck.ServerKt")
+    project.setProperty("mainClassName", mainClass.get())
+    applicationDefaultJvmArgs = listOf("-Dio.ktor.development=true")
+}
+
+repositories {
+    mavenCentral()
+}
+
+ktor {
+    fatJar {
+        archiveFileName.set("server.jar")
+    }
 }
 
 dependencies {
@@ -19,10 +30,6 @@ dependencies {
     implementation(libs.ktor.server.call.logging)
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.ktor.server.content.negotiation)
-    implementation(libs.ktor.client.logging)
-    implementation(libs.ktor.client.core)
-    implementation(libs.ktor.client.cio.jvm)
-    implementation(libs.ktor.client.cio)
     implementation(libs.ktor.server.netty)
     implementation(libs.ktor.server.config.yaml)
     implementation(libs.ktor.koin)

@@ -1,6 +1,6 @@
 package de.frederikkohler.bauchglueck.ui.views
 
-import LoginViewModel
+import viewModels.LoginViewModel
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -34,12 +34,20 @@ import de.frederikkohler.bauchglueck.ui.theme.AppTheme
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.icerock.moko.mvvm.flow.compose.observeAsActions
+import viewModels.SharedRecipeViewModel
+import android.util.Log
+import androidx.compose.runtime.collectAsState
+import io.ktor.client.engine.okhttp.OkHttp
+import network.createHttpClient
 
 @Preview
 @Composable
 fun LoginView(
-    loginViewModel: LoginViewModel = viewModel()
+    loginViewModel: LoginViewModel = viewModel(),
+    sharedRecipeViewModel: SharedRecipeViewModel = viewModel()
 ) {
+    val measureUnits by sharedRecipeViewModel.measureUnits.collectAsState()
+    val recipeCategories by sharedRecipeViewModel.recipeCategories.collectAsState()
 
     val mail by loginViewModel.mail.collectAsStateWithLifecycle()
     val password by loginViewModel.password.collectAsStateWithLifecycle()
@@ -96,6 +104,27 @@ fun LoginView(
             Spacer(modifier = Modifier.padding(16.dp))
 
 
+            Row {
+                Button(
+                    onClick = {
+                        sharedRecipeViewModel.fetchMeasureUnits(createHttpClient(OkHttp.create()))
+                        Log.d("sharedRecipeViewModel", measureUnits.toString())
+                    }
+                ) {
+                    Text("Units ${measureUnits.size}")
+                }
+
+                Button(
+                    onClick = {
+                        sharedRecipeViewModel.fetchRecipeCategories(createHttpClient(OkHttp.create()))
+                        Log.d("sharedRecipeViewModel", recipeCategories.toString())
+                    }
+                ) {
+                    Text("Categories ${recipeCategories.size}")
+                }
+            }
+
+
             if (isProcessing) {
                 CircularProgressIndicator()
             } else {
@@ -106,6 +135,8 @@ fun LoginView(
                     Button(
                         onClick = {
                             loginViewModel.onCancelButtonPressed()
+
+                            Log.d("sync", sharedRecipeViewModel.measureUnits.value.toString())
                         }
                     ) {
                         Text("Cancel")
@@ -114,7 +145,7 @@ fun LoginView(
                     Button(
                         enabled = isButtonEnabled,
                         onClick = {
-                            loginViewModel.onLoginButtonPressed()
+                            // loginViewModel.onLoginButtonPressed() { }
                         }
                     ) {
                         Text("Login")

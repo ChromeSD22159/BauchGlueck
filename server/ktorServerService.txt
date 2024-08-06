@@ -1,0 +1,41 @@
+[Unit]
+Description=BauchGlueck Service
+After=network.target
+StartLimitIntervalSec=10
+StartLimitBurst=5
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=root
+
+WorkingDirectory=/var/www/vhosts/appsbyfrederikkohler.de/api.appsbyfrederikkohler.de/bauchglueck/
+EnvironmentFile=/var/www/vhosts/appsbyfrederikkohler.de/api.appsbyfrederikkohler.de/bauchglueck/.env
+ExecStart=/usr/lib/jvm/default-java/bin/java -jar /var/www/vhosts/appsbyfrederikkohler.de/api.appsbyfrederikkohler.de/bauchglueck/server.jar
+
+
+
+
+
+
+
+[Unit]
+Description=BauchGlueck Service
+After=network.target
+StartLimitIntervalSec=10
+StartLimitBurst=5
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=root
+EnvironmentFile=/etc/environment
+ExecStart=/usr/lib/jvm/java-17-openjdk-amd64/bin/java  -jar /var/www/vhosts/appsbyfrederikkohler.de/api.appsbyfrederikkohler.de/bauchglueck/server.jar
+StandardOutput=syslog
+StandardError=append:/var/log/ktor-server.log
+
+
+[Install]
+WantedBy=multi-user.target

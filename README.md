@@ -18,5 +18,8 @@ Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-mu
 
 
 SharedViewModel: [Github Shared MVVM](https://github.com/sunildhiman90/KMPAppSharedViewModel/tree/main)
-SharedDateTime: [Shared DateTime](https://raed-o-ghazal.medium.com/kotlinx-localdatetime-manipulation-for-kmm-eacfede93aba
-)
+SharedDateTime: [Shared DateTime](https://raed-o-ghazal.medium.com/kotlinx-localdatetime-manipulation-for-kmm-eacfede93aba)
+
+``` kotlin
+1. -> ./gradlew :shared:build -> generates the server-<version>.jar for the server
+```
