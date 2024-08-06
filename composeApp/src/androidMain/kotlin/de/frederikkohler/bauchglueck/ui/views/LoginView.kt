@@ -13,10 +13,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.Button
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.Text
-import androidx.compose.material.TextField
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -36,6 +36,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.icerock.moko.mvvm.flow.compose.observeAsActions
 import viewModels.SharedRecipeViewModel
 import android.util.Log
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.collectAsState
 import io.ktor.client.engine.okhttp.OkHttp
 import network.createHttpClient
@@ -106,6 +107,10 @@ fun LoginView(
 
             Row {
                 Button(
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    ),
                     onClick = {
                         sharedRecipeViewModel.fetchMeasureUnits(createHttpClient(OkHttp.create()))
                         Log.d("sharedRecipeViewModel", measureUnits.toString())
@@ -113,6 +118,8 @@ fun LoginView(
                 ) {
                     Text("Units ${measureUnits.size}")
                 }
+
+                Log.d("ButtonColors", "Container Color: ${MaterialTheme.colorScheme.primaryContainer}, Content Color: ${MaterialTheme.colorScheme.onPrimaryContainer}")
 
                 Button(
                     onClick = {
