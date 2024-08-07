@@ -38,8 +38,6 @@ import viewModels.SharedRecipeViewModel
 import android.util.Log
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.collectAsState
-import io.ktor.client.engine.okhttp.OkHttp
-import network.createHttpClient
 
 @Preview
 @Composable
@@ -112,7 +110,7 @@ fun LoginView(
                         contentColor = MaterialTheme.colorScheme.onPrimaryContainer
                     ),
                     onClick = {
-                        sharedRecipeViewModel.fetchMeasureUnits(createHttpClient(OkHttp.create()))
+                        sharedRecipeViewModel.fetchMeasureUnits()
                         Log.d("sharedRecipeViewModel", measureUnits.toString())
                     }
                 ) {
@@ -123,7 +121,7 @@ fun LoginView(
 
                 Button(
                     onClick = {
-                        sharedRecipeViewModel.fetchRecipeCategories(createHttpClient(OkHttp.create()))
+                        sharedRecipeViewModel.fetchRecipeCategories()
                         Log.d("sharedRecipeViewModel", recipeCategories.toString())
                     }
                 ) {

@@ -10,14 +10,17 @@ import model.recipe.RecipeCategory
 import util.NetworkError
 import util.Result
 
-class BauchGlueckClient(
-    private val httpClient: HttpClient
-) {
-    private val serverHost = ServerHost.LOCAL_FREDERIK.url
+interface BauchGlueckApi {
+    suspend fun getMeasurementUnits(): Result<List<MeasurementUnit>, NetworkError>
+    suspend fun getRecipeCategories(): Result<List<RecipeCategory>, NetworkError>
+}
 
-    suspend fun getMeasurementUnits(
-        serverPath: String = ServerPath.MEASUREMENT_UNITS_GET.path
-    ): Result<List<MeasurementUnit>, NetworkError> {
+class BauchGlueckApiClient: BauchGlueckApi {
+    private val serverHost = ServerHost.LOCAL_SABINA.url
+    private val httpClient: HttpClient = createHttpClient()
+
+    override suspend fun getMeasurementUnits(): Result<List<MeasurementUnit>, NetworkError> {
+        val serverPath: String = ServerPath.MEASUREMENT_UNITS_GET.path
         val response = try {
             httpClient.get(
                 urlString = "${serverHost}${serverPath}"
@@ -39,9 +42,8 @@ class BauchGlueckClient(
         }
     }
 
-    suspend fun getRecipeCategories(
-        serverPath: String = ServerPath.RECIPE_CATEGORIES_GET.path
-    ): Result<List<RecipeCategory>, NetworkError> {
+    override suspend fun getRecipeCategories(): Result<List<RecipeCategory>, NetworkError> {
+        val serverPath: String = ServerPath.RECIPE_CATEGORIES_GET.path
         val response = try {
             httpClient.get(
                 urlString = "${serverHost}${serverPath}"
@@ -65,11 +67,11 @@ class BauchGlueckClient(
             else -> Result.Error(NetworkError.UNKNOWN)
         }
     }
-
 }
 
 enum class ServerHost(val url: String) {
     LOCAL_FREDERIK("http://192.168.0.73:8080/"),
+    LOCAL_SABINA("http://192.168.1.57:8080/"),
     PRODUCTION("https://api.frederikkohler.de/bauchglueck/")
 }
 

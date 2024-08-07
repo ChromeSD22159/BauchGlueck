@@ -8,6 +8,26 @@ import io.ktor.client.plugins.logging.Logging
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
+
+expect fun createHttpClientEngine(): HttpClientEngine
+
+fun createHttpClient(): HttpClient {
+    val engine = createHttpClientEngine()
+    return HttpClient(engine) {
+        install(Logging) {
+            level = LogLevel.ALL
+        }
+        install(ContentNegotiation) {
+            json(
+                json = Json {
+                    ignoreUnknownKeys = true
+                }
+            )
+        }
+    }
+}
+
+/*
 fun createHttpClient(engine: HttpClientEngine): HttpClient {
     return HttpClient(engine) {
         install(Logging) {
@@ -22,3 +42,4 @@ fun createHttpClient(engine: HttpClientEngine): HttpClient {
         }
     }
 }
+ */

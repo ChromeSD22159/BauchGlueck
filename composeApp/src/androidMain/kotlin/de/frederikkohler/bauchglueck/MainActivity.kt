@@ -32,8 +32,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         firebaseAnalytics = Firebase.analytics
 
-        sharedRecipeViewModel.fetchMeasureUnits(createHttpClient(OkHttp.create()))
-        sharedRecipeViewModel.fetchRecipeCategories(createHttpClient(OkHttp.create()))
+        sharedRecipeViewModel.fetchMeasureUnits()
+        sharedRecipeViewModel.fetchRecipeCategories()
 
         setSystemBars()
 
