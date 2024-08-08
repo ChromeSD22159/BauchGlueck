@@ -18,9 +18,7 @@ import com.google.firebase.database.database
 import de.frederikkohler.bauchglueck.ui.theme.AppTheme
 import de.frederikkohler.bauchglueck.ui.views.FirebaseAuthViewModel
 import de.frederikkohler.bauchglueck.ui.views.LoginView
-import network.createHttpClient
 import viewModels.SharedRecipeViewModel
-import io.ktor.client.engine.okhttp.OkHttp
 
 class MainActivity : ComponentActivity() {
     private lateinit var firebaseAnalytics: FirebaseAnalytics
