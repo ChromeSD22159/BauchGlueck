@@ -16,14 +16,13 @@ import com.google.firebase.analytics.analytics
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.database
 import de.frederikkohler.bauchglueck.ui.theme.AppTheme
-import de.frederikkohler.bauchglueck.ui.views.FirebaseAuthViewModel
+import de.frederikkohler.bauchglueck.ui.views.navigations.AuthNavigation
 import de.frederikkohler.bauchglueck.ui.views.LoginView
 import viewModels.SharedRecipeViewModel
 
 class MainActivity : ComponentActivity() {
     private lateinit var firebaseAnalytics: FirebaseAnalytics
     private val database = Firebase.database.reference.child("onlineUsers")
-    private val viewModel: FirebaseAuthViewModel by viewModels()
     private val sharedRecipeViewModel: SharedRecipeViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,11 +35,9 @@ class MainActivity : ComponentActivity() {
         setSystemBars()
 
         setContent {
-
             AppTheme {
-                //App()
 
-                LoginView()
+                AuthNavigation()
 
             }
         }
@@ -92,6 +89,6 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun AppAndroidLightPreview() {
     AppTheme {
-        LoginView()
+        LoginView({})
     }
 }
