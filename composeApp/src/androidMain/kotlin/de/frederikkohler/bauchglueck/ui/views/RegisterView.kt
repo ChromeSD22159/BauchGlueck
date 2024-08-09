@@ -10,13 +10,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.rememberDatePickerState
@@ -28,22 +26,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import de.frederikkohler.bauchglueck.ui.components.BackgroundBlobWithStomach
 import de.frederikkohler.bauchglueck.ui.theme.AppTheme
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.icerock.moko.mvvm.flow.compose.observeAsActions
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import de.frederikkohler.bauchglueck.androidViewModel.FirebaseAuthViewModel
+import de.frederikkohler.bauchglueck.ui.components.CustomTextField
 import de.frederikkohler.bauchglueck.ui.theme.displayFontFamily
 import model.LoginNav
 import viewModels.RegisterViewModel
@@ -58,13 +52,8 @@ fun RegisterView(
     registerViewModel: RegisterViewModel = viewModel(),
     firebaseAuthViewModel: FirebaseAuthViewModel = viewModel()
 ) {
-    val mail by registerViewModel.mail.collectAsStateWithLifecycle()
-    val password by registerViewModel.password.collectAsStateWithLifecycle()
-    val reEnterPassword by registerViewModel.reEnterPassword.collectAsStateWithLifecycle()
     val isProcessing by registerViewModel.isProcessing.collectAsStateWithLifecycle()
     val isButtonEnabled by registerViewModel.isButtonEnabled.collectAsStateWithLifecycle()
-    val firstName by registerViewModel.firstName.collectAsStateWithLifecycle()
-    val lastName by registerViewModel.lastName.collectAsStateWithLifecycle()
     val modalBottomSheetState = rememberModalBottomSheetState()
     val datePickerState = rememberDatePickerState()
     var showDatePicker by remember { mutableStateOf(false) }
@@ -87,7 +76,10 @@ fun RegisterView(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp),
-            verticalArrangement = Arrangement.Center,
+            verticalArrangement = Arrangement.spacedBy(
+                space = 8.dp,
+                alignment = Alignment.CenterVertically
+            ),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
@@ -100,7 +92,7 @@ fun RegisterView(
                 Text(
                     text = "Hallo!",
                     textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.headlineLarge.copy(
+                    style = MaterialTheme.typography.headlineMedium.copy(
                         fontWeight = FontWeight.Bold,
                         fontFamily = displayFontFamily
                     ),
@@ -111,64 +103,23 @@ fun RegisterView(
                 Text(
                     text = "Erstelle ein Konto!",
                     textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.primaryContainer,
+                    color = MaterialTheme.colorScheme.onBackground,
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier
                         .padding(bottom = 16.dp)
                 )
             }
 
-            Spacer(modifier = Modifier.padding(8.dp))
+            CustomTextField("Vorname", registerViewModel.firstName) {
+                registerViewModel.firstName.value = it
+            }
 
-            TextField(
-                value = firstName,
-                onValueChange = { registerViewModel.firstName.value = it },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)),
-                label = { Text("Vorname") },
-                maxLines = 2,
-                textStyle = TextStyle(color = Color.Blue, fontWeight = FontWeight.Bold),
-            )
+            CustomTextField("Nachname", registerViewModel.lastName) {
+                registerViewModel.lastName.value = it
+            }
 
-            Spacer(modifier = Modifier.padding(8.dp))
-
-            TextField(
-                value = lastName,
-                onValueChange = { registerViewModel.lastName.value = it },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)),
-                label = { Text("Nachname") },
-                maxLines = 2,
-                textStyle = TextStyle(color = Color.Blue, fontWeight = FontWeight.Bold),
-            )
-
-            Spacer(modifier = Modifier.padding(8.dp))
-
-            TextField(
-                value = mail,
-                onValueChange = { registerViewModel.mail.value = it },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)),
-                label = {
-                    Text("E-Mail")
-                },
-                maxLines = 2,
-                //textStyle = TextStyle(color = Color.Blue, fontWeight = FontWeight.Bold),
-                textStyle = MaterialTheme.typography.bodyMedium.copy(
-                    color = Color.Blue,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 10.sp
-                ),
-            )
-
-            Spacer(modifier = Modifier.padding(8.dp))
-
-            val selectedDate = datePickerState.selectedDateMillis ?: System.currentTimeMillis()
-            val formattedDate = remember {
-                SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).format(Date(selectedDate))
+            CustomTextField("E-Mail", registerViewModel.mail) {
+                registerViewModel.mail.value = it
             }
 
             Row(
@@ -176,62 +127,31 @@ fun RegisterView(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Operatonsdatum:")
+                Text(
+                    text = "Operatonsdatum:",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
 
-                Button(onClick = { showDatePicker = true }) {
-                    Text("$formattedDate")
+                val selectedDate = datePickerState.selectedDateMillis ?: System.currentTimeMillis()
+                val formattedDate = remember {
+                    SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).format(Date(selectedDate))
                 }
-            }
 
-            Spacer(modifier = Modifier.padding(8.dp))
-
-            if (showDatePicker) {
-                ModalBottomSheet(
-                    onDismissRequest = { showDatePicker = false },
-                    sheetState = modalBottomSheetState
+                Button(
+                    onClick = { showDatePicker = true }
                 ) {
-                    DatePicker(
-                        state = datePickerState,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    Button(
-                        onClick = {
-                            showDatePicker = false
-                        },
-                        modifier = Modifier
-                            .padding(8.dp)
-                            .fillMaxWidth()
-                    ) {
-                        Text("Bestätigen")
-                    }
+                    Text(formattedDate)
                 }
             }
 
-            TextField(
-                value = reEnterPassword,
-                modifier = Modifier
-                    .fillMaxWidth(),
-                onValueChange = { registerViewModel.password.value = it },
-                label = { Text("Passwort") },
-                visualTransformation = PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
-            )
+            CustomTextField("Passwort", registerViewModel.password) {
+                registerViewModel.password.value = it
+            }
 
-            Spacer(modifier = Modifier.padding(8.dp))
-
-            TextField(
-                value = password,
-                modifier = Modifier
-                    .fillMaxWidth(),
-                onValueChange = { registerViewModel.reEnterPassword.value = it },
-                label = { Text("Passwort wiederholen") },
-                visualTransformation = PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
-            )
-
-            Spacer(modifier = Modifier.padding(16.dp))
-
+            CustomTextField("Passwort wiederholen", registerViewModel.reEnterPassword) {
+                registerViewModel.reEnterPassword.value = it
+            }
 
             if (isProcessing) {
                 CircularProgressIndicator()
@@ -272,6 +192,29 @@ fun RegisterView(
                         }
                     ) {
                         Text("Registrieren")
+                    }
+                }
+            }
+
+            if (showDatePicker) {
+                ModalBottomSheet(
+                    onDismissRequest = { showDatePicker = false },
+                    sheetState = modalBottomSheetState
+                ) {
+                    DatePicker(
+                        state = datePickerState,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Button(
+                        onClick = {
+                            showDatePicker = false
+                        },
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .fillMaxWidth()
+                    ) {
+                        Text("Bestätigen")
                     }
                 }
             }

@@ -8,6 +8,7 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.auth.User
 import com.google.firebase.storage.FirebaseStorage
+import model.FirebaseCollection
 import model.LoginNav
 import model.UserProfile
 import java.io.ByteArrayOutputStream
@@ -37,7 +38,7 @@ class FirebaseRepository {
 
         userRef.set(userData)
             .addOnSuccessListener {
-                continuation.resume(Result.success(Unit)) // Indicate success
+                continuation.resume(Result.success(Unit))
             }
             .addOnFailureListener { exception ->
                 continuation.resume(Result.failure(exception))
@@ -143,9 +144,4 @@ class FirebaseRepository {
                 continuation.resume(Result.failure(e))
             }
     }
-}
-
-
-enum class FirebaseCollection(val collectionName: String) {
-    Users("users"),
 }

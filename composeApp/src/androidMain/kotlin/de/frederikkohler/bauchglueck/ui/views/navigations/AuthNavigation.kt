@@ -8,7 +8,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import de.frederikkohler.bauchglueck.ui.views.FirebaseAuthViewModel
+import de.frederikkohler.bauchglueck.androidViewModel.FirebaseAuthViewModel
 import de.frederikkohler.bauchglueck.ui.views.HomeView
 import de.frederikkohler.bauchglueck.ui.views.LoginView
 import de.frederikkohler.bauchglueck.ui.views.RegisterView

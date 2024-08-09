@@ -1,7 +1,6 @@
-package de.frederikkohler.bauchglueck.ui.views
+package de.frederikkohler.bauchglueck.androidViewModel
 
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -13,8 +12,9 @@ import kotlinx.coroutines.launch
 import model.LoginNav
 import model.UserProfile
 
-class FirebaseAuthViewModel: ViewModel() {
-    private val firebaseManager = FirebaseRepository()
+class FirebaseAuthViewModel(
+    private val firebaseManager: FirebaseRepository = FirebaseRepository()
+): ViewModel() {
 
     private val _user = MutableLiveData<FirebaseUser?>()
     val user: LiveData<FirebaseUser?> = _user
