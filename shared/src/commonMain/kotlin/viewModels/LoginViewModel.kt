@@ -53,15 +53,6 @@ class LoginViewModel : ViewModel() {
         }
     }
 
-    fun onCancelButtonPressed() {
-        _isProcessing.value = true
-        viewModelScope.launch {
-            delay(1000)//simulate api
-            _isProcessing.value = false
-            _actions.send(Action.Cancel)
-        }
-    }
-
     sealed class Action(val message: String) {
         data object LoginSuccess : Action("Login Success")
         data object LoginError : Action("Login Error")

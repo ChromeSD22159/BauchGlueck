@@ -28,26 +28,22 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import de.frederikkohler.bauchglueck.ui.components.BackgroundBlobWithStomach
 import de.frederikkohler.bauchglueck.ui.theme.AppTheme
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
+import de.frederikkohler.bauchglueck.ui.theme.displayFontFamily
 import dev.icerock.moko.mvvm.flow.compose.observeAsActions
-import viewModels.SharedRecipeViewModel
-import android.util.Log
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.runtime.collectAsState
+import model.LoginNav
 
-@Preview
 @Composable
 fun LoginView(
+    onNavigate: (LoginNav) -> Unit,
     loginViewModel: LoginViewModel = viewModel(),
-    sharedRecipeViewModel: SharedRecipeViewModel = viewModel()
+    firebaseViewModel: FirebaseAuthViewModel = viewModel()
 ) {
-    val measureUnits by sharedRecipeViewModel.measureUnits.collectAsState()
-    val recipeCategories by sharedRecipeViewModel.recipeCategories.collectAsState()
-
     val mail by loginViewModel.mail.collectAsStateWithLifecycle()
     val password by loginViewModel.password.collectAsStateWithLifecycle()
     val isProcessing by loginViewModel.isProcessing.collectAsStateWithLifecycle()
@@ -76,6 +72,35 @@ fun LoginView(
         ) {
             Spacer(modifier = Modifier)
 
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = "Willkommen zurück!",
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.headlineLarge.copy(
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = displayFontFamily
+                    ),
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                )
+
+                Text(
+                    text = "Mit deinem Konto anmelden!",
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier
+                        .padding(bottom = 16.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.padding(8.dp))
+
             TextField(
                 value = mail,
                 onValueChange = { loginViewModel.mail.value = it },
@@ -102,55 +127,32 @@ fun LoginView(
 
             Spacer(modifier = Modifier.padding(16.dp))
 
-
-            Row {
-                Button(
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                    ),
-                    onClick = {
-                        sharedRecipeViewModel.fetchMeasureUnits()
-                        Log.d("sharedRecipeViewModel", measureUnits.toString())
-                    }
-                ) {
-                    Text("Units ${measureUnits.size}")
-                }
-
-                Log.d("ButtonColors", "Container Color: ${MaterialTheme.colorScheme.primaryContainer}, Content Color: ${MaterialTheme.colorScheme.onPrimaryContainer}")
-
-                Button(
-                    onClick = {
-                        sharedRecipeViewModel.fetchRecipeCategories()
-                        Log.d("sharedRecipeViewModel", recipeCategories.toString())
-                    }
-                ) {
-                    Text("Categories ${recipeCategories.size}")
-                }
-            }
-
-
             if (isProcessing) {
                 CircularProgressIndicator()
             } else {
                 Row(
-                    modifier = Modifier,
+                    modifier = Modifier.align(Alignment.End),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Button(
                         onClick = {
-                            loginViewModel.onCancelButtonPressed()
-
-                            Log.d("sync", sharedRecipeViewModel.measureUnits.value.toString())
+                            onNavigate(LoginNav.SignUp)
                         }
                     ) {
-                        Text("Cancel")
+                        Text("Zur Registrierung")
                     }
 
                     Button(
                         enabled = isButtonEnabled,
                         onClick = {
-                            // loginViewModel.onLoginButtonPressed() { }
+                            loginViewModel.onLoginButtonPressed(
+                                action = { loginState ->
+                                    firebaseViewModel.signIn(loginState.mail, loginState.password)
+                                    loginState.isSignedIn = true
+                                    onNavigate(LoginNav.Logged)
+                                    return@onLoginButtonPressed loginState
+                                }
+                            )
                         }
                     ) {
                         Text("Login")
@@ -167,6 +169,6 @@ fun LoginView(
 @Composable
 fun LoginViewPreview() {
     AppTheme {
-        LoginView()
+        LoginView({})
     }
 }
