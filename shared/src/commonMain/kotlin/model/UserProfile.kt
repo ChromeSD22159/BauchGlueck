@@ -1,4 +1,4 @@
-package de.frederikkohler.bauchglueck.manager.firebase.model
+package model
 
 data class UserProfile(
     val uid: String,

@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.google.services)
 }
 
 kotlin {
@@ -14,6 +15,8 @@ kotlin {
             jvmTarget.set(JvmTarget.JVM_11)
         }
     }
+
+
     
     listOf(
         // iosX64(),
@@ -33,6 +36,10 @@ kotlin {
     jvm()
     
     sourceSets {
+        jvmMain.dependencies {
+            implementation(libs.firebase.auth.jvm)
+            implementation(libs.firebase.java.sdk)
+        }
         androidMain.dependencies {
             implementation(project.dependencies.platform("com.google.firebase:firebase-bom:33.1.2"))
             implementation(libs.firebase.analytics.ktx)
@@ -55,6 +62,7 @@ kotlin {
 
             // Ktor dependencies
             implementation(libs.bundles.ktor)
+            implementation(libs.firebase.auth)
         }
         iosMain.dependencies {
             // sharedViewModel
@@ -66,6 +74,8 @@ kotlin {
     }
 }
 
+
+
 android {
     namespace = "de.frederikkohler.bauchglueck.shared"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
@@ -76,4 +86,10 @@ android {
     defaultConfig {
         minSdk = libs.versions.android.minSdk.get().toInt()
     }
+}
+dependencies {
+    implementation(libs.androidx.lifecycle.livedata.core.ktx)
+    implementation(libs.firebase.firestore.ktx)
+    implementation(libs.firebase.storage.ktx)
+    implementation(libs.firebase.auth)
 }

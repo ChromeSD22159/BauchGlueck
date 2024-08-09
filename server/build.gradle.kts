@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.kotlinJvm)
     alias(libs.plugins.ktor)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.google.services)
     application
 }
 
@@ -43,4 +44,6 @@ dependencies {
     implementation(libs.mysql.connector.java) // DB CONNECTOR
     implementation(libs.hikaricp) // DB DRIVER
     implementation(libs.flyway.core) // Version control for your database
+    implementation(libs.firebase.auth.jvm)
+    implementation(libs.firebase.java.sdk)
 }

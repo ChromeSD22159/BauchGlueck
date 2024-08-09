@@ -8,11 +8,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import model.recipe.MeasurementUnit
 import model.recipe.RecipeCategory
-import network.BauchGlueckApiClient
+import network.RemoteBauchGlueckApiClient
 import util.onSuccess
 
 class SharedRecipeViewModel: ViewModel() {
-    private val apiClient: BauchGlueckApiClient = BauchGlueckApiClient()
+    private val apiClient: RemoteBauchGlueckApiClient = RemoteBauchGlueckApiClient()
 
     private val _isProcessing: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val isProcessing: Flow<Boolean> = _isProcessing.asStateFlow()

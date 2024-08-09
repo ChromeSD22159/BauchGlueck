@@ -15,7 +15,7 @@ interface BauchGlueckApi {
     suspend fun getRecipeCategories(): Result<List<RecipeCategory>, NetworkError>
 }
 
-class BauchGlueckApiClient: BauchGlueckApi {
+class RemoteBauchGlueckApiClient: BauchGlueckApi {
     private val serverHost = ServerHost.LOCAL_SABINA.url
     private val httpClient: HttpClient = createHttpClient()
 
@@ -56,8 +56,8 @@ class BauchGlueckApiClient: BauchGlueckApi {
 
         return when(response.status.value) {
             in 200..299 -> {
-                val censoredText = response.body<List<RecipeCategory>>()
-                Result.Success(censoredText)
+                val recipeCategories = response.body<List<RecipeCategory>>()
+                Result.Success(recipeCategories)
             }
             401 -> Result.Error(NetworkError.UNAUTHORIZED)
             409 -> Result.Error(NetworkError.CONFLICT)
@@ -67,6 +67,37 @@ class BauchGlueckApiClient: BauchGlueckApi {
             else -> Result.Error(NetworkError.UNKNOWN)
         }
     }
+}
+
+class LocalBauchGlueckApiRepository(
+    private val api: BauchGlueckApi,
+    //private val database: BauchGlueckDatabase // SQLDelight-Datenbank
+) {
+    /*
+    suspend fun syncMeasurementUnits() {
+        when (val result = api.getMeasurementUnits()) {
+            is Result.Success -> {
+                database.transaction {
+                    database.measurementUnitsQueries.deleteAll() // Alte Daten löschen
+                    result.data.forEach { unit ->
+                        database.measurementUnitsQueries.insert(unit.id, unit.name)
+                    }
+                }
+            }
+            is Result.Error -> {
+                // Fehlerbehandlung (z.B. Logging)
+            }
+        }
+    }
+
+    suspend fun syncRecipeCategories() {
+        // Ähnlich wie syncMeasurementUnits()
+    }
+
+    fun getLocalMeasurementUnits(): Flow<List<MeasurementUnit>> = database.measurementUnitsQueries.selectAll().asFlow().mapToList()
+
+    fun getLocalRecipeCategories(): Flow<List<RecipeCategory>> = database.recipeCategoriesQueries.selectAll().asFlow().mapToList()
+    */
 }
 
 enum class ServerHost(val url: String) {
