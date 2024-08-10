@@ -16,9 +16,9 @@ import com.google.firebase.analytics.analytics
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.database
 import de.frederikkohler.bauchglueck.ui.theme.AppTheme
-import de.frederikkohler.bauchglueck.ui.views.navigations.AuthNavigation
-import de.frederikkohler.bauchglueck.ui.views.LoginView
-import viewModels.SharedRecipeViewModel
+import de.frederikkohler.bauchglueck.ui.navigations.AuthNavigation
+import de.frederikkohler.bauchglueck.ui.screens.publicScreens.LoginView
+import viewModel.SharedRecipeViewModel
 
 class MainActivity : ComponentActivity() {
     private lateinit var firebaseAnalytics: FirebaseAnalytics
