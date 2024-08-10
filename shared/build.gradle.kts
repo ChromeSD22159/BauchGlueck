@@ -62,7 +62,11 @@ kotlin {
 
             // Ktor dependencies
             implementation(libs.bundles.ktor)
-            implementation(libs.firebase.auth)
+
+            // new Firebase
+            implementation("dev.gitlive:firebase-auth:1.13.0")
+            implementation("dev.gitlive:firebase-firestore:1.13.0")
+            implementation("dev.gitlive:firebase-storage:1.13.0")
         }
         iosMain.dependencies {
             // sharedViewModel
