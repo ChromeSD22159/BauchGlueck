@@ -35,6 +35,11 @@ kotlin {
             implementation(compose.components.uiToolingPreview)
             implementation(projects.shared)
             implementation(libs.lifecycle.viewmodel.compose)
+
+            // new Firebase
+            implementation("dev.gitlive:firebase-auth:1.13.0")
+            implementation("dev.gitlive:firebase-firestore:1.13.0")
+            implementation("dev.gitlive:firebase-storage:1.13.0")
         }
     }
 }
