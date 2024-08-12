@@ -30,16 +30,14 @@ import de.frederikkohler.bauchglueck.viewModel.FirebaseAuthViewModel
 import de.frederikkohler.bauchglueck.ui.components.CustomTextField
 import de.frederikkohler.bauchglueck.ui.theme.displayFontFamily
 import dev.icerock.moko.mvvm.flow.compose.observeAsActions
-import navigation.PublicNav
+import navigation.Screens
 
 @Composable
 fun LoginView(
-    onNavigate: (PublicNav) -> Unit,
+    onNavigate: (Screens) -> Unit,
     loginViewModel: LoginViewModel = viewModel(),
     firebaseViewModel: FirebaseAuthViewModel = viewModel()
 ) {
-    val mail by loginViewModel.mail.collectAsStateWithLifecycle()
-    val password by loginViewModel.password.collectAsStateWithLifecycle()
     val isProcessing by loginViewModel.isProcessing.collectAsStateWithLifecycle()
     val isButtonEnabled by loginViewModel.isButtonEnabled.collectAsStateWithLifecycle()
 
@@ -113,7 +111,7 @@ fun LoginView(
                 ) {
                     Button(
                         onClick = {
-                            onNavigate(PublicNav.SignUp)
+                            onNavigate(Screens.SignUp)
                         }
                     ) {
                         Text("Zur Registrierung")
@@ -126,7 +124,7 @@ fun LoginView(
                                 action = { loginState ->
                                     firebaseViewModel.signIn(loginState.mail, loginState.password)
                                     loginState.isSignedIn = true
-                                    onNavigate(PublicNav.Logged)
+                                    onNavigate(Screens.Home)
                                     return@onLoginButtonPressed loginState
                                 }
                             )

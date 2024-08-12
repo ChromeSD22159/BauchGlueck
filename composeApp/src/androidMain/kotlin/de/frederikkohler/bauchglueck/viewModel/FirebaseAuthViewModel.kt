@@ -2,19 +2,16 @@ package de.frederikkohler.bauchglueck.viewModel
 
 import android.graphics.Bitmap
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
 import com.google.firebase.auth.FirebaseUser
 import data.FirebaseConnection
 import de.frederikkohler.bauchglueck.data.network.FirebaseRepository
 import dev.icerock.moko.mvvm.flow.CMutableStateFlow
 import dev.icerock.moko.mvvm.flow.cMutableStateFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import navigation.PublicNav
 import model.UserProfile
 import model.countdownTimer.CountdownTimer
 
@@ -30,9 +27,6 @@ class FirebaseAuthViewModel(
 
     private val _userProfileImage = MutableStateFlow<Bitmap?>(null).cMutableStateFlow()
     val userProfileImage: CMutableStateFlow<Bitmap?> = _userProfileImage.cMutableStateFlow()
-
-    private val _nav = MutableStateFlow(PublicNav.Login).cMutableStateFlow()
-    val nav: CMutableStateFlow<PublicNav> = _nav.cMutableStateFlow()
 
     private val _showSyn = MutableStateFlow(false).cMutableStateFlow()
     val showSyn: CMutableStateFlow<Boolean> = _showSyn.cMutableStateFlow()
@@ -57,7 +51,6 @@ class FirebaseAuthViewModel(
 
                 if (currentUser != null) {
                     _user.value = currentUser
-                    _nav.value = PublicNav.Logged
                     viewModelScope.launch {
                         firebaseRepository.setUserOnline()
                     }
@@ -65,7 +58,6 @@ class FirebaseAuthViewModel(
                     fetchTimers()
                 }
                 else {
-                    _nav.value = PublicNav.Login
                     viewModelScope.launch {
                         firebaseRepository.setUserOffline()
 
@@ -115,7 +107,6 @@ class FirebaseAuthViewModel(
             _user.value = null
             _userProfile.value = null
             _userProfileImage.value = null
-            _nav.value = PublicNav.Login
         }
     }
 
@@ -123,7 +114,6 @@ class FirebaseAuthViewModel(
         viewModelScope.launch {
             val result = firebaseRepository.signOut()
             result.onSuccess {
-                _nav.value = PublicNav.Login
             }.onFailure {
                 // Sign-out failed, handle the error (e.g., show an error message)
             }
@@ -152,10 +142,6 @@ class FirebaseAuthViewModel(
                 Log.e("FirebaseAuthManager", "Error fetching user profile", it)
             }
         }
-    }
-
-    fun navigateTo(view: PublicNav) {
-        _nav.value = view
     }
 
     fun fetchTimers() {

@@ -26,12 +26,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun RoundImageButton(icon: Int, action: () -> Unit) {
+fun RoundImageButton(
+    icon: Int,
+    modifier: Modifier = Modifier,
+    action: () -> Unit = {}
+) {
     Icon(
         imageVector =  ImageVector.vectorResource(id = icon),
         contentDescription = "icon",
         tint = MaterialTheme.colorScheme.onPrimary,
-        modifier = Modifier
+        modifier = modifier
             .size(30.dp)
             .clip(CircleShape)
             .background(
@@ -53,6 +57,9 @@ fun RoundImageButton(icon: Int, action: () -> Unit) {
 @Preview(showBackground = true, uiMode = UI_MODE_NIGHT_YES)
 fun RoundImageButtonPreview() {
     AppTheme {
-        RoundImageButton(R.drawable.icon_gear) {}
+        RoundImageButton(
+            icon = R.drawable.icon_gear,
+            modifier = Modifier
+        )
     }
 }

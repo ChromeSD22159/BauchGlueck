@@ -1,30 +1,29 @@
 package de.frederikkohler.bauchglueck
 
+import App
 import android.content.res.Configuration
 import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import com.google.firebase.Firebase
-import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.analytics
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.database
 import de.frederikkohler.bauchglueck.ui.theme.AppTheme
-import de.frederikkohler.bauchglueck.ui.navigations.AuthNavigation
 import de.frederikkohler.bauchglueck.ui.screens.publicScreens.LoginView
 import de.frederikkohler.bauchglueck.viewModel.FirebaseAuthViewModel
 import viewModel.SharedRecipeViewModel
 
 class MainActivity : ComponentActivity() {
+
     private val sharedRecipeViewModel: SharedRecipeViewModel by viewModels()
     private val firebaseAuthViewModel: FirebaseAuthViewModel by viewModels()
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -34,24 +33,19 @@ class MainActivity : ComponentActivity() {
         setSystemBars()
 
         setContent {
-            AppTheme {
-
-                AuthNavigation(firebaseAuthViewModel)
-
-            }
+            App(firebaseAuthViewModel)
         }
     }
 
     override fun onResume() {
         super.onResume()
-
         // Refresh data when the app resumes
-        // syncFirebase()
+        //firebaseAuthViewModel.syncFirebase()
     }
 
     override fun onPause() {
         super.onPause()
-        firebaseAuthViewModel.syncFirebase()
+        //firebaseAuthViewModel.syncFirebase()
     }
 
     private fun setSystemBars() {

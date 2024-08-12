@@ -22,6 +22,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -39,6 +40,7 @@ import de.frederikkohler.bauchglueck.ui.theme.AppTheme
 import de.frederikkohler.bauchglueck.viewModel.FirebaseAuthViewModel
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
 import data.FirebaseConnection
 import de.frederikkohler.bauchglueck.R
 import de.frederikkohler.bauchglueck.ui.components.profileSlider.ProfileSlider
@@ -54,7 +56,8 @@ fun SettingSheet(
     showSettingSheet: Boolean,
     icon: Int = R.drawable.icon_gear,
     onDismissRequest: () -> Unit,
-    firebaseAuthViewModel: FirebaseAuthViewModel
+    onSignOut: () -> Unit,
+    firebaseAuthViewModel: FirebaseAuthViewModel,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
@@ -62,7 +65,9 @@ fun SettingSheet(
 
     LaunchedEffect(key1 = showSettingSheet) {
         if (showSettingSheet) {
-            scope.launch { sheetState.show() }
+            scope.launch {
+                sheetState.show()
+            }
         } else {
             scope.launch {
                 sheetState.hide()
@@ -71,37 +76,30 @@ fun SettingSheet(
         }
     }
 
-    BottomSheetScaffold(
-        sheetContent = {
-            SettingSheetContent(firebaseAuthViewModel = firebaseAuthViewModel)
-        },
-    sheetPeekHeight = 0.dp
-    ) {
-        if (showSettingSheet) {
-            ModalBottomSheet(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-                    .padding(
-                        bottom = WindowInsets
-                            .navigationBarsIgnoringVisibility
-                            .asPaddingValues()
-                            .calculateBottomPadding()
-                    ),
-                containerColor = MaterialTheme.colorScheme.background,
-                sheetState = sheetState,
-                scrimColor = Color.Transparent,
-                shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
-                dragHandle = { DragHandle(icon) },
-                onDismissRequest = onDismissRequest,
-            ) {
-                SettingSheetContent(
-                    firebaseAuthViewModel = firebaseAuthViewModel
-                )
-            }
+    if(showSettingSheet) {
+        ModalBottomSheet(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .padding(
+                    bottom = WindowInsets
+                        .navigationBarsIgnoringVisibility
+                        .asPaddingValues()
+                        .calculateBottomPadding()
+                ),
+            containerColor = MaterialTheme.colorScheme.background,
+            sheetState = sheetState,
+            scrimColor = Color.Transparent,
+            shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
+            dragHandle = { DragHandle(icon) },
+            onDismissRequest = onDismissRequest,
+        ) {
+            SettingSheetContent(
+                firebaseAuthViewModel = firebaseAuthViewModel,
+                onSignOut = onSignOut
+            )
         }
     }
-
 
 }
 
@@ -128,10 +126,12 @@ fun DragHandle(icon: Int) {
     }
 }
 
+
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun SettingSheetContent(
-    firebaseAuthViewModel: FirebaseAuthViewModel
+    firebaseAuthViewModel: FirebaseAuthViewModel,
+    onSignOut: () -> Unit
 ) {
     val user by firebaseAuthViewModel.userProfile.collectAsStateWithLifecycle()
 
@@ -185,15 +185,9 @@ fun SettingSheetContent(
                 unitType = ProfileSliderUnit.Double
             )
 
-            SignOutContainer(firebaseAuthViewModel)
+            SignOutContainer(
+                onSignOut = onSignOut,
+            )
         }
-    }
-}
-
-@Composable
-@Preview(showBackground = true)
-fun SettingSheetPreview() {
-    AppTheme {
-        SignOutContainer(FirebaseAuthViewModel())
     }
 }

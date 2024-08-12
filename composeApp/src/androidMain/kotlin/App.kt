@@ -1,41 +1,50 @@
-import android.content.res.Configuration.UI_MODE_NIGHT_NO
-import android.content.res.Configuration.UI_MODE_NIGHT_YES
-import androidx.compose.foundation.background
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.Surface
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import de.frederikkohler.bauchglueck.ui.theme.AppTheme
-import de.frederikkohler.bauchglueck.ui.components.BackgroundBlobWithStomach
-import de.frederikkohler.bauchglueck.ui.screens.authScreens.ScaffoldExample
+import de.frederikkohler.bauchglueck.ui.navigations.PublicNavigation
+import de.frederikkohler.bauchglueck.viewModel.FirebaseAuthViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import navigation.Screens
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun App() {
-    AppTheme {
-        Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-            BackgroundBlobWithStomach()
+fun App(
+    firebaseAuthViewModel: FirebaseAuthViewModel
+) {
+    val navController: NavHostController = rememberNavController()
+    val scope = rememberCoroutineScope()
+    var showSplashScreen by remember { mutableStateOf(true) }
+
+    LaunchedEffect(key1 = true) {
+        delay(700)
+
+        showSplashScreen = false
+
+        if (firebaseAuthViewModel.user.value != null) {
+            navController.navigate(Screens.Home.name)
+        } else {
+            navController.navigate(Screens.Login.name)
         }
     }
-}
 
-
-
-@Composable
-@Preview(showBackground = true, uiMode = UI_MODE_NIGHT_YES)
-fun AppButtonDarkPreview() {
-    AppTheme(darkTheme = true) {
-        App()
-    }
-}
-
-@Composable
-@Preview(showBackground = true, uiMode = UI_MODE_NIGHT_NO)
-fun AppButtonLightPreview() {
-    AppTheme(darkTheme = false) {
-        App()
+    AppTheme {
+        androidx.compose.material3.Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = MaterialTheme.colorScheme.background
+        ) {
+            Box(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                PublicNavigation(navController, firebaseAuthViewModel)
+            }
+        }
     }
 }

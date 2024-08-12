@@ -44,7 +44,7 @@ import de.frederikkohler.bauchglueck.R
 import de.frederikkohler.bauchglueck.viewModel.FirebaseAuthViewModel
 import de.frederikkohler.bauchglueck.ui.components.CustomTextField
 import de.frederikkohler.bauchglueck.ui.theme.displayFontFamily
-import navigation.PublicNav
+import navigation.Screens
 import viewModel.RegisterViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -53,7 +53,7 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun RegisterView(
-    onNavigate: (PublicNav) -> Unit,
+    onNavigate: (Screens) -> Unit,
     registerViewModel: RegisterViewModel = viewModel(),
     firebaseAuthViewModel: FirebaseAuthViewModel = viewModel()
 ) {
@@ -168,8 +168,7 @@ fun RegisterView(
                 ) {
                     Button(
                         onClick = {
-                            onNavigate(PublicNav.Login)
-                            firebaseAuthViewModel.navigateTo(PublicNav.Login)
+                            onNavigate(Screens.Login)
                         }
                     ) {
                         Text(stringResource(R.string.register_login_button_text))
@@ -186,7 +185,7 @@ fun RegisterView(
                                         registerState.password,
                                         complete = {
                                             it.onSuccess {
-                                                onNavigate(PublicNav.Login)
+                                                onNavigate(Screens.Login)
                                                 registerState.isSignedIn = false
                                             }
                                         }

@@ -17,44 +17,42 @@ import de.frederikkohler.bauchglueck.ui.components.RoundImageButton
 import de.frederikkohler.bauchglueck.viewModel.FirebaseAuthViewModel
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.material3.Surface
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavHostController
 import data.FirebaseConnection
 import de.frederikkohler.bauchglueck.ui.screens.authScreens.settingsSheet.SettingSheet
-
-@RequiresApi(Build.VERSION_CODES.O)
-@Composable
-fun HomeView(
-    firebaseAuthViewModel: FirebaseAuthViewModel = viewModel()
-) {
-    Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-        ScaffoldExample()
-    }
-}
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import navigation.Screens
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ScaffoldExample(
-    firebaseAuthViewModel: FirebaseAuthViewModel = viewModel()
+fun HomeView(
+    firebaseAuthViewModel: FirebaseAuthViewModel = viewModel(),
+    navController: NavHostController
 ) {
     var showSettingSheet by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                colors = topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.secondary,
-                    titleContentColor = MaterialTheme.colorScheme.onSecondary,
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    titleContentColor = MaterialTheme.colorScheme.primary,
                 ),
                 title = {
                     Text("BauchGlück")
@@ -68,7 +66,7 @@ fun ScaffoldExample(
                 }
             )
         },
-    ) { innerPadding ->
+    ) { _ ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -79,6 +77,13 @@ fun ScaffoldExample(
 
             Spacer(modifier = Modifier.height(80.dp))
 
+            Button(onClick = { navController.navigate(Screens.Test.route) }) {
+                Text(text = Screens.Test.name)
+            }
+
+            Button(onClick = { navController.navigate(Screens.Settings.route) }) {
+                Text(text = Screens.Settings.name)
+            }
             Text(
                 modifier = Modifier,
                 text =
@@ -89,19 +94,28 @@ fun ScaffoldExample(
                 """.trimIndent(),
             )
 
+            val scope = rememberCoroutineScope()
             SettingSheet(
                 showSettingSheet = showSettingSheet,
                 onDismissRequest = {
                     showSettingSheet = false
                     firebaseAuthViewModel.saveUserProfile(FirebaseConnection.Remote)
                 },
-                firebaseAuthViewModel = firebaseAuthViewModel
+                onSignOut = {
+                    scope.launch {
+                        firebaseAuthViewModel.signOut()
+                        delay(250)
+                        showSettingSheet = false
+                        delay(250)
+                        if (firebaseAuthViewModel.user.value == null) {
+                            navController.navigate(Screens.Login.route)
+                        }
+                    }
+                },
+                firebaseAuthViewModel = firebaseAuthViewModel,
             )
         }
     }
 }
 
 
-enum class HomeNavigationItem(val route: String) {
-    Home("home"), Settings("settings")
-}
