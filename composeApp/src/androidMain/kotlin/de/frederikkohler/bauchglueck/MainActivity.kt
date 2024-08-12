@@ -54,6 +54,7 @@ class MainActivity : ComponentActivity() {
 
         // Set the status bar to transparent
         window.statusBarColor = Color.TRANSPARENT
+        window.navigationBarColor = Color.TRANSPARENT
 
         // Adjust the appearance of status bar icons and text
         val controller = WindowInsetsControllerCompat(window, window.decorView)
@@ -62,14 +63,17 @@ class MainActivity : ComponentActivity() {
             Configuration.UI_MODE_NIGHT_YES -> {
                 // Dark mode: Light text and icons on status bar
                 controller.isAppearanceLightStatusBars = false
+                controller.isAppearanceLightNavigationBars = false
             }
             Configuration.UI_MODE_NIGHT_NO -> {
                 // Light mode: Dark text and icons on status bar
                 controller.isAppearanceLightStatusBars = true
+                controller.isAppearanceLightNavigationBars = true
             }
             Configuration.UI_MODE_NIGHT_UNDEFINED -> {
                 // Undefined mode: Use default setting (optional)
                 controller.isAppearanceLightStatusBars = false // or true based on preference
+                controller.isAppearanceLightNavigationBars = false // or true based on preference
             }
         }
     }
