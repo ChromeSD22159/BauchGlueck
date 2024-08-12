@@ -4,18 +4,19 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsIgnoringVisibility
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.rememberBottomSheetScaffoldState
-import androidx.compose.material.rememberBottomSheetState
-import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -45,7 +46,9 @@ import de.frederikkohler.bauchglueck.ui.components.profileSlider.ProfileSliderUn
 import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class,
+    ExperimentalLayoutApi::class
+)
 @Composable
 fun SettingSheet(
     showSettingSheet: Boolean,
@@ -53,11 +56,7 @@ fun SettingSheet(
     onDismissRequest: () -> Unit,
     firebaseAuthViewModel: FirebaseAuthViewModel
 ) {
-    val sheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = true
-    )
-
-    val bottomSheetScaffoldState = rememberBottomSheetScaffoldState()
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     val scope = rememberCoroutineScope()
 
@@ -83,8 +82,14 @@ fun SettingSheet(
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentHeight()
-                    .padding(top = 16.dp),
+                    .padding(
+                        bottom = WindowInsets
+                            .navigationBarsIgnoringVisibility
+                            .asPaddingValues()
+                            .calculateBottomPadding()
+                    ),
                 containerColor = MaterialTheme.colorScheme.background,
+                sheetState = sheetState,
                 scrimColor = Color.Transparent,
                 shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
                 dragHandle = { DragHandle(icon) },

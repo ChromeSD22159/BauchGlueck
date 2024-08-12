@@ -58,7 +58,9 @@ class RecipeDatabaseService: RecipeService {
 
     private fun loadRecipeCategory(recipeCategoryId: Int): RecipeCategory {
         return transaction {
-            RecipeCategories.selectAll().where { RecipeCategories.id eq recipeCategoryId }
+            RecipeCategories
+                .selectAll()
+                .where { RecipeCategories.id eq recipeCategoryId }
                 .map { row ->
                     RecipeCategory(
                         id = row[RecipeCategories.id],
