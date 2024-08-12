@@ -3,8 +3,8 @@ package de.frederikkohler.bauchglueck.ui.navigations
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.runtime.remember
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -16,13 +16,13 @@ import navigation.PublicNav
 
 @Composable
 fun AuthNavigation(
-    viewModel: FirebaseAuthViewModel = viewModel()
+    viewModel: FirebaseAuthViewModel
 ) {
     val navController = rememberNavController()
-    val navState by viewModel.nav.observeAsState()
+    val navState by viewModel.nav.collectAsStateWithLifecycle()
 
     LaunchedEffect(navState) {
-        navState?.let { navController.navigate(it.name) }
+        navState.let { navController.navigate(it.name) }
     }
 
     NavHost(navController = navController, startDestination = PublicNav.Login.name) {

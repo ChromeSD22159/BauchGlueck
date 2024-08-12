@@ -4,6 +4,9 @@ import data.AuthApi
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Log
+import com.google.firebase.Timestamp
+import com.google.firebase.firestore.SetOptions
+import data.FirebaseConnection
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.FirebaseAuth
 import dev.gitlive.firebase.auth.FirebaseUser
@@ -15,6 +18,9 @@ import dev.gitlive.firebase.firestore.firestore
 import dev.gitlive.firebase.storage.FirebaseStorage
 import dev.gitlive.firebase.storage.storage
 import data.network.FirebaseCollection
+import dev.gitlive.firebase.analytics.analytics
+import dev.gitlive.firebase.database.database
+import kotlinx.coroutines.tasks.await
 import model.UserProfile
 import java.io.ByteArrayOutputStream
 import model.countdownTimer.CountdownTimer
@@ -23,17 +29,34 @@ import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
 class FirebaseRepository: AuthApi {
-    override val auth: FirebaseAuth = Firebase.auth
-    private val db: FirebaseFirestore = Firebase.firestore
-    private val storage: FirebaseStorage = Firebase.storage
+    var firebase = Firebase
+    override val auth: FirebaseAuth = firebase.auth
+    private val db: FirebaseFirestore = firebase.firestore
+    private val database = firebase.database
+    private val storage: FirebaseStorage = firebase.storage
+    private var analytics = firebase.analytics
 
-    override suspend fun saveUserProfile(userProfile: UserProfile): Result<Unit> = suspendCoroutine { continuation ->
-        val userRef = db.android.collection(FirebaseCollection.Users.collectionName).document(userProfile.uid)
+    override suspend fun saveUserProfile(userProfile: UserProfile, connection: FirebaseConnection): Result<Unit> = suspendCoroutine { continuation ->
+
+    /*
+    when (connection) {
+        FirebaseConnection.Local -> {
+            db.android.disableNetwork().await()
+        }
+        FirebaseConnection.Remote -> {
+            db.android.enableNetwork().await()
+        }
+    }
+    */
+
+        val userRef = db.android.collection(FirebaseCollection.Users.collectionName)
+                                .document(userProfile.uid)
+
         val userData = mapOf(
             "firstName" to userProfile.firstName,
             "lastName" to userProfile.lastName,
             "email" to userProfile.email,
-            "surgeryDate" to userProfile.surgeryDate,
+            "surgeryDate" to userProfile.surgeryDateTimeStamp,
             "mainMeals" to userProfile.mainMeals,
             "betweenMeals" to userProfile.betweenMeals,
             "profileImageURL" to (userProfile.profileImageURL ?: ""),
@@ -44,9 +67,11 @@ class FirebaseRepository: AuthApi {
 
         userRef.set(userData)
             .addOnSuccessListener {
+                Log.d("FirebaseRepository", "User profile saved successfully")
                 continuation.resume(Result.success(Unit))
             }
             .addOnFailureListener { exception ->
+                Log.e("FirebaseRepository", "Error saving user profile", exception)
                 continuation.resume(Result.failure(exception))
             }
     }
@@ -111,18 +136,18 @@ class FirebaseRepository: AuthApi {
 
     override suspend fun fetchUserProfile(uid: String): Result<UserProfile?> = suspendCoroutine { continuation ->
         val userRef = db.android.collection(FirebaseCollection.Users.collectionName).document(uid)
-
-
         userRef.get()
             .addOnSuccessListener { document ->
+                Log.d("FirebaseRepository", "Fetched user profile: ${document.data}")
                 if (document.exists()) {
                     val data = document.data ?: return@addOnSuccessListener
+
                     val userProfile = UserProfile(
                         uid = uid,
                         firstName = data["firstName"] as? String ?: "",
                         lastName = data["lastName"] as? String ?: "",
                         email = data["email"] as? String ?: "",
-                        surgeryDate = data["surgeryDate"] as? Long ?: 0L,
+                        surgeryDateTimeStamp = data["surgeryDate"] as? Long ?: -99L,
                         mainMeals = data["mainMeals"] as? Int ?: 3,
                         betweenMeals = data["betweenMeals"] as? Int ?: 3,
                         profileImageURL = data["profileImageURL"] as? String,
@@ -186,5 +211,39 @@ class FirebaseRepository: AuthApi {
             .addOnFailureListener {
                 continuation.resume(Result.failure(it))
             }
+    }
+
+    override suspend fun setUserOnline() {
+        auth.currentUser?.let { user ->
+            val userStatusRef =
+                database.android.reference.child(FirebaseCollection.OnlineUsers.collectionName).child(user.uid)
+
+            try {
+                userStatusRef.setValue(true).await()
+                userStatusRef.onDisconnect().removeValue().await()
+            } catch (e: Exception) {
+                Log.e("FirebaseAuthManager", "Error setting user online", e)
+            }
+        }
+    }
+
+    override suspend fun setUserOffline() {
+        auth.currentUser?.let { user ->
+            val userStatusRef = database.android.reference.child(FirebaseCollection.OnlineUsers.collectionName).child(user.uid)
+            try {
+                userStatusRef.removeValue().await()
+            } catch (e: Exception) {
+                Log.e("FirebaseAuthManager", "Error setting user offline", e)
+            }
+        }
+    }
+
+    suspend fun sync() {
+        try {
+            db.android.enableNetwork().await()
+            db.android.waitForPendingWrites().await()
+        } catch (e: Exception) {
+            Log.e("FirebaseAuthManager", "Error syncing data", e)
+        }
     }
 }

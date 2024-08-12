@@ -4,6 +4,7 @@ import android.content.res.Configuration.UI_MODE_NIGHT_NO
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -41,7 +42,10 @@ fun RoundImageButton(icon: Int, action: () -> Unit) {
                     )
                 )
             )
-            .padding(5.dp),
+            .padding(5.dp)
+            .clickable {
+                action()
+            },
     )
 }
 

@@ -7,7 +7,12 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseUser
+import data.FirebaseConnection
 import de.frederikkohler.bauchglueck.data.network.FirebaseRepository
+import dev.icerock.moko.mvvm.flow.CMutableStateFlow
+import dev.icerock.moko.mvvm.flow.cMutableStateFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import navigation.PublicNav
 import model.UserProfile
@@ -17,29 +22,29 @@ class FirebaseAuthViewModel(
     private val firebaseRepository: FirebaseRepository = FirebaseRepository()
 ): ViewModel() {
 
-    private val _user = MutableLiveData<FirebaseUser?>()
-    val user: LiveData<FirebaseUser?> = _user
+    private val _user = MutableStateFlow<FirebaseUser?>(null).cMutableStateFlow()
+    val user: CMutableStateFlow<FirebaseUser?> = _user.cMutableStateFlow()
 
-    private val _userProfile = MutableLiveData<UserProfile?>()
-    val userProfile: LiveData<UserProfile?> = _userProfile
+    private val _userProfile = MutableStateFlow<UserProfile?>(null).cMutableStateFlow()
+    val userProfile: CMutableStateFlow<UserProfile?> = _userProfile.cMutableStateFlow()
 
-    private val _userProfileImage = MutableLiveData<Bitmap?>()
-    val userProfileImage: LiveData<Bitmap?> = _userProfileImage
+    private val _userProfileImage = MutableStateFlow<Bitmap?>(null).cMutableStateFlow()
+    val userProfileImage: CMutableStateFlow<Bitmap?> = _userProfileImage.cMutableStateFlow()
 
-    private val _nav = MutableLiveData<PublicNav>()
-    val nav: LiveData<PublicNav> = _nav
+    private val _nav = MutableStateFlow(PublicNav.Login).cMutableStateFlow()
+    val nav: CMutableStateFlow<PublicNav> = _nav.cMutableStateFlow()
 
-    private val _showSyn = MutableLiveData<Boolean>()
-    val showSyn: LiveData<Boolean> = _showSyn
+    private val _showSyn = MutableStateFlow(false).cMutableStateFlow()
+    val showSyn: CMutableStateFlow<Boolean> = _showSyn.cMutableStateFlow()
 
-    private val _email = MutableLiveData<String>()
-    var email: LiveData<String> = _email
+    private val _email: CMutableStateFlow<String> = MutableStateFlow("").cMutableStateFlow()
+    var email: CMutableStateFlow<String> = _email.cMutableStateFlow()
 
-    private val _password = MutableLiveData<String>()
-    val password: LiveData<String> = _password
+    private val _password: CMutableStateFlow<String> = MutableStateFlow("").cMutableStateFlow()
+    val password: CMutableStateFlow<String> = _password.cMutableStateFlow()
 
-    private val _timers = MutableLiveData<List<CountdownTimer>>()
-    val timers: LiveData<List<CountdownTimer>> = _timers
+    private val _timers = MutableStateFlow<List<CountdownTimer>>(emptyList()).cMutableStateFlow()
+    val timers: CMutableStateFlow<List<CountdownTimer>> = _timers.cMutableStateFlow()
 
     init {
         stateChangeListener()
@@ -54,32 +59,17 @@ class FirebaseAuthViewModel(
                     _user.value = currentUser
                     _nav.value = PublicNav.Logged
                     viewModelScope.launch {
-                        val userProfileResult = firebaseRepository.fetchUserProfile(currentUser.uid)
-                        userProfileResult.onSuccess { userProfile ->
-                            _userProfile.value = userProfile
-                            userProfile?.profileImageURL?.let { profileImageURL ->
-                                viewModelScope.launch {
-                                    val imageResult = firebaseRepository.downloadProfileImage(profileImageURL)
-                                    imageResult.onSuccess { bitmap ->
-                                        bitmap?.let {
-                                            if (it is Bitmap) {
-                                                _userProfileImage.value = it
-                                            }
-                                        }
-                                    }.onFailure { exception ->
-                                        // Handle image download error
-                                        Log.e("ProfileViewModel", "Error downloading profile image", exception)
-                                    }
-                                }
-                            }
-                        }.onFailure { exception ->
-                            Log.e("ProfileViewModel", "Error fetching user profile", exception)
-                        }
+                        firebaseRepository.setUserOnline()
                     }
+                    fetchUserProfile(currentUser.uid)
                     fetchTimers()
                 }
                 else {
                     _nav.value = PublicNav.Login
+                    viewModelScope.launch {
+                        firebaseRepository.setUserOffline()
+
+                    }
                 }
             }
         }
@@ -94,10 +84,10 @@ class FirebaseAuthViewModel(
             } else ""
         }
 
-    private fun saveUserProfile() {
+    fun saveUserProfile(connection: FirebaseConnection = FirebaseConnection.Local) {
         viewModelScope.launch {
             _userProfile.value?.let { userProfile ->
-                firebaseRepository.saveUserProfile(userProfile).onSuccess {
+                firebaseRepository.saveUserProfile(userProfile, connection).onSuccess {
                     Log.d("FirebaseAuthManager", "User profile saved successfully")
                 }.onFailure {
                     Log.e("FirebaseAuthManager", "Error saving user profile", it)
@@ -154,6 +144,7 @@ class FirebaseAuthViewModel(
         viewModelScope.launch {
             firebaseRepository.fetchUserProfile(uid).onSuccess {
                 _userProfile.value = it
+                Log.i("FirebaseAuthManager", "Fetched user profile: ${it.toString()}")
                 it?.profileImageURL?.let { profileImageURL ->
                     firebaseRepository.downloadProfileImage(profileImageURL)
                 }
@@ -176,6 +167,28 @@ class FirebaseAuthViewModel(
             }.onFailure {
                 _showSyn.value = false
             }
+        }
+    }
+
+    fun setUserOnline() {
+        viewModelScope.launch {
+            FirebaseRepository().setUserOnline()
+        }
+    }
+
+    fun setUserOffline() {
+        viewModelScope.launch {
+            FirebaseRepository().setUserOffline()
+        }
+    }
+
+    fun updateUserProfile(userProfile: UserProfile) {
+        _userProfile.value = userProfile
+    }
+
+    fun syncFirebase() {
+        viewModelScope.launch {
+            firebaseRepository.sync()
         }
     }
 }

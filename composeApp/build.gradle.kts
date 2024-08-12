@@ -26,6 +26,7 @@ kotlin {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
             implementation(libs.ktor.client.okhttp)
+
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -34,13 +35,9 @@ kotlin {
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
-            implementation(projects.shared)
             implementation(libs.lifecycle.viewmodel.compose)
 
-            // new Firebase
-            implementation("dev.gitlive:firebase-auth:1.13.0")
-            implementation("dev.gitlive:firebase-firestore:1.13.0")
-            implementation("dev.gitlive:firebase-storage:1.13.0")
+
         }
     }
 }
@@ -84,15 +81,17 @@ android {
         debugImplementation(libs.androidx.ui.test.manifest)
     }
 }
+
 dependencies {
+    implementation(projects.shared)
     implementation(libs.androidx.material3.android)
     implementation(libs.androidx.ui.text.google.fonts)
     implementation(libs.play.services.measurement.api)
-    implementation(libs.firebase.database.ktx)
-    implementation(libs.firebase.auth.ktx)
-    implementation(libs.firebase.firestore.ktx)
+    //implementation(libs.firebase.database.ktx)
+    //implementation(libs.firebase.auth.ktx)
+    //implementation(libs.firebase.firestore.ktx)
+    //implementation(libs.firebase.storage.ktx)
     implementation(libs.androidx.appcompat)
-    implementation(libs.firebase.storage.ktx)
     implementation(libs.androidx.legacy.support.v4)
     implementation(libs.androidx.lifecycle.livedata.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
@@ -100,5 +99,11 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.runtime.livedata)
     implementation(libs.compose.vectorize.core)
+    implementation(libs.kotlinx.datetime)
+    implementation("dev.gitlive:firebase-auth:1.13.0")
+    implementation("dev.gitlive:firebase-firestore:1.13.0")
+    implementation("dev.gitlive:firebase-storage:1.13.0")
+    implementation("dev.gitlive:firebase-analytics:1.13.0")
+    implementation("dev.gitlive:firebase-database:1.13.0")
 }
 

@@ -11,6 +11,7 @@ androidx-espresso-core = "3.6.1"
 androidx-material = "1.12.0"
 androidx-test-junit = "1.2.1"
 compose-plugin = "1.6.11"
+composeVectorizeCore = "1.0.0"
 firebaseAuth = "1.12.0"
 firebaseAuthJvm = "1.12.0"
 firebaseJavaSdk = "0.4.0"
@@ -48,11 +49,14 @@ lifecycleLivedataCoreKtx = "2.8.4"
 gService="4.4.2"
 navigationCompose = "2.7.7"
 runtimeLivedata = "1.6.8"
+uiTextAndroid = "1.6.8"
+places = "3.5.0"
 
 
 [libraries]
 androidx-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "uiTestManifest" }
 androidx-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "uiTooling" }
+compose-vectorize-core = { module = "dev.sergiobelda.compose.vectorize:compose-vectorize-core", version.ref = "composeVectorizeCore" }
 firebase-analytics-ktx = { module = "com.google.firebase:firebase-analytics-ktx" }
 firebase-auth = { module = "dev.gitlive:firebase-auth", version.ref = "firebaseAuth" }
 firebase-auth-jvm = { module = "dev.gitlive:firebase-auth-jvm", version.ref = "firebaseAuthJvm" }
@@ -102,6 +106,8 @@ androidx-lifecycle-runtime-compose-android = { group = "androidx.lifecycle", nam
 androidx-lifecycle-livedata-core-ktx = { group = "androidx.lifecycle", name = "lifecycle-livedata-core-ktx", version.ref = "lifecycleLivedataCoreKtx" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 androidx-runtime-livedata = { group = "androidx.compose.runtime", name = "runtime-livedata", version.ref = "runtimeLivedata" }
+androidx-ui-text-android = { group = "androidx.compose.ui", name = "ui-text-android", version.ref = "uiTextAndroid" }
+places = { group = "com.google.android.libraries.places", name = "places", version.ref = "places" }
 
 
 [plugins]

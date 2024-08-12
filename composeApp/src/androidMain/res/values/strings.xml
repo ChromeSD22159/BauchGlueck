@@ -1,3 +1,40 @@
 <resources>
     <string name="app_name">BauchGlueck</string>
+
+
+    <!-- getDifferenceDateString -->
+    <string name="time_years_months_days">%1$d Jahre, %2$d Monate, %3$d Tage</string>
+    <string name="time_months_days">%1$d Monate, %2$d Tage</string>
+    <string name="time_days">%1$d Tage</string>
+    <string name="time_until_restart">nur noch %1$s bis zum Neustart!</string>
+    <string name="time_since_restart">%1$s seit deinem Neustart!</string>
+
+    <!-- Setttings -->
+    <string name="settings_sheet_hallo_firstname">Hallo, %1$s!</string>
+    <string name="settings_sheet_unglaublich">Unglaublich, wie lange die Zeit vergeht!</string>
+    <string name="settings_sheet_signout_button_text">Abmelden</string>
+
+    <string name="settings_sheet_startgewicht_label">Startgewicht</string>
+    <string name="settings_sheet_wasseraufnahme_label">Wasseraufnahme</string>
+    <string name="settings_sheet_wasseraufnahme_am_tag_label">Wasseraufnahme am Tag</string>
+    <string name="settings_sheet_startgewicht_unit">kg</string>
+    <string name="settings_sheet_wasseraufnahme_unit">ml</string>
+    <string name="settings_sheet_wasseraufnahme_am_tag_unit">L</string>
+    <string name="settings_sheet_title">Einstellungen</string>
+
+    <!-- RegistrView -->
+    <string name="register_register_button_text">Registrieren</string>
+    <string name="register_surgery_date_text">Operatonsdatum:</string>
+    <string name="register_hallo_text">Hallo!</string>
+    <string name="register_create_account_text">Erstelle ein Konto!</string>
+    <string name="register_firstname_text">Vorname</string>
+    <string name="register_lastname_text">Nachname</string>
+    <string name="register_mail_text">E-Mail</string>
+    <string name="register_password_text">"Passwort"</string>
+    <string name="register_reenter_password_text">Passwort wiederholen</string>
+    <string name="register_login_button_text">Zum Login</string>
+
+    <!-- Shared -->
+    <string name="date_pattern">dd.MM.yyyy</string>
+    <string name="confirm_text">Bestätigen</string>
 </resources>

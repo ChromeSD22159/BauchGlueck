@@ -10,9 +10,11 @@ actual interface AuthApi {
     actual suspend fun signUp(email: String,password: String): Result<FirebaseUser?>
     actual suspend fun signIn(email: String,password: String): Result<FirebaseUser>
     actual suspend fun signOut(): Result<Unit>
-    actual suspend fun saveUserProfile(userProfile: UserProfile): Result<Unit>
+    actual suspend fun saveUserProfile(userProfile: UserProfile, connection: FirebaseConnection): Result<Unit>
     actual suspend fun fetchUserProfile(uid: String): Result<UserProfile?>
     actual suspend fun uploadAndSaveProfileImage(image: Any): Result<Exception?>
     actual suspend fun downloadProfileImage(imageURL: String): Result<Any?>
     actual suspend fun fetchTimers(): Result<List<CountdownTimer>>
+    actual suspend fun setUserOnline()
+    actual suspend fun setUserOffline()
 }

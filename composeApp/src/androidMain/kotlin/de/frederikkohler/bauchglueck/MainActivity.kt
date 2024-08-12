@@ -18,16 +18,15 @@ import com.google.firebase.database.database
 import de.frederikkohler.bauchglueck.ui.theme.AppTheme
 import de.frederikkohler.bauchglueck.ui.navigations.AuthNavigation
 import de.frederikkohler.bauchglueck.ui.screens.publicScreens.LoginView
+import de.frederikkohler.bauchglueck.viewModel.FirebaseAuthViewModel
 import viewModel.SharedRecipeViewModel
 
 class MainActivity : ComponentActivity() {
-    private lateinit var firebaseAnalytics: FirebaseAnalytics
-    private val database = Firebase.database.reference.child("onlineUsers")
     private val sharedRecipeViewModel: SharedRecipeViewModel by viewModels()
+    private val firebaseAuthViewModel: FirebaseAuthViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        firebaseAnalytics = Firebase.analytics
 
         sharedRecipeViewModel.fetchMeasureUnits()
         sharedRecipeViewModel.fetchRecipeCategories()
@@ -37,10 +36,22 @@ class MainActivity : ComponentActivity() {
         setContent {
             AppTheme {
 
-                AuthNavigation()
+                AuthNavigation(firebaseAuthViewModel)
 
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        // Refresh data when the app resumes
+        // syncFirebase()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        firebaseAuthViewModel.syncFirebase()
     }
 
     private fun setSystemBars() {
@@ -67,21 +78,6 @@ class MainActivity : ComponentActivity() {
                 controller.isAppearanceLightStatusBars = false // or true based on preference
             }
         }
-    }
-
-    override fun onStart() {
-        super.onStart()
-        val currentUser = FirebaseAuth.getInstance().currentUser ?: return
-        val userStatusRef = database.child(currentUser.uid)
-
-        userStatusRef.setValue(true)
-        userStatusRef.onDisconnect().removeValue()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        database.child(userId).removeValue() // Status auf "offline" setzen
     }
 }
 

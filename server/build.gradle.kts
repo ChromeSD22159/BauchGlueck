@@ -44,6 +44,12 @@ dependencies {
     implementation(libs.mysql.connector.java) // DB CONNECTOR
     implementation(libs.hikaricp) // DB DRIVER
     implementation(libs.flyway.core) // Version control for your database
-    implementation(libs.firebase.auth.jvm)
-    implementation(libs.firebase.java.sdk)
+    //implementation(libs.firebase.auth.jvm)
+    //implementation(libs.firebase.java.sdk)
+
+    implementation("dev.gitlive:firebase-auth:1.13.0")
+    implementation("dev.gitlive:firebase-firestore:1.13.0")
+    implementation("dev.gitlive:firebase-storage:1.13.0")
+    implementation("dev.gitlive:firebase-analytics:1.13.0")
+    implementation("dev.gitlive:firebase-database:1.13.0")
 }

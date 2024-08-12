@@ -14,16 +14,22 @@ import io.ktor.server.engine.*
 val env = ENV.Development
 
 fun main(args: Array<String>) {
-    embeddedServer(
-        factory = Netty,
-        environment = applicationEngineEnvironment {
-            connector {
-                port = 8080
+    RecipeServer().start(wait = true)
+}
+
+class RecipeServer() {
+    fun start(wait: Boolean = true) {
+        embeddedServer(
+            factory = Netty,
+            environment = applicationEngineEnvironment {
+                connector {
+                    port = 8080
+                }
+                module(Application::module)
+                developmentMode = true
             }
-            module(Application::module)
-            developmentMode = true
-        }
-    ).start(wait = true)
+        ).start(wait = true)
+    }
 }
 
 fun Application.module() {
