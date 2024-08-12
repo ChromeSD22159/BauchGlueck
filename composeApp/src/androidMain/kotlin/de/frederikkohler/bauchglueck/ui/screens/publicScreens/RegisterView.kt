@@ -34,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import de.frederikkohler.bauchglueck.ui.components.BackgroundBlobWithStomach
@@ -115,15 +116,27 @@ fun RegisterView(
                 )
             }
 
-            CustomTextField(stringResource(R.string.register_firstname_text), registerViewModel.firstName) {
+            CustomTextField(
+                stringResource(R.string.register_firstname_text),
+                registerViewModel.firstName,
+                KeyboardType.Text
+            ) {
                 registerViewModel.firstName.value = it
             }
 
-            CustomTextField(stringResource(R.string.register_lastname_text), registerViewModel.lastName) {
+            CustomTextField(
+                stringResource(R.string.register_lastname_text),
+                registerViewModel.lastName,
+                KeyboardType.Text
+            ) {
                 registerViewModel.lastName.value = it
             }
 
-            CustomTextField(stringResource(R.string.register_mail_text), registerViewModel.mail) {
+            CustomTextField(
+                stringResource(R.string.register_mail_text),
+                registerViewModel.mail,
+                KeyboardType.Email
+            ) {
                 registerViewModel.mail.value = it
             }
 
@@ -151,11 +164,19 @@ fun RegisterView(
                 }
             }
 
-            CustomTextField(stringResource(R.string.register_password_text), registerViewModel.password) {
+            CustomTextField(
+                stringResource(R.string.register_password_text),
+                registerViewModel.password,
+                KeyboardType.Password
+            ) {
                 registerViewModel.password.value = it
             }
 
-            CustomTextField(stringResource(R.string.register_reenter_password_text), registerViewModel.reEnterPassword) {
+            CustomTextField(
+                stringResource(R.string.register_reenter_password_text),
+                registerViewModel.reEnterPassword,
+                KeyboardType.Password
+            ) {
                 registerViewModel.reEnterPassword.value = it
             }
 

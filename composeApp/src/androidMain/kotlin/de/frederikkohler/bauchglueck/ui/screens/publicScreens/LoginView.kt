@@ -22,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import de.frederikkohler.bauchglueck.ui.components.BackgroundBlobWithStomach
@@ -94,11 +95,19 @@ fun LoginView(
                 )
             }
 
-            CustomTextField("Deine E-Mail", loginViewModel.mail) {
+            CustomTextField(
+                "Deine E-Mail",
+                loginViewModel.mail,
+                KeyboardType.Email
+            ) {
                 loginViewModel.mail.value = it
             }
 
-            CustomTextField("Dein Passwort", loginViewModel.password) {
+            CustomTextField(
+                "Dein Passwort",
+                loginViewModel.password,
+                KeyboardType.Password
+            ) {
                 loginViewModel.password.value = it
             }
 
