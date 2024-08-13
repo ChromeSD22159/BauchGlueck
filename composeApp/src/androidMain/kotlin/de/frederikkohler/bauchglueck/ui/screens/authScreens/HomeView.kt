@@ -17,22 +17,20 @@ import de.frederikkohler.bauchglueck.ui.components.RoundImageButton
 import de.frederikkohler.bauchglueck.viewModel.FirebaseAuthViewModel
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavHostController
 import data.FirebaseConnection
+import de.frederikkohler.bauchglueck.ui.components.HomeCalendarCard
 import de.frederikkohler.bauchglueck.ui.screens.authScreens.settingsSheet.SettingSheet
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -46,6 +44,7 @@ fun HomeView(
     navController: NavHostController
 ) {
     var showSettingSheet by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
 
     Scaffold(
         topBar = {
@@ -55,7 +54,7 @@ fun HomeView(
                     titleContentColor = MaterialTheme.colorScheme.primary,
                 ),
                 title = {
-                    Text("BauchGlück")
+                    Text(stringResource(R.string.app_name))
                 },
                 actions = {
                     Box(modifier = Modifier.padding(end = 16.dp)) {
@@ -63,6 +62,25 @@ fun HomeView(
                             showSettingSheet = true
                         }
                     }
+                    SettingSheet(
+                        showSettingSheet = showSettingSheet,
+                        onDismissRequest = {
+                            showSettingSheet = false
+                            firebaseAuthViewModel.saveUserProfile(FirebaseConnection.Remote)
+                        },
+                        onSignOut = {
+                            scope.launch {
+                                firebaseAuthViewModel.signOut()
+                                delay(250)
+                                showSettingSheet = false
+                                delay(250)
+                                if (firebaseAuthViewModel.user.value == null) {
+                                    navController.navigate(Screens.Login.route)
+                                }
+                            }
+                        },
+                        firebaseAuthViewModel = firebaseAuthViewModel,
+                    )
                 }
             )
         },
@@ -73,49 +91,14 @@ fun HomeView(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            val user by firebaseAuthViewModel.userProfile.collectAsStateWithLifecycle()
 
             Spacer(modifier = Modifier.height(80.dp))
 
-            Button(onClick = { navController.navigate(Screens.Test.route) }) {
-                Text(text = Screens.Test.name)
+            HomeCalendarCard() {
+                scope.launch {
+                    navController.navigate(Screens.Calendar.route)
+                }
             }
-
-            Button(onClick = { navController.navigate(Screens.Settings.route) }) {
-                Text(text = Screens.Settings.name)
-            }
-            Text(
-                modifier = Modifier,
-                text =
-                """
-                    This is an example of a scaffold. It uses the Scaffold composable's parameters to create a screen with a simple top app bar, bottom app bar, and floating action button.
-
-                    It also contains some basic inner content, such as this text.
-                """.trimIndent(),
-            )
-
-            val scope = rememberCoroutineScope()
-            SettingSheet(
-                showSettingSheet = showSettingSheet,
-                onDismissRequest = {
-                    showSettingSheet = false
-                    firebaseAuthViewModel.saveUserProfile(FirebaseConnection.Remote)
-                },
-                onSignOut = {
-                    scope.launch {
-                        firebaseAuthViewModel.signOut()
-                        delay(250)
-                        showSettingSheet = false
-                        delay(250)
-                        if (firebaseAuthViewModel.user.value == null) {
-                            navController.navigate(Screens.Login.route)
-                        }
-                    }
-                },
-                firebaseAuthViewModel = firebaseAuthViewModel,
-            )
         }
     }
 }
-
-

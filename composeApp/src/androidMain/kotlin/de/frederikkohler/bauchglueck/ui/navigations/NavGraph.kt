@@ -10,6 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import de.frederikkohler.bauchglueck.ui.components.ChildView
 import de.frederikkohler.bauchglueck.ui.screens.LaunchScreen
+import de.frederikkohler.bauchglueck.ui.screens.authScreens.CalendarView
 import de.frederikkohler.bauchglueck.ui.screens.authScreens.HomeView
 import de.frederikkohler.bauchglueck.viewModel.FirebaseAuthViewModel
 import de.frederikkohler.bauchglueck.ui.screens.publicScreens.LoginView
@@ -26,27 +27,23 @@ fun PublicNavigation(
     navState?.let { navController.navigate(Screens.Home.name) }
 
     NavHost(navController = navController, startDestination = Screens.Launch.name) {
-        composable(Screens.Launch.name) {
+        composable(Screens.Launch.route) {
             LaunchScreen()
         }
-        composable(Screens.Login.name) {
-            LoginView( { navController.navigate(it.name) } )
+        composable(Screens.Login.route) {
+            LoginView( { navController.navigate(it.route) } )
         }
-        composable(Screens.SignUp.name) {
-            RegisterView( { navController.navigate(it.name) } )
+        composable(Screens.SignUp.route) {
+            RegisterView( { navController.navigate(it.route) } )
         }
-        composable(Screens.Home.name) {
-            HomeView(viewModel, navController)
-        }
-        composable(Screens.Settings.name) {
-            ChildView(
-                title = Screens.Settings.name,
+        composable(Screens.Home.route) {
+            HomeView(
+                firebaseAuthViewModel = viewModel,
                 navController = navController
             )
         }
-        composable(Screens.Test.name) {
-            ChildView(
-                title = Screens.Test.name,
+        composable(Screens.Calendar.route) {
+            CalendarView(
                 navController = navController
             )
         }

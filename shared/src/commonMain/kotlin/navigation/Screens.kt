@@ -1,10 +1,9 @@
 package navigation
 
-enum class Screens(val route: String) {
-    Launch("Launch"),
-    Login("Login"),
-    SignUp("Register"),
-    Home("Home"),
-    Settings("Settings"),
-    Test("Test")
+enum class Screens(val route: String,val title: String) {
+    Launch("Launch", "Launch"),
+    Login("Login", "Login"),
+    SignUp("Register", "Register"),
+    Home("Home", "Home"),
+    Calendar("Calendar", "Kalender")
 }

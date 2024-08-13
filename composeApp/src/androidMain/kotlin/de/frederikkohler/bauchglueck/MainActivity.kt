@@ -20,15 +20,15 @@ import viewModel.SharedRecipeViewModel
 
 class MainActivity : ComponentActivity() {
 
-    private val sharedRecipeViewModel: SharedRecipeViewModel by viewModels()
+    //private val sharedRecipeViewModel: SharedRecipeViewModel by viewModels()
+    //sharedRecipeViewModel.fetchMeasureUnits()
+    //sharedRecipeViewModel.fetchRecipeCategories()
+
     private val firebaseAuthViewModel: FirebaseAuthViewModel by viewModels()
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        sharedRecipeViewModel.fetchMeasureUnits()
-        sharedRecipeViewModel.fetchRecipeCategories()
 
         setSystemBars()
 
