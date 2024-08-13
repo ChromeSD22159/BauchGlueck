@@ -17,14 +17,23 @@ class DateViewModel: ViewModel() {
     init {
         viewModelScope.launch {
             loadNextSevenDays()
+            loadPreviousSevenWeeks()
         }
     }
 
     private val _nextSevenDays: CMutableStateFlow<List<LocalDate>> = MutableStateFlow<List<LocalDate>>(listOf()).cMutableStateFlow()
     val nextSevenDays: CStateFlow<List<LocalDate>> = _nextSevenDays.asStateFlow().cStateFlow()
 
+    private val _previousSevenWeeks: CMutableStateFlow<List<Pair<LocalDate, LocalDate>>> = MutableStateFlow<List<Pair<LocalDate, LocalDate>>>(listOf()).cMutableStateFlow()
+    val previousSevenWeeks: CStateFlow<List<Pair<LocalDate, LocalDate>>> = _previousSevenWeeks.asStateFlow().cStateFlow()
+
     private fun loadNextSevenDays() {
         val nextSevenDays = dateRepository.getNextSevenDays()
         _nextSevenDays.value = nextSevenDays
+    }
+
+    private fun loadPreviousSevenWeeks() {
+        val previousSevenWeeks = dateRepository.getFirstAndLastDayOfSevenPreviousWeeks()
+        _previousSevenWeeks.value = previousSevenWeeks
     }
 }

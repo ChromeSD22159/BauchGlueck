@@ -8,10 +8,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import de.frederikkohler.bauchglueck.ui.components.ChildView
+import de.frederikkohler.bauchglueck.ui.components.BackScaffold
 import de.frederikkohler.bauchglueck.ui.screens.LaunchScreen
-import de.frederikkohler.bauchglueck.ui.screens.authScreens.CalendarView
-import de.frederikkohler.bauchglueck.ui.screens.authScreens.HomeView
+import de.frederikkohler.bauchglueck.ui.screens.authScreens.meals.CalendarView
+import de.frederikkohler.bauchglueck.ui.screens.authScreens.home.HomeView
 import de.frederikkohler.bauchglueck.viewModel.FirebaseAuthViewModel
 import de.frederikkohler.bauchglueck.ui.screens.publicScreens.LoginView
 import de.frederikkohler.bauchglueck.ui.screens.publicScreens.RegisterView
@@ -47,6 +47,25 @@ fun PublicNavigation(
                 navController = navController
             )
         }
+        composable(Screens.Timer.route) {
+            BackScaffold(
+                title = Screens.Timer.title,
+                navController = navController
+            )
+        }
+        composable(Screens.Weight.route) {
+            BackScaffold(
+                title = Screens.Weight.title,
+                navController = navController
+            )
+        }
+        composable(Screens.WaterIntake.route) {
+            BackScaffold(
+                title = Screens.WaterIntake.title,
+                navController = navController
+            )
+        }
+
     }
 }
 

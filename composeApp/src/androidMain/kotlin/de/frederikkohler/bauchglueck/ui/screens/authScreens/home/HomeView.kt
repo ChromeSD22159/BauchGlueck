@@ -1,4 +1,4 @@
-package de.frederikkohler.bauchglueck.ui.screens.authScreens
+package de.frederikkohler.bauchglueck.ui.screens.authScreens.home
 
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -30,7 +30,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavHostController
 import data.FirebaseConnection
-import de.frederikkohler.bauchglueck.ui.components.HomeCalendarCard
 import de.frederikkohler.bauchglueck.ui.screens.authScreens.settingsSheet.SettingSheet
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -97,6 +96,24 @@ fun HomeView(
             HomeCalendarCard() {
                 scope.launch {
                     navController.navigate(Screens.Calendar.route)
+                }
+            }
+
+            HomeWeightCard() {
+                scope.launch {
+                    navController.navigate(Screens.Weight.route)
+                }
+            }
+
+            HomeTimerCard() {
+                scope.launch {
+                    navController.navigate(Screens.Timer.route)
+                }
+            }
+
+            HomeWaterIntakeCard() {
+                scope.launch {
+                    navController.navigate(Screens.WaterIntake.route)
                 }
             }
         }

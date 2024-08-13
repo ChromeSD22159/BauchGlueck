@@ -25,7 +25,7 @@ import de.frederikkohler.bauchglueck.ui.theme.AppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ChildView(
+fun BackScaffold(
     title: String,
     navController: NavController,
     view: () -> Unit = {}
@@ -76,7 +76,7 @@ fun ChildView(
 fun CenterAlignedTopAppBarExamplePreview() {
     val navController = NavController(LocalContext.current)
     AppTheme {
-        ChildView(
+        BackScaffold(
             title = "BauchGlück",
             navController = navController
         ) {}
