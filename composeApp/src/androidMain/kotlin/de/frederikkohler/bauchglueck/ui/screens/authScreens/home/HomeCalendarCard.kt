@@ -32,6 +32,7 @@ fun HomeCalendarCard(
     val dates by dateViewModel.nextSevenDays.collectAsStateWithLifecycle()
 
     HeadCard(
+        modifier = Modifier.padding(start = 10.dp, end = 10.dp),
         icon = R.drawable.icon_calendar,
         title = "Kalender",
         onNavigate = { onNavigate() }

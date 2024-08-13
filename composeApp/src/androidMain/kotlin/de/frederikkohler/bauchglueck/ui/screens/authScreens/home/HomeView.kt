@@ -2,6 +2,7 @@ package de.frederikkohler.bauchglueck.ui.screens.authScreens.home
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,6 +18,8 @@ import de.frederikkohler.bauchglueck.ui.components.RoundImageButton
 import de.frederikkohler.bauchglueck.viewModel.FirebaseAuthViewModel
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -85,17 +88,29 @@ fun HomeView(
         },
     ) { _ ->
         Column(
-            modifier = Modifier
+            modifier = Modifier.verticalScroll(rememberScrollState())
                 .fillMaxSize()
-                .padding(16.dp),
+                .padding(0.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
 
-            Spacer(modifier = Modifier.height(80.dp))
+            Spacer(modifier = Modifier.height(90.dp))
 
             HomeCalendarCard() {
                 scope.launch {
                     navController.navigate(Screens.Calendar.route)
+                }
+            }
+
+            HomeWeightCard() {
+                scope.launch {
+                    navController.navigate(Screens.Weight.route)
+                }
+            }
+
+            HomeWeightCard() {
+                scope.launch {
+                    navController.navigate(Screens.Weight.route)
                 }
             }
 

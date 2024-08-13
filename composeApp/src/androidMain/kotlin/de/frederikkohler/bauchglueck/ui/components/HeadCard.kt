@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -18,19 +20,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 
 @Composable
 fun HeadCard(
+    modifier: Modifier = Modifier,
     icon: Int? = null,
     title: String,
+    arrowIcon: Boolean = true,
     onNavigate: () -> Unit,
     content: @Composable () -> Unit
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .clickable {
                 onNavigate()
             }
@@ -39,14 +44,14 @@ fun HeadCard(
             .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.15f)),
         verticalArrangement = Arrangement.spacedBy(space = 0.dp, alignment = Alignment.CenterVertically)
     ) {
-        CardHeadRow(icon, title)
+        CardHeadRow(icon, title, arrowIcon = arrowIcon)
 
         content()
     }
 }
 
 @Composable
-fun CardHeadRow(icon: Int?, title: String) {
+fun CardHeadRow(icon: Int?, title: String, arrowIcon: Boolean) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -67,6 +72,16 @@ fun CardHeadRow(icon: Int?, title: String) {
         Spacer(modifier = Modifier.width(8.dp))
 
         CardTitle(title)
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        if (arrowIcon) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = "Trending Up",
+                tint = MaterialTheme.colorScheme.primary
+            )
+        }
     }
 }
 

@@ -20,6 +20,7 @@ fun HomeWaterIntakeCard(
     onNavigate: () -> Unit
 ) {
     HeadCard(
+        modifier = Modifier.padding(start = 10.dp, end = 10.dp),
         title = title,
         onNavigate = { onNavigate() }
     ) {
