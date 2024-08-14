@@ -6,6 +6,8 @@ plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.google.services)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.room)
 }
 
 kotlin {
@@ -53,6 +55,8 @@ kotlin {
 
 
             implementation(libs.ktor.client.okhttp)
+
+            implementation(libs.androidx.room.paging)
         }
         commonMain.dependencies {
             // sharedViewModel
@@ -68,7 +72,7 @@ kotlin {
             implementation("dev.gitlive:firebase-firestore:1.13.0")
             implementation("dev.gitlive:firebase-storage:1.13.0")
 
-            implementation ("com.google.android.libraries.places:places:3.3.0")
+            implementation(libs.androidx.room.runtime)
 
         }
         iosMain.dependencies {
@@ -105,4 +109,13 @@ dependencies {
     implementation("dev.gitlive:firebase-analytics:1.13.0")
     implementation("dev.gitlive:firebase-database:1.13.0")
     implementation(libs.androidx.ui.text.android)
+
+    add("kspAndroid", libs.androidx.room.compiler)
+    //add("kspIosSimulatorArm64", libs.androidx.room.compiler)
+    //add("kspIosX64", libs.androidx.room.compiler)
+    add("kspIosArm64", libs.androidx.room.compiler)
+}
+
+room {
+    schemaDirectory("$projectDir/schemas")
 }
