@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="198dp"
+    android:height="186dp"
+    android:viewportWidth="198"
+    android:viewportHeight="186">
+
+    <path
+        android:name="BackgroundSplashSmall"
+        android:fillColor="#B0B09E"
+        android:fillAlpha="0.2"
+        android:pathData="M15.7528,153.852 C-31.0526,111.589,47.3155,0,47.3155,0 L197.846,0 L197.846,186
+C197.846,186,168.711,165.333,125.008,165.333
+C81.3063,165.333,54.1575,188.53,15.7528,153.852 Z" />
+</vector>

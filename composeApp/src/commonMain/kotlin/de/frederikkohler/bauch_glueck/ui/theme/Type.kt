@@ -1,11 +1,7 @@
 package de.frederikkohler.bauch_glueck.ui.theme
 
-import androidx.compose.material3.Typography
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.platform.Font
-
 // TODO: Add custom fonts - https://medium.com/@boobalaninfo/integrate-custom-fonts-in-kotlin-compose-multiplatform-bc0f30c0b7e6
-
+/*
 val provider = GoogleFont.Provider(
     providerAuthority = "com.google.android.gms.fonts",
     providerPackage = "com.google.android.gms",
@@ -46,3 +42,5 @@ val AppTypography = Typography(
     labelMedium = baseline.labelMedium.copy(fontFamily = bodyFontFamily),
     labelSmall = baseline.labelSmall.copy(fontFamily = bodyFontFamily),
 )
+
+ */
