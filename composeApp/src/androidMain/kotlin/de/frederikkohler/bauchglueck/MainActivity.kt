@@ -1,6 +1,5 @@
 package de.frederikkohler.bauchglueck
 
-import App
 import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Build
@@ -13,11 +12,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import data.local.getDatabase
 import de.frederikkohler.bauchglueck.ui.theme.AppTheme
 import de.frederikkohler.bauchglueck.ui.screens.publicScreens.LoginView
 import de.frederikkohler.bauchglueck.viewModel.FirebaseAuthViewModel
-import viewModel.SharedRecipeViewModel
 
 class MainActivity : ComponentActivity() {
 
@@ -31,7 +28,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val db = getDatabase(applicationContext)
+        //val db = getDatabase(applicationContext)
 
         setSystemBars()
 

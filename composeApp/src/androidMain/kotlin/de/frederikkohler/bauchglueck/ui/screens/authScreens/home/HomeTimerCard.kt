@@ -1,6 +1,7 @@
 package de.frederikkohler.bauchglueck.ui.screens.authScreens.home
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -56,6 +57,9 @@ fun HomeTimerCard(
                         .clip(RoundedCornerShape(8.dp))
                         .background(MaterialTheme.colorScheme.primaryContainer)
                         .padding(16.dp)
+                        .clickable {
+                            onNavigate()
+                        }
                 ){
                     Icon(
                         imageVector = Icons.Default.Star,
@@ -94,6 +98,7 @@ fun HomeTimerCardPreview() {
                             .clip(RoundedCornerShape(8.dp))
                             .background(MaterialTheme.colorScheme.primaryContainer)
                             .padding(16.dp)
+
                     ){
                         Icon(
                             imageVector = Icons.Default.Star,

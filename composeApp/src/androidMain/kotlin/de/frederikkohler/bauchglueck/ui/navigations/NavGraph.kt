@@ -1,6 +1,8 @@
 package de.frederikkohler.bauchglueck.ui.navigations
 
 import android.os.Build
+import android.util.Log
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -10,11 +12,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import de.frederikkohler.bauchglueck.ui.components.BackScaffold
 import de.frederikkohler.bauchglueck.ui.screens.LaunchScreen
-import de.frederikkohler.bauchglueck.ui.screens.authScreens.meals.CalendarView
-import de.frederikkohler.bauchglueck.ui.screens.authScreens.home.HomeView
+import de.frederikkohler.bauchglueck.ui.screens.authScreens.meals.CalendarScreen
+import de.frederikkohler.bauchglueck.ui.screens.authScreens.home.HomeScreen
+import de.frederikkohler.bauchglueck.ui.screens.authScreens.timer.TimerScreen
 import de.frederikkohler.bauchglueck.viewModel.FirebaseAuthViewModel
 import de.frederikkohler.bauchglueck.ui.screens.publicScreens.LoginView
 import de.frederikkohler.bauchglueck.ui.screens.publicScreens.RegisterView
+import dev.gitlive.firebase.Firebase
+import dev.gitlive.firebase.auth.auth
 import navigation.Screens
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -24,9 +29,10 @@ fun PublicNavigation(
     viewModel: FirebaseAuthViewModel
 ) {
     val navState by viewModel.user.collectAsStateWithLifecycle()
-    navState?.let { navController.navigate(Screens.Home.name) }
 
-    NavHost(navController = navController, startDestination = Screens.Launch.name) {
+    Log.d("PublicNavigation", "navState: $navState")
+
+    NavHost(navController = navController, startDestination = Screens.Login.route) {
         composable(Screens.Launch.route) {
             LaunchScreen()
         }
@@ -37,19 +43,18 @@ fun PublicNavigation(
             RegisterView( { navController.navigate(it.route) } )
         }
         composable(Screens.Home.route) {
-            HomeView(
+            HomeScreen(
                 firebaseAuthViewModel = viewModel,
                 navController = navController
             )
         }
         composable(Screens.Calendar.route) {
-            CalendarView(
+            CalendarScreen(
                 navController = navController
             )
         }
         composable(Screens.Timer.route) {
-            BackScaffold(
-                title = Screens.Timer.title,
+            TimerScreen(
                 navController = navController
             )
         }

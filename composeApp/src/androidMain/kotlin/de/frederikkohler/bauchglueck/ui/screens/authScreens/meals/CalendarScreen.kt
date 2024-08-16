@@ -6,7 +6,7 @@ import de.frederikkohler.bauchglueck.ui.components.BackScaffold
 import navigation.Screens
 
 @Composable
-fun CalendarView(navController: NavController) {
+fun CalendarScreen(navController: NavController) {
     BackScaffold(
         title = Screens.Calendar.title,
         navController = navController

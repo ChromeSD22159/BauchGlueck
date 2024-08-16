@@ -1,3 +1,5 @@
+package de.frederikkohler.bauchglueck
+
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
@@ -9,9 +11,11 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import de.frederikkohler.bauchglueck.ui.theme.AppTheme
 import de.frederikkohler.bauchglueck.ui.navigations.PublicNavigation
+import de.frederikkohler.bauchglueck.ui.screens.LaunchScreen
 import de.frederikkohler.bauchglueck.viewModel.FirebaseAuthViewModel
+import dev.gitlive.firebase.Firebase
+import dev.gitlive.firebase.auth.auth
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import navigation.Screens
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -25,15 +29,9 @@ fun App(
 
     LaunchedEffect(key1 = true) {
         delay(700)
-
         showSplashScreen = false
-
-        if (firebaseAuthViewModel.user.value != null) {
-            navController.navigate(Screens.Home.name)
-        } else {
-            navController.navigate(Screens.Login.name)
-        }
     }
+
 
     AppTheme {
         androidx.compose.material3.Surface(
@@ -43,6 +41,10 @@ fun App(
             Box(
                 modifier = Modifier.fillMaxSize()
             ) {
+                if (showSplashScreen) {
+                    LaunchScreen()
+                }
+
                 PublicNavigation(navController, firebaseAuthViewModel)
             }
         }

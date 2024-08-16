@@ -1,4 +1,4 @@
-package de.frederikkohler.bauchglueck.ui.screens.authScreens
+package de.frederikkohler.bauchglueck.ui.screens.authScreens.weight
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
@@ -6,9 +6,9 @@ import de.frederikkohler.bauchglueck.ui.components.BackScaffold
 import navigation.Screens
 
 @Composable
-fun TimerView(navController: NavController) {
+fun WeightScreen(navController: NavController) {
     BackScaffold(
-        title = Screens.Timer.title,
+        title = Screens.Weight.title,
         navController = navController
     )
 }

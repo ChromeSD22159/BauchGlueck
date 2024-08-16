@@ -2,7 +2,9 @@ package de.frederikkohler.bauchglueck.viewModel
 
 import android.graphics.Bitmap
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.google.firebase.auth.FirebaseUser
@@ -11,6 +13,7 @@ import de.frederikkohler.bauchglueck.data.network.FirebaseRepository
 import dev.icerock.moko.mvvm.flow.CMutableStateFlow
 import dev.icerock.moko.mvvm.flow.cMutableStateFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import model.UserProfile
 import model.countdownTimer.CountdownTimer
@@ -60,7 +63,6 @@ class FirebaseAuthViewModel(
                 else {
                     viewModelScope.launch {
                         firebaseRepository.setUserOffline()
-
                     }
                 }
             }

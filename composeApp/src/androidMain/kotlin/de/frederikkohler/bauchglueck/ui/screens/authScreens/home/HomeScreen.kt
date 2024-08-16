@@ -2,7 +2,6 @@ package de.frederikkohler.bauchglueck.ui.screens.authScreens.home
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -41,7 +40,7 @@ import navigation.Screens
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeView(
+fun HomeScreen(
     firebaseAuthViewModel: FirebaseAuthViewModel = viewModel(),
     navController: NavHostController
 ) {
