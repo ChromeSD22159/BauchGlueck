@@ -12,9 +12,12 @@ androidx-material = "1.12.0"
 androidx-test-junit = "1.2.1"
 compose-plugin = "1.6.11"
 composeVectorizeCore = "1.0.0"
-firebaseAuth = "1.12.0"
-firebaseAuthJvm = "1.12.0"
-firebaseJavaSdk = "0.4.0"
+firebaseAnalytics = "1.13.0"
+firebaseAuth = "1.13.0"
+firebaseAuthJvm = "1.13.0"
+firebaseFirestoreVersion = "1.13.0"
+firebaseJavaSdk = "0.4.3"
+firebaseStorageVersion = "1.13.0"
 flywayCore = "9.16.0"
 hikaricp = "5.1.0"
 junit = "4.13.2"
@@ -50,18 +53,22 @@ gService="4.4.2"
 navigationCompose = "2.7.7"
 runtimeLivedata = "1.6.8"
 uiTextAndroid = "1.6.8"
-ksp = "1.9.23-1.0.19"
-androidx-room = "2.7.0-alpha06"
+ksp = "2.0.10-1.0.24"
+room = "2.7.0-alpha04"
+sqlite = "2.5.0-SNAPSHOT"
 
 
 [libraries]
 androidx-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "uiTestManifest" }
 androidx-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "uiTooling" }
 compose-vectorize-core = { module = "dev.sergiobelda.compose.vectorize:compose-vectorize-core", version.ref = "composeVectorizeCore" }
-firebase-analytics-ktx = { module = "com.google.firebase:firebase-analytics-ktx" }
+firebase-analytics = { module = "dev.gitlive:firebase-analytics", version.ref = "firebaseAnalytics" }
 firebase-auth = { module = "dev.gitlive:firebase-auth", version.ref = "firebaseAuth" }
-firebase-auth-jvm = { module = "dev.gitlive:firebase-auth-jvm", version.ref = "firebaseAuthJvm" }
+firebase-database = { module = "dev.gitlive:firebase-database", version.ref = "firebaseAnalytics" }
+firebase-storage = { module = "dev.gitlive:firebase-storage", version.ref = "firebaseStorageVersion" }
 firebase-java-sdk = { module = "dev.gitlive:firebase-java-sdk", version.ref = "firebaseJavaSdk" }
+firebase-auth-jvm = { module = "dev.gitlive:firebase-auth-jvm", version.ref = "firebaseAuthJvm" }
+firebase-firestore = { module = "dev.gitlive:firebase-firestore", version.ref = "firebaseFirestoreVersion" }
 flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flywayCore" }
 hikaricp = { module = "com.zaxxer:HikariCP", version.ref = "hikaricp" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "androidx-appcompat" }
@@ -103,10 +110,14 @@ androidx-lifecycle-runtime-compose-android = { group = "androidx.lifecycle", nam
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 androidx-runtime-livedata = { group = "androidx.compose.runtime", name = "runtime-livedata", version.ref = "runtimeLivedata" }
 androidx-ui-text-android = { group = "androidx.compose.ui", name = "ui-text-android", version.ref = "uiTextAndroid" }
-androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "androidx-room" }
-androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "androidx-room" }
-androidx-room-paging = { group = "androidx.room", name = "room-paging", version.ref = "androidx-room" }
-androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "androidx-room" }
+
+
+
+room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
+room-runtime-android = { group = "androidx.room", name = "room-runtime-android", version.ref = "room" }
+room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
+sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqlite" }
+
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
@@ -120,7 +131,7 @@ jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = 
 kotlin-serialization = { id ="org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 google-services = { id="com.google.gms.google-services", version.ref="gService" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
-room = { id = "androidx.room", version.ref = "androidx-room" }
+room = { id = "androidx.room", version.ref = "room" }
 
 [bundles]
 ktor = [
@@ -129,4 +140,12 @@ ktor = [
     "ktor-client-auth",
     "ktor-client-logging",
     "ktor-serialization-kotlinx-json",
+]
+
+firebase-services = [
+    "firebase-auth",
+    "firebase-firestore",
+    "firebase-storage",
+    "firebase-analytics",
+    "firebase-database",
 ]

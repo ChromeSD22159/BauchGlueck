@@ -11,6 +11,11 @@ plugins {
 }
 
 kotlin {
+
+    sourceSets.commonMain {
+        kotlin.srcDir("build/generated/ksp/metadata")
+    }
+
     androidTarget {
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
@@ -18,12 +23,10 @@ kotlin {
         }
     }
 
-
-    
     listOf(
-        // iosX64(),
+        iosX64(),
         iosArm64(),
-        // iosSimulatorArm64()
+        iosSimulatorArm64()
     ).forEach { iosTarget ->
         iosTarget.binaries.framework {
             baseName = "Shared"
@@ -32,6 +35,8 @@ kotlin {
             // sharedViewModel
             export(libs.mvvm.core)
             export(libs.mvvm.flow)
+
+            linkerOpts.add("-lsqlite3")   // Required when using NativeSQLiteDriver
         }
     }
 
@@ -39,14 +44,10 @@ kotlin {
     
     sourceSets {
         jvmMain.dependencies {
-            //implementation(libs.firebase.auth.jvm)
-            //implementation(libs.firebase.java.sdk)
+
         }
         androidMain.dependencies {
             implementation(project.dependencies.platform("com.google.firebase:firebase-bom:33.1.2"))
-            //implementation(libs.firebase.analytics.ktx)
-            //implementation(libs.firebase.auth.ktx)
-            //implementation(libs.firebase.database.ktx)
 
             // sharedViewModel
             api(libs.mvvm.core)
@@ -56,7 +57,7 @@ kotlin {
 
             implementation(libs.ktor.client.okhttp)
 
-            implementation(libs.androidx.room.paging)
+            implementation(libs.room.runtime.android)
         }
         commonMain.dependencies {
             // sharedViewModel
@@ -68,11 +69,10 @@ kotlin {
             implementation(libs.bundles.ktor)
 
             // new Firebase
-            implementation("dev.gitlive:firebase-auth:1.13.0")
-            implementation("dev.gitlive:firebase-firestore:1.13.0")
-            implementation("dev.gitlive:firebase-storage:1.13.0")
+            implementation(libs.bundles.firebase.services)
 
-            implementation(libs.androidx.room.runtime)
+            implementation(libs.room.runtime)
+            implementation(libs.sqlite.bundled)
 
         }
         iosMain.dependencies {
@@ -99,23 +99,19 @@ android {
     }
 }
 dependencies {
-    //implementation(libs.androidx.lifecycle.livedata.core.ktx)
-    //implementation(libs.firebase.firestore.ktx)
-    //implementation(libs.firebase.storage.ktx)
-    //implementation(libs.firebase.auth)
-    implementation("dev.gitlive:firebase-auth:1.13.0")
-    implementation("dev.gitlive:firebase-firestore:1.13.0")
-    implementation("dev.gitlive:firebase-storage:1.13.0")
-    implementation("dev.gitlive:firebase-analytics:1.13.0")
-    implementation("dev.gitlive:firebase-database:1.13.0")
+    implementation(libs.bundles.firebase.services)
     implementation(libs.androidx.ui.text.android)
 
-    add("kspAndroid", libs.androidx.room.compiler)
-    //add("kspIosSimulatorArm64", libs.androidx.room.compiler)
-    //add("kspIosX64", libs.androidx.room.compiler)
-    add("kspIosArm64", libs.androidx.room.compiler)
+    // Room
+    add("kspCommonMainMetadata", libs.room.compiler)
 }
 
 room {
     schemaDirectory("$projectDir/schemas")
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.dsl.KotlinCompile<*>>().configureEach {
+    if (name != "kspCommonMainKotlinMetadata" ) {
+        dependsOn("kspCommonMainKotlinMetadata")
+    }
 }

@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import data.local.getDatabase
 import de.frederikkohler.bauchglueck.ui.theme.AppTheme
 import de.frederikkohler.bauchglueck.ui.screens.publicScreens.LoginView
 import de.frederikkohler.bauchglueck.viewModel.FirebaseAuthViewModel
@@ -29,6 +30,8 @@ class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val db = getDatabase(applicationContext)
 
         setSystemBars()
 
