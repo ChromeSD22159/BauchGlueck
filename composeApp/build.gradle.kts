@@ -58,7 +58,6 @@ kotlin {
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material)
-            implementation(compose.material3)
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
@@ -74,7 +73,9 @@ kotlin {
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
             implementation(libs.androidx.ui.text.google.fonts)
-
+            implementation(compose.material3)
+            implementation(libs.androidx.navigation.compose)
+            implementation(libs.kotlinx.datetime)
             //Room
             implementation(libs.room.runtime)
             implementation(libs.sqlite.bundled)
