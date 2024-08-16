@@ -10,10 +10,14 @@ import androidx.navigation.NavController
 import com.google.firebase.auth.FirebaseUser
 import data.FirebaseConnection
 import de.frederikkohler.bauchglueck.data.network.FirebaseRepository
+import dev.icerock.moko.mvvm.flow.CFlow
 import dev.icerock.moko.mvvm.flow.CMutableStateFlow
+import dev.icerock.moko.mvvm.flow.CStateFlow
+import dev.icerock.moko.mvvm.flow.cFlow
 import dev.icerock.moko.mvvm.flow.cMutableStateFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import model.UserProfile
 import model.countdownTimer.CountdownTimer
@@ -23,7 +27,8 @@ class FirebaseAuthViewModel(
 ): ViewModel() {
 
     private val _user = MutableStateFlow<FirebaseUser?>(null).cMutableStateFlow()
-    val user: CMutableStateFlow<FirebaseUser?> = _user.cMutableStateFlow()
+    val user: CMutableStateFlow<FirebaseUser?>
+        get() = _user
 
     private val _userProfile = MutableStateFlow<UserProfile?>(null).cMutableStateFlow()
     val userProfile: CMutableStateFlow<UserProfile?> = _userProfile.cMutableStateFlow()

@@ -27,11 +27,10 @@ fun App(
     val scope = rememberCoroutineScope()
     var showSplashScreen by remember { mutableStateOf(true) }
 
-    LaunchedEffect(key1 = true) {
+    LaunchedEffect(Unit) {
         delay(700)
         showSplashScreen = false
     }
-
 
     AppTheme {
         androidx.compose.material3.Surface(

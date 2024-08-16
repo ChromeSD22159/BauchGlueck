@@ -10,4 +10,12 @@ interface LocalDataSource {
 
     suspend fun deleteTimer(timer: CountdownTimer)
 
+    suspend fun getTimers(refresh: Boolean): List<CountdownTimer>
+
+    suspend fun getTimerByTimerId(timerId: String): CountdownTimer?
+
+    suspend fun getEntriesSinceLastUpdate(lastUpdate: Long, userId: String): List<CountdownTimer>
+
+    suspend fun insertTimer(timer: CountdownTimer)
+
 }

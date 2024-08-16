@@ -5,6 +5,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
@@ -30,7 +31,11 @@ fun PublicNavigation(
 ) {
     val navState by viewModel.user.collectAsStateWithLifecycle()
 
-    Log.d("PublicNavigation", "navState: $navState")
+    LaunchedEffect(navState) {
+        if (navState != null) {
+            navController.navigate(Screens.Home.route)
+        }
+    }
 
     NavHost(navController = navController, startDestination = Screens.Login.route) {
         composable(Screens.Launch.route) {
