@@ -10,6 +10,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
@@ -21,7 +22,10 @@ class HomeScreenViewModel(
     private val coroutineContext: CoroutineContext = job + Dispatchers.IO
     private val viewModelScope = CoroutineScope(coroutineContext)
 
-    val timerList = mutableStateOf<List<CountdownTimer>>(emptyList())
+    private val _timerList = MutableStateFlow<List<CountdownTimer>>(emptyList())
+    val timerList: MutableStateFlow<List<CountdownTimer>>
+        get() = _timerList
+
 
     init {
         getTimer()

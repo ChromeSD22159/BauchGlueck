@@ -58,6 +58,7 @@ kotlin {
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material)
+            implementation(compose.material3)
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
@@ -72,6 +73,8 @@ kotlin {
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
+            implementation(libs.androidx.ui.text.google.fonts)
+
             //Room
             implementation(libs.room.runtime)
             implementation(libs.sqlite.bundled)
@@ -136,6 +139,8 @@ room {
 dependencies {
     implementation(libs.androidx.navigation.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.android)
+    implementation(libs.androidx.ui.text.google.fonts)
+
 
     // Room
     add("kspCommonMainMetadata", libs.room.compiler)
