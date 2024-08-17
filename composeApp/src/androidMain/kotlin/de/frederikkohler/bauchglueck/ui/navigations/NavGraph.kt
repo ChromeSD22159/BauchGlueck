@@ -37,7 +37,7 @@ fun PublicNavigation(
         }
     }
 
-    NavHost(navController = navController, startDestination = Screens.Login.route) {
+    NavHost(navController = navController, startDestination = Screens.Launch.route) {
         composable(Screens.Launch.route) {
             LaunchScreen()
         }

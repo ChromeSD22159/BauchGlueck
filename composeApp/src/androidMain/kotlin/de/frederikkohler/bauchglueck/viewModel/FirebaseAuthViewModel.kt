@@ -10,6 +10,7 @@ import androidx.navigation.NavController
 import com.google.firebase.auth.FirebaseUser
 import data.FirebaseConnection
 import de.frederikkohler.bauchglueck.data.network.FirebaseRepository
+import dev.gitlive.firebase.auth.auth
 import dev.icerock.moko.mvvm.flow.CFlow
 import dev.icerock.moko.mvvm.flow.CMutableStateFlow
 import dev.icerock.moko.mvvm.flow.CStateFlow
@@ -49,6 +50,11 @@ class FirebaseAuthViewModel(
     val timers: CMutableStateFlow<List<CountdownTimer>> = _timers.cMutableStateFlow()
 
     init {
+        viewModelScope.launch {
+            _user.emit(firebaseRepository.firebase.auth.android.currentUser)
+            Log.d("FirebaseAuthViewModel", "I: ${firebaseRepository.firebase.auth.android.currentUser}")
+        }
+
         stateChangeListener()
     }
 
@@ -56,6 +62,8 @@ class FirebaseAuthViewModel(
         viewModelScope.launch {
             firebaseRepository.auth.android.addAuthStateListener { firebaseAuth ->
                 val currentUser = firebaseAuth.currentUser
+
+                Log.d("FirebaseAuthViewModel", "S: $currentUser")
 
                 if (currentUser != null) {
                     _user.value = currentUser
