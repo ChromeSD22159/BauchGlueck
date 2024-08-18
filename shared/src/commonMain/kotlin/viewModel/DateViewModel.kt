@@ -1,6 +1,6 @@
 package viewModel
 
-import data.repositories.DateRepository
+import util.DateRepository
 import dev.icerock.moko.mvvm.flow.CMutableStateFlow
 import dev.icerock.moko.mvvm.flow.CStateFlow
 import dev.icerock.moko.mvvm.flow.cMutableStateFlow

@@ -6,6 +6,7 @@ import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
+import util.createHttpClientEngine
 
 fun createHttpClient(): HttpClient {
     val engine = createHttpClientEngine()
