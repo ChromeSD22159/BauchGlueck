@@ -62,10 +62,11 @@ class MainActivity : ComponentActivity() {
         setSystemBars()
 
         setContent {
-            val timer by repository.repositoryUiState.collectAsState()
+            val appData by repository.repositoryUiState.collectAsState()
             val navController: NavHostController = rememberNavController()
 
-            Log.i("Test", "timer: ${timer.currentTimer.size}")
+            Log.i("repositoryUiState:isLoading", appData.isLoading.toString())
+            Log.i("repositoryUiState:error", appData.isLoading.toString())
 
 
             AppTheme {
@@ -76,8 +77,7 @@ class MainActivity : ComponentActivity() {
                     Box(
                         modifier = Modifier.fillMaxSize()
                     ) {
-
-                        NavGraph(navController, firebaseAuthViewModel)
+                        NavGraph(navController, firebaseAuthViewModel, appData)
                     }
                 }
             }

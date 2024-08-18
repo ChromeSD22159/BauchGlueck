@@ -11,6 +11,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import data.RepositoryUiState
 import de.frederikkohler.bauchglueck.ui.components.BackScaffold
 import de.frederikkohler.bauchglueck.ui.screens.LaunchScreen
 import de.frederikkohler.bauchglueck.ui.screens.authScreens.meals.CalendarScreen
@@ -28,7 +29,8 @@ import navigation.Screens
 @Composable
 fun NavGraph(
     navController: NavHostController,
-    viewModel: FirebaseAuthViewModel
+    viewModel: FirebaseAuthViewModel,
+    appData: RepositoryUiState
 ) {
     val user = Firebase.auth.currentUser
 
@@ -55,7 +57,8 @@ fun NavGraph(
         composable(Screens.Home.route) {
             HomeScreen(
                 firebaseAuthViewModel = viewModel,
-                navController = navController
+                navController = navController,
+                appData = appData
             )
         }
         composable(Screens.Calendar.route) {

@@ -2,6 +2,14 @@ package de.frederikkohler.bauchglueck.ui.screens.authScreens.home
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,21 +25,33 @@ import de.frederikkohler.bauchglueck.ui.components.RoundImageButton
 import de.frederikkohler.bauchglueck.viewModel.FirebaseAuthViewModel
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.navigation.NavHostController
 import data.FirebaseConnection
+import data.RepositoryUiState
+import de.frederikkohler.bauchglueck.ui.screens.authScreens.SyncIconRotate
 import de.frederikkohler.bauchglueck.ui.screens.authScreens.settingsSheet.SettingSheet
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -42,7 +62,8 @@ import navigation.Screens
 @Composable
 fun HomeScreen(
     firebaseAuthViewModel: FirebaseAuthViewModel = viewModel(),
-    navController: NavHostController
+    navController: NavHostController,
+    appData: RepositoryUiState
 ) {
     var showSettingSheet by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
@@ -58,11 +79,18 @@ fun HomeScreen(
                     Text(stringResource(R.string.app_name))
                 },
                 actions = {
-                    Box(modifier = Modifier.padding(end = 16.dp)) {
-                        RoundImageButton(R.drawable.icon_gear) {
-                            showSettingSheet = true
+                    Row {
+                        if (appData.isLoading) {
+                            SyncIconRotate()
+                        }
+
+                        Box(modifier = Modifier.padding(end = 16.dp)) {
+                            RoundImageButton(R.drawable.icon_gear) {
+                                showSettingSheet = true
+                            }
                         }
                     }
+
                     SettingSheet(
                         showSettingSheet = showSettingSheet,
                         onDismissRequest = {
@@ -87,7 +115,8 @@ fun HomeScreen(
         },
     ) { _ ->
         Column(
-            modifier = Modifier.verticalScroll(rememberScrollState())
+            modifier = Modifier
+                .verticalScroll(rememberScrollState())
                 .fillMaxSize()
                 .padding(0.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),

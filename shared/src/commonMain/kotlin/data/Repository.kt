@@ -7,6 +7,7 @@ import data.local.entitiy.CountdownTimer
 import data.remote.RemoteDataSource
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -26,12 +27,14 @@ class Repository(
     val repositoryUiState: StateFlow<RepositoryUiState>
         get() = _repositoryUiState
 
-    suspend fun getTimer() {
+    suspend fun getTimer(delay: Long = 3000) {
         // 1. Lade alle Local-Timer in uiState
         val localTimers = localDataSource.getAllTimer()
-        _repositoryUiState.update { it.copy(isLoading = true, currentTimer = localTimers) }
+
 
         // 2. Lade Remote-Timer
+        _repositoryUiState.update { it.copy(isLoading = true, currentTimer = localTimers) }
+
         val remoteData = remoteDataSource.countdownTimer.getCountdownTimers(userID = firebase.auth.currentUser?.uid ?: "")
 
         remoteData.onSuccess { timerResponse ->
@@ -74,11 +77,13 @@ class Repository(
             }
 
             _repositoryUiState.update {
+                delay(delay)
                 it.copy(isLoading = false, currentTimer = localTimers + localDataSource.getAllTimer())
             }
         }
 
         remoteData.onError { error ->
+            delay(delay)
             _repositoryUiState.update { it.copy(isLoading = false, error = error.name) }
         }
     }
