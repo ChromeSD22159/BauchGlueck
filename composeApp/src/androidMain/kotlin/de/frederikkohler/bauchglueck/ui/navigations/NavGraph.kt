@@ -21,19 +21,24 @@ import de.frederikkohler.bauchglueck.ui.screens.publicScreens.LoginView
 import de.frederikkohler.bauchglueck.ui.screens.publicScreens.RegisterView
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
+import kotlinx.coroutines.delay
 import navigation.Screens
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun PublicNavigation(
+fun NavGraph(
     navController: NavHostController,
     viewModel: FirebaseAuthViewModel
 ) {
-    val navState by viewModel.user.collectAsStateWithLifecycle()
+    val user = Firebase.auth.currentUser
 
-    LaunchedEffect(navState) {
-        if (navState != null) {
+    LaunchedEffect(user) {
+        delay(700)
+
+        if (user != null) {
             navController.navigate(Screens.Home.route)
+        } else {
+            navController.navigate(Screens.Login.route)
         }
     }
 

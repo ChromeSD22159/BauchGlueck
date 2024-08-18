@@ -20,13 +20,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import data.local.CountdownTimerRepository
 import data.local.LocalDataSourceImpl
 import data.local.entitiy.CountdownTimer
 import data.local.getDatabase
 import de.frederikkohler.bauchglueck.ui.components.BackScaffold
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
 import navigation.Screens
+import util.DateConverter
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -62,11 +63,10 @@ fun TimerScreen(navController: NavController) {
                     var countdownTimer = CountdownTimer(
                         timerId = "",
                         userId = "",
-                        deviceID = "",
                         name = "",
                         duration = 0,
                         timerState = "",
-                        timerType = "",
+                        createdAt = DateConverter().toTimestamp(Clock.System.now().toEpochMilliseconds().toString()),
                     )
                     countdownTimerRepository.insertTimer(countdownTimer)
                 }

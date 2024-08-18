@@ -7,7 +7,7 @@ import data.local.entitiy.CountdownTimer
 
 @Database(
     entities = [CountdownTimer::class],
-    version = 1,
+    version = 2,
     exportSchema = false,
     //autoMigrations = [MIGRATION_1_2]
 )

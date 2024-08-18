@@ -21,7 +21,7 @@ import util.NetworkError
 import util.Result
 
 interface StrapiApi {
-    suspend fun getCountdownTimers(): Result<CountdownTimerApiResponse, NetworkError>
+    suspend fun getCountdownTimers(userID: String): Result<CountdownTimerApiResponse, NetworkError>
     suspend fun getCountdownTimerById(timerId: String): Result<CountdownTimer, NetworkError>
     suspend fun createCountdownTimer(timer: CountdownTimer): Result<CountdownTimer, NetworkError>
     suspend fun updateCountdownTimer(timer: CountdownTimer): Result<CountdownTimer, NetworkError>
@@ -36,16 +36,19 @@ class StrapiCountdownTimerApiClient(
 
     enum class ApiEndpoint(var urlPath: String, val method: HttpMethod) {
         COUNTDOWN_TIMER_GET("/api/countdown-timers/{id}", HttpMethod.Get),
-        COUNTDOWN_TIMERS_GET("/api/countdown-timers", HttpMethod.Get),
+        COUNTDOWN_TIMERS_GET("/api/countdown-timers?filters[userId][%24eq]={userID}", HttpMethod.Get),
         COUNTDOWN_TIMER_POST("/api/countdown-timers", HttpMethod.Post),
         COUNTDOWN_TIMER_PUT("/api/countdown-timers/{id}", HttpMethod.Put),
         COUNTDOWN_TIMER_DELETE("/api/countdown-timers/{id}", HttpMethod.Delete),
     }
 
 
+
     // Timer-API-Impl
-    override suspend fun getCountdownTimers(): Result<CountdownTimerApiResponse, NetworkError> {
-        return apiCall(ApiEndpoint.COUNTDOWN_TIMERS_GET)
+    override suspend fun getCountdownTimers(userID: String): Result<CountdownTimerApiResponse, NetworkError> {
+        val endpoint = ApiEndpoint.COUNTDOWN_TIMERS_GET
+        endpoint.urlPath = ApiEndpoint.COUNTDOWN_TIMERS_GET.urlPath.replace("{userID}", userID)
+        return apiCall(endpoint)
     }
 
     override suspend fun getCountdownTimerById(timerId: String): Result<CountdownTimer, NetworkError> {
@@ -97,6 +100,8 @@ class StrapiCountdownTimerApiClient(
             return Result.Error(NetworkError.NO_INTERNET)
         } catch (e: SerializationException) {
             return Result.Error(NetworkError.SERIALIZATION)
+        } catch (e: Exception) {
+            return Result.Error(NetworkError.REQUEST_TIMEOUT)
         }
 
         return handleResult<T>(response)

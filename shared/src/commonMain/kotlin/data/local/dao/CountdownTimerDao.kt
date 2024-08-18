@@ -13,17 +13,23 @@ interface CountdownTimerDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTimer(countdownTimer: CountdownTimer)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertTimers(countdownTimers: List<CountdownTimer>)
+
     @Query("SELECT * FROM CountdownTimer")
     suspend fun getAllTimer(): List<CountdownTimer>
 
-    @Query("SELECT * FROM CountdownTimer WHERE lastUpdate > :lastUpdate AND userId = :userId")
-    suspend fun getEntriesSinceLastUpdate(lastUpdate: Long, userId: String): List<CountdownTimer>
+    @Query("SELECT * FROM CountdownTimer WHERE updatedAt > :updatedAt AND userId = :userId")
+    suspend fun getEntriesSinceLastUpdate(updatedAt: Long, userId: String): List<CountdownTimer>
 
     @Query("SELECT * FROM CountdownTimer WHERE timerId = :timerId")
     suspend fun getTimerByTimerId(timerId: String): CountdownTimer?
 
     @Update
     suspend fun updateTimer(countdownTimer: CountdownTimer)
+
+    @Update
+    suspend fun updateTimers(countdownTimers: List<CountdownTimer>)
 
     @Query("DELETE FROM CountdownTimer WHERE timerId = :timerId")
     suspend fun deleteTimerById(timerId: String)

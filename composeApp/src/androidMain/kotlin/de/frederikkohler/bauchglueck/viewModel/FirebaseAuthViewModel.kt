@@ -2,23 +2,15 @@ package de.frederikkohler.bauchglueck.viewModel
 
 import android.graphics.Bitmap
 import android.util.Log
-import android.widget.Toast
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.NavController
-import com.google.firebase.auth.FirebaseUser
 import data.FirebaseConnection
 import de.frederikkohler.bauchglueck.data.network.FirebaseRepository
+import dev.gitlive.firebase.auth.FirebaseUser
 import dev.gitlive.firebase.auth.auth
-import dev.icerock.moko.mvvm.flow.CFlow
 import dev.icerock.moko.mvvm.flow.CMutableStateFlow
-import dev.icerock.moko.mvvm.flow.CStateFlow
-import dev.icerock.moko.mvvm.flow.cFlow
 import dev.icerock.moko.mvvm.flow.cMutableStateFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import model.UserProfile
 import model.countdownTimer.CountdownTimer
@@ -51,34 +43,8 @@ class FirebaseAuthViewModel(
 
     init {
         viewModelScope.launch {
-            _user.emit(firebaseRepository.firebase.auth.android.currentUser)
-            Log.d("FirebaseAuthViewModel", "I: ${firebaseRepository.firebase.auth.android.currentUser}")
-        }
-
-        stateChangeListener()
-    }
-
-    private fun stateChangeListener() {
-        viewModelScope.launch {
-            firebaseRepository.auth.android.addAuthStateListener { firebaseAuth ->
-                val currentUser = firebaseAuth.currentUser
-
-                Log.d("FirebaseAuthViewModel", "S: $currentUser")
-
-                if (currentUser != null) {
-                    _user.value = currentUser
-                    viewModelScope.launch {
-                        firebaseRepository.setUserOnline()
-                    }
-                    fetchUserProfile(currentUser.uid)
-                    fetchTimers()
-                }
-                else {
-                    viewModelScope.launch {
-                        firebaseRepository.setUserOffline()
-                    }
-                }
-            }
+            _user.emit(firebaseRepository.firebase.auth.currentUser)
+            Log.d("FirebaseAuthViewModel", "I: ${firebaseRepository.firebase.auth.currentUser}")
         }
     }
 
@@ -106,8 +72,8 @@ class FirebaseAuthViewModel(
     fun signIn(email: String, password: String) {
         viewModelScope.launch {
             firebaseRepository.signIn(email, password)
-                .onSuccess {
-                    _user.value = firebaseRepository.auth.android.currentUser
+                .onSuccess { user ->
+                    _user.value = user
                 }
                 .onFailure {
                     Log.e("FirebaseAuthManager", "Error signing in", it)
@@ -128,9 +94,10 @@ class FirebaseAuthViewModel(
     fun signUp(email: String, password: String, complete: (Result<FirebaseUser?>) -> Unit) {
         viewModelScope.launch {
             val result = firebaseRepository.signOut()
-            result.onSuccess {
+            result.onSuccess { _ ->
+                firebaseRepository.signIn(email, password)
             }.onFailure {
-                // Sign-out failed, handle the error (e.g., show an error message)
+
             }
         }
     }

@@ -3,7 +3,7 @@ package data.local
 import data.local.entitiy.CountdownTimer
 
 class LocalDataSourceImpl(
-    private val db: LocalDatabase
+    db: LocalDatabase
 ): LocalDataSource {
 
     private var countdownTimer = db.timerDao
@@ -12,16 +12,16 @@ class LocalDataSourceImpl(
         countdownTimer.updateTimer(timer)
     }
 
+    override suspend fun updateTimers(timers: List<CountdownTimer>) {
+        countdownTimer.updateTimers(timers)
+    }
+
     override suspend fun getAllTimer(): List<CountdownTimer> {
         return countdownTimer.getAllTimer()
     }
 
     override suspend fun deleteTimer(timer: CountdownTimer) {
         countdownTimer.deleteTimerById(timer.timerId)
-    }
-
-    override suspend fun getTimers(refresh: Boolean): List<CountdownTimer> {
-        return countdownTimer.getAllTimer()
     }
 
     override suspend fun getTimerByTimerId(timerId: String): CountdownTimer? {
