@@ -2,8 +2,12 @@ package data.local.entitiy
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import androidx.room.TypeConverter
+import androidx.room.TypeConverters
+import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import util.DateConverter
 
 @Serializable
 @Entity
@@ -13,8 +17,6 @@ data class CountdownTimer(
     var timerId: String = "",
     @SerialName("userId")
     var userId: String = "",
-    @SerialName("deviceID")
-    var deviceID: String = "",
     @SerialName("name")
     var name: String = "",
     @SerialName("duration")
@@ -25,14 +27,13 @@ data class CountdownTimer(
     var endDate: Long? = null,
     @SerialName("timerState")
     var timerState: String = "",
-    @SerialName("timerType")
-    var timerType: String = "",
-    @SerialName("remainingDuration")
-    var remainingDuration: Long = 0,
-    @SerialName("notification")
-    var notification: Boolean = true,
     @SerialName("showActivity")
     var showActivity: Boolean = true,
-    @SerialName("lastUpdate")
-    var lastUpdate: Long? = null,
+    @SerialName("createdAt")
+    @TypeConverters(DateConverter::class)
+    var createdAt: Long? = null,
+    @SerialName("updatedAt")
+    @TypeConverters(DateConverter::class)
+    var updatedAt: Long? = null,
 )
+
