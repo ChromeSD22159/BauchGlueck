@@ -3,16 +3,21 @@ package data.local
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import data.local.dao.CountdownTimerDao
+import data.local.dao.SyncHistoryDao
 import data.local.entitiy.CountdownTimer
+import data.local.entitiy.SyncHistory
 
 @Database(
-    entities = [CountdownTimer::class],
-    version = 2,
-    exportSchema = false,
-    //autoMigrations = [MIGRATION_1_2]
+    entities = [
+        CountdownTimer::class,
+        SyncHistory::class,
+   ],
+    version = 1,
+    exportSchema = false
 )
 abstract class LocalDatabase: RoomDatabase(), DB {
     abstract val timerDao: CountdownTimerDao
+    abstract val syncHistoryDao: SyncHistoryDao
 
      override fun clearAllTables() {
          super.clearAllTables()
