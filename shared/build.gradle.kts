@@ -73,7 +73,7 @@ kotlin {
 
             implementation(libs.room.runtime)
             implementation(libs.sqlite.bundled)
-
+            implementation(libs.multiplatform.settings)
         }
         iosMain.dependencies {
             // sharedViewModel
