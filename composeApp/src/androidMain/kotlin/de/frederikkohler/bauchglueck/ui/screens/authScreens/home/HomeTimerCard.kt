@@ -96,7 +96,7 @@ fun HomeTimerCardPreview() {
                             .height(80.dp)
                             .width(100.dp)
                             .clip(RoundedCornerShape(8.dp))
-                            .background(MaterialTheme.colorScheme.primaryContainer)
+                            .background(MaterialTheme.colorScheme.tertiaryContainer)
                             .padding(16.dp)
 
                     ){

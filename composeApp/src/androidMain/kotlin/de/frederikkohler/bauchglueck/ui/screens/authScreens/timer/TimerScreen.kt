@@ -1,80 +1,49 @@
 package de.frederikkohler.bauchglueck.ui.screens.authScreens.timer
 
+import android.content.res.Configuration.UI_MODE_NIGHT_NO
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.os.Build
-import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Modifier
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import data.local.LocalDataSourceImpl
 import data.local.entitiy.CountdownTimer
 import data.local.getDatabase
+import data.network.ServerHost
 import de.frederikkohler.bauchglueck.ui.components.BackScaffold
-import kotlinx.coroutines.launch
+import de.frederikkohler.bauchglueck.ui.theme.AppTheme
 import kotlinx.datetime.Clock
 import navigation.Screens
-import util.DateConverter
+import util.KeyValueStorage
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun TimerScreen(navController: NavController) {
+fun TimerScreen(
+    navController: NavController
+) {
+    val context = LocalContext.current
+    val viewModel: TimerViewModel = viewModel {
+        TimerViewModel(
+            serverHost = ServerHost.LOCAL_SABINA.url,
+            db = getDatabase(context = context.applicationContext),
+            deviceID = KeyValueStorage(context.applicationContext).getOrCreateDeviceId()
+        )
+    }
+
+    val uiState by viewModel.uiState.collectAsState()
+
     BackScaffold(
         title = Screens.Timer.title,
         navController = navController
     ) {
-        val context = LocalContext.current
-        val countdownTimerRepository = LocalDataSourceImpl(getDatabase(context))
-        val scope = rememberCoroutineScope()
 
-        Button(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp),
-            onClick = {
-                scope.launch {
-                    countdownTimerRepository.getAllTimer()
-                    Toast.makeText(context, "Timer added", Toast.LENGTH_SHORT).show()
-                }
-            }
-        ) {
-            Text(text = "Get Timer")
+        uiState.timer.forEach { timer ->
+            TimerCard(timer)
         }
-
-        Button(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp),
-            onClick = {
-                scope.launch {
-                    var countdownTimer = CountdownTimer(
-                        timerId = "",
-                        userId = "",
-                        name = "",
-                        duration = 0,
-                        timerState = "",
-                        createdAt = DateConverter().toTimestamp(Clock.System.now().toEpochMilliseconds().toString()),
-                    )
-                    countdownTimerRepository.insertTimer(countdownTimer)
-                }
-            }) {
-            Text(text = "Add Timer")
-        }
-
 
     }
 }
-

@@ -29,7 +29,7 @@ class Repository(
     serverHost: String,
     var deviceID: String
 ) {
-    private var localDataSource: LocalDataSource = LocalDataSourceImpl(db)
+    var localDataSource: LocalDataSource = LocalDataSourceImpl(db)
     private var remoteDataSource: RemoteDataSource = RemoteDataSource(serverHost)
     private var firebase: Firebase = Firebase
 
