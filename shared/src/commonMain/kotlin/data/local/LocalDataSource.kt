@@ -1,9 +1,16 @@
 package data.local
 
 import data.local.entitiy.CountdownTimer
+import data.local.entitiy.SyncHistory
 
 interface LocalDataSource {
+
+    /*
+    COUNTDOWN TIMER
+     */
     suspend fun getAllTimer(): List<CountdownTimer>
+
+    suspend fun getEntriesSinceLastUpdate(lastSync: Long): List<CountdownTimer>
 
     suspend fun updateTimer(timer: CountdownTimer)
 
@@ -13,8 +20,15 @@ interface LocalDataSource {
 
     suspend fun getTimerByTimerId(timerId: String): CountdownTimer?
 
-    suspend fun getEntriesSinceLastUpdate(lastUpdate: Long, userId: String): List<CountdownTimer>
-
     suspend fun insertTimer(timer: CountdownTimer)
+
+    /*
+    SYNC HISTORY
+     */
+    suspend fun getLastSyncEntry(deviceID: String): SyncHistory?
+
+    suspend fun insertSyncHistory(syncHistory: SyncHistory)
+
+    suspend fun deleteAllSyncHistory()
 
 }

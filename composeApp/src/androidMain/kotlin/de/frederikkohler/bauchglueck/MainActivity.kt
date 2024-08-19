@@ -11,30 +11,27 @@ import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import data.Repository
+import data.local.LocalDatabase
 import data.local.getDatabase
 import data.network.ServerHost
 import de.frederikkohler.bauchglueck.ui.navigations.NavGraph
 import de.frederikkohler.bauchglueck.ui.theme.AppTheme
-import de.frederikkohler.bauchglueck.ui.screens.publicScreens.LoginView
 import de.frederikkohler.bauchglueck.viewModel.FirebaseAuthViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import util.KeyValueStorage
+import util.onError
+import util.onSuccess
 
 class MainActivity : ComponentActivity() {
 
@@ -42,22 +39,23 @@ class MainActivity : ComponentActivity() {
 
     private var scope = lifecycleScope
 
+    private lateinit var repository: Repository
+
+    private lateinit var db: LocalDatabase
+
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val db = getDatabase(
-            context = applicationContext
+        db = getDatabase(
+            context = this.applicationContext
         )
 
-        val repository = Repository(
+        repository = Repository(
             serverHost = ServerHost.LOCAL_SABINA.url,
-            db = db
+            db = db,
+            deviceID = KeyValueStorage(this.applicationContext).getOrCreateDeviceId()
         )
-
-        scope.launch(Dispatchers.IO) {
-            repository.getTimer()
-        }
 
         setSystemBars()
 
@@ -67,7 +65,7 @@ class MainActivity : ComponentActivity() {
 
             Log.i("repositoryUiState:isLoading", appData.isLoading.toString())
             Log.i("repositoryUiState:error", appData.isLoading.toString())
-
+            Log.i("repositoryUiState:DeviceID", appData.deviceID)
 
             AppTheme {
                 androidx.compose.material3.Surface(
@@ -84,15 +82,18 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        // Refresh data when the app resumes
-        //firebaseAuthViewModel.syncFirebase()
-    }
+    override fun onStart() {
+        super.onStart()
+        scope.launch(Dispatchers.IO) {
+            repository.syncRemoteTimer().onSuccess { body ->
+                Log.i("MainActivity", "Sync Successfully $body")
 
-    override fun onPause() {
-        super.onPause()
-        //firebaseAuthViewModel.syncFirebase()
+                val requestBodySizeKB = body.length
+                Log.i("MainActivity","Request Body Size (KB): $requestBodySizeKB")
+            }.onError { error ->
+                Log.i("MainActivity", "Sync Failed ${error.name}")
+            }
+        }
     }
 
     private fun setSystemBars() {
@@ -123,13 +124,5 @@ class MainActivity : ComponentActivity() {
                 controller.isAppearanceLightNavigationBars = false // or true based on preference
             }
         }
-    }
-}
-
-@Preview
-@Composable
-fun AppAndroidLightPreview() {
-    AppTheme {
-        LoginView({})
     }
 }

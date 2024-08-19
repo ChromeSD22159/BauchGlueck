@@ -1,17 +1,13 @@
 package de.frederikkohler.bauchglueck.ui.navigations
 
 import android.os.Build
-import android.util.Log
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import data.RepositoryUiState
+import data.Repository
 import de.frederikkohler.bauchglueck.ui.components.BackScaffold
 import de.frederikkohler.bauchglueck.ui.screens.LaunchScreen
 import de.frederikkohler.bauchglueck.ui.screens.authScreens.meals.CalendarScreen
@@ -30,7 +26,7 @@ import navigation.Screens
 fun NavGraph(
     navController: NavHostController,
     viewModel: FirebaseAuthViewModel,
-    appData: RepositoryUiState
+    appData: Repository.RepositoryUiState
 ) {
     val user = Firebase.auth.currentUser
 

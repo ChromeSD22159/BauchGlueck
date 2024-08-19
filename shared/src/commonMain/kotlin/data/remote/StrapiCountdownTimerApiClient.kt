@@ -19,6 +19,7 @@ import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.serialization.SerializationException
 import util.NetworkError
 import util.Result
+import util.onError
 
 interface StrapiApi {
     suspend fun getCountdownTimers(userID: String): Result<CountdownTimerApiResponse, NetworkError>
@@ -26,6 +27,8 @@ interface StrapiApi {
     suspend fun createCountdownTimer(timer: CountdownTimer): Result<CountdownTimer, NetworkError>
     suspend fun updateCountdownTimer(timer: CountdownTimer): Result<CountdownTimer, NetworkError>
     suspend fun deleteCountdownTimer(timerId: String): Result<Unit, NetworkError>
+    suspend fun deleteCountdownTimers(timers: List<CountdownTimer>): Result<Unit, NetworkError>
+    suspend fun updateOrInsertCountdownTimers(timers: List<CountdownTimer>): Result<List<CountdownTimer>, NetworkError>
 }
 
 class StrapiCountdownTimerApiClient(
@@ -40,8 +43,9 @@ class StrapiCountdownTimerApiClient(
         COUNTDOWN_TIMER_POST("/api/countdown-timers", HttpMethod.Post),
         COUNTDOWN_TIMER_PUT("/api/countdown-timers/{id}", HttpMethod.Put),
         COUNTDOWN_TIMER_DELETE("/api/countdown-timers/{id}", HttpMethod.Delete),
+        COUNTDOWN_TIMER_UPDATE_OR_INSERT("/api/countdown-timers/update-or-insert", HttpMethod.Put),
+        COUNTDOWN_TIMER_DELETE_TIMER_LIST("/api/countdown-timers/delete-timer-list", HttpMethod.Delete)
     }
-
 
 
     // Timer-API-Impl
@@ -71,6 +75,16 @@ class StrapiCountdownTimerApiClient(
         val endpoint = ApiEndpoint.COUNTDOWN_TIMER_DELETE
         endpoint.urlPath = ApiEndpoint.COUNTDOWN_TIMER_DELETE.urlPath.replace("{id}", timerId)
         return apiCall(endpoint)
+    }
+
+    override suspend fun updateOrInsertCountdownTimers(timers: List<CountdownTimer>): Result<List<CountdownTimer>, NetworkError> {
+        val endpoint = ApiEndpoint.COUNTDOWN_TIMER_UPDATE_OR_INSERT
+        return apiCall(endpoint, timers)
+    }
+
+    override suspend fun deleteCountdownTimers(timers: List<CountdownTimer>): Result<Unit, NetworkError> {
+        val endpoint = ApiEndpoint.COUNTDOWN_TIMER_DELETE_TIMER_LIST
+        return apiCall(endpoint, timers)
     }
 
 
@@ -116,7 +130,6 @@ class StrapiCountdownTimerApiClient(
                     Result.Error(NetworkError.SERIALIZATION)
                 }
             }
-
             401 -> Result.Error(NetworkError.UNAUTHORIZED)
             409 -> Result.Error(NetworkError.CONFLICT)
             408 -> Result.Error(NetworkError.REQUEST_TIMEOUT)

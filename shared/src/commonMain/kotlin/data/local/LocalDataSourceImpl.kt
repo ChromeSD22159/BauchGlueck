@@ -1,13 +1,19 @@
 package data.local
 
 import data.local.entitiy.CountdownTimer
+import data.local.entitiy.SyncHistory
 
 class LocalDataSourceImpl(
     db: LocalDatabase
 ): LocalDataSource {
 
     private var countdownTimer = db.timerDao
+    private var syncHistory = db.syncHistoryDao
 
+
+    /*
+    COUNTDOWN TIMER
+     */
     override suspend fun updateTimer(timer: CountdownTimer) {
         countdownTimer.updateTimer(timer)
     }
@@ -28,14 +34,26 @@ class LocalDataSourceImpl(
         return countdownTimer.getTimerByTimerId(timerId)
     }
 
-    override suspend fun getEntriesSinceLastUpdate(
-        lastUpdate: Long,
-        userId: String
-    ): List<CountdownTimer> {
-        TODO("Not yet implemented")
-    }
-
     override suspend fun insertTimer(timer: CountdownTimer) {
         countdownTimer.insertTimer(timer)
+    }
+
+    override suspend fun getEntriesSinceLastUpdate(lastSync: Long): List<CountdownTimer> {
+        return countdownTimer.getEntriesSinceLastUpdate(lastSync)
+    }
+
+    /*
+    SYNC HISTORY
+     */
+    override suspend fun getLastSyncEntry(deviceID: String): SyncHistory? {
+        return syncHistory.getLatestSyncTimer(deviceID)
+    }
+
+    override suspend fun insertSyncHistory(syncHistory: SyncHistory) {
+        this.syncHistory.insertSyncHistory(syncHistory)
+    }
+
+    override suspend fun deleteAllSyncHistory() {
+        this.syncHistory.deleteAllSyncHistory()
     }
 }

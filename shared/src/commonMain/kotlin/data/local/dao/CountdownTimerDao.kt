@@ -19,8 +19,8 @@ interface CountdownTimerDao {
     @Query("SELECT * FROM CountdownTimer")
     suspend fun getAllTimer(): List<CountdownTimer>
 
-    @Query("SELECT * FROM CountdownTimer WHERE updatedAt > :updatedAt AND userId = :userId")
-    suspend fun getEntriesSinceLastUpdate(updatedAt: Long, userId: String): List<CountdownTimer>
+    @Query("SELECT * FROM CountdownTimer WHERE updatedAt > :updatedAt")
+    suspend fun getEntriesSinceLastUpdate(updatedAt: Long): List<CountdownTimer>
 
     @Query("SELECT * FROM CountdownTimer WHERE timerId = :timerId")
     suspend fun getTimerByTimerId(timerId: String): CountdownTimer?
