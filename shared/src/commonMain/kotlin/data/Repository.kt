@@ -6,17 +6,12 @@ import data.local.LocalDatabase
 import data.local.entitiy.CountdownTimer
 import data.local.entitiy.SyncHistory
 import data.remote.RemoteDataSource
-import data.remote.model.TimerData
+import data.remote.model.CountdownTimerAttributes
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
-import io.ktor.client.plugins.logging.DEFAULT
-import io.ktor.client.plugins.logging.Logger
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import util.Error
@@ -37,52 +32,60 @@ class Repository(
     val repositoryUiState: StateFlow<RepositoryUiState>
         get() = _repositoryUiState
 
-    suspend fun syncLocalTimer(delay: Long = 3000) {
+    suspend fun syncLocalTimer(delay: Long = 3000): Result<String, SyncError> {
         _repositoryUiState.update { it.copy(deviceID = deviceID, isLoading = true) }
 
-        // 1. Load all Local Timers in uiState
-        val localTimers = localDataSource.getAllTimer()
+        val user = firebase.auth.currentUser
 
-        // 2. Load Remote Timers
-        val remoteData = remoteDataSource.countdownTimer.getCountdownTimers(userID = firebase.auth.currentUser?.uid ?: "")
+        user?.let { user ->
+            val localTimers = localDataSource.getAllTimer()
 
-        remoteData.onSuccess { timerResponse ->
-            val timersFromApi = timerResponse.data
+            remoteDataSource.countdownTimer.getCountdownTimers(user.uid).onSuccess { remoteTimer ->
 
-            // 3. Sync logic - Check if data is identical, otherwise update the data in the DB
-            timersFromApi.forEach { apiTimer ->
-                val localTimer = localTimers.find { it.timerId == apiTimer.id.toString() }
-                val apiUpdatedAt = Instant.parse(apiTimer.attributes.updatedAt).toEpochMilliseconds()
+                remoteTimer.forEach { remoteTimer ->
+                     val localTimer = localTimers.find { it.timerId == remoteTimer.timerId }
 
-                if (localTimer == null) {
-                    // Insert new timer into db
-                    val newTimer = createNewTimerFromApi(apiTimer, apiUpdatedAt)
-                    localDataSource.insertTimer(newTimer)
-                } else if (localTimer.updatedAt?.let { it < apiUpdatedAt } == true) {
-                    // Update existing timer only if remote data is newer
-                    updateLocalTimerWithApiData(localTimer, apiTimer)
-                    localDataSource.updateTimer(localTimer)
-                }
+                    if (localTimer == null) {
+                        val newTimer = CountdownTimer(
+                            timerId = remoteTimer.timerId,
+                            userId = user.uid,
+                            name = remoteTimer.name,
+                            duration = remoteTimer.duration.toLongOrNull() ?: 0L,
+                            startDate = remoteTimer.startDate?.toLongOrNull(),
+                            endDate = remoteTimer.endDate?.toLongOrNull(),
+                            timerState = remoteTimer.timerState,
+                            showActivity = remoteTimer.showActivity ?: true,
+                            createdAt = Instant.parse(remoteTimer.createdAt).toEpochMilliseconds(),
+                            updatedAt = Instant.parse(remoteTimer.updatedAt).toEpochMilliseconds()
+                        )
+                        localDataSource.insertTimer(newTimer)
+                        _repositoryUiState.update {
+                            it.copy(currentTimer = localDataSource.getAllTimer())
+                        }
+                    } else {
+
+
+                        localTimer.name = remoteTimer.name
+                        localTimer.duration = remoteTimer.duration.toLongOrNull() ?: 0L
+                        localTimer.startDate = remoteTimer.startDate?.toLongOrNull()
+                        localTimer.endDate = remoteTimer.endDate?.toLongOrNull()
+                        localTimer.timerState = remoteTimer.timerState
+                        localTimer.showActivity = remoteTimer.showActivity
+                        localTimer.updatedAt = remoteTimer.updatedAt.toLongOrNull()
+
+                        localDataSource.updateTimer(localTimer)
+                        _repositoryUiState.update {
+                            it.copy(currentTimer = localDataSource.getAllTimer())
+                        }
+                    }
+                 }
+                return Result.Success("Local: ${localTimers.size}, Remote: ${remoteTimer.size}")
+            }.onError {
+                return Result.Success("Local: ${localTimers.size}, Error: ${it.name}")
             }
-
-            // Update UI State and add delay
-            _repositoryUiState.update {
-                it.copy(isLoading = false, currentTimer = localTimers + localDataSource.getAllTimer())
-            }
-
-            delay(delay)
-
-            // Insert Sync History
-            localDataSource.insertSyncHistory(
-                SyncHistory(
-                    deviceId = deviceID,
-                    lastSync = Clock.System.now().toEpochMilliseconds()
-                )
-            )
-        }.onError { error ->
-            _repositoryUiState.update { it.copy(isLoading = false, error = error.name) }
-            delay(delay)
         }
+
+        return Result.Success("Local: ${_repositoryUiState.value.currentTimer.size}")
     }
 
     suspend fun syncRemoteTimer(): Result<String, Repository.SyncError> {
@@ -142,27 +145,27 @@ class Repository(
 
 
 
-private fun createNewTimerFromApi(apiTimer: TimerData, apiUpdatedAt: Long): CountdownTimer {
+private fun createNewTimerFromApi(apiTimer: CountdownTimerAttributes, apiUpdatedAt: Long): CountdownTimer {
     return CountdownTimer(
-        timerId = apiTimer.id.toString(),
-        userId = apiTimer.attributes.userId,
-        name = apiTimer.attributes.name,
-        duration = apiTimer.attributes.duration.toLongOrNull() ?: 0L,
-        startDate = apiTimer.attributes.startDate?.toLongOrNull(),
-        endDate = apiTimer.attributes.endDate?.toLongOrNull(),
-        timerState = apiTimer.attributes.timerState,
-        showActivity = apiTimer.attributes.showActivity ?: true,
-        createdAt = Instant.parse(apiTimer.attributes.createdAt).toEpochMilliseconds(),
+        timerId = apiTimer.timerId,
+        userId = apiTimer.userId,
+        name = apiTimer.name,
+        duration = apiTimer.duration.toLongOrNull() ?: 0L,
+        startDate = apiTimer.startDate?.toLongOrNull(),
+        endDate = apiTimer.endDate?.toLongOrNull(),
+        timerState = apiTimer.timerState,
+        showActivity = apiTimer.showActivity ?: true,
+        createdAt = Instant.parse(apiTimer.createdAt).toEpochMilliseconds(),
         updatedAt = apiUpdatedAt
     )
 }
 
-private fun updateLocalTimerWithApiData(localTimer: CountdownTimer, apiTimer: TimerData) {
+private fun updateLocalTimerWithApiData(localTimer: CountdownTimer, apiTimer: CountdownTimerAttributes) {
     localTimer.apply {
-        name = apiTimer.attributes.name
-        duration = apiTimer.attributes.duration.toLongOrNull() ?: 0L
-        startDate = apiTimer.attributes.startDate?.toLongOrNull()
-        endDate = apiTimer.attributes.endDate?.toLongOrNull()
-        timerState = apiTimer.attributes.timerState
+        name = apiTimer.name
+        duration = apiTimer.duration.toLongOrNull() ?: 0L
+        startDate = apiTimer.startDate?.toLongOrNull()
+        endDate = apiTimer.endDate?.toLongOrNull()
+        timerState = apiTimer.timerState
     }
 }

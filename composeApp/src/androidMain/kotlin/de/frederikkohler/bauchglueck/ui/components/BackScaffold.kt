@@ -4,6 +4,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -52,6 +53,7 @@ import navigation.Screens
 fun BackScaffold(
     title: String,
     navController: NavController,
+    topNavigationButtons: @Composable () -> Unit = {},
     view: @Composable () -> Unit = {}
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
@@ -80,10 +82,7 @@ fun BackScaffold(
                     }
                 },
                 actions = {
-                    RoundImageButton(
-                        icon = R.drawable.icon_gear,
-                        modifier = Modifier.padding(end = 16.dp)
-                    )
+                   topNavigationButtons()
                 },
                 scrollBehavior = scrollBehavior,
             )

@@ -2,7 +2,7 @@ package data.remote
 
 import data.local.entitiy.CountdownTimer
 import data.network.createHttpClient
-import data.remote.model.CountdownTimerApiResponse
+import data.remote.model.CountdownTimerAttributes
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.delete
@@ -22,7 +22,7 @@ import util.Result
 import util.onError
 
 interface StrapiApi {
-    suspend fun getCountdownTimers(userID: String): Result<CountdownTimerApiResponse, NetworkError>
+    suspend fun getCountdownTimers(userID: String): Result<List<CountdownTimerAttributes>, NetworkError>
     suspend fun getCountdownTimerById(timerId: String): Result<CountdownTimer, NetworkError>
     suspend fun createCountdownTimer(timer: CountdownTimer): Result<CountdownTimer, NetworkError>
     suspend fun updateCountdownTimer(timer: CountdownTimer): Result<CountdownTimer, NetworkError>
@@ -39,7 +39,7 @@ class StrapiCountdownTimerApiClient(
 
     enum class ApiEndpoint(var urlPath: String, val method: HttpMethod) {
         COUNTDOWN_TIMER_GET("/api/countdown-timers/{id}", HttpMethod.Get),
-        COUNTDOWN_TIMERS_GET("/api/countdown-timers?filters[userId][%24eq]={userID}", HttpMethod.Get),
+        COUNTDOWN_TIMERS_GET("/api/countdown-timers/timer-list?userId={userID}", HttpMethod.Get),
         COUNTDOWN_TIMER_POST("/api/countdown-timers", HttpMethod.Post),
         COUNTDOWN_TIMER_PUT("/api/countdown-timers/{id}", HttpMethod.Put),
         COUNTDOWN_TIMER_DELETE("/api/countdown-timers/{id}", HttpMethod.Delete),
@@ -49,7 +49,7 @@ class StrapiCountdownTimerApiClient(
 
 
     // Timer-API-Impl
-    override suspend fun getCountdownTimers(userID: String): Result<CountdownTimerApiResponse, NetworkError> {
+    override suspend fun getCountdownTimers(userID: String): Result<List<CountdownTimerAttributes>, NetworkError> {
         val endpoint = ApiEndpoint.COUNTDOWN_TIMERS_GET
         endpoint.urlPath = ApiEndpoint.COUNTDOWN_TIMERS_GET.urlPath.replace("{userID}", userID)
         return apiCall(endpoint)

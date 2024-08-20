@@ -1,21 +1,17 @@
 package data.remote.model
 
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
+
 
 @Serializable
-data class CountdownTimerApiResponse(
-    val data: List<TimerData>,
-    val meta: Meta
-)
-
-@Serializable
-data class TimerData(
-    val id: Int,
-    val attributes: TimerAttributes
-)
-
-@Serializable
-data class TimerAttributes(
+data class CountdownTimerAttributes(
     val timerId: String,
     val userId: String,
     val name: String,
@@ -23,20 +19,7 @@ data class TimerAttributes(
     val startDate: String? = null,
     val endDate: String? = null,
     val timerState: String,
-    val showActivity: Boolean? = null,
+    val showActivity: Boolean,
     val createdAt: String,
     val updatedAt: String
-)
-
-@Serializable
-data class Meta(
-    val pagination: Pagination
-)
-
-@Serializable
-data class Pagination(
-    val page: Int,
-    val pageSize: Int,
-    val pageCount: Int,
-    val total: Int
 )
