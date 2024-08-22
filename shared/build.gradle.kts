@@ -58,6 +58,8 @@ kotlin {
             implementation(libs.ktor.client.okhttp)
 
             implementation(libs.room.runtime.android)
+
+            implementation(libs.koin.android)
         }
         commonMain.dependencies {
             // sharedViewModel
@@ -73,7 +75,10 @@ kotlin {
 
             implementation(libs.room.runtime)
             implementation(libs.sqlite.bundled)
+
             implementation(libs.multiplatform.settings)
+
+            implementation(libs.koin.core)
         }
         iosMain.dependencies {
             // sharedViewModel
@@ -101,9 +106,15 @@ android {
 dependencies {
     implementation(libs.bundles.firebase.services)
     implementation(libs.androidx.ui.text.android)
+    implementation(libs.koin.androidx.compose)
 
     // Room
     add("kspCommonMainMetadata", libs.room.compiler)
+
+    //add("kspAndroid", libs.room.compiler)
+    add("kspIosSimulatorArm64", libs.room.compiler)
+    add("kspIosX64", libs.room.compiler)
+    add("kspIosArm64", libs.room.compiler)
 }
 
 room {

@@ -26,7 +26,8 @@ kotlin {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
             implementation(libs.ktor.client.okhttp)
-
+            implementation(libs.koin.android)
+            implementation(libs.koin.androidx.compose)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -37,6 +38,8 @@ kotlin {
             implementation(compose.components.uiToolingPreview)
             implementation(libs.lifecycle.viewmodel.compose)
             implementation(libs.multiplatform.settings)
+            api(libs.koin.core)
+            implementation(libs.koin.compose)
         }
     }
 }
@@ -96,5 +99,6 @@ dependencies {
     implementation(libs.androidx.runtime.livedata)
     implementation(libs.compose.vectorize.core)
     implementation(libs.kotlinx.datetime)
+    implementation(libs.koin.androidx.compose)
 }
 

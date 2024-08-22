@@ -21,20 +21,16 @@ firebaseStorageVersion = "1.13.0"
 flywayCore = "9.16.0"
 hikaricp = "5.1.0"
 junit = "4.13.2"
+koinAndroidxCompose = "3.2.0"
 kotlin = "2.0.10"
 lifecycleViewmodelCompose = "2.8.0"
 logback = "1.5.6"
-koin = "3.6.0-alpha3"
 material3Android = "1.2.1"
 multiplatformSettings = "1.1.1"
 mysqlConnectorJava = "8.0.28"
 uiTestManifest = "1.6.8"
 uiTextGoogleFonts = "1.6.8"
 playServicesMeasurementApi = "22.0.2"
-firebaseDatabaseKtx = "21.0.0"
-firebaseAuthKtx = "23.0.0"
-firebaseFirestoreKtx = "25.0.0"
-firebaseStorageKtx = "21.0.0"
 kotlinVersion = "1.9.10"
 legacySupportV4 = "1.0.0"
 lifecycleLivedataKtx = "2.8.4"
@@ -44,12 +40,11 @@ lifecycleRuntimeComposeAndroid = "2.8.4"
 kotlinx-datetime="0.6.0"
 kotlinx_serialization_json = "1.7.1"
 exposed = "0.50.1"
-koin_ktor = "3.4.1"
+koin_ktor = "3.5.0"
 ktor = "2.3.12"
 h2 = "2.3.230"
 cdimascio = "6.4.1"
 uiTooling = "1.6.8"
-lifecycleLivedataCoreKtx = "2.8.4"
 gService="4.4.2"
 navigationCompose = "2.7.7"
 runtimeLivedata = "1.6.8"
@@ -57,7 +52,8 @@ uiTextAndroid = "1.6.8"
 ksp = "2.0.10-1.0.24"
 room = "2.7.0-alpha04"
 sqlite = "2.5.0-SNAPSHOT"
-
+koinComposeMultiplatform = "1.2.0-alpha3"
+koinCompose = "3.6.0-alpha3"
 
 [libraries]
 androidx-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "uiTestManifest" }
@@ -93,7 +89,10 @@ ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "k
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
 ktor-client-auth = { module = "io.ktor:ktor-client-auth", version.ref = "ktor" }
 ktor-koin = { module = "io.insert-koin:koin-ktor", version.ref = "koin_ktor" }
-koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
+koin-android = { module = "io.insert-koin:koin-android", version.ref = "koinCompose" }
+koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koinCompose" }
+koin-core = { module = "io.insert-koin:koin-core", version.ref = "koinCompose" }
+koin-compose = { module = "io.insert-koin:koin-compose", version.ref = "koinComposeMultiplatform" }
 h2database = { module = "com.h2database:h2" , version.ref = "h2" }
 cdimascio-dotenv = { module = "io.github.cdimascio:dotenv-kotlin", version.ref = "cdimascio" }
 androidx-material3-android = { group = "androidx.compose.material3", name = "material3-android", version.ref = "material3Android" }
