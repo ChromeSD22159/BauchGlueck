@@ -1,24 +1,15 @@
 package data.local
 
 import androidx.room.Room
-import platform.Foundation.NSDocumentDirectory
-import platform.Foundation.NSFileManager
-import platform.Foundation.NSUserDomainMask
+import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 
-fun getDatabase(): LocalDatabase {
-    val dbFilePath = documentDirectory() + "/$dbFileName"
+fun getDatabaseiOS(): LocalDatabase {
     return Room.databaseBuilder<LocalDatabase>(
-        name = dbFilePath,
-    ).build()
-}
-
-private fun documentDirectory(): String {
-    val documentDirectory = NSFileManager.defaultManager.URLForDirectory(
-        directory = NSDocumentDirectory,
-        inDomain = NSUserDomainMask,
-        appropriateForURL = null,
-        create = false,
-        error = null,
-    )
-    return requireNotNull(documentDirectory?.path)
+        name = dbFileName,
+        factory =  { LocalDatabase::class.instantiateImpl() }
+    ).setDriver(BundledSQLiteDriver())
+        .setQueryCoroutineContext(Dispatchers.IO)
+        .build()
 }
