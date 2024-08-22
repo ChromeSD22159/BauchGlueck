@@ -12,7 +12,7 @@ actual class KoinInject(
         startKoin {
             androidContext(context)
             modules(
-                platformModule,
+                repositoriesModule,
                 viewModelModule
             )
         }

@@ -7,7 +7,7 @@ actual class KoinInject {
     actual fun init() {
         startKoin {
             modules(
-                platformModule,
+                repositoriesModule,
                 viewModelModule
             )
         }
