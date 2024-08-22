@@ -3,6 +3,7 @@ package data.remote
 import data.local.entitiy.CountdownTimer
 import data.network.createHttpClient
 import data.remote.model.CountdownTimerAttributes
+import data.remote.model.TimerSyncResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.delete
@@ -29,6 +30,7 @@ interface StrapiApi {
     suspend fun deleteCountdownTimer(timerId: String): Result<Unit, NetworkError>
     suspend fun deleteCountdownTimers(timers: List<CountdownTimer>): Result<Unit, NetworkError>
     suspend fun updateOrInsertCountdownTimers(timers: List<CountdownTimer>): Result<List<CountdownTimer>, NetworkError>
+    suspend fun syncCountdownTimers(timers: List<CountdownTimer>): Result<TimerSyncResponse, NetworkError>
 }
 
 class StrapiCountdownTimerApiClient(
@@ -39,12 +41,13 @@ class StrapiCountdownTimerApiClient(
 
     enum class ApiEndpoint(var urlPath: String, val method: HttpMethod) {
         COUNTDOWN_TIMER_GET("/api/countdown-timers/{id}", HttpMethod.Get),
-        COUNTDOWN_TIMERS_GET("/api/countdown-timers/timer-list?userId={userID}", HttpMethod.Get),
+        COUNTDOWN_TIMERS_GET("/api/timer-list?userId={userID}", HttpMethod.Get),
         COUNTDOWN_TIMER_POST("/api/countdown-timers", HttpMethod.Post),
         COUNTDOWN_TIMER_PUT("/api/countdown-timers/{id}", HttpMethod.Put),
         COUNTDOWN_TIMER_DELETE("/api/countdown-timers/{id}", HttpMethod.Delete),
         COUNTDOWN_TIMER_UPDATE_OR_INSERT("/api/countdown-timers/update-or-insert", HttpMethod.Put),
-        COUNTDOWN_TIMER_DELETE_TIMER_LIST("/api/countdown-timers/delete-timer-list", HttpMethod.Delete)
+        COUNTDOWN_TIMER_DELETE_TIMER_LIST("/api/countdown-timers/delete-timer-list", HttpMethod.Delete),
+        COUNTDOWN_TIMER_SYNC("/api/timer-list/sync", HttpMethod.Post)
     }
 
 
@@ -85,6 +88,38 @@ class StrapiCountdownTimerApiClient(
     override suspend fun deleteCountdownTimers(timers: List<CountdownTimer>): Result<Unit, NetworkError> {
         val endpoint = ApiEndpoint.COUNTDOWN_TIMER_DELETE_TIMER_LIST
         return apiCall(endpoint, timers)
+    }
+
+    override suspend fun syncCountdownTimers(timers: List<CountdownTimer>): Result<TimerSyncResponse, NetworkError> {
+        val endpoint = ApiEndpoint.COUNTDOWN_TIMER_SYNC
+
+        val response = try {
+            httpClient.get {
+                url("${serverHost}${endpoint.urlPath}")
+            }
+        } catch (e: UnresolvedAddressException) {
+            return Result.Error(NetworkError.NO_INTERNET)
+        } catch (e: SerializationException) {
+            return Result.Error(NetworkError.SERIALIZATION)
+        } catch (e: Exception) {
+            return Result.Error(NetworkError.REQUEST_TIMEOUT)
+        }
+
+        return when (response.status.value) {
+            in 200..299 -> {
+                try {
+                    Result.Success(response.body())
+                } catch (e: SerializationException) {
+                    Result.Error(NetworkError.SERIALIZATION)
+                }
+            }
+            401 -> Result.Error(NetworkError.UNAUTHORIZED)
+            409 -> Result.Error(NetworkError.CONFLICT)
+            408 -> Result.Error(NetworkError.REQUEST_TIMEOUT)
+            413 -> Result.Error(NetworkError.PAYLOAD_TOO_LARGE)
+            in 500..599 -> Result.Error(NetworkError.SERVER_ERROR)
+            else -> Result.Error(NetworkError.UNKNOWN)
+        }
     }
 
 
