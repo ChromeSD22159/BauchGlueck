@@ -11,7 +11,10 @@ actual class KoinInject(
     actual fun init() {
         startKoin {
             androidContext(context)
-            modules(platformModule)
+            modules(
+                platformModule,
+                viewModelModule
+            )
         }
     }
 }

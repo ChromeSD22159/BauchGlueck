@@ -6,7 +6,10 @@ actual class KoinInject {
 
     actual fun init() {
         startKoin {
-            modules(platformModule)
+            modules(
+                platformModule,
+                viewModelModule
+            )
         }
     }
 }
