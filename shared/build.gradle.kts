@@ -104,6 +104,7 @@ android {
     }
 }
 dependencies {
+    //implementation(projects.composeApp)
     implementation(libs.bundles.firebase.services)
     implementation(libs.androidx.ui.text.android)
     implementation(libs.koin.androidx.compose)

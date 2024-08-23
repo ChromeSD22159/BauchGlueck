@@ -12,70 +12,71 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import data.Repository
-import data.local.LocalDatabase
-import data.local.getDatabase
-import data.network.ServerHost
 import de.frederikkohler.bauchglueck.ui.navigations.NavGraph
 import de.frederikkohler.bauchglueck.ui.theme.AppTheme
 import de.frederikkohler.bauchglueck.viewModel.FirebaseAuthViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import util.KeyValueStorage
-import util.onError
-import util.onSuccess
+import di.KoinInject
+import org.koin.androidx.scope.currentScope
+import org.koin.androidx.scope.lifecycleScope
+import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.compose.currentKoinScope
+import viewModel.TimerViewModel
 
 class MainActivity : ComponentActivity() {
 
     private val firebaseAuthViewModel: FirebaseAuthViewModel by viewModels()
 
-    private var scope = lifecycleScope
-
-    private lateinit var repository: Repository
-
-    private lateinit var db: LocalDatabase
-
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        db = getDatabase(
-            context = this.applicationContext
-        )
-
-        repository = Repository(
-            serverHost = ServerHost.LOCAL_SABINA.url,
-            db = db,
-            deviceID = KeyValueStorage(this.applicationContext).getOrCreateDeviceId()
-        )
+        KoinInject(applicationContext).init()
 
         setSystemBars()
 
         setContent {
-            val appData by repository.repositoryUiState.collectAsState()
             val navController: NavHostController = rememberNavController()
 
-            Log.i("repositoryUiState:isLoading", appData.isLoading.toString())
-            Log.i("repositoryUiState:error", appData.isLoading.toString())
-            Log.i("repositoryUiState:DeviceID", appData.deviceID)
+            // val viewModel: TimerViewModel by viewModel()
+            val viewModel: TimerViewModel by viewModel()
+            val uiState by viewModel.uiState.collectAsState()
+
+            Log.d("isLoading", "onCreate: ${uiState.isLoading}")
+
+            LaunchedEffect(Unit) {
+                viewModel.updateLocalData()
+            }
+
+            LaunchedEffect(uiState.timer) {
+                Log.d("TimerViewModel.timer.size", "onCreate: ${uiState.timer.size}")
+            }
+
+            LaunchedEffect(uiState.error) {
+                Log.d("TimerViewModel.error", "onCreate: ${uiState.error}")
+            }
 
             AppTheme {
-                androidx.compose.material3.Surface(
+                Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
                     Box(
                         modifier = Modifier.fillMaxSize()
                     ) {
-                        NavGraph(navController, firebaseAuthViewModel, appData)
+                        NavGraph(navController, firebaseAuthViewModel)
                     }
                 }
             }
@@ -84,16 +85,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onStart() {
         super.onStart()
-        scope.launch(Dispatchers.IO) {
-            repository.syncRemoteTimer().onSuccess { body ->
-                Log.i("MainActivity", "Sync Successfully $body")
-
-                val requestBodySizeKB = body.length
-                Log.i("MainActivity","Request Body Size (KB): $requestBodySizeKB")
-            }.onError { error ->
-                Log.i("MainActivity", "Sync Failed ${error.name}")
-            }
-        }
     }
 
     private fun setSystemBars() {
@@ -124,5 +115,13 @@ class MainActivity : ComponentActivity() {
                 controller.isAppearanceLightNavigationBars = false // or true based on preference
             }
         }
+    }
+}
+
+@Composable
+inline fun <reified T: ViewModel> koinViewModel(): T {
+    val scope = currentKoinScope()
+    return viewModel {
+        scope.get<T>()
     }
 }

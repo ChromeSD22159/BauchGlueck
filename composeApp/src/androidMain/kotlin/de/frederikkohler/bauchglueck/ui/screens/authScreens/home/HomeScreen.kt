@@ -25,6 +25,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,9 +34,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavHostController
 import data.FirebaseConnection
-import data.Repository
+import de.frederikkohler.bauchglueck.koinViewModel
 import de.frederikkohler.bauchglueck.ui.screens.authScreens.SyncIconRotate
 import de.frederikkohler.bauchglueck.ui.screens.authScreens.settingsSheet.SettingSheet
+import viewModel.TimerViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import navigation.Screens
@@ -46,8 +48,9 @@ import navigation.Screens
 fun HomeScreen(
     firebaseAuthViewModel: FirebaseAuthViewModel = viewModel(),
     navController: NavHostController,
-    appData: Repository.RepositoryUiState
 ) {
+    val vm = koinViewModel<TimerViewModel>()
+    val uiState by vm.uiState.collectAsState()
     var showSettingSheet by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
@@ -63,7 +66,7 @@ fun HomeScreen(
                 },
                 actions = {
                     Row {
-                        if (appData.isLoading) {
+                        if (uiState.isLoading) {
                             SyncIconRotate()
                         }
 
@@ -73,26 +76,6 @@ fun HomeScreen(
                             }
                         }
                     }
-
-                    SettingSheet(
-                        showSettingSheet = showSettingSheet,
-                        onDismissRequest = {
-                            showSettingSheet = false
-                            firebaseAuthViewModel.saveUserProfile(FirebaseConnection.Remote)
-                        },
-                        onSignOut = {
-                            scope.launch {
-                                firebaseAuthViewModel.signOut()
-                                delay(250)
-                                showSettingSheet = false
-                                delay(250)
-                                if (firebaseAuthViewModel.user.value == null) {
-                                    navController.navigate(Screens.Login.route)
-                                }
-                            }
-                        },
-                        firebaseAuthViewModel = firebaseAuthViewModel,
-                    )
                 }
             )
         },
@@ -107,41 +90,61 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(90.dp))
 
-            HomeCalendarCard() {
+            HomeCalendarCard {
                 scope.launch {
                     navController.navigate(Screens.Calendar.route)
                 }
             }
 
-            HomeWeightCard() {
+            HomeWeightCard {
                 scope.launch {
                     navController.navigate(Screens.Weight.route)
                 }
             }
 
-            HomeWeightCard() {
+            HomeWeightCard {
                 scope.launch {
                     navController.navigate(Screens.Weight.route)
                 }
             }
 
-            HomeWeightCard() {
+            HomeWeightCard {
                 scope.launch {
                     navController.navigate(Screens.Weight.route)
                 }
             }
 
-            HomeTimerCard() {
+            HomeTimerCard {
                 scope.launch {
                     navController.navigate(Screens.Timer.route)
                 }
             }
 
-            HomeWaterIntakeCard() {
+            HomeWaterIntakeCard {
                 scope.launch {
                     navController.navigate(Screens.WaterIntake.route)
                 }
             }
+
+            SettingSheet(
+                showSettingSheet = showSettingSheet,
+                onDismissRequest = {
+                    showSettingSheet = false
+                    firebaseAuthViewModel.saveUserProfile(FirebaseConnection.Remote)
+                },
+                onSignOut = {
+                    scope.launch {
+                        firebaseAuthViewModel.signOut()
+                        delay(250)
+                        showSettingSheet = false
+                        delay(250)
+                        if (firebaseAuthViewModel.user.value == null) {
+                            navController.navigate(Screens.Login.route)
+                        }
+                    }
+                },
+                firebaseAuthViewModel = firebaseAuthViewModel,
+            )
         }
     }
 }
