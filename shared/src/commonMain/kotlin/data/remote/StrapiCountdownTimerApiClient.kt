@@ -30,7 +30,9 @@ interface StrapiApi {
     suspend fun deleteCountdownTimer(timerId: String): Result<Unit, NetworkError>
     suspend fun deleteCountdownTimers(timers: List<CountdownTimer>): Result<Unit, NetworkError>
     suspend fun updateOrInsertCountdownTimers(timers: List<CountdownTimer>): Result<List<CountdownTimer>, NetworkError>
-    suspend fun syncCountdownTimers(timers: List<CountdownTimer>): Result<TimerSyncResponse, NetworkError>
+
+    suspend fun updateRemoteData(timers: List<CountdownTimer>): Result<TimerSyncResponse, NetworkError>
+    suspend fun fetchTimersAfterTimestamp(timestamp: Long, userID: String): Result<List<CountdownTimer>, NetworkError>
 }
 
 class StrapiCountdownTimerApiClient(
@@ -47,7 +49,10 @@ class StrapiCountdownTimerApiClient(
         COUNTDOWN_TIMER_DELETE("/api/countdown-timers/{id}", HttpMethod.Delete),
         COUNTDOWN_TIMER_UPDATE_OR_INSERT("/api/countdown-timers/update-or-insert", HttpMethod.Put),
         COUNTDOWN_TIMER_DELETE_TIMER_LIST("/api/countdown-timers/delete-timer-list", HttpMethod.Delete),
-        COUNTDOWN_TIMER_SYNC("/api/timer-list/sync", HttpMethod.Post)
+
+        // NEW ENPOINTS
+        COUNTDOWN_TIMER_UPDATE_REMOTE_DATA("/api/timer/updateRemoteData", HttpMethod.Post),
+        COUNTDOWN_TIMER_FETCH_TIMERS_AFTER_TIMESTAMP("/api/timer/fetchTimersAfterTimeStamp?timestamp={timestamp}&userId={userID}", HttpMethod.Get)
     }
 
 
@@ -90,8 +95,8 @@ class StrapiCountdownTimerApiClient(
         return apiCall(endpoint, timers)
     }
 
-    override suspend fun syncCountdownTimers(timers: List<CountdownTimer>): Result<TimerSyncResponse, NetworkError> {
-        val endpoint = ApiEndpoint.COUNTDOWN_TIMER_SYNC
+    override suspend fun updateRemoteData(timers: List<CountdownTimer>): Result<TimerSyncResponse, NetworkError> {
+        val endpoint = ApiEndpoint.COUNTDOWN_TIMER_UPDATE_REMOTE_DATA
 
         val response = try {
             httpClient.get {
@@ -120,6 +125,12 @@ class StrapiCountdownTimerApiClient(
             in 500..599 -> Result.Error(NetworkError.SERVER_ERROR)
             else -> Result.Error(NetworkError.UNKNOWN)
         }
+    }
+
+    override suspend fun fetchTimersAfterTimestamp(timestamp: Long, userID: String): Result<List<CountdownTimer>, NetworkError> {
+        val endpoint = ApiEndpoint.COUNTDOWN_TIMER_FETCH_TIMERS_AFTER_TIMESTAMP
+        endpoint.urlPath = endpoint.urlPath.replace("{timestamp}", timestamp.toString()).replace("{userID}", userID)
+        return apiCall(endpoint, timestamp)
     }
 
 

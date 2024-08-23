@@ -9,13 +9,16 @@ import kotlinx.serialization.Serializable
 import util.DateConverter
 
 @Serializable
-@Entity(tableName = "weight")
+@Entity
 data class Weight(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
 
     @SerialName("userId")
     var userId: String = "",
+
+    @SerialName("weightId")
+    var weightId: String = "",
 
     @SerialName("value")
     val value: Double = 0.0,

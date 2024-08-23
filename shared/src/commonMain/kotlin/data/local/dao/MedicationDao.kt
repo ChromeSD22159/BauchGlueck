@@ -1,34 +1,44 @@
 package data.local.dao
 
 import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import androidx.room.Upsert
+import data.local.entitiy.CountdownTimer
 import data.local.entitiy.Medication
 import kotlinx.datetime.Clock
 
 @Dao
 interface MedicationDao {
-    @Query("SELECT * FROM medication WHERE userId = :userId AND isDeleted = false")
-    suspend fun getAllMedications(userId: String): List<Medication>
 
-    @Query("SELECT * FROM medication WHERE id = :id AND isDeleted = false")
-    suspend fun getMedicationById(id: Int): Medication?
+    @Query("SELECT * FROM medication WHERE userId = :userId AND isDeleted = false")
+    suspend fun getAll(userId: String): List<Medication>
+
+    @Query("SELECT * FROM medication WHERE medicationId = :medicationId AND isDeleted = false")
+    suspend fun getById(medicationId: String): Medication?
 
     @Query("SELECT * FROM medication WHERE updatedAt > :updatedAt AND userId = :userId AND isDeleted = false")
-    suspend fun getMedicationsAfterTimeStamp(updatedAt: Long, userId: String): List<Medication>
+    suspend fun getAllAfterTimeStamp(updatedAt: Long, userId: String): List<Medication>
 
     // POST
     @Upsert
-    suspend fun insertOrUpdateMedication(medication: Medication)
+    suspend fun insertOrUpdate(item: Medication)
 
     @Update
-    suspend fun updateMedications(medications: List<Medication>, updatedAt: Long = Clock.System.now().toEpochMilliseconds())
+    suspend fun updateMany(items: List<Medication>)
 
     // Delete
-    @Query("UPDATE medication SET isDeleted = true WHERE userId = :userId")
-    suspend fun deleteAllMedications(userId: String)
+    @Query("UPDATE medication SET isDeleted = true WHERE medicationId = :medicationId")
+    suspend fun softDeleteById(medicationId: String)
 
-    @Query("UPDATE medication SET isDeleted = true WHERE id IN (:ids)")
-    suspend fun deleteMedications(medications: List<Int>)
+    @Update(onConflict = OnConflictStrategy.ABORT)
+    suspend fun softDeleteMany(items: List<Medication>)
+
+    @Query("DELETE FROM medication WHERE userId = :userId")
+    suspend fun hardDeleteAllByUserId(userId: String)
+
+    @Delete
+    suspend fun hardDeleteOne(item: Medication)
 }

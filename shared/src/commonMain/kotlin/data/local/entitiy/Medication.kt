@@ -9,13 +9,16 @@ import kotlinx.serialization.Serializable
 import util.DateConverter
 
 @Serializable
-@Entity(tableName = "medications")
+@Entity
 data class Medication(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
 
     @SerialName("userId")
     var userId: String = "",
+
+    @SerialName("medicationId")
+    var medicationId: String = "",
 
     @SerialName("name")
     var name: String = "",

@@ -16,8 +16,8 @@ actual val repositoriesModule = module {
 
     single<Repository> { Repository(get(), get(), get(), get() ) }
     single { CountdownTimerRepository(get(), serverHost, deviceID = KeyValueStorage().getOrCreateDeviceId() ) }
-    single<MedicationRepository> { MedicationRepository(get()) }
-    single<WaterIntakeRepository> { WaterIntakeRepository(get()) }
-    single<WeightRepository> { WeightRepository(get()) }
+    single { MedicationRepository(get(), serverHost, deviceID = KeyValueStorage().getOrCreateDeviceId() ) }
+    single { WaterIntakeRepository(get(), serverHost, deviceID = KeyValueStorage().getOrCreateDeviceId() ) }
+    single { WeightRepository(get(), serverHost, deviceID = KeyValueStorage().getOrCreateDeviceId() ) }
 }
 
