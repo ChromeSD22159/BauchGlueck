@@ -1,6 +1,7 @@
 package de.frederikkohler.bauchglueck.ui.screens.authScreens.home
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -25,6 +26,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -41,6 +43,7 @@ import viewModel.TimerViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import navigation.Screens
+import org.lighthousegames.logging.logging
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
@@ -51,8 +54,24 @@ fun HomeScreen(
 ) {
     val vm = koinViewModel<TimerViewModel>()
     val uiState by vm.uiState.collectAsState()
-    var showSettingSheet by remember { mutableStateOf(false) }
+    var isSyncInProgress by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit) {
+        if (!isSyncInProgress) {
+            isSyncInProgress = true
+            vm.getAllCountdownTimers()
+            logging().info { "isSyncInProgress: $isSyncInProgress" }
+            delay(2000)
+            isSyncInProgress = false
+        }
+    }
+
+    LaunchedEffect(isSyncInProgress) {
+        Log.d("isSyncInProgress", "$isSyncInProgress - timers: ${uiState.timer.size}")
+    }
+
+    var showSettingSheet by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -66,7 +85,7 @@ fun HomeScreen(
                 },
                 actions = {
                     Row {
-                        if (uiState.isLoading) {
+                        if (isSyncInProgress) {
                             SyncIconRotate()
                         }
 
@@ -102,18 +121,6 @@ fun HomeScreen(
                 }
             }
 
-            HomeWeightCard {
-                scope.launch {
-                    navController.navigate(Screens.Weight.route)
-                }
-            }
-
-            HomeWeightCard {
-                scope.launch {
-                    navController.navigate(Screens.Weight.route)
-                }
-            }
-
             HomeTimerCard {
                 scope.launch {
                     navController.navigate(Screens.Timer.route)
@@ -125,6 +132,8 @@ fun HomeScreen(
                     navController.navigate(Screens.WaterIntake.route)
                 }
             }
+
+            Spacer(modifier = Modifier.height(30.dp))
 
             SettingSheet(
                 showSettingSheet = showSettingSheet,

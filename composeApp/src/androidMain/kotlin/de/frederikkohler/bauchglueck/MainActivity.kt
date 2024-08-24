@@ -49,24 +49,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val navController: NavHostController = rememberNavController()
-
-            // val viewModel: TimerViewModel by viewModel()
-            val viewModel: TimerViewModel by viewModel()
-            val uiState by viewModel.uiState.collectAsState()
-
-            Log.d("isLoading", "onCreate: ${uiState.isLoading}")
-
-            LaunchedEffect(Unit) {
-                viewModel.updateLocalData()
-            }
-
-            LaunchedEffect(uiState.timer) {
-                Log.d("TimerViewModel.timer.size", "onCreate: ${uiState.timer.size}")
-            }
-
-            LaunchedEffect(uiState.error) {
-                Log.d("TimerViewModel.error", "onCreate: ${uiState.error}")
-            }
+            val vm = koinViewModel<TimerViewModel>()
 
             AppTheme {
                 Surface(
@@ -76,7 +59,10 @@ class MainActivity : ComponentActivity() {
                     Box(
                         modifier = Modifier.fillMaxSize()
                     ) {
-                        NavGraph(navController, firebaseAuthViewModel)
+                        NavGraph(navController, firebaseAuthViewModel) {
+                            vm.updateLocalData()
+                            vm.updateRemoteData()
+                        }
                     }
                 }
             }

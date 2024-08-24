@@ -79,6 +79,8 @@ kotlin {
             implementation(libs.multiplatform.settings)
 
             implementation(libs.koin.core)
+
+            api("org.lighthousegames:logging:1.5.0")
         }
         iosMain.dependencies {
             // sharedViewModel

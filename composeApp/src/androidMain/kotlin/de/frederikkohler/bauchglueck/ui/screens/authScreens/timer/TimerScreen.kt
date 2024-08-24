@@ -4,6 +4,8 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.MaterialTheme
@@ -29,7 +31,6 @@ fun TimerScreen(
 
 ) {
     val viewModel: TimerViewModel = koinViewModel()
-    //val viewModel = koinViewModel<TimerViewModel>()
     viewModel.getAllCountdownTimers()
     val uiState by viewModel.uiState.collectAsState()
 
@@ -60,16 +61,21 @@ fun TimerScreen(
         },
         view = {
             uiState.timer.forEach { timer ->
-                TimerCard(timer)
+                TimerCard(
+                    timer = timer,
+                    onDelete = {
+                        Log.i("TimerCard Update", "isDeleted: ${it.isDeleted} - ${it.name}\n")
+                        viewModel.softDeleteTimer(it)
+                        Log.i("TimerCard Update", "isDeleted: ${it.isDeleted} - ${it.name}\n")
+                    },
+                    onTimerUpdate = {
+                        Log.i("TimerCard Update", "StartTimer: ${it.name} - ${it.timerState}\n")
+                        viewModel.updateTimer(it)
+                    }
+                )
             }
 
-            TimerCircle(
-                totalTime = 100L * 1000L,
-                handleColor = MaterialTheme.colors.primary, // Point
-                inactiveBarColor = Color.DarkGray, // Circle
-                activeBarColor = MaterialTheme.colors.primary, // Circle
-                modifier = Modifier.size(100.dp)
-            )
+            Spacer(modifier = Modifier.height(30.dp))
         }
     )
 }

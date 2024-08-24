@@ -17,7 +17,9 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpMethod
 import io.ktor.http.contentType
 import io.ktor.util.network.UnresolvedAddressException
+import kotlinx.datetime.Instant
 import kotlinx.serialization.SerializationException
+import org.lighthousegames.logging.logging
 import util.NetworkError
 import util.Result
 import util.onError
@@ -99,8 +101,10 @@ class StrapiCountdownTimerApiClient(
         val endpoint = ApiEndpoint.COUNTDOWN_TIMER_UPDATE_REMOTE_DATA
 
         val response = try {
-            httpClient.get {
+            httpClient.post {
                 url("${serverHost}${endpoint.urlPath}")
+                contentType(ContentType.Application.Json)
+                setBody(timers)
             }
         } catch (e: UnresolvedAddressException) {
             return Result.Error(NetworkError.NO_INTERNET)
@@ -129,7 +133,8 @@ class StrapiCountdownTimerApiClient(
 
     override suspend fun fetchTimersAfterTimestamp(timestamp: Long, userID: String): Result<List<CountdownTimer>, NetworkError> {
         val endpoint = ApiEndpoint.COUNTDOWN_TIMER_FETCH_TIMERS_AFTER_TIMESTAMP
-        endpoint.urlPath = endpoint.urlPath.replace("{timestamp}", timestamp.toString()).replace("{userID}", userID)
+        val timestampString = Instant.fromEpochMilliseconds(timestamp).toString()
+        endpoint.urlPath = endpoint.urlPath.replace("{timestamp}", timestampString).replace("{userID}", userID)
         return apiCall(endpoint, timestamp)
     }
 
@@ -171,6 +176,7 @@ class StrapiCountdownTimerApiClient(
         return when (response.status.value) {
             in 200..299 -> {
                 try {
+                    logging().info { "handleResult: ${response.body<T>()}" }
                     Result.Success(response.body())
                 } catch (e: SerializationException) {
                     Result.Error(NetworkError.SERIALIZATION)

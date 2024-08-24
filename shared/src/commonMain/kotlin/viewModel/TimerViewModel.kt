@@ -2,13 +2,18 @@ package viewModel
 
 import data.Repository
 import data.local.entitiy.CountdownTimer
+import dev.gitlive.firebase.Firebase
+import dev.gitlive.firebase.auth.auth
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
+import org.lighthousegames.logging.logging
 import util.onError
 import util.onSuccess
+import util.toIsoDate
 
 class TimerViewModel(
     private val repository: Repository
@@ -33,20 +38,17 @@ class TimerViewModel(
 
     fun updateLocalData() {
         viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true)
             try {
-                _uiState.value = _uiState.value.copy(isLoading = true)
                 repository.countdownTimerRepository.updateLocalData()
                     .onSuccess { list ->
-                        _uiState.value = _uiState.value.copy(timer = list)
+                        logging().info { "updateLocalData: ${list.size}" }
                     }
                     .onError {
-                        _uiState.value = _uiState.value.copy(isLoading = false)
-                        _uiState.value = _uiState.value.copy(error = it.name)
+                        logging().error { "updateLocalData: ${it.name}" }
                     }
-                _uiState.value = _uiState.value.copy(isLoading = false)
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(isLoading = false)
-                _uiState.value = _uiState.value.copy(error = e.message)
+                _uiState.value = _uiState.value.copy(error = e.message, isLoading = false)
             }
         }
     }
@@ -57,6 +59,29 @@ class TimerViewModel(
             _uiState.value = _uiState.value.copy(timer = repository.countdownTimerRepository.getAll())
             _uiState.value = _uiState.value.copy(isLoading = false)
         }
+    }
+
+    fun updateTimer(countdownTimer: CountdownTimer) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true)
+            repository.countdownTimerRepository.insertOrUpdate(countdownTimer)
+            _uiState.value = _uiState.value.copy(timer = repository.countdownTimerRepository.getAll())
+            _uiState.value = _uiState.value.copy(isLoading = false)
+        }
+    }
+
+    fun softDeleteTimer(countdownTimer: CountdownTimer) {
+        viewModelScope.launch {
+            val timer = countdownTimer.copy(isDeleted = true, updatedAt = Clock.System.now().toEpochMilliseconds().toIsoDate())
+            repository.countdownTimerRepository.softDeleteMany(listOf(timer))
+            updateRemoteData()
+            _uiState.value = _uiState.value.copy(timer = repository.countdownTimerRepository.getAll())
+        }
+    }
+
+    suspend fun test(lastSync: Long): List<CountdownTimer> {
+        val user = Firebase.auth.currentUser
+        return repository.countdownTimerRepository.localService.getAllAfterTimeStamp(lastSync, user!!.uid)
     }
 }
 

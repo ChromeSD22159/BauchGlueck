@@ -29,8 +29,8 @@ data class CountdownTimerAttributes(
             endDate = endDate?.toLong(),
             timerState = timerState,
             showActivity = showActivity,
-            createdAt = Instant.parse(createdAt).toEpochMilliseconds(),
-            updatedAt = Instant.parse(updatedAt).toEpochMilliseconds()
+            createdAt = createdAt,
+            updatedAt = updatedAt
         )
     }
 }

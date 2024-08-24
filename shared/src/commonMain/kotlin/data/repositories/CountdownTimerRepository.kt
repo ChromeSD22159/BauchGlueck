@@ -12,10 +12,12 @@ import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.FirebaseUser
 import dev.gitlive.firebase.auth.auth
 import kotlinx.datetime.Clock
+import org.lighthousegames.logging.logging
 import util.NetworkError
 import util.Result
 import util.onError
 import util.onSuccess
+import util.toIsoDate
 
 class CountdownTimerRepository(
     db: LocalDatabase,
@@ -23,7 +25,7 @@ class CountdownTimerRepository(
     var user: FirebaseUser? = Firebase.auth.currentUser,
     var deviceID: String
 ) {
-    private var localService: CountdownTimerDao = LocalDataSource(db).countdownTimer
+    var localService: CountdownTimerDao = LocalDataSource(db).countdownTimer
     private var syncHistory: SyncHistoryDao = LocalDataSource(db).syncHistory
     private val apiService: StrapiCountdownTimerApiClient = StrapiCountdownTimerApiClient(serverHost)
 
@@ -40,12 +42,12 @@ class CountdownTimerRepository(
 
     suspend fun insertOrUpdate(countdownTimers: List<CountdownTimer>) {
         countdownTimers.forEach {
-            this.localService.insertOrUpdate(it.copy(updatedAt = Clock.System.now().toEpochMilliseconds()))
+            this.localService.insertOrUpdate(it.copy(updatedAt = Clock.System.now().toEpochMilliseconds().toIsoDate()))
         }
     }
 
     suspend fun updateMany(countdownTimers: List<CountdownTimer>) {
-        val toUpdate = countdownTimers.map { it.copy(updatedAt = Clock.System.now().toEpochMilliseconds()) }
+        val toUpdate = countdownTimers.map { it.copy(updatedAt = Clock.System.now().toEpochMilliseconds().toIsoDate()) }
         localService.updateMany(toUpdate)
     }
 
@@ -74,7 +76,7 @@ class CountdownTimerRepository(
     }
 
     suspend fun updateRemoteData() {
-        val lastSync = syncHistory.getLatestSyncTimer(deviceID)?.firstOrNull { it.table == RoomTable.COUNTDOWN_TIMER }?.lastSync ?: 0L
+        val lastSync = syncHistory.getLatestSyncTimer(deviceID)?.firstOrNull { it.table == RoomTable.COUNTDOWN_TIMER }?.lastSync ?: 0L // 1724493065017
         val pendingChanges = localService.getAllAfterTimeStamp(lastSync, user!!.uid)
         if (pendingChanges.isNotEmpty()) {
 
@@ -101,7 +103,7 @@ class CountdownTimerRepository(
     }
 
     suspend fun updateLocalData(): Result<List<CountdownTimer>, NetworkError> {
-        val lastSync = syncHistory.getLatestSyncTimer(deviceID)?.firstOrNull { it.table == RoomTable.COUNTDOWN_TIMER }?.lastSync ?: 0L
+        val lastSync = syncHistory.getLatestSyncTimer(deviceID)?.firstOrNull { it.table == RoomTable.COUNTDOWN_TIMER }?.lastSync ?: 0L // 1724521333845
 
         val error: NetworkError? = null
 
@@ -117,14 +119,17 @@ class CountdownTimerRepository(
                 }
             } else {
                 // Incremental Sync: Fetch only updated timers
-                val localDataAfterTimeStamp = localService.getAllAfterTimeStamp(lastSync, user!!.uid).toMutableList()
+                val localDataAfterTimeStampTemp = mutableListOf<CountdownTimer>() // 1
+                localService.getAllAfterTimeStamp(lastSync, user!!.uid).toMutableList().forEach { localDataAfterTimeStampTemp.add(it) }
+
                 apiService.fetchTimersAfterTimestamp(lastSync, user!!.uid).onSuccess { remoteTimerList ->
+                    logging().info { "remoteTimerList: ${remoteTimerList.size}" }
                     remoteTimerList.map {
                         localService.insertOrUpdate(it)
-                        localDataAfterTimeStamp.remove(it)
+                        localDataAfterTimeStampTemp.remove(it)
                     }
 
-                    localDataAfterTimeStamp.map {
+                    localDataAfterTimeStampTemp.map {
                         localService.hardDeleteOne(it)
                     }
 

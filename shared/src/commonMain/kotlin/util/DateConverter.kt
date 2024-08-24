@@ -2,6 +2,8 @@ package util
 
 import androidx.room.TypeConverter
 import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
@@ -26,4 +28,10 @@ class DateConverter {
 
         return "$minutesString:$secondsString"
     }
+}
+
+fun Long.toIsoDate(): String {
+    val instant = Instant.fromEpochMilliseconds(this)
+    val dateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
+    return instant.toString()
 }

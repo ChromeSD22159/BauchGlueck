@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import util.DateConverter
@@ -32,9 +33,12 @@ data class CountdownTimer(
     val isDeleted: Boolean = false,
     @SerialName("createdAt")
     @TypeConverters(DateConverter::class)
-    var createdAt: Long = Clock.System.now().toEpochMilliseconds(),
+    var createdAt: String = Clock.System.now().toString(),
     @SerialName("updatedAt")
     @TypeConverters(DateConverter::class)
-    var updatedAt: Long = Clock.System.now().toEpochMilliseconds(),
-)
+    var updatedAt: String = Clock.System.now().toString(),
+) {
+    var toCreatedAtLong: Long = Instant.parse(createdAt).toEpochMilliseconds()
 
+    var toUpdateAtLong: Long = Instant.parse(updatedAt).toEpochMilliseconds()
+}

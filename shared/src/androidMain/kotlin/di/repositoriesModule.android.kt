@@ -23,8 +23,4 @@ actual val repositoriesModule = module {
     single { MedicationRepository( get(), serverHost = serverHost, deviceID = KeyValueStorage(androidContext()).getOrCreateDeviceId() ) }
     single { WaterIntakeRepository( get(), serverHost = serverHost, deviceID = KeyValueStorage(androidContext()).getOrCreateDeviceId() ) }
     single { WeightRepository( get(), serverHost = serverHost, deviceID = KeyValueStorage(androidContext()).getOrCreateDeviceId() ) }
-
-    viewModel {
-        TimerViewModel(get())
-    }
 }

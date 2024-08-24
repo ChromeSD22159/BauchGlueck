@@ -7,6 +7,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.google.common.primitives.Longs.max
 import de.frederikkohler.bauchglueck.koinViewModel
 import de.frederikkohler.bauchglueck.ui.components.BackScaffold
 import de.frederikkohler.bauchglueck.ui.screens.LaunchScreen
@@ -27,12 +28,16 @@ import org.koin.compose.KoinContext
 @Composable
 fun NavGraph(
     navController: NavHostController,
-    viewModel: FirebaseAuthViewModel
+    viewModel: FirebaseAuthViewModel,
+    onLoad: () -> Unit = {}
 ) {
     val user = Firebase.auth.currentUser
 
     KoinContext {
+
         LaunchedEffect(user) {
+            onLoad()
+
             delay(700)
 
             if (user != null) {

@@ -2,8 +2,10 @@ package data.local.dao
 
 import androidx.room.Dao
 import androidx.room.Delete
+import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
 import androidx.room.Upsert
 import data.local.entitiy.CountdownTimer
@@ -17,12 +19,23 @@ interface CountdownTimerDao {
     @Query("SELECT * FROM CountdownTimer WHERE timerId = :timerId AND isDeleted = false")
     suspend fun getById(timerId: String): CountdownTimer?
 
-    @Query("SELECT * FROM CountdownTimer WHERE updatedAt > :updatedAt AND userId = :userId AND isDeleted = false")
+    @Query("SELECT * FROM CountdownTimer WHERE updatedAt > :updatedAt AND userId = :userId")
     suspend fun getAllAfterTimeStamp(updatedAt: Long, userId: String): List<CountdownTimer>
 
     // POST
-    @Upsert
-    suspend fun insertOrUpdate(item: CountdownTimer)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insert(countdownTimer: CountdownTimer): Long
+
+    @Update(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun update(countdownTimer: CountdownTimer)
+
+    @Transaction
+    suspend fun insertOrUpdate(countdownTimer: CountdownTimer) {
+        val id = insert(countdownTimer)
+        if (id == -1L) {
+            update(countdownTimer)
+        }
+    }
 
     @Update
     suspend fun updateMany(items: List<CountdownTimer>)
