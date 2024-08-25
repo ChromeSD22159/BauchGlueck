@@ -80,7 +80,7 @@ kotlin {
 
             implementation(libs.koin.core)
 
-            api("org.lighthousegames:logging:1.5.0")
+            api(libs.logging)
         }
         iosMain.dependencies {
             // sharedViewModel

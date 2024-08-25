@@ -38,6 +38,7 @@ kotlin {
             implementation(compose.components.uiToolingPreview)
             implementation(libs.lifecycle.viewmodel.compose)
             implementation(libs.multiplatform.settings)
+            api(libs.logging)
             api(libs.koin.core)
             implementation(libs.koin.compose)
         }

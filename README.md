@@ -14,9 +14,6 @@ This is a Kotlin Multiplatform project targeting Android, iOS.
   The most important subfolder is `commonMain`. If preferred, you can add code to the platform-specific folders here too.
 
 
-Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…
-
-
 SharedViewModel: [Github Shared MVVM](https://github.com/sunildhiman90/KMPAppSharedViewModel/tree/main)
 SharedDateTime: [Shared DateTime](https://raed-o-ghazal.medium.com/kotlinx-localdatetime-manipulation-for-kmm-eacfede93aba)
 KMP Shared ROOM: [ROOM]("https://github.com/android/kotlin-multiplatform-samples/tree/main/Fruitties")
@@ -24,3 +21,28 @@ KMP Shared ROOM: [ROOM]("https://github.com/android/kotlin-multiplatform-samples
 ``` kotlin
 1. -> ./gradlew :shared:build -> generates the server-<version>.jar for the server
 ```
+
+### Server configuration
+The server URL for this project is managed via the ServerHost enum, which is located in `Shared/commonMain/kotlin/data/network/ServerHost`.
+``` kotlin
+enum class ServerHost(val url: String) {
+    LOCAL_FREDERIK("http://192.168.0.73:1337"),
+    LOCAL_SABINA("http://192.168.1.57:1337"),
+    PRODUCTION("https://api.frederikkohler.de/bauchglueck")
+}
+```
+
+### Server URL assignment
+The current server URL that the application connects to is set in the file `Shared/commonMain/kotlin/di/repositoriesModule.kt`.
+``` kotlin
+val serverHost = ServerHost.LOCAL_SABINA.url
+```
+`Hinweis: Ändern Sie den Wert von serverHost in repositoriesModule.kt, um zwischen den verschiedenen Serverumgebungen zu wechseln (z. B. lokal, Entwicklung, Produktion).`
+
+### Backend (Strapi)
+The backend for this project, built with Strapi, is available in the following repository:
+
+Repository: https://github.com/ChromeSD22159/BauchGueckStrapiBackend
+Please refer to the repository's README for instructions on how to set up and run the Strapi backend server.
+
+Important: Make sure the serverHost configuration in your Kotlin code matches the actual URL of your running Strapi instance.
