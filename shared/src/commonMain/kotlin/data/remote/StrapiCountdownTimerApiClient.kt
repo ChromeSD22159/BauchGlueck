@@ -17,7 +17,9 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpMethod
 import io.ktor.http.contentType
 import io.ktor.util.network.UnresolvedAddressException
+import kotlinx.datetime.Clock
 import kotlinx.serialization.SerializationException
+import org.lighthousegames.logging.logging
 import util.NetworkError
 import util.Result
 
@@ -137,6 +139,8 @@ class StrapiCountdownTimerApiClient(
 
 
     private suspend inline fun <reified T> apiCall(endpoint: ApiEndpoint, body: Any? = null): Result<T, NetworkError> {
+        logging().info { "Api Request: ${serverHost}${endpoint.urlPath}" }
+        logging().info { "Current Data as TimeStamp: ${Clock.System.now().toEpochMilliseconds()}" }
         val response = try {
             when (endpoint.method) {
                 HttpMethod.Get -> httpClient.get {

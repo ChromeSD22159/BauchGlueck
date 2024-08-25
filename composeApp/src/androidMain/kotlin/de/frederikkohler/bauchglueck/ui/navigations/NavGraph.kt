@@ -2,8 +2,17 @@ package de.frederikkohler.bauchglueck.ui.navigations
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -86,11 +95,34 @@ fun NavGraph(
                     navController = navController
                 )
             }
-            composable(Screens.AddTimer.route) {
+            composable(
+                route = Screens.AddTimer.route,
+                enterTransition = { slideInWithFadeToTopAnimation(this) },
+                exitTransition = { slideOutWithFadeToTopAnimation(this) }
+            ) {
                 AddTimer(navController)
             }
 
         }
     }
 }
+
+fun slideInWithFadeToTopAnimation(scope: AnimatedContentTransitionScope<NavBackStackEntry>): EnterTransition {
+    return slideInVertically(
+        initialOffsetY = { -it },
+        animationSpec = tween(250)
+    ) + scaleIn(
+        animationSpec = tween(250)
+    )
+}
+
+fun slideOutWithFadeToTopAnimation(scope: AnimatedContentTransitionScope<NavBackStackEntry>): ExitTransition {
+    return slideOutVertically(
+        animationSpec = tween(250)
+    ) + scaleOut(
+        animationSpec = tween(250)
+    )
+}
+
+
 
