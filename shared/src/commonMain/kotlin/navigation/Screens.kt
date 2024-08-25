@@ -9,4 +9,5 @@ enum class Screens(val route: String,val title: String) {
     Timer("Timer", "Timer"),
     Weight("Weight", "Gewicht"),
     WaterIntake("WaterIntake", "Wasseraufnahme"),
+    AddTimer("AddTimer", "Timer hinzufügen"),
 }

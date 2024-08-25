@@ -28,7 +28,6 @@ import viewModel.TimerViewModel
 @Composable
 fun TimerScreen(
     navController: NavController,
-
 ) {
     val viewModel: TimerViewModel = koinViewModel()
     viewModel.getAllCountdownTimers()
@@ -47,7 +46,7 @@ fun TimerScreen(
                     icon = R.drawable.icon_sync,
                     modifier = Modifier.padding(end = 16.dp),
                     action = {
-                        viewModel.updateLocalData()
+                        navController.navigate(Screens.AddTimer.route)
                     }
                 )
             }

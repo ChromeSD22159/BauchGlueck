@@ -7,12 +7,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.google.common.primitives.Longs.max
 import de.frederikkohler.bauchglueck.koinViewModel
 import de.frederikkohler.bauchglueck.ui.components.BackScaffold
 import de.frederikkohler.bauchglueck.ui.screens.LaunchScreen
 import de.frederikkohler.bauchglueck.ui.screens.authScreens.meals.CalendarScreen
 import de.frederikkohler.bauchglueck.ui.screens.authScreens.home.HomeScreen
+import de.frederikkohler.bauchglueck.ui.screens.authScreens.timer.AddTimer
 import de.frederikkohler.bauchglueck.ui.screens.authScreens.timer.TimerScreen
 import viewModel.TimerViewModel
 import de.frederikkohler.bauchglueck.viewModel.FirebaseAuthViewModel
@@ -85,6 +85,9 @@ fun NavGraph(
                     title = Screens.WaterIntake.title,
                     navController = navController
                 )
+            }
+            composable(Screens.AddTimer.route) {
+                AddTimer(navController)
             }
 
         }

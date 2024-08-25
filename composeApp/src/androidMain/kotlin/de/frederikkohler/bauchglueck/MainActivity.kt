@@ -4,7 +4,6 @@ import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -15,29 +14,26 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import data.repositories.CountdownTimerRepository
 import de.frederikkohler.bauchglueck.ui.navigations.NavGraph
 import de.frederikkohler.bauchglueck.ui.theme.AppTheme
 import de.frederikkohler.bauchglueck.viewModel.FirebaseAuthViewModel
 import di.KoinInject
-import org.koin.androidx.scope.currentScope
-import org.koin.androidx.scope.lifecycleScope
-import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.compose.currentKoinScope
+import org.koin.compose.koinInject
 import viewModel.TimerViewModel
 
 class MainActivity : ComponentActivity() {
 
     private val firebaseAuthViewModel: FirebaseAuthViewModel by viewModels()
+    private val timerViewModel by viewModels<TimerViewModel>()
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,29 +44,33 @@ class MainActivity : ComponentActivity() {
         setSystemBars()
 
         setContent {
-            val navController: NavHostController = rememberNavController()
-            val vm = koinViewModel<TimerViewModel>()
+
 
             AppTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
+                    val navController: NavHostController = rememberNavController()
+                    val viewModel: TimerViewModel = org.koin.androidx.compose.koinViewModel()
+
+                    LaunchedEffect(Unit) {
+                        viewModel.updateLocalData()
+                        viewModel.updateRemoteData()
+
+                        viewModel.getAllCountdownTimers()
+                    }
+
                     Box(
                         modifier = Modifier.fillMaxSize()
                     ) {
                         NavGraph(navController, firebaseAuthViewModel) {
-                            vm.updateLocalData()
-                            vm.updateRemoteData()
+
                         }
                     }
                 }
             }
         }
-    }
-
-    override fun onStart() {
-        super.onStart()
     }
 
     private fun setSystemBars() {
