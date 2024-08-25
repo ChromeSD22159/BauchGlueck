@@ -4,6 +4,7 @@ import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -18,16 +19,18 @@ import androidx.compose.ui.Modifier
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import data.repositories.CountdownTimerRepository
+import data.network.isServerReachable
 import de.frederikkohler.bauchglueck.ui.navigations.NavGraph
 import de.frederikkohler.bauchglueck.ui.theme.AppTheme
 import de.frederikkohler.bauchglueck.viewModel.FirebaseAuthViewModel
 import di.KoinInject
+import kotlinx.coroutines.launch
 import org.koin.compose.currentKoinScope
-import org.koin.compose.koinInject
+import org.lighthousegames.logging.logging
 import viewModel.TimerViewModel
 
 class MainActivity : ComponentActivity() {
@@ -42,6 +45,20 @@ class MainActivity : ComponentActivity() {
         KoinInject(applicationContext).init()
 
         setSystemBars()
+
+        lifecycleScope.launch {
+            val isReachable = isServerReachable()
+            if (isReachable) {
+                // Server is reachable, proceed with your logic
+                val msg = "Server is available"
+                logging().info { msg }
+            } else {
+                // Server is not reachable, handle the error (e.g., show a message to the user)
+                val msg = "Server is not available"
+                logging().error { msg }
+                Toast.makeText(applicationContext, msg, Toast.LENGTH_SHORT).show()
+            }
+        }
 
         setContent {
 
