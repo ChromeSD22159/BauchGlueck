@@ -36,7 +36,6 @@ import viewModel.TimerViewModel
 class MainActivity : ComponentActivity() {
 
     private val firebaseAuthViewModel: FirebaseAuthViewModel by viewModels()
-    private val timerViewModel by viewModels<TimerViewModel>()
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,23 +45,7 @@ class MainActivity : ComponentActivity() {
 
         setSystemBars()
 
-        lifecycleScope.launch {
-            val isReachable = isServerReachable()
-            if (isReachable) {
-                // Server is reachable, proceed with your logic
-                val msg = "Server is available"
-                logging().info { msg }
-            } else {
-                // Server is not reachable, handle the error (e.g., show a message to the user)
-                val msg = "Server is not available"
-                logging().error { msg }
-                Toast.makeText(applicationContext, msg, Toast.LENGTH_SHORT).show()
-            }
-        }
-
         setContent {
-
-
             AppTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
@@ -88,6 +71,11 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        checkServerReachability()
     }
 
     private fun setSystemBars() {
@@ -116,6 +104,22 @@ class MainActivity : ComponentActivity() {
                 // Undefined mode: Use default setting (optional)
                 controller.isAppearanceLightStatusBars = false // or true based on preference
                 controller.isAppearanceLightNavigationBars = false // or true based on preference
+            }
+        }
+    }
+
+    private fun checkServerReachability() {
+        lifecycleScope.launch {
+            val isReachable = isServerReachable()
+            if (isReachable) {
+                // Server is reachable, proceed with your logic
+                val msg = "Server is available"
+                logging().info { msg }
+            } else {
+                // Server is not reachable, handle the error (e.g., show a message to the user)
+                val msg = "Server is not available"
+                logging().error { msg }
+                Toast.makeText(applicationContext, msg, Toast.LENGTH_SHORT).show()
             }
         }
     }
