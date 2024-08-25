@@ -16,6 +16,7 @@ data class CountdownTimerAttributes(
     val endDate: String? = null,
     val timerState: String,
     val showActivity: Boolean,
+    val updatedAtOnDevice: Long,
     val createdAt: String,
     val updatedAt: String
 ) {
@@ -29,6 +30,7 @@ data class CountdownTimerAttributes(
             endDate = endDate?.toLong(),
             timerState = timerState,
             showActivity = showActivity,
+            updatedAtOnDevice = Instant.parse(updatedAt).toEpochMilliseconds(),
             createdAt = createdAt,
             updatedAt = updatedAt
         )

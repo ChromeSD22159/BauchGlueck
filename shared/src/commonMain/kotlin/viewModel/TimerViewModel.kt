@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
+import model.countdownTimer.TimerState
 import org.lighthousegames.logging.logging
 import util.onError
 import util.onSuccess
@@ -21,6 +22,16 @@ class TimerViewModel(
 
     private var _uiState = MutableStateFlow(TimerUiState())
     val uiState: StateFlow<TimerUiState> = _uiState.asStateFlow()
+
+    init {
+        logging().info { "TimerViewModel init" }
+        getAllCountdownTimers()
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        logging().info { "TimerViewModel onCleared" }
+    }
 
     fun updateRemoteData() {
         viewModelScope.launch {
@@ -36,6 +47,22 @@ class TimerViewModel(
         }
     }
 
+    fun addTimer(name: String, duration: Long) {
+        val newTimer = CountdownTimer(
+            name = name,
+            duration = duration,
+            timerState = TimerState.notRunning.name,
+            isDeleted = false,
+            createdAt = Clock.System.now().toEpochMilliseconds().toIsoDate(),
+            updatedAt = Clock.System.now().toEpochMilliseconds().toIsoDate()
+        )
+
+        viewModelScope.launch {
+            repository.countdownTimerRepository.insertOrUpdate(newTimer)
+            _uiState.value = _uiState.value.copy(timer = repository.countdownTimerRepository.getAll())
+        }
+    }
+
     fun updateLocalData() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
@@ -45,7 +72,7 @@ class TimerViewModel(
                         logging().info { "updateLocalData: ${list.size}" }
                     }
                     .onError {
-                        logging().error { "updateLocalData: ${it.name}" }
+                        logging().error { "updateLocalError: ${it.name}" }
                     }
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(error = e.message, isLoading = false)

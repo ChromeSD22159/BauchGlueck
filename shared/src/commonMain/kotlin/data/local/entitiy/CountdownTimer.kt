@@ -31,6 +31,8 @@ data class CountdownTimer(
     var showActivity: Boolean = true,
     @SerialName("isDeleted")
     val isDeleted: Boolean = false,
+    @SerialName("updatedAtOnDevice")
+    val updatedAtOnDevice: Long = Clock.System.now().toEpochMilliseconds(),
     @SerialName("createdAt")
     @TypeConverters(DateConverter::class)
     var createdAt: String = Clock.System.now().toString(),

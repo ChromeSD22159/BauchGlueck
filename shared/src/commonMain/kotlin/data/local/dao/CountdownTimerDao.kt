@@ -9,6 +9,7 @@ import androidx.room.Transaction
 import androidx.room.Update
 import androidx.room.Upsert
 import data.local.entitiy.CountdownTimer
+import kotlinx.datetime.Clock
 
 @Dao
 interface CountdownTimerDao {
@@ -19,8 +20,8 @@ interface CountdownTimerDao {
     @Query("SELECT * FROM CountdownTimer WHERE timerId = :timerId AND isDeleted = false")
     suspend fun getById(timerId: String): CountdownTimer?
 
-    @Query("SELECT * FROM CountdownTimer WHERE updatedAt > :updatedAt AND userId = :userId")
-    suspend fun getAllAfterTimeStamp(updatedAt: Long, userId: String): List<CountdownTimer>
+    @Query("SELECT * FROM CountdownTimer WHERE updatedAtOnDevice > :updatedAtOnDevice AND userId = :userId")
+    suspend fun getAllAfterTimeStamp(updatedAtOnDevice: Long, userId: String): List<CountdownTimer>
 
     // POST
     @Insert(onConflict = OnConflictStrategy.IGNORE)
@@ -41,8 +42,8 @@ interface CountdownTimerDao {
     suspend fun updateMany(items: List<CountdownTimer>)
 
     // Delete
-    @Query("UPDATE CountdownTimer SET isDeleted = true WHERE timerId = :timerId")
-    suspend fun softDeleteById(timerId: String)
+    @Query("UPDATE CountdownTimer SET isDeleted = true AND updatedAtOnDevice = :updatedAtOnDevice WHERE timerId = :timerId")
+    suspend fun softDeleteById(timerId: String, updatedAtOnDevice: Long = Clock.System.now().toEpochMilliseconds())
 
     @Update(onConflict = OnConflictStrategy.ABORT)
     suspend fun softDeleteMany(items: List<CountdownTimer>)
