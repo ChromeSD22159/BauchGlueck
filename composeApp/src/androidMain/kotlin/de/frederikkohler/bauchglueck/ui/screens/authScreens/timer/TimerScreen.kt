@@ -33,10 +33,6 @@ fun TimerScreen(
     viewModel.getAllCountdownTimers()
     val uiState by viewModel.uiState.collectAsState()
 
-    LaunchedEffect(uiState.timer) {
-        Log.d("TimerScreen.timer.size", "onCreate: ${uiState.timer.size}")
-    }
-
     BackScaffold(
         title = Screens.Timer.title,
         navController = navController,

@@ -24,14 +24,6 @@ import util.NetworkError
 import util.Result
 
 interface StrapiApi {
-    suspend fun getCountdownTimers(userID: String): Result<List<CountdownTimerAttributes>, NetworkError>
-    suspend fun getCountdownTimerById(timerId: String): Result<CountdownTimer, NetworkError>
-    suspend fun createCountdownTimer(timer: CountdownTimer): Result<CountdownTimer, NetworkError>
-    suspend fun updateCountdownTimer(timer: CountdownTimer): Result<CountdownTimer, NetworkError>
-    suspend fun deleteCountdownTimer(timerId: String): Result<Unit, NetworkError>
-    suspend fun deleteCountdownTimers(timers: List<CountdownTimer>): Result<Unit, NetworkError>
-    suspend fun updateOrInsertCountdownTimers(timers: List<CountdownTimer>): Result<List<CountdownTimer>, NetworkError>
-
     suspend fun updateRemoteData(timers: List<CountdownTimer>): Result<TimerSyncResponse, NetworkError>
     suspend fun fetchTimersAfterTimestamp(timestamp: Long, userID: String): Result<List<CountdownTimer>, NetworkError>
 }
@@ -43,57 +35,8 @@ class StrapiCountdownTimerApiClient(
     private val httpClient: HttpClient = createHttpClient()
 
     enum class ApiEndpoint(var urlPath: String, val method: HttpMethod) {
-        COUNTDOWN_TIMER_GET("/api/countdown-timers/{id}", HttpMethod.Get),
-        COUNTDOWN_TIMERS_GET("/api/timer-list?userId={userID}", HttpMethod.Get),
-        COUNTDOWN_TIMER_POST("/api/countdown-timers", HttpMethod.Post),
-        COUNTDOWN_TIMER_PUT("/api/countdown-timers/{id}", HttpMethod.Put),
-        COUNTDOWN_TIMER_DELETE("/api/countdown-timers/{id}", HttpMethod.Delete),
-        COUNTDOWN_TIMER_UPDATE_OR_INSERT("/api/countdown-timers/update-or-insert", HttpMethod.Put),
-        COUNTDOWN_TIMER_DELETE_TIMER_LIST("/api/countdown-timers/delete-timer-list", HttpMethod.Delete),
-
-        // NEW ENPOINTS
         COUNTDOWN_TIMER_UPDATE_REMOTE_DATA("/api/timer/updateRemoteData", HttpMethod.Post),
         COUNTDOWN_TIMER_FETCH_TIMERS_AFTER_TIMESTAMP("/api/timer/fetchTimersAfterTimeStamp?timeStamp={timestamp}&userId={userID}", HttpMethod.Get)
-    }
-
-
-    // Timer-API-Impl
-    override suspend fun getCountdownTimers(userID: String): Result<List<CountdownTimerAttributes>, NetworkError> {
-        val endpoint = ApiEndpoint.COUNTDOWN_TIMERS_GET
-        endpoint.urlPath = ApiEndpoint.COUNTDOWN_TIMERS_GET.urlPath.replace("{userID}", userID)
-        return apiCall(endpoint)
-    }
-
-    override suspend fun getCountdownTimerById(timerId: String): Result<CountdownTimer, NetworkError> {
-        val endpoint = ApiEndpoint.COUNTDOWN_TIMER_GET
-        endpoint.urlPath = ApiEndpoint.COUNTDOWN_TIMER_GET.urlPath.replace("{id}", timerId)
-        return apiCall(endpoint)
-    }
-
-    override suspend fun createCountdownTimer(timer: CountdownTimer): Result<CountdownTimer, NetworkError> {
-        return apiCall(ApiEndpoint.COUNTDOWN_TIMER_POST, timer)
-    }
-
-    override suspend fun updateCountdownTimer(timer: CountdownTimer): Result<CountdownTimer, NetworkError> {
-        val endpoint = ApiEndpoint.COUNTDOWN_TIMER_PUT
-        endpoint.urlPath = ApiEndpoint.COUNTDOWN_TIMER_PUT.urlPath.replace("{id}", timer.timerId)
-        return apiCall(endpoint, timer)
-    }
-
-    override suspend fun deleteCountdownTimer(timerId: String): Result<Unit, NetworkError> {
-        val endpoint = ApiEndpoint.COUNTDOWN_TIMER_DELETE
-        endpoint.urlPath = ApiEndpoint.COUNTDOWN_TIMER_DELETE.urlPath.replace("{id}", timerId)
-        return apiCall(endpoint)
-    }
-
-    override suspend fun updateOrInsertCountdownTimers(timers: List<CountdownTimer>): Result<List<CountdownTimer>, NetworkError> {
-        val endpoint = ApiEndpoint.COUNTDOWN_TIMER_UPDATE_OR_INSERT
-        return apiCall(endpoint, timers)
-    }
-
-    override suspend fun deleteCountdownTimers(timers: List<CountdownTimer>): Result<Unit, NetworkError> {
-        val endpoint = ApiEndpoint.COUNTDOWN_TIMER_DELETE_TIMER_LIST
-        return apiCall(endpoint, timers)
     }
 
     override suspend fun updateRemoteData(timers: List<CountdownTimer>): Result<TimerSyncResponse, NetworkError> {
@@ -135,8 +78,6 @@ class StrapiCountdownTimerApiClient(
         endpoint.urlPath = endpoint.urlPath.replace("{timestamp}", timestamp.toString()).replace("{userID}", userID)
         return apiCall(endpoint, timestamp)
     }
-
-
 
     private suspend inline fun <reified T> apiCall(endpoint: ApiEndpoint, body: Any? = null): Result<T, NetworkError> {
         logging().info { "Api Request: ${serverHost}${endpoint.urlPath}" }

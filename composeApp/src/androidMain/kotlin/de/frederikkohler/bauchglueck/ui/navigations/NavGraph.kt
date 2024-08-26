@@ -6,12 +6,17 @@ import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -30,8 +35,10 @@ import de.frederikkohler.bauchglueck.ui.screens.publicScreens.RegisterView
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import navigation.Screens
 import org.koin.compose.KoinContext
+import org.lighthousegames.logging.logging
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -41,6 +48,8 @@ fun NavGraph(
     onLoad: () -> Unit = {}
 ) {
     val user = Firebase.auth.currentUser
+    val timerViewmodel: TimerViewModel = org.koin.androidx.compose.koinViewModel()
+    val scope = rememberCoroutineScope()
 
     KoinContext {
 
@@ -58,6 +67,9 @@ fun NavGraph(
 
         NavHost(navController = navController, startDestination = Screens.Launch.route) {
             composable(Screens.Launch.route) {
+                LaunchedEffect(Unit) {
+                    timerViewmodel.syncDataWithRemote()
+                }
                 LaunchScreen()
             }
             composable(Screens.Login.route) {
@@ -78,9 +90,9 @@ fun NavGraph(
                 )
             }
             composable(Screens.Timer.route) {
-                val vm = koinViewModel<TimerViewModel>()
+                timerViewmodel.getAllCountdownTimers()
                 TimerScreen(
-                    navController = navController
+                    navController = navController,
                 )
             }
             composable(Screens.Weight.route) {
@@ -100,7 +112,15 @@ fun NavGraph(
                 enterTransition = { slideInWithFadeToTopAnimation(this) },
                 exitTransition = { slideOutWithFadeToTopAnimation(this) }
             ) {
-                AddTimer(navController)
+                AddTimer(
+                    navController = navController,
+                    onSaved = {
+                        scope.launch {
+                            timerViewmodel.addTimer(it.first, it.second)
+                            navController.navigate(Screens.Timer.route)
+                        }
+                    }
+                )
             }
 
         }
@@ -109,19 +129,20 @@ fun NavGraph(
 
 fun slideInWithFadeToTopAnimation(scope: AnimatedContentTransitionScope<NavBackStackEntry>): EnterTransition {
     return slideInVertically(
-        initialOffsetY = { -it },
+        initialOffsetY = { it.takeIf { it != Int.MIN_VALUE } ?: 0 },
         animationSpec = tween(250)
     ) + scaleIn(
         animationSpec = tween(250)
-    )
+    ) + fadeIn(animationSpec = tween(250))
 }
 
 fun slideOutWithFadeToTopAnimation(scope: AnimatedContentTransitionScope<NavBackStackEntry>): ExitTransition {
     return slideOutVertically(
+        targetOffsetY = { it.takeIf { it != Int.MIN_VALUE } ?: 0 },
         animationSpec = tween(250)
     ) + scaleOut(
         animationSpec = tween(250)
-    )
+    ) + fadeOut(animationSpec = tween(250))
 }
 
 

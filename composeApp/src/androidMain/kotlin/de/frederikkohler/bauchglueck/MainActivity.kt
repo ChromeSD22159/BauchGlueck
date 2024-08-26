@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -31,7 +30,6 @@ import di.KoinInject
 import kotlinx.coroutines.launch
 import org.koin.compose.currentKoinScope
 import org.lighthousegames.logging.logging
-import viewModel.TimerViewModel
 
 class MainActivity : ComponentActivity() {
 
@@ -52,21 +50,11 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     val navController: NavHostController = rememberNavController()
-                    val viewModel: TimerViewModel = org.koin.androidx.compose.koinViewModel()
-
-                    LaunchedEffect(Unit) {
-                        viewModel.updateLocalData()
-                        viewModel.updateRemoteData()
-
-                        viewModel.getAllCountdownTimers()
-                    }
 
                     Box(
                         modifier = Modifier.fillMaxSize()
                     ) {
-                        NavGraph(navController, firebaseAuthViewModel) {
-
-                        }
+                        NavGraph(navController, firebaseAuthViewModel)
                     }
                 }
             }
@@ -111,15 +99,14 @@ class MainActivity : ComponentActivity() {
     private fun checkServerReachability() {
         lifecycleScope.launch {
             val isReachable = isServerReachable()
-            if (isReachable) {
-                // Server is reachable, proceed with your logic
-                val msg = "Server is available"
-                logging().info { msg }
-            } else {
-                // Server is not reachable, handle the error (e.g., show a message to the user)
-                val msg = "Server is not available"
-                logging().error { msg }
-                Toast.makeText(applicationContext, msg, Toast.LENGTH_SHORT).show()
+
+            isReachable.onSuccess {
+                logging().info { it }
+            }
+
+            isReachable.onFailure {
+                logging().error { it.message }
+                Toast.makeText(applicationContext, it.message, Toast.LENGTH_SHORT).show()
             }
         }
     }

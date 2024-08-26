@@ -24,8 +24,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -34,11 +37,13 @@ import androidx.navigation.NavController
 import data.local.entitiy.CountdownTimer
 import de.frederikkohler.bauchglueck.ui.components.ItemOverLayScaffold
 import de.frederikkohler.bauchglueck.ui.theme.AppTheme
+import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
 import model.countdownTimer.TimerState
 import navigation.Screens
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
+import org.lighthousegames.logging.logging
 import util.toIsoDate
 import viewModel.TimerViewModel
 
@@ -48,11 +53,13 @@ import viewModel.TimerViewModel
 fun AddTimer(
     navController: NavController,
     onAddNewTimer: (CountdownTimer) -> Unit = {},
-
+    onSaved: (Pair<String, Long>) -> Unit = {}
 ) {
-    val viewModel: TimerViewModel = koinViewModel()
-    val text = remember { mutableStateOf("") }
+    val focusManager = LocalFocusManager.current
+    val isNameFocused = remember { mutableStateOf(false) }
+    val isDurationFocused = remember { mutableStateOf(false) }
 
+    val text = remember { mutableStateOf("") }
     val duration = remember { mutableStateOf(0L) }
 
     val colors = TextFieldDefaults.colors(
@@ -90,8 +97,7 @@ fun AddTimer(
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
-                ,
+                    .clip(RoundedCornerShape(12.dp)),
                 value = text.value,
                 colors = colors,
                 onValueChange = { text.value = it }
@@ -118,11 +124,13 @@ fun AddTimer(
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
-                ,
+                    .clip(RoundedCornerShape(12.dp)),
                 value = duration.value.toString(),
                 colors = colors,
-                onValueChange = { duration.value = it.toLong() },
+                onValueChange = { input ->
+                    logging().info { "Input value: $input" }
+                    duration.value = input.toLongOrNull() ?: 0L
+                },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
             )
 
@@ -139,20 +147,30 @@ fun AddTimer(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Button(
-                onClick = { navController.navigate(Screens.Timer.route) }
+                onClick = {
+                    isNameFocused.value = false
+                    isDurationFocused.value = false
+
+                    focusManager.clearFocus()
+                    navController.navigate(Screens.Timer.route)
+                }
             ) {
                 Text("Abbrechen")
             }
 
             Button(
-                enabled = true,
                 onClick = {
-                    viewModel.addTimer(name = text.value, duration = duration.value)
+                    focusManager.clearFocus()
+
+                    onSaved(Pair(text.value, duration.value))
+
+                    focusManager.clearFocus()
                     navController.navigate(Screens.Timer.route)
                 }
             ) {
-                Text("Speichern")
+                    Text("Speichern")
             }
+
         }
     }
 }

@@ -12,15 +12,14 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import model.countdownTimer.TimerState
 import org.lighthousegames.logging.logging
-import util.onError
-import util.onSuccess
+import util.generateDeviceId
 import util.toIsoDate
 
 class TimerViewModel(
     private val repository: Repository
 ): ViewModel() {
 
-    private var _uiState = MutableStateFlow(TimerUiState())
+    private val _uiState = MutableStateFlow(TimerUiState())
     val uiState: StateFlow<TimerUiState> = _uiState.asStateFlow()
 
     init {
@@ -33,24 +32,13 @@ class TimerViewModel(
         logging().info { "TimerViewModel onCleared" }
     }
 
-    fun updateRemoteData() {
-        viewModelScope.launch {
-            try {
-                _uiState.value = _uiState.value.copy(isLoading = true)
-                repository.countdownTimerRepository.updateRemoteData()
-                _uiState.value = _uiState.value.copy(isLoading = false)
-            } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(isLoading = false)
-            }
+    fun addTimer(name: String, durationInMinutes: Long) {
 
-            _uiState.value.timer = repository.countdownTimerRepository.getAll()
-        }
-    }
-
-    fun addTimer(name: String, duration: Long) {
         val newTimer = CountdownTimer(
+            timerId = generateDeviceId(),
+            userId = Firebase.auth.currentUser!!.uid,
             name = name,
-            duration = duration,
+            duration = durationInMinutes * 60,
             timerState = TimerState.notRunning.name,
             isDeleted = false,
             createdAt = Clock.System.now().toEpochMilliseconds().toIsoDate(),
@@ -60,30 +48,18 @@ class TimerViewModel(
         viewModelScope.launch {
             repository.countdownTimerRepository.insertOrUpdate(newTimer)
             _uiState.value = _uiState.value.copy(timer = repository.countdownTimerRepository.getAll())
-        }
-    }
-
-    fun updateLocalData() {
-        viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true)
-            try {
-                repository.countdownTimerRepository.updateLocalData()
-                    .onSuccess { list ->
-                        logging().info { "updateLocalData: ${list.size}" }
-                    }
-                    .onError {
-                        logging().error { "updateLocalError: ${it.name}" }
-                    }
-            } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(error = e.message, isLoading = false)
-            }
+            syncDataWithRemote()
         }
     }
 
     fun getAllCountdownTimers() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
-            _uiState.value = _uiState.value.copy(timer = repository.countdownTimerRepository.getAll())
+            val timers = repository.countdownTimerRepository.getAll()
+            timers.forEach {
+                //logging().info { "getAllCountdownTimers: ${it.name} ${it.isDeleted}" }
+            }
+            _uiState.value = _uiState.value.copy(timer = timers)
             _uiState.value = _uiState.value.copy(isLoading = false)
         }
     }
@@ -99,16 +75,17 @@ class TimerViewModel(
 
     fun softDeleteTimer(countdownTimer: CountdownTimer) {
         viewModelScope.launch {
-            val timer = countdownTimer.copy(isDeleted = true, updatedAt = Clock.System.now().toEpochMilliseconds().toIsoDate())
+            val timer = countdownTimer.copy(isDeleted = true, updatedAtOnDevice = Clock.System.now().toEpochMilliseconds())
             repository.countdownTimerRepository.softDeleteMany(listOf(timer))
-            updateRemoteData()
             _uiState.value = _uiState.value.copy(timer = repository.countdownTimerRepository.getAll())
+            syncDataWithRemote()
         }
     }
 
-    suspend fun test(lastSync: Long): List<CountdownTimer> {
-        val user = Firebase.auth.currentUser
-        return repository.countdownTimerRepository.localService.getAllAfterTimeStamp(lastSync, user!!.uid)
+    fun syncDataWithRemote() {
+        viewModelScope.launch {
+            repository.countdownTimerRepository.syncDataWithRemote()
+        }
     }
 }
 

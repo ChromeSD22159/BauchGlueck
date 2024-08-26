@@ -11,13 +11,13 @@ import data.remote.StrapiCountdownTimerApiClient
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.FirebaseUser
 import dev.gitlive.firebase.auth.auth
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
 import org.lighthousegames.logging.logging
-import util.NetworkError
-import util.Result
 import util.onError
 import util.onSuccess
-import util.toIsoDate
 
 class CountdownTimerRepository(
     db: LocalDatabase,
@@ -25,14 +25,12 @@ class CountdownTimerRepository(
     var user: FirebaseUser? = Firebase.auth.currentUser,
     var deviceID: String
 ) {
-    var localService: CountdownTimerDao = LocalDataSource(db).countdownTimer
-    private var syncHistory: SyncHistoryDao = LocalDataSource(db).syncHistory
-    private val apiService: StrapiCountdownTimerApiClient = StrapiCountdownTimerApiClient(serverHost)
+    private var localService: CountdownTimerDao = LocalDataSource(db).countdownTimer
+    private var syncManager: SyncManager = SyncManager(db, serverHost, deviceID)
 
     suspend fun getAll(): List<CountdownTimer> {
-        return user?.let {
-            localService.getAll(it.uid)
-
+        return user?.let { firebaseUser ->
+            localService.getAll(firebaseUser.uid).filter { !it.isDeleted }
         } ?: emptyList()
     }
 
@@ -46,24 +44,9 @@ class CountdownTimerRepository(
         }
     }
 
-    suspend fun updateMany(countdownTimers: List<CountdownTimer>) {
-        val toUpdate = countdownTimers.map { it.copy(updatedAtOnDevice = Clock.System.now().toEpochMilliseconds()) }
-        localService.updateMany(toUpdate)
-    }
-
     suspend fun softDeleteMany(countdownTimers: List<CountdownTimer>) {
         val toUpdate = countdownTimers.map { it.copy(isDeleted = true, updatedAtOnDevice = Clock.System.now().toEpochMilliseconds()) }
             localService.softDeleteMany(toUpdate)
-    }
-
-    suspend fun softDeleteById(timerId: String) {
-        localService.softDeleteById(timerId)
-    }
-
-    suspend fun hardDeleteAllByUserId() {
-        user?.let {
-            localService.hardDeleteAllByUserId(it.uid)
-        }
     }
 
     suspend fun getAllAfterTimeStamp(timeStamp: Long): List<CountdownTimer> {
@@ -75,113 +58,106 @@ class CountdownTimerRepository(
         } ?: emptyList()
     }
 
-    suspend fun updateRemoteData() {
-        val lastSync = syncHistory.getLatestSyncTimer(deviceID)?.firstOrNull { it.table == RoomTable.COUNTDOWN_TIMER }?.lastSync ?: 0L // 1724493065017
-        val pendingChanges = localService.getAllAfterTimeStamp(lastSync, user!!.uid)
-        if (pendingChanges.isNotEmpty()) {
+    suspend fun syncDataWithRemote() {
+        syncManager.syncTimers()
+    }
+}
 
-            val serverResponse = apiService.updateRemoteData(pendingChanges)
+class SyncManager(
+    db: LocalDatabase,
+    serverHost: String,
+    private var deviceID: String
+) {
+    private var user: FirebaseUser? = Firebase.auth.currentUser
+    private val apiService: StrapiCountdownTimerApiClient = StrapiCountdownTimerApiClient(serverHost)
+    private var localService: CountdownTimerDao = LocalDataSource(db).countdownTimer
+    private var syncHistory: SyncHistoryDao = LocalDataSource(db).syncHistory
 
-            serverResponse.onSuccess { timerResponse ->
-                val deletedTimers: List<CountdownTimer?> = timerResponse.deletedTimers.map { localService.getById(it.timerId) }
-
-                deletedTimers.forEach { timer : CountdownTimer? ->
-                    timer?.let {
-                        localService.hardDeleteOne(it)
-                    }
+    private suspend fun sendChangedTimersToServer(timers: List<CountdownTimer>) {
+        withContext(Dispatchers.IO) {
+            try {
+                logging().info { "Send Timer to Update on Server > > >" }
+                timers.forEach {
+                    logging().info { "> > > Timer: ${it.toString()}" }
                 }
+                val response = apiService.updateRemoteData(timers)
 
-                syncHistory.insertSyncHistory(
-                    SyncHistory(
-                        deviceId = deviceID,
-                        table = RoomTable.COUNTDOWN_TIMER,
-                        lastSync = Clock.System.now().toEpochMilliseconds()
-                    )
-                )
+                // TODO: Handle Response - - Maybe Hard delete Timer? and send ids to server?
+                response.onSuccess { logging().info { "Timer Sync Success" } }
+                response.onError { logging().info { "Timer Sync Error" } }
+            } catch (e: Exception) {
+                logging().info { "Timer Sync Error" }
             }
         }
     }
 
-    suspend fun updateLocalData(): Result<List<CountdownTimer>, NetworkError> {
+    suspend fun syncTimers() {
+        if (user == null) return
+
         val lastSync = syncHistory.getLatestSyncTimer(deviceID)?.sortedByDescending { it.lastSync }?.firstOrNull { it.table == RoomTable.COUNTDOWN_TIMER }?.lastSync ?: 0L
-        val localData = localService.getAll(user!!.uid)
-        logging().info { "* * * * * * * * * * * * * * * * * * * * * * * * * * Start UpdateLocalData * * * * * * * * * * * * * * * * * * * * * * * * * *" }
-        logging().info { "Last Sync TimeStamp: $lastSync" }
-        logging().info { "Firebase User: ${user?.uid}" }
+        val localChangedTimers = localService.getAllAfterTimeStamp(lastSync, user!!.uid)
 
-        val error: NetworkError? = null
+        logging().info { "* * * * * * * * * * SYNCING * * * * * * * * * * " }
+        logging().info { "Last Sync Success: $lastSync" }
 
-        if(user != null) {
-            if (lastSync == 0L || localData.isEmpty()) {
-                // Initial Sync: Fetch all timers from the server
-                apiService.getCountdownTimers(user!!.uid).onSuccess { timerList ->
-                    timerList.map { localService.insertOrUpdate(it.toCountdownTimer()) }
+        sendChangedTimersToServer(localChangedTimers)
 
-                    if(timerList.isNotEmpty()) {
-                        syncHistory.insertSyncHistory(
-                            SyncHistory(
-                                deviceId = deviceID,
-                                table = RoomTable.COUNTDOWN_TIMER
-                            )
+        // 3. Vom Server alle seit dem letzten Sync geänderten Timer abrufen
+        val response = apiService.fetchTimersAfterTimestamp(lastSync, user!!.uid)
+        response.onSuccess { serverTimers ->
+
+            logging().info { "serverTimers: ${serverTimers.size}" }
+            logging().info { "localTimers: ${localChangedTimers.size}" }
+
+            logging().info { "Received Timer to Update from Server < < <" }
+            serverTimers.forEach {
+                logging().info { "< < < Timer: ${it.toString()}" }
+            }
+
+            for (serverTimer in serverTimers) {
+                val localTimer = localService.getById(serverTimer.timerId)
+
+                if (localTimer != null) {
+                    logging().info { "Timer: ${serverTimer.name}: ${serverTimer.updatedAtOnDevice}" }
+                    logging().info { "Timer: ${localTimer.name}: ${localTimer.updatedAtOnDevice}" }
+                    if (serverTimer.updatedAtOnDevice > localTimer.updatedAtOnDevice) {
+
+                        // Wenn der Timer auf dem Server neuer ist, aktualisiere den lokalen Timer
+                        localTimer.name = serverTimer.name
+                        localTimer.duration = serverTimer.duration
+                        localTimer.timerState = serverTimer.timerState
+                        localTimer.startDate = serverTimer.startDate
+                        localTimer.endDate = serverTimer.endDate
+                        localTimer.updatedAtOnDevice = serverTimer.updatedAtOnDevice
+                        localTimer.isDeleted = serverTimer.isDeleted
+                        localTimer.updatedAt = serverTimer.updatedAt
+
+                        localService.insertOrUpdate(localTimer)
+                    }
+                } else {
+                    // Wenn der Timer noch nicht lokal existiert, füge ihn hinzu
+                    localService.insert(
+                        CountdownTimer(
+                            timerId = serverTimer.timerId,
+                            userId = serverTimer.userId,
+                            name = serverTimer.name,
+                            duration = serverTimer.duration,
+                            timerState = serverTimer.timerState,
+                            startDate = serverTimer.startDate,
+                            endDate = serverTimer.endDate,
+                            updatedAtOnDevice = serverTimer.updatedAtOnDevice,
+                            isDeleted = serverTimer.isDeleted,
+                            updatedAt = serverTimer.updatedAt
                         )
-
-                        logging().info { "Saved Sync TimeStamp: ${Clock.System. now().toEpochMilliseconds()}" }
-                    } else {
-                        logging().info { "No Data to Sync from Server" }
-                    }
-
-                    Result.Success(localService.getAll(user!!.uid))
-                }.onError {
-                    Result.Error(it)
-                }
-            } else {
-                // Incremental Sync: Fetch only updated timers
-                val localDataAfterTimeStamp = localService.getAllAfterTimeStamp(lastSync, user!!.uid).toMutableList()
-                apiService.fetchTimersAfterTimestamp(lastSync, user!!.uid).onSuccess { remoteTimerList ->
-                    logging().info { "Received Data from Server: ${remoteTimerList.size}" }
-
-                    // Update or insert timers from the server
-                    remoteTimerList.forEach { localService.insertOrUpdate(it) }
-
-                    // Filter out timers that were updated from the server
-                    localDataAfterTimeStamp.retainAll { localTimer ->
-                        !remoteTimerList.any { remoteTimer ->
-                            remoteTimer.timerId == localTimer.timerId
-                        }
-                    }
-
-                    // Delete remaining local timers (not present in the server response)
-                    if (localDataAfterTimeStamp.isNotEmpty()) {
-                        logging().info { "delete Timers: ${localDataAfterTimeStamp.size}" }
-                        localDataAfterTimeStamp.forEach { localService.hardDeleteOne(it) }
-                    }
-
-                    if(remoteTimerList.isNotEmpty()) {
-                        syncHistory.insertSyncHistory(
-                            SyncHistory(
-                                deviceId = deviceID,
-                                table = RoomTable.COUNTDOWN_TIMER
-                            )
-                        )
-
-                        logging().info { "Saved Sync TimeStamp: ${Clock.System. now().toEpochMilliseconds()}" }
-                    }
-
-                    Result.Success(localService.getAll(user!!.uid))
-                }.onError {
-                    logging().info { "No Data to Sync from Server" }
+                    )
                 }
             }
-        } else {
-            Result.Error(NetworkError.UNAUTHORIZED)
-        }
 
-        return if (error != null) {
-            Result.Error(error)
-        } else {
-            val timer = localService.getAll(user!!.uid)
-            logging().info { "Repository Data after update: ${timer.size}" }
-            Result.Success(timer)
+            val newTimerStamp = SyncHistory(deviceId = deviceID,table = RoomTable.COUNTDOWN_TIMER)
+            syncHistory.insertSyncHistory(newTimerStamp)
+
+            logging().info { "Save TimerStamp: ${newTimerStamp.lastSync}" }
         }
+        response.onError { return }
     }
 }

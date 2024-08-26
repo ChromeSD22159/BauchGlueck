@@ -30,9 +30,9 @@ data class CountdownTimer(
     @SerialName("showActivity")
     var showActivity: Boolean = true,
     @SerialName("isDeleted")
-    val isDeleted: Boolean = false,
+    var isDeleted: Boolean = false,
     @SerialName("updatedAtOnDevice")
-    val updatedAtOnDevice: Long = Clock.System.now().toEpochMilliseconds(),
+    var updatedAtOnDevice: Long = Clock.System.now().toEpochMilliseconds(),
     @SerialName("createdAt")
     @TypeConverters(DateConverter::class)
     var createdAt: String = Clock.System.now().toString(),
