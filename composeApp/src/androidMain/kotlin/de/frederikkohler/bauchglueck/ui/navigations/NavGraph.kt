@@ -2,7 +2,6 @@ package de.frederikkohler.bauchglueck.ui.navigations
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
@@ -14,19 +13,15 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import de.frederikkohler.bauchglueck.koinViewModel
 import de.frederikkohler.bauchglueck.ui.components.BackScaffold
 import de.frederikkohler.bauchglueck.ui.screens.LaunchScreen
 import de.frederikkohler.bauchglueck.ui.screens.authScreens.meals.CalendarScreen
 import de.frederikkohler.bauchglueck.ui.screens.authScreens.home.HomeScreen
-import de.frederikkohler.bauchglueck.ui.screens.authScreens.timer.AddTimer
+import de.frederikkohler.bauchglueck.ui.screens.authScreens.timer.AddEditTimerSheet
 import de.frederikkohler.bauchglueck.ui.screens.authScreens.timer.TimerScreen
 import viewModel.TimerViewModel
 import de.frederikkohler.bauchglueck.viewModel.FirebaseAuthViewModel
@@ -36,88 +31,115 @@ import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import navigation.Screens
 import org.koin.compose.KoinContext
 import org.lighthousegames.logging.logging
+import org.koin.androidx.compose.koinViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun NavGraph(
     navController: NavHostController,
-    viewModel: FirebaseAuthViewModel,
-    onLoad: () -> Unit = {}
+    viewModel: FirebaseAuthViewModel
 ) {
+    logging().info { "NavGraph" }
+
     val user = Firebase.auth.currentUser
-    val timerViewmodel: TimerViewModel = org.koin.androidx.compose.koinViewModel()
+    val timerViewmodel: TimerViewModel = koinViewModel()
     val scope = rememberCoroutineScope()
 
     KoinContext {
 
         LaunchedEffect(user) {
-            onLoad()
-
             delay(700)
 
             if (user != null) {
-                navController.navigate(Screens.Home.route)
+                navController.navigate(Destination.Home.route)
             } else {
-                navController.navigate(Screens.Login.route)
+                navController.navigate(Destination.Login.route)
             }
         }
 
-        NavHost(navController = navController, startDestination = Screens.Launch.route) {
-            composable(Screens.Launch.route) {
+        NavHost(navController = navController, startDestination = Destination.Launch.route) {
+            composable(Destination.Launch.route) {
                 LaunchedEffect(Unit) {
                     timerViewmodel.syncDataWithRemote()
                 }
                 LaunchScreen()
             }
-            composable(Screens.Login.route) {
+            composable(Destination.Login.route) {
                 LoginView( { navController.navigate(it.route) } )
             }
-            composable(Screens.SignUp.route) {
+            composable(Destination.SignUp.route) {
                 RegisterView( { navController.navigate(it.route) } )
             }
-            composable(Screens.Home.route) {
+            composable(Destination.Home.route) {
                 HomeScreen(
+                    timerViewModel = timerViewmodel,
                     firebaseAuthViewModel = viewModel,
                     navController = navController
                 )
             }
-            composable(Screens.Calendar.route) {
+            composable(Destination.Calendar.route) {
                 CalendarScreen(
                     navController = navController
                 )
             }
-            composable(Screens.Timer.route) {
-                timerViewmodel.getAllCountdownTimers()
+            composable(Destination.Timer.route) {
+                LaunchedEffect(Unit) {
+                    timerViewmodel.getAllCountdownTimers()
+                }
                 TimerScreen(
                     navController = navController,
+                    timerViewmodel,
+                    onEdit = {
+                        timerViewmodel.setSelectedTimer(it)
+                        navController.navigate(Destination.EditTimer.route)
+                    }
                 )
             }
-            composable(Screens.Weight.route) {
+            composable(Destination.Weight.route) {
                 BackScaffold(
-                    title = Screens.Weight.title,
+                    title = Destination.Weight.title,
                     navController = navController
                 )
             }
-            composable(Screens.WaterIntake.route) {
+            composable(Destination.WaterIntake.route) {
                 BackScaffold(
-                    title = Screens.WaterIntake.title,
+                    title = Destination.WaterIntake.title,
                     navController = navController
                 )
             }
             composable(
-                route = Screens.AddTimer.route,
-                enterTransition = { slideInWithFadeToTopAnimation(this) },
-                exitTransition = { slideOutWithFadeToTopAnimation(this) }
+                route = Destination.AddTimer.route,
+                enterTransition = { slideInWithFadeToTopAnimation() },
+                exitTransition = { slideOutWithFadeToTopAnimation() }
             ) {
-                AddTimer(
+                AddEditTimerSheet(
                     navController = navController,
+                    currentCountdownTimer = null,
                     onSaved = {
                         scope.launch {
-                            timerViewmodel.addTimer(it.first, it.second)
-                            navController.navigate(Screens.Timer.route)
+                            logging().info { "onSaved: $it" }
+                            timerViewmodel.addTimer(it.name, it.duration)
+                            navController.navigate(Destination.Timer.route)
+                        }
+                    }
+                )
+            }
+
+            composable(
+                route = Destination.EditTimer.route,
+                enterTransition = { slideInWithFadeToTopAnimation() },
+                exitTransition = { slideOutWithFadeToTopAnimation() }
+            ) {
+                AddEditTimerSheet(
+                    navController = navController,
+                    currentCountdownTimer = timerViewmodel.uiState.value.selectedTimer,
+                    onSaved = {
+                        scope.launch {
+                            logging().info { "onEdit: $it" }
+                            timerViewmodel.updateTimerAndSyncRemote(it)
+                            navController.navigate(Destination.Timer.route)
                         }
                     }
                 )
@@ -127,7 +149,20 @@ fun NavGraph(
     }
 }
 
-fun slideInWithFadeToTopAnimation(scope: AnimatedContentTransitionScope<NavBackStackEntry>): EnterTransition {
+sealed class Destination(val route: String, val title: String) {
+    data object Launch : Destination("Launch", "Launch")
+    data object Login : Destination("Login", "Login")
+    data object SignUp : Destination("Register", "Register")
+    data object Home : Destination("Home", "Home")
+    data object Calendar : Destination("Calendar", "Kalender")
+    data object Timer : Destination("Timer", "Timer")
+    data object Weight : Destination("Weight", "Gewicht")
+    data object WaterIntake : Destination("WaterIntake", "Wasseraufnahme")
+    data object AddTimer : Destination("AddTimer", "Timer hinzufügen")
+    data object EditTimer : Destination("EditTimer", "Timer Bearbeiten")
+}
+
+fun slideInWithFadeToTopAnimation(): EnterTransition {
     return slideInVertically(
         initialOffsetY = { it.takeIf { it != Int.MIN_VALUE } ?: 0 },
         animationSpec = tween(250)
@@ -136,7 +171,7 @@ fun slideInWithFadeToTopAnimation(scope: AnimatedContentTransitionScope<NavBackS
     ) + fadeIn(animationSpec = tween(250))
 }
 
-fun slideOutWithFadeToTopAnimation(scope: AnimatedContentTransitionScope<NavBackStackEntry>): ExitTransition {
+fun slideOutWithFadeToTopAnimation(): ExitTransition {
     return slideOutVertically(
         targetOffsetY = { it.takeIf { it != Int.MIN_VALUE } ?: 0 },
         animationSpec = tween(250)

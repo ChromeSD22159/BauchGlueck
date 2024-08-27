@@ -64,12 +64,13 @@ class TimerViewModel(
         }
     }
 
-    fun updateTimer(countdownTimer: CountdownTimer) {
+    fun updateTimerAndSyncRemote(countdownTimer: CountdownTimer) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true)
+            logging().info { "updateTimer: $countdownTimer" }
             repository.countdownTimerRepository.insertOrUpdate(countdownTimer)
             _uiState.value = _uiState.value.copy(timer = repository.countdownTimerRepository.getAll())
-            _uiState.value = _uiState.value.copy(isLoading = false)
+            syncDataWithRemote()
+            clearSelectedTimer()
         }
     }
 
@@ -82,6 +83,14 @@ class TimerViewModel(
         }
     }
 
+    fun setSelectedTimer(countdownTimer: CountdownTimer) {
+        _uiState.value = _uiState.value.copy(selectedTimer = countdownTimer)
+    }
+
+    private fun clearSelectedTimer() {
+        _uiState.value = _uiState.value.copy(selectedTimer = null)
+    }
+
     fun syncDataWithRemote() {
         viewModelScope.launch {
             repository.countdownTimerRepository.syncDataWithRemote()
@@ -91,6 +100,7 @@ class TimerViewModel(
 
 data class TimerUiState(
     var isLoading: Boolean = false,
+    var selectedTimer: CountdownTimer? = null,
     var timer: List<CountdownTimer> = emptyList(),
     var error: String? = null
 )

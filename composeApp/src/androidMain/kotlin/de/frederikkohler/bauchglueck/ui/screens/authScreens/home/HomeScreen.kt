@@ -1,7 +1,6 @@
 package de.frederikkohler.bauchglueck.ui.screens.authScreens.home
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -26,8 +25,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,40 +33,23 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavHostController
 import data.FirebaseConnection
-import de.frederikkohler.bauchglueck.koinViewModel
+import de.frederikkohler.bauchglueck.ui.navigations.Destination
 import de.frederikkohler.bauchglueck.ui.screens.authScreens.SyncIconRotate
 import de.frederikkohler.bauchglueck.ui.screens.authScreens.settingsSheet.SettingSheet
 import viewModel.TimerViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import navigation.Screens
-import org.lighthousegames.logging.logging
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
+    timerViewModel: TimerViewModel,
     firebaseAuthViewModel: FirebaseAuthViewModel = viewModel(),
     navController: NavHostController,
 ) {
-    val vm = koinViewModel<TimerViewModel>()
-    val uiState by vm.uiState.collectAsState()
-    var isSyncInProgress by remember { mutableStateOf(false) }
+    val isSyncInProgress by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
-
-    LaunchedEffect(Unit) {
-        if (!isSyncInProgress) {
-            isSyncInProgress = true
-            vm.getAllCountdownTimers()
-            logging().info { "isSyncInProgress: $isSyncInProgress" }
-            delay(2000)
-            isSyncInProgress = false
-        }
-    }
-
-    LaunchedEffect(isSyncInProgress) {
-        Log.d("isSyncInProgress", "$isSyncInProgress - timers: ${uiState.timer.size}")
-    }
 
     var showSettingSheet by remember { mutableStateOf(false) }
 
@@ -111,25 +91,25 @@ fun HomeScreen(
 
             HomeCalendarCard {
                 scope.launch {
-                    navController.navigate(Screens.Calendar.route)
+                    navController.navigate(Destination.Calendar.route)
                 }
             }
 
             HomeWeightCard {
                 scope.launch {
-                    navController.navigate(Screens.Weight.route)
+                    navController.navigate(Destination.Weight.route)
                 }
             }
 
-            HomeTimerCard {
+            HomeTimerCard(timerViewModel) {
                 scope.launch {
-                    navController.navigate(Screens.Timer.route)
+                    navController.navigate(Destination.Timer.route)
                 }
             }
 
             HomeWaterIntakeCard {
                 scope.launch {
-                    navController.navigate(Screens.WaterIntake.route)
+                    navController.navigate(Destination.WaterIntake.route)
                 }
             }
 
@@ -148,7 +128,7 @@ fun HomeScreen(
                         showSettingSheet = false
                         delay(250)
                         if (firebaseAuthViewModel.user.value == null) {
-                            navController.navigate(Screens.Login.route)
+                            navController.navigate(Destination.Login.route)
                         }
                     }
                 },

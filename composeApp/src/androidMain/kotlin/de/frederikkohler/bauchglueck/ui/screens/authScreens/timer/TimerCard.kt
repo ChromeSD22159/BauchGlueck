@@ -40,6 +40,7 @@ import util.DateConverter
 @Composable
 fun TimerCard(
     timer: CountdownTimer,
+    onEditSave: (CountdownTimer) -> Unit = {},
     onTimerUpdate: (CountdownTimer) -> Unit = {},
     onDelete: (CountdownTimer) -> Unit = {}
 ) {
@@ -105,7 +106,7 @@ fun TimerCard(
                 dropDownOptions = listOf(
                     DropdownMenuRow(
                         text = "Edit",
-                        onClick = {   },
+                        onClick = {  onEditSave(timer)  },
                         leadingIcon = Icons.Outlined.Edit
                     ),
                     DropdownMenuRow(
