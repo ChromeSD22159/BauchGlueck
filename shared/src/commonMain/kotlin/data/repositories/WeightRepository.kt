@@ -2,12 +2,9 @@ package data.repositories
 
 import data.local.LocalDataSource
 import data.local.LocalDatabase
-import data.local.dao.SyncHistoryDao
-import data.local.dao.WaterIntakeDao
 import data.local.dao.WeightDao
-import data.local.entitiy.WaterIntake
 import data.local.entitiy.Weight
-import data.remote.StrapiCountdownTimerApiClient
+import data.network.syncManager.WeightSyncManager
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.FirebaseUser
 import dev.gitlive.firebase.auth.auth
@@ -21,38 +18,36 @@ class WeightRepository(
 ) {
 
     private var localService: WeightDao = LocalDataSource(db).weight
-    private var syncHistory: SyncHistoryDao = LocalDataSource(db).syncHistory
-    private val apiService: StrapiCountdownTimerApiClient = StrapiCountdownTimerApiClient(serverHost)
+    private var syncManager: WeightSyncManager = WeightSyncManager(db, serverHost, deviceID)
 
     suspend fun getAll(): List<Weight> {
-        return user?.let {
-            localService.getAll(it.uid)
-
+        return user?.let { firebaseUser ->
+            localService.getAll(firebaseUser.uid).filter { !it.isDeleted }
         } ?: emptyList()
     }
 
-    suspend fun getById(timerId: String): Weight? = this.localService.getById(timerId)
+    suspend fun getById(weightId: String): Weight? = this.localService.getById(weightId)
 
-    suspend fun insertOrUpdate(countdownTimer: Weight) = this.localService.insertOrUpdate(countdownTimer)
+    suspend fun insertOrUpdate(weight: Weight) = this.localService.insertOrUpdate(weight)
 
-    suspend fun insertOrUpdate(countdownTimers: List<Weight>) {
-        countdownTimers.forEach {
-            this.localService.insertOrUpdate(it.copy(updatedAt = Clock.System.now().toEpochMilliseconds()))
+    suspend fun insertOrUpdate(weights: List<Weight>) {
+        weights.forEach {
+            this.localService.insertOrUpdate(it.copy(updatedAt = Clock.System.now().toEpochMilliseconds().toString()))
         }
     }
 
-    suspend fun updateMany(countdownTimers: List<Weight>) {
-        val toUpdate = countdownTimers.map { it.copy(updatedAt = Clock.System.now().toEpochMilliseconds()) }
+    suspend fun updateMany(weights: List<Weight>) {
+        val toUpdate = weights.map { it.copy(updatedAt = Clock.System.now().toEpochMilliseconds().toString()) }
         localService.updateMany(toUpdate)
     }
 
-    suspend fun softDeleteMany(countdownTimers: List<Weight>) {
-        val toUpdate = countdownTimers.map { it.copy(isDeleted = true) }
+    suspend fun softDeleteMany(weights: List<Weight>) {
+        val toUpdate = weights.map { it.copy(isDeleted = true) }
         localService.softDeleteMany(toUpdate)
     }
 
-    suspend fun softDeleteById(timerId: String) {
-        localService.softDeleteById(timerId)
+    suspend fun softDeleteById(weightId: String) {
+        localService.softDeleteById(weightId)
     }
 
     suspend fun hardDeleteAllByUserId() {
@@ -70,24 +65,7 @@ class WeightRepository(
         } ?: emptyList()
     }
 
-    /*
-    suspend fun syncDataWithServer() {
-        val lastSync = syncHistory.getLatestSyncTimer(deviceID)?.lastSync ?: 0L
-        val pendingChanges = medications.getAllAfterTimeStamp(lastSync, user!!.uid)
-        if (pendingChanges.isNotEmpty()) {
-
-            val serverResponse = apiService.syncCountdownTimers(pendingChanges)
-
-            serverResponse.onSuccess { timerResponse ->
-                val deletedTimers :List<Medication?> = timerResponse.deletedTimers.map { medications.getById(it.timerId) }
-
-                deletedTimers.forEach { timer : Medication? ->
-                    timer?.let {
-                        countdownTimer.hardDeleteOne(it)
-                    }
-                }
-            }
-        }
+    suspend fun syncDataWithRemote() {
+        syncManager.syncWeights()
     }
-     */
 }

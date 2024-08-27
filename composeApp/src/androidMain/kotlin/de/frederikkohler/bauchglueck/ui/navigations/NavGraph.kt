@@ -34,6 +34,7 @@ import kotlinx.coroutines.launch
 import org.koin.compose.KoinContext
 import org.lighthousegames.logging.logging
 import org.koin.androidx.compose.koinViewModel
+import viewModel.WeightViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -44,7 +45,8 @@ fun NavGraph(
     logging().info { "NavGraph" }
 
     val user = Firebase.auth.currentUser
-    val timerViewmodel: TimerViewModel = koinViewModel()
+    val timerViewmodel = koinViewModel<TimerViewModel>()
+    val weightViewmodel = koinViewModel<WeightViewModel>()
     val scope = rememberCoroutineScope()
 
     KoinContext {
@@ -62,7 +64,14 @@ fun NavGraph(
         NavHost(navController = navController, startDestination = Destination.Launch.route) {
             composable(Destination.Launch.route) {
                 LaunchedEffect(Unit) {
+                    weightViewmodel.syncDataWithRemote()
                     timerViewmodel.syncDataWithRemote()
+
+                    weightViewmodel.uiState.collect {
+                        it.weights.forEach {
+                            logging().info { "Weight: $it" }
+                        }
+                    }
                 }
                 LaunchScreen()
             }

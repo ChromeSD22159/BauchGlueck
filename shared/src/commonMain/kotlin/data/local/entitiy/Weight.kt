@@ -21,17 +21,20 @@ data class Weight(
     var weightId: String = "",
 
     @SerialName("value")
-    val value: Double = 0.0,
+    var value: Double = 0.0,
 
     @SerialName("isDeleted")
-    val isDeleted: Boolean = false,
+    var isDeleted: Boolean = false,
+
+    @SerialName("updatedAtOnDevice")
+    var updatedAtOnDevice: Long = Clock.System.now().toEpochMilliseconds(),
 
     @SerialName("createdAt")
     @TypeConverters(DateConverter::class)
-    var createdAt: Long = Clock.System.now().toEpochMilliseconds(),
+    var createdAt: String = Clock.System.now().toString(),
 
     @SerialName("updatedAt")
     @TypeConverters(DateConverter::class)
-    var updatedAt: Long = Clock.System.now().toEpochMilliseconds()
+    var updatedAt: String = Clock.System.now().toString(),
 )
 

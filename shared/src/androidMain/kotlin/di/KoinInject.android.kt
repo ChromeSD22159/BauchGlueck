@@ -23,7 +23,6 @@ actual class KoinInject(
                 )
             }
         } catch (e: Exception) {
-            // Handle Koin initialization errors
             Log.e("KoinInject", "Error initializing Koin", e)
         }
     }
