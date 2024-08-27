@@ -110,6 +110,7 @@ dependencies {
     implementation(libs.bundles.firebase.services)
     implementation(libs.androidx.ui.text.android)
     implementation(libs.koin.androidx.compose)
+    implementation(libs.androidx.core.i18n)
 
     // Room
     add("kspCommonMainMetadata", libs.room.compiler)

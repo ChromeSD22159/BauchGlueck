@@ -13,6 +13,8 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -30,6 +32,7 @@ import de.frederikkohler.bauchglueck.ui.screens.publicScreens.RegisterView
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.compose.KoinContext
 import org.lighthousegames.logging.logging
@@ -45,8 +48,8 @@ fun NavGraph(
     logging().info { "NavGraph" }
 
     val user = Firebase.auth.currentUser
-    val timerViewmodel = koinViewModel<TimerViewModel>()
-    val weightViewmodel = koinViewModel<WeightViewModel>()
+    val timerViewModel = koinViewModel<TimerViewModel>()
+    val weightViewModel = koinViewModel<WeightViewModel>()
     val scope = rememberCoroutineScope()
 
     KoinContext {
@@ -61,18 +64,13 @@ fun NavGraph(
             }
         }
 
+        LaunchedEffect(Unit) {
+            timerViewModel.syncDataWithRemote()
+            weightViewModel.syncDataWithRemote()
+        }
+
         NavHost(navController = navController, startDestination = Destination.Launch.route) {
             composable(Destination.Launch.route) {
-                LaunchedEffect(Unit) {
-                    weightViewmodel.syncDataWithRemote()
-                    timerViewmodel.syncDataWithRemote()
-
-                    weightViewmodel.uiState.collect {
-                        it.weights.forEach {
-                            logging().info { "Weight: $it" }
-                        }
-                    }
-                }
                 LaunchScreen()
             }
             composable(Destination.Login.route) {
@@ -82,8 +80,11 @@ fun NavGraph(
                 RegisterView( { navController.navigate(it.route) } )
             }
             composable(Destination.Home.route) {
+                weightViewModel.getCardWeights()
+                val uiState by weightViewModel.uiState.collectAsState()
                 HomeScreen(
-                    timerViewModel = timerViewmodel,
+                    timerViewModel = timerViewModel,
+                    dailyAverage = uiState.dailyAverage,
                     firebaseAuthViewModel = viewModel,
                     navController = navController
                 )
@@ -95,13 +96,13 @@ fun NavGraph(
             }
             composable(Destination.Timer.route) {
                 LaunchedEffect(Unit) {
-                    timerViewmodel.getAllCountdownTimers()
+                    timerViewModel.getAllCountdownTimers()
                 }
                 TimerScreen(
                     navController = navController,
-                    timerViewmodel,
+                    timerViewModel,
                     onEdit = {
-                        timerViewmodel.setSelectedTimer(it)
+                        timerViewModel.setSelectedTimer(it)
                         navController.navigate(Destination.EditTimer.route)
                     }
                 )
@@ -129,7 +130,7 @@ fun NavGraph(
                     onSaved = {
                         scope.launch {
                             logging().info { "onSaved: $it" }
-                            timerViewmodel.addTimer(it.name, it.duration)
+                            timerViewModel.addTimer(it.name, it.duration)
                             navController.navigate(Destination.Timer.route)
                         }
                     }
@@ -143,11 +144,11 @@ fun NavGraph(
             ) {
                 AddEditTimerSheet(
                     navController = navController,
-                    currentCountdownTimer = timerViewmodel.uiState.value.selectedTimer,
+                    currentCountdownTimer = timerViewModel.uiState.value.selectedTimer,
                     onSaved = {
                         scope.launch {
                             logging().info { "onEdit: $it" }
-                            timerViewmodel.updateTimerAndSyncRemote(it)
+                            timerViewModel.updateTimerAndSyncRemote(it)
                             navController.navigate(Destination.Timer.route)
                         }
                     }

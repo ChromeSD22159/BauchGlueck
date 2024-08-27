@@ -2,6 +2,9 @@ package viewModel
 
 import data.Repository
 import data.local.entitiy.Weight
+import data.model.DailyAverage
+import data.model.MonthlyAverage
+import data.model.WeeklyAverage
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
@@ -31,6 +34,14 @@ class WeightViewModel(
         logging().info { "TimerViewModel onCleared" }
     }
 
+    fun getCardWeights() {
+        viewModelScope.launch {
+            _uiState.value.dailyAverage = repository.weightRepository.getAverageWeightLastDays()
+            _uiState.value.weeklyAverage = repository.weightRepository.getAverageWeightLastWeeks()
+            _uiState.value.monthlyAverage = repository.weightRepository.getAverageWeightLastMonths()
+        }
+    }
+
     fun addWeight(value: Double) {
 
         val newWeight = Weight(
@@ -38,6 +49,7 @@ class WeightViewModel(
             userId = Firebase.auth.currentUser!!.uid,
             value = value,
             isDeleted = false,
+            weighed = Clock.System.now().toEpochMilliseconds().toIsoDate(),
             createdAt = Clock.System.now().toEpochMilliseconds().toIsoDate(),
             updatedAt = Clock.System.now().toEpochMilliseconds().toIsoDate()
         )
@@ -76,7 +88,6 @@ class WeightViewModel(
         }
     }
 
-
     fun syncDataWithRemote() {
         viewModelScope.launch {
             repository.weightRepository.syncDataWithRemote()
@@ -87,5 +98,8 @@ class WeightViewModel(
 data class WeightUiState(
     var isLoading: Boolean = false,
     var weights: List<Weight> = emptyList(),
+    var dailyAverage: List<DailyAverage> = emptyList(),
+    var weeklyAverage: List<WeeklyAverage> = emptyList(),
+    var monthlyAverage: List<MonthlyAverage> = emptyList(),
     var error: String? = null
 )

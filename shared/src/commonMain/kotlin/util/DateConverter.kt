@@ -2,6 +2,7 @@ package util
 
 import androidx.room.TypeConverter
 import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.DurationUnit
@@ -34,4 +35,10 @@ fun Long.toIsoDate(): String {
     val instant = Instant.fromEpochMilliseconds(this)
     val dateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
     return instant.toString()
+}
+
+fun String.toLocalDate(): LocalDate {
+    val instant = Instant.parse(this)
+    val localDateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
+    return localDateTime.date
 }

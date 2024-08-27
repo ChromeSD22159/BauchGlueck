@@ -26,6 +26,9 @@ data class Weight(
     @SerialName("isDeleted")
     var isDeleted: Boolean = false,
 
+    @SerialName("weighed")
+    var weighed: String,
+
     @SerialName("updatedAtOnDevice")
     var updatedAtOnDevice: Long = Clock.System.now().toEpochMilliseconds(),
 

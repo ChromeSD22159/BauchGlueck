@@ -55,6 +55,7 @@ room = "2.7.0-alpha04"
 sqlite = "2.5.0-SNAPSHOT"
 koinComposeMultiplatform = "1.2.0-alpha3"
 koinCompose = "3.6.0-alpha3"
+coreI18n = "1.0.0-alpha01"
 
 [libraries]
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleLivedataKtx" }
@@ -121,6 +122,7 @@ room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "
 room-runtime-android = { group = "androidx.room", name = "room-runtime-android", version.ref = "room" }
 room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqlite" }
+androidx-core-i18n = { group = "androidx.core", name = "core-i18n", version.ref = "coreI18n" }
 
 
 [plugins]

@@ -16,35 +16,35 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
+import data.model.DailyAverage
 import de.frederikkohler.bauchglueck.R
 import de.frederikkohler.bauchglueck.ui.components.HeadCard
-import viewModel.DateViewModel
-import kotlin.random.Random
+import org.lighthousegames.logging.logging
 
 @Composable
 fun HomeWeightCard(
+    data: List<DailyAverage>,
     title: String = "Gewichtsverlust",
     onNavigate: () -> Unit
 ) {
-    WeightLossCard(title = title, onNavigate = onNavigate)
+    WeightLossCard(
+        title = title,
+        data = data,
+        onNavigate = onNavigate
+    )
 }
 
 @Composable
 fun WeightLossCard(
     title: String,
-    dateViewModel: DateViewModel = viewModel(),
+    data: List<DailyAverage>,
     onNavigate: () -> Unit
 ) {
-    val lastSevenWeeks by dateViewModel.previousSevenWeeks.collectAsStateWithLifecycle()
-
     Card(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.15f), //Color(0xFFFFA726)
@@ -67,34 +67,36 @@ fun WeightLossCard(
                     .fillMaxWidth()
                     .padding(8.dp)
             ) {
-                lastSevenWeeks.forEach { week ->
-                    val firstWeekDay = week.first.dayOfMonth
+
+                val maxHeight = data.maxOfOrNull { it.avgValue } ?: 100.0
+
+                data.forEach { week ->
+
                     // Chart Bar Item
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Bottom,
-                        modifier = Modifier.weight(1f).padding(top = 16.dp)
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(top = 16.dp)
                     ) {
 
                         // Chart Item
+                        val percent = (week.avgValue / maxHeight) * 100
                         Box(
                             modifier = Modifier
-                                .height(Random.nextInt(8, 100).dp)
+                                .height(percent.dp)
                                 .width(16.dp)
-                                .background(MaterialTheme.colorScheme.primaryContainer, shape = RoundedCornerShape(8.dp))
+                                .background(
+                                    MaterialTheme.colorScheme.primaryContainer,
+                                    shape = RoundedCornerShape(8.dp)
+                                )
                         )
-
-
-                        val firstWeekday = firstWeekDay.toString().padStart(2, '0')
-                        val lastWeekday = week.second.dayOfMonth.toString().padStart(2, '0')
-                        val month = week.second.monthNumber.toString().padStart(2, '0')
-                        val dateRange = "$firstWeekday.${month}" //  - ${lastWeekday}.${week.second.monthNumber}
 
                         Spacer(modifier = Modifier.height(16.dp))
 
                         Text(
-                            text = dateRange,
-                            //color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            text = week.date,
                             style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
                             modifier = Modifier.rotate((-90).toFloat())
                         )

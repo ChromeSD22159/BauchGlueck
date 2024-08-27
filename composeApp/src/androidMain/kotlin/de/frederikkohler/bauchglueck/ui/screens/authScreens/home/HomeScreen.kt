@@ -33,6 +33,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavHostController
 import data.FirebaseConnection
+import data.model.DailyAverage
 import de.frederikkohler.bauchglueck.ui.navigations.Destination
 import de.frederikkohler.bauchglueck.ui.screens.authScreens.SyncIconRotate
 import de.frederikkohler.bauchglueck.ui.screens.authScreens.settingsSheet.SettingSheet
@@ -45,6 +46,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun HomeScreen(
     timerViewModel: TimerViewModel,
+    dailyAverage: List<DailyAverage>,
     firebaseAuthViewModel: FirebaseAuthViewModel = viewModel(),
     navController: NavHostController,
 ) {
@@ -95,7 +97,9 @@ fun HomeScreen(
                 }
             }
 
-            HomeWeightCard {
+            HomeWeightCard(
+                dailyAverage,
+            ) {
                 scope.launch {
                     navController.navigate(Destination.Weight.route)
                 }

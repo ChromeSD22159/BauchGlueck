@@ -80,6 +80,7 @@ class WeightSyncManager(
                         localWeight.value = serverWeight.value
                         localWeight.updatedAtOnDevice = serverWeight.updatedAtOnDevice
                         localWeight.isDeleted = serverWeight.isDeleted
+                        localWeight.weighed = serverWeight.weighed
                         localWeight.updatedAt = serverWeight.updatedAt
 
                         localService.insertOrUpdate(localWeight)
@@ -91,6 +92,7 @@ class WeightSyncManager(
                             weightId = serverWeight.weightId,
                             userId = serverWeight.userId,
                             value = serverWeight.value,
+                            weighed = serverWeight.weighed,
                             updatedAtOnDevice = serverWeight.updatedAtOnDevice,
                             isDeleted = serverWeight.isDeleted,
                             updatedAt = serverWeight.updatedAt
@@ -103,7 +105,18 @@ class WeightSyncManager(
             syncHistory.insertSyncHistory(newWeightStamp)
 
             logging().info { "Save WeightStamp: ${newWeightStamp.lastSync}" }
+            val localWeights = localService.getAll(user!!.uid)
+            logging().info { "Save WeightStamp after Sync: ${localWeights.size}" }
+
         }
-        response.onError { return }
+        response.onError {
+            logging().info { "Weight Sync Error: ${it.name}" }
+            val localWeights = localService.getAll(user!!.uid)
+            logging().info { "Save WeightStamp after Sync: ${localWeights.size}" }
+            return
+        }
+
+        val localWeights = localService.getAll(user!!.uid)
+        logging().info { "Save WeightStamp after Sync: ${localWeights.size}" }
     }
 }

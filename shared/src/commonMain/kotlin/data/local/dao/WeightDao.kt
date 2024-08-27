@@ -7,11 +7,10 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
-import androidx.room.Upsert
-import data.local.entitiy.CountdownTimer
-import data.local.entitiy.Medication
-import data.local.entitiy.WaterIntake
 import data.local.entitiy.Weight
+import data.model.DailyAverage
+import data.model.MonthlyAverage
+import data.model.WeeklyAverage
 import kotlinx.datetime.Clock
 
 @Dao
@@ -25,6 +24,46 @@ interface WeightDao {
 
     @Query("SELECT * FROM weight WHERE updatedAtOnDevice > :updatedAtOnDevice AND userId = :userId")
     suspend fun getAllAfterTimeStamp(updatedAtOnDevice: Long, userId: String): List<Weight>
+
+    @Query("""
+        SELECT AVG(value) as avgValue, 
+               strftime('%Y-%W', updatedAt / 1000, 'unixepoch') as week 
+        FROM Weight
+        WHERE isDeleted = 0
+          AND updatedAt >= :startDate
+        GROUP BY week
+        ORDER BY updatedAt DESC
+        LIMIT :weeks
+    """)
+    suspend fun getAverageWeightLastWeeks(weeks: Int, startDate: Long): List<WeeklyAverage>
+
+
+
+
+    @Query("""
+        SELECT 
+            AVG(value) AS avgValue, 
+            weighed AS date
+        FROM Weight
+        WHERE isDeleted = 0
+        AND weighed >= :startDate 
+        GROUP BY date 
+        ORDER BY date DESC
+        LIMIT :days
+    """)
+    suspend fun getAverageWeightLastDays(days: Int, startDate: Long): List<DailyAverage>
+
+    @Query("""
+        SELECT AVG(value) as avgValue, 
+               strftime('%Y-%m', updatedAt / 1000, 'unixepoch') as month 
+        FROM Weight
+        WHERE isDeleted = 0
+          AND updatedAt >= :startDate
+        GROUP BY month
+        ORDER BY updatedAt DESC
+        LIMIT :months
+    """)
+    suspend fun getAverageWeightLastMonths(months: Int, startDate: Long): List<MonthlyAverage>
 
     // POST
     @Insert(onConflict = OnConflictStrategy.IGNORE)
