@@ -72,7 +72,7 @@ fun HomeScreen(
                         }
 
                         Box(modifier = Modifier.padding(end = 16.dp)) {
-                            RoundImageButton(R.drawable.icon_gear) {
+                            RoundImageButton(R.drawable.ic_gear) {
                                 showSettingSheet = true
                             }
                         }

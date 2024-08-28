@@ -24,6 +24,9 @@ class WeightViewModel(
     private val _uiState = MutableStateFlow(WeightUiState())
     val uiState: StateFlow<WeightUiState> = _uiState.asStateFlow()
 
+    private val _lastWeight = MutableStateFlow<Weight?>(null)
+    val lastWeight: StateFlow<Weight?> = _lastWeight.asStateFlow()
+
     init {
         logging().info { "WeightViewModel init" }
         getAllCountdownWeights()
@@ -91,6 +94,14 @@ class WeightViewModel(
     fun syncDataWithRemote() {
         viewModelScope.launch {
             repository.weightRepository.syncDataWithRemote()
+        }
+    }
+
+    fun getLastWeight() {
+        viewModelScope.launch {
+           _lastWeight.value =  repository.weightRepository.getLastWeight()
+
+            logging().info { "lastWeight: ${repository.weightRepository.getLastWeight()}" }
         }
     }
 }

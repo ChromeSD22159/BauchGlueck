@@ -79,6 +79,12 @@ class WeightRepository(
         } ?: emptyList()
     }
 
+    suspend fun getLastWeight(): Weight? {
+        return user?.let {
+            localService.getLastWeightFromUserId(it.uid)
+        }
+    }
+
     suspend fun syncDataWithRemote() {
         syncManager.syncWeights()
     }

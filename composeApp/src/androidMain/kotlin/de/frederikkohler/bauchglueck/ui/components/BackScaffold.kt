@@ -33,6 +33,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import de.frederikkohler.bauchglueck.ui.navigations.Destination
 import de.frederikkohler.bauchglueck.ui.theme.AppTheme
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -42,6 +43,7 @@ fun BackScaffold(
     title: String,
     navController: NavController,
     topNavigationButtons: @Composable () -> Unit = {},
+    backNavigationDirection: Destination = Destination.Home,
     view: @Composable () -> Unit = {}
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
@@ -62,7 +64,7 @@ fun BackScaffold(
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
+                    IconButton(onClick = { navController.navigate(backNavigationDirection.route) }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Localized description"

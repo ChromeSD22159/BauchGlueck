@@ -25,6 +25,10 @@ interface WeightDao {
     @Query("SELECT * FROM weight WHERE updatedAtOnDevice > :updatedAtOnDevice AND userId = :userId")
     suspend fun getAllAfterTimeStamp(updatedAtOnDevice: Long, userId: String): List<Weight>
 
+
+    @Query("SELECT * FROM weight WHERE userId = :userId AND isDeleted = false LIMIT 1")
+    suspend fun getLastWeightFromUserId(userId: String): Weight?
+
     @Query("""
         SELECT AVG(value) as avgValue, 
                strftime('%Y-%W', updatedAt / 1000, 'unixepoch') as week 

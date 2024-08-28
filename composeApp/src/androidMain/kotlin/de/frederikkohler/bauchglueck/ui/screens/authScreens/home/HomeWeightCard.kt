@@ -55,7 +55,7 @@ fun WeightLossCard(
             .padding(start = 10.dp, end = 10.dp),
     ) {
         HeadCard(
-            icon = R.drawable.icon_calendar,
+            icon = R.drawable.ic_chart,
             title = title,
             onNavigate = { onNavigate() }
         ) {

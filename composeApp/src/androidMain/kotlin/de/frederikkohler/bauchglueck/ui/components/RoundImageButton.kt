@@ -58,7 +58,7 @@ fun RoundImageButton(
 fun RoundImageButtonPreview() {
     AppTheme {
         RoundImageButton(
-            icon = R.drawable.icon_gear,
+            icon = R.drawable.ic_gear,
             modifier = Modifier
         )
     }

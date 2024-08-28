@@ -49,7 +49,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun SettingSheet(
     showSettingSheet: Boolean,
-    icon: Int = R.drawable.icon_gear,
+    icon: Int = R.drawable.ic_gear,
     onDismissRequest: () -> Unit,
     onSignOut: () -> Unit,
     firebaseAuthViewModel: FirebaseAuthViewModel,

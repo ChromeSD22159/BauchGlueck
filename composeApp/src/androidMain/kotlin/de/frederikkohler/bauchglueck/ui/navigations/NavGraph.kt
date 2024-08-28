@@ -15,7 +15,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -25,6 +29,8 @@ import de.frederikkohler.bauchglueck.ui.screens.authScreens.meals.CalendarScreen
 import de.frederikkohler.bauchglueck.ui.screens.authScreens.home.HomeScreen
 import de.frederikkohler.bauchglueck.ui.screens.authScreens.timer.AddEditTimerSheet
 import de.frederikkohler.bauchglueck.ui.screens.authScreens.timer.TimerScreen
+import de.frederikkohler.bauchglueck.ui.screens.authScreens.weight.AddWeightSheet
+import de.frederikkohler.bauchglueck.ui.screens.authScreens.weight.WeightScreen
 import viewModel.TimerViewModel
 import de.frederikkohler.bauchglueck.viewModel.FirebaseAuthViewModel
 import de.frederikkohler.bauchglueck.ui.screens.publicScreens.LoginView
@@ -108,11 +114,38 @@ fun NavGraph(
                 )
             }
             composable(Destination.Weight.route) {
-                BackScaffold(
-                    title = Destination.Weight.title,
-                    navController = navController
+                WeightScreen(
+                    navController = navController,
+                    backNavigationDirection = Destination.Home
                 )
             }
+
+            composable(Destination.AddWeight.route) {
+                //var lastWeight by remember { mutableDoubleStateOf(0.0) }
+
+                LaunchedEffect(Unit) {
+                    weightViewModel.getLastWeight()
+                }
+
+                val lastWeight by weightViewModel.lastWeight.collectAsState()
+
+                AddWeightSheet(
+                    navController = navController,
+                    lastWeight = lastWeight?.value ?: 0.0,
+                    onDismiss = {
+                        navController.navigate(Destination.Weight.route)
+                    },
+                    onSaved = {
+                        scope.launch {
+                            logging().info { "onSaved: $it" }
+                            weightViewModel.addWeight(it.value)
+                            navController.navigate(Destination.Weight.route)
+                        }
+                    }
+                )
+
+            }
+
             composable(Destination.WaterIntake.route) {
                 BackScaffold(
                     title = Destination.WaterIntake.title,
@@ -155,6 +188,8 @@ fun NavGraph(
                 )
             }
 
+
+
         }
     }
 }
@@ -167,6 +202,7 @@ sealed class Destination(val route: String, val title: String) {
     data object Calendar : Destination("Calendar", "Kalender")
     data object Timer : Destination("Timer", "Timer")
     data object Weight : Destination("Weight", "Gewicht")
+    data object AddWeight : Destination("AddWeight", "Gewicht hinzufügen")
     data object WaterIntake : Destination("WaterIntake", "Wasseraufnahme")
     data object AddTimer : Destination("AddTimer", "Timer hinzufügen")
     data object EditTimer : Destination("EditTimer", "Timer Bearbeiten")

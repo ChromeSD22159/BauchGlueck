@@ -33,6 +33,7 @@ import viewModel.TimerViewModel
 fun TimerScreen(
     navController: NavController,
     viewModel: TimerViewModel,
+    backNavigationDirection: Destination = Destination.Home,
     onEdit: (CountdownTimer) -> Unit = {},
 ) {
 
@@ -47,10 +48,11 @@ fun TimerScreen(
     BackScaffold(
         title = Destination.Timer.title,
         navController = navController,
+        backNavigationDirection = backNavigationDirection,
         topNavigationButtons = {
             Row {
                 RoundImageButton(
-                    icon = R.drawable.icon_sync,
+                    icon = R.drawable.ic_add_timer,
                     modifier = Modifier.padding(end = 16.dp),
                     action = {
                         navController.navigate(Destination.AddTimer.route)
@@ -60,7 +62,7 @@ fun TimerScreen(
 
             Row {
                 RoundImageButton(
-                    icon = R.drawable.icon_gear,
+                    icon = R.drawable.ic_gear,
                     modifier = Modifier.padding(end = 16.dp)
                 )
             }

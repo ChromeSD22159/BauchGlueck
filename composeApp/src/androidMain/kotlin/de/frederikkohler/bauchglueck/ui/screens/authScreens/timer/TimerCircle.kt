@@ -206,8 +206,8 @@ fun TimerCircle(
 
             Icon(imageVector = ImageVector.vectorResource(
                 id = when (countdownTimer.timerState) {
-                    TimerState.running.name -> R.drawable.icon_play_pause
-                    TimerState.paused.name -> R.drawable.icon_play
+                    TimerState.running.name -> R.drawable.icon_play
+                    TimerState.paused.name -> R.drawable.icon_pause
                     TimerState.completed.name -> R.drawable.icon_sync
                     else -> R.drawable.icon_play
                 }
