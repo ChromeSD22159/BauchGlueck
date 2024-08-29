@@ -70,7 +70,7 @@ fun TimerScreen(
                     },
                     onTimerUpdate = {
                         Log.i("TimerCard Update", "StartTimer: ${it.name} - ${it.timerState}\n")
-                        // viewModel.updateTimer(it)
+                        // viewModel.updateTimer(it).
                         // TODO("Save Timer updaten only local")
                     }
                 )
