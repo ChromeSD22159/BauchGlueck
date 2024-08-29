@@ -4,6 +4,7 @@ import data.local.entitiy.Weight
 import data.network.createHttpClient
 import data.remote.model.SyncResponse
 import io.ktor.client.HttpClient
+import io.ktor.client.call.NoTransformationFoundException
 import io.ktor.client.call.body
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
@@ -49,6 +50,8 @@ class StrapiWeightApiClient(
         } catch (e: Exception) {
             return Result.Error(NetworkError.REQUEST_TIMEOUT)
         }
+
+        logging().info { "${serverHost}${endpoint.urlPath} -> ${response.status}" }
 
         return when (response.status.value) {
             in 200..299 -> {
@@ -96,6 +99,8 @@ class StrapiWeightApiClient(
                 }
                 else -> throw UnsupportedOperationException("Unsupported HTTP method")
             }
+        } catch (e: NoTransformationFoundException) {
+            return Result.Error(NetworkError.NOTING_TO_SYNC)
         } catch (e: UnresolvedAddressException) {
             return Result.Error(NetworkError.NO_INTERNET)
         } catch (e: SerializationException) {
@@ -103,6 +108,8 @@ class StrapiWeightApiClient(
         } catch (e: Exception) {
             return Result.Error(NetworkError.REQUEST_TIMEOUT)
         }
+
+        logging().info { "${serverHost}${endpoint.urlPath} -> ${response.status}" }
 
         return handleResult<T>(response)
     }
@@ -117,7 +124,7 @@ class StrapiWeightApiClient(
                 }
             }
             401 -> Result.Error(NetworkError.UNAUTHORIZED)
-            701 -> Result.Error(NetworkError.NOTING_TO_SYNC)
+            430 -> Result.Error(NetworkError.NOTING_TO_SYNC)
             409 -> Result.Error(NetworkError.CONFLICT)
             408 -> Result.Error(NetworkError.REQUEST_TIMEOUT)
             413 -> Result.Error(NetworkError.PAYLOAD_TOO_LARGE)

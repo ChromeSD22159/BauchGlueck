@@ -22,14 +22,25 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import data.Repository
+import data.local.getDatabase
+import data.network.ServerHost
 import data.network.isServerReachable
+import data.repositories.CountdownTimerRepository
+import data.repositories.WaterIntakeRepository
+import data.repositories.WeightRepository
+import data.repositories.MedicationRepository
 import de.frederikkohler.bauchglueck.ui.navigations.NavGraph
 import de.frederikkohler.bauchglueck.ui.theme.AppTheme
 import de.frederikkohler.bauchglueck.viewModel.FirebaseAuthViewModel
+import dev.gitlive.firebase.Firebase
+import dev.gitlive.firebase.auth.auth
 import di.KoinInject
 import kotlinx.coroutines.launch
+import org.koin.android.ext.koin.androidContext
 import org.koin.compose.currentKoinScope
 import org.lighthousegames.logging.logging
+import util.KeyValueStorage
 
 class MainActivity : ComponentActivity() {
 
@@ -61,8 +72,8 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    override fun onStart() {
-        super.onStart()
+    override fun onResume() {
+        super.onResume()
         checkServerReachability()
     }
 
@@ -102,6 +113,24 @@ class MainActivity : ComponentActivity() {
 
             isReachable.onSuccess {
                 logging().info { it }
+
+                val db = getDatabase(applicationContext)
+                val serverHost = ServerHost.LOCAL_FREDERIK.url
+                val user = Firebase.auth.currentUser
+                val deviceId = KeyValueStorage(applicationContext).getOrCreateDeviceId()
+
+                user?.let {
+                    val repository = Repository(
+                        CountdownTimerRepository(db, ServerHost.LOCAL_FREDERIK.url, it, deviceId),
+                        WeightRepository(db, ServerHost.LOCAL_FREDERIK.url, it, deviceId),
+                        WaterIntakeRepository(db, ServerHost.LOCAL_FREDERIK.url, it, deviceId),
+                        MedicationRepository(db, ServerHost.LOCAL_FREDERIK.url, it, deviceId)
+                    )
+
+                    repository.countdownTimerRepository.syncDataWithRemote()
+                    repository.weightRepository.syncDataWithRemote()
+                }
+
             }
 
             isReachable.onFailure {

@@ -33,6 +33,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavHostController
 import data.FirebaseConnection
+import data.local.entitiy.CountdownTimer
 import data.model.DailyAverage
 import de.frederikkohler.bauchglueck.ui.navigations.Destination
 import de.frederikkohler.bauchglueck.ui.screens.authScreens.SyncIconRotate
@@ -45,7 +46,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    timerViewModel: TimerViewModel,
+    timers: List<CountdownTimer>,
     dailyAverage: List<DailyAverage>,
     firebaseAuthViewModel: FirebaseAuthViewModel = viewModel(),
     navController: NavHostController,
@@ -105,7 +106,7 @@ fun HomeScreen(
                 }
             }
 
-            HomeTimerCard(timerViewModel) {
+            HomeTimerCard(timers) {
                 scope.launch {
                     navController.navigate(Destination.Timer.route)
                 }

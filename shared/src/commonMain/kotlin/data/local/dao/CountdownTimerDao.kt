@@ -12,7 +12,7 @@ import data.local.entitiy.CountdownTimer
 import kotlinx.datetime.Clock
 
 @Dao
-interface CountdownTimerDao {
+interface CountdownTimerDao{
 
     @Query("SELECT * FROM CountdownTimer WHERE userId = :userId AND isDeleted = false")
     suspend fun getAll(userId: String): List<CountdownTimer>
@@ -23,7 +23,6 @@ interface CountdownTimerDao {
     @Query("SELECT * FROM CountdownTimer WHERE updatedAtOnDevice > :updatedAtOnDevice AND userId = :userId")
     suspend fun getAllAfterTimeStamp(updatedAtOnDevice: Long, userId: String): List<CountdownTimer>
 
-    // POST
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(countdownTimer: CountdownTimer): Long
 
@@ -41,7 +40,6 @@ interface CountdownTimerDao {
     @Update
     suspend fun updateMany(items: List<CountdownTimer>)
 
-    // Delete
     @Query("UPDATE CountdownTimer SET isDeleted = true AND updatedAtOnDevice = :updatedAtOnDevice WHERE timerId = :timerId")
     suspend fun softDeleteById(timerId: String, updatedAtOnDevice: Long = Clock.System.now().toEpochMilliseconds())
 

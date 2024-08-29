@@ -39,9 +39,9 @@ class WeightViewModel(
 
     fun getCardWeights() {
         viewModelScope.launch {
-            _uiState.value.dailyAverage = repository.weightRepository.getAverageWeightLastDays()
-            _uiState.value.weeklyAverage = repository.weightRepository.getAverageWeightLastWeeks()
-            _uiState.value.monthlyAverage = repository.weightRepository.getAverageWeightLastMonths()
+            _uiState.value.dailyAverage.value = repository.weightRepository.getAverageWeightLastDays()
+            _uiState.value.weeklyAverage.value = repository.weightRepository.getAverageWeightLastWeeks()
+            _uiState.value.monthlyAverage.value = repository.weightRepository.getAverageWeightLastMonths()
         }
     }
 
@@ -59,17 +59,16 @@ class WeightViewModel(
 
         viewModelScope.launch {
             repository.weightRepository.insertOrUpdate(newWeight)
-            _uiState.value = _uiState.value.copy(weights = repository.weightRepository.getAll())
+            _uiState.value.weights.value = repository.weightRepository.getAll()
             syncDataWithRemote()
         }
     }
 
     fun getAllCountdownWeights() {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true)
-            val weights = repository.weightRepository.getAll()
-            _uiState.value = _uiState.value.copy(weights = weights)
-            _uiState.value = _uiState.value.copy(isLoading = false)
+            _uiState.value.isLoading.value = true
+            _uiState.value.weights.value = repository.weightRepository.getAll()
+            _uiState.value.isLoading.value = false
         }
     }
 
@@ -77,7 +76,7 @@ class WeightViewModel(
         viewModelScope.launch {
             logging().info { "updateTimer: $weight" }
             repository.weightRepository.insertOrUpdate(weight)
-            _uiState.value = _uiState.value.copy(weights = repository.weightRepository.getAll())
+            _uiState.value.weights.value = repository.weightRepository.getAll()
             syncDataWithRemote()
         }
     }
@@ -86,7 +85,7 @@ class WeightViewModel(
         viewModelScope.launch {
             val weightCopy = weight.copy(isDeleted = true, updatedAtOnDevice = Clock.System.now().toEpochMilliseconds())
             repository.weightRepository.softDeleteMany(listOf(weightCopy))
-            _uiState.value = _uiState.value.copy(weights = repository.weightRepository.getAll())
+            _uiState.value.weights.value = repository.weightRepository.getAll()
             syncDataWithRemote()
         }
     }
@@ -107,10 +106,10 @@ class WeightViewModel(
 }
 
 data class WeightUiState(
-    var isLoading: Boolean = false,
-    var weights: List<Weight> = emptyList(),
-    var dailyAverage: List<DailyAverage> = emptyList(),
-    var weeklyAverage: List<WeeklyAverage> = emptyList(),
-    var monthlyAverage: List<MonthlyAverage> = emptyList(),
-    var error: String? = null
+    var isLoading: MutableStateFlow<Boolean> = MutableStateFlow(false),
+    var weights: MutableStateFlow<List<Weight>> = MutableStateFlow(emptyList()),
+    var dailyAverage: MutableStateFlow<List<DailyAverage>> = MutableStateFlow(emptyList()),
+    var weeklyAverage: MutableStateFlow<List<WeeklyAverage>> = MutableStateFlow(emptyList()),
+    var monthlyAverage: MutableStateFlow<List<MonthlyAverage>> = MutableStateFlow(emptyList()),
+    var error: MutableStateFlow<String?> = MutableStateFlow(null),
 )

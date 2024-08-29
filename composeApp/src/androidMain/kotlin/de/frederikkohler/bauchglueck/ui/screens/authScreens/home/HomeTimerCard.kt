@@ -31,6 +31,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import data.local.entitiy.CountdownTimer
 import de.frederikkohler.bauchglueck.R
 import de.frederikkohler.bauchglueck.ui.components.CardTitle
 import de.frederikkohler.bauchglueck.ui.components.clickableWithRipple
@@ -40,7 +41,7 @@ import viewModel.TimerViewModel
 
 @Composable
 fun HomeTimerCard(
-    viewModel: TimerViewModel,
+    timers: List<CountdownTimer>,
     title: String = "Timer",
     onNavigate: () -> Unit
 ) {
@@ -70,7 +71,7 @@ fun HomeTimerCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Spacer(Modifier.width(2.dp))
-            viewModel.uiState.value.timer.forEach { countDownTimer ->
+            timers.forEach { countDownTimer ->
                 Column(
                     modifier = Modifier
                         .height(80.dp)

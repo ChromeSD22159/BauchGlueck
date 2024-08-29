@@ -54,12 +54,10 @@ fun NavGraph(
     logging().info { "NavGraph" }
 
     val user = Firebase.auth.currentUser
-    val timerViewModel = koinViewModel<TimerViewModel>()
-    val weightViewModel = koinViewModel<WeightViewModel>()
     val scope = rememberCoroutineScope()
+    val timerViewModel = koinViewModel<TimerViewModel>()
 
     KoinContext {
-
         LaunchedEffect(user) {
             delay(700)
 
@@ -68,11 +66,6 @@ fun NavGraph(
             } else {
                 navController.navigate(Destination.Login.route)
             }
-        }
-
-        LaunchedEffect(Unit) {
-            timerViewModel.syncDataWithRemote()
-            weightViewModel.syncDataWithRemote()
         }
 
         NavHost(navController = navController, startDestination = Destination.Launch.route) {
@@ -86,11 +79,13 @@ fun NavGraph(
                 RegisterView( { navController.navigate(it.route) } )
             }
             composable(Destination.Home.route) {
+                val weightViewModel = koinViewModel<WeightViewModel>()
                 weightViewModel.getCardWeights()
-                val uiState by weightViewModel.uiState.collectAsState()
+                val dailyAverage by weightViewModel.uiState.value.dailyAverage.collectAsState()
+                val timer by timerViewModel.uiState.value.timer.collectAsState()
                 HomeScreen(
-                    timerViewModel = timerViewModel,
-                    dailyAverage = uiState.dailyAverage,
+                    timers = timer,
+                    dailyAverage = dailyAverage,
                     firebaseAuthViewModel = viewModel,
                     navController = navController
                 )
@@ -100,19 +95,7 @@ fun NavGraph(
                     navController = navController
                 )
             }
-            composable(Destination.Timer.route) {
-                LaunchedEffect(Unit) {
-                    timerViewModel.getAllCountdownTimers()
-                }
-                TimerScreen(
-                    navController = navController,
-                    timerViewModel,
-                    onEdit = {
-                        timerViewModel.setSelectedTimer(it)
-                        navController.navigate(Destination.EditTimer.route)
-                    }
-                )
-            }
+
             composable(Destination.Weight.route) {
                 WeightScreen(
                     navController = navController,
@@ -121,7 +104,8 @@ fun NavGraph(
             }
 
             composable(Destination.AddWeight.route) {
-                //var lastWeight by remember { mutableDoubleStateOf(0.0) }
+                val weightViewModel = koinViewModel<WeightViewModel>()
+                weightViewModel.uiState.collectAsState()
 
                 LaunchedEffect(Unit) {
                     weightViewModel.getLastWeight()
@@ -152,6 +136,17 @@ fun NavGraph(
                     navController = navController
                 )
             }
+
+            composable(Destination.Timer.route) {
+                TimerScreen(
+                    navController = navController,
+                    timerViewModel,
+                    onEdit = {
+                        timerViewModel.setSelectedTimer(it)
+                        navController.navigate(Destination.EditTimer.route)
+                    }
+                )
+            }
             composable(
                 route = Destination.AddTimer.route,
                 enterTransition = { slideInWithFadeToTopAnimation() },
@@ -175,9 +170,10 @@ fun NavGraph(
                 enterTransition = { slideInWithFadeToTopAnimation() },
                 exitTransition = { slideOutWithFadeToTopAnimation() }
             ) {
+                val selectedTimer by timerViewModel.uiState.value.selectedTimer.collectAsState()
                 AddEditTimerSheet(
                     navController = navController,
-                    currentCountdownTimer = timerViewModel.uiState.value.selectedTimer,
+                    currentCountdownTimer = selectedTimer,
                     onSaved = {
                         scope.launch {
                             logging().info { "onEdit: $it" }
@@ -187,9 +183,6 @@ fun NavGraph(
                     }
                 )
             }
-
-
-
         }
     }
 }

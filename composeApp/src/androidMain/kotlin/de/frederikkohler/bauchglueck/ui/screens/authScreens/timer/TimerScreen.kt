@@ -7,15 +7,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import data.local.entitiy.CountdownTimer
@@ -24,8 +21,6 @@ import de.frederikkohler.bauchglueck.ui.components.BackScaffold
 import de.frederikkohler.bauchglueck.ui.components.RoundImageButton
 import de.frederikkohler.bauchglueck.ui.navigations.Destination
 import kotlinx.coroutines.flow.distinctUntilChanged
-import navigation.Screens
-import org.koin.androidx.compose.koinViewModel
 import viewModel.TimerViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -37,13 +32,7 @@ fun TimerScreen(
     onEdit: (CountdownTimer) -> Unit = {},
 ) {
 
-    LaunchedEffect(Unit) {
-        snapshotFlow { viewModel.uiState.value.timer.size }
-            .distinctUntilChanged() // Nur bei tatsächlichen Änderungen auslösen
-            .collect { size ->
-                Log.d("TimerScreen.timer.size", "size changed to: $size")
-            }
-    }
+    val timers by viewModel.uiState.value.timer.collectAsState()
 
     BackScaffold(
         title = Destination.Timer.title,
@@ -68,7 +57,7 @@ fun TimerScreen(
             }
         },
         view = {
-            viewModel.uiState.value.timer.forEach { timer ->
+            timers.forEach { timer ->
                 TimerCard(
                     timer = timer,
                     onEditSave = {

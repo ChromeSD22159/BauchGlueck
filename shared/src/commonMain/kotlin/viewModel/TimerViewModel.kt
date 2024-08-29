@@ -47,20 +47,16 @@ class TimerViewModel(
 
         viewModelScope.launch {
             repository.countdownTimerRepository.insertOrUpdate(newTimer)
-            _uiState.value = _uiState.value.copy(timer = repository.countdownTimerRepository.getAll())
+            _uiState.value.timer.value = repository.countdownTimerRepository.getAll()
             syncDataWithRemote()
         }
     }
 
     fun getAllCountdownTimers() {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true)
-            val timers = repository.countdownTimerRepository.getAll()
-            timers.forEach {
-                //logging().info { "getAllCountdownTimers: ${it.name} ${it.isDeleted}" }
-            }
-            _uiState.value = _uiState.value.copy(timer = timers)
-            _uiState.value = _uiState.value.copy(isLoading = false)
+            _uiState.value.isLoading.value = true
+            _uiState.value.timer.value = repository.countdownTimerRepository.getAll()
+            _uiState.value.isLoading.value = false
         }
     }
 
@@ -68,7 +64,7 @@ class TimerViewModel(
         viewModelScope.launch {
             logging().info { "updateTimer: $countdownTimer" }
             repository.countdownTimerRepository.insertOrUpdate(countdownTimer)
-            _uiState.value = _uiState.value.copy(timer = repository.countdownTimerRepository.getAll())
+            _uiState.value.timer.value = repository.countdownTimerRepository.getAll()
             syncDataWithRemote()
             clearSelectedTimer()
         }
@@ -78,17 +74,17 @@ class TimerViewModel(
         viewModelScope.launch {
             val timer = countdownTimer.copy(isDeleted = true, updatedAtOnDevice = Clock.System.now().toEpochMilliseconds())
             repository.countdownTimerRepository.softDeleteMany(listOf(timer))
-            _uiState.value = _uiState.value.copy(timer = repository.countdownTimerRepository.getAll())
+            _uiState.value.timer.value = repository.countdownTimerRepository.getAll()
             syncDataWithRemote()
         }
     }
 
     fun setSelectedTimer(countdownTimer: CountdownTimer) {
-        _uiState.value = _uiState.value.copy(selectedTimer = countdownTimer)
+        _uiState.value.selectedTimer.value = countdownTimer
     }
 
     private fun clearSelectedTimer() {
-        _uiState.value = _uiState.value.copy(selectedTimer = null)
+        _uiState.value.selectedTimer.value = null
     }
 
     fun syncDataWithRemote() {
@@ -99,9 +95,9 @@ class TimerViewModel(
 }
 
 data class TimerUiState(
-    var isLoading: Boolean = false,
-    var selectedTimer: CountdownTimer? = null,
-    var timer: List<CountdownTimer> = emptyList(),
-    var error: String? = null
+    var isLoading: MutableStateFlow<Boolean> = MutableStateFlow(false),
+    var selectedTimer: MutableStateFlow<CountdownTimer?> = MutableStateFlow(null),
+    var timer: MutableStateFlow<List<CountdownTimer>> =  MutableStateFlow(emptyList()),
+    var error: MutableStateFlow<String?> = MutableStateFlow(null)
 )
 
