@@ -8,10 +8,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -20,7 +18,6 @@ import de.frederikkohler.bauchglueck.R
 import de.frederikkohler.bauchglueck.ui.components.BackScaffold
 import de.frederikkohler.bauchglueck.ui.components.RoundImageButton
 import de.frederikkohler.bauchglueck.ui.navigations.Destination
-import kotlinx.coroutines.flow.distinctUntilChanged
 import viewModel.TimerViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -32,7 +29,7 @@ fun TimerScreen(
     onEdit: (CountdownTimer) -> Unit = {},
 ) {
 
-    val timers by viewModel.uiState.value.timer.collectAsState()
+    val timers by viewModel.uiState.value.timers.collectAsState()
 
     BackScaffold(
         title = Destination.Timer.title,

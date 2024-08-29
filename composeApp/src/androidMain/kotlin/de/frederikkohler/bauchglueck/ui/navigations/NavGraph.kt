@@ -11,15 +11,15 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableDoubleStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.ui.input.pointer.PointerIcon.Companion.Text
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -38,7 +38,6 @@ import de.frederikkohler.bauchglueck.ui.screens.publicScreens.RegisterView
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.compose.KoinContext
 import org.lighthousegames.logging.logging
@@ -82,7 +81,7 @@ fun NavGraph(
                 val weightViewModel = koinViewModel<WeightViewModel>()
                 weightViewModel.getCardWeights()
                 val dailyAverage by weightViewModel.uiState.value.dailyAverage.collectAsState()
-                val timer by timerViewModel.uiState.value.timer.collectAsState()
+                val timer by timerViewModel.uiState.value.timers.collectAsState()
                 HomeScreen(
                     timers = timer,
                     dailyAverage = dailyAverage,
@@ -155,10 +154,10 @@ fun NavGraph(
                 AddEditTimerSheet(
                     navController = navController,
                     currentCountdownTimer = null,
-                    onSaved = {
+                    onSaved = { timer ->
                         scope.launch {
-                            logging().info { "onSaved: $it" }
-                            timerViewModel.addTimer(it.name, it.duration)
+                            logging().info { "onSaved: $timer" }
+                            timerViewModel.addTimer(timer.name, timer.duration)
                             navController.navigate(Destination.Timer.route)
                         }
                     }
@@ -174,10 +173,10 @@ fun NavGraph(
                 AddEditTimerSheet(
                     navController = navController,
                     currentCountdownTimer = selectedTimer,
-                    onSaved = {
+                    onSaved = { timer ->
                         scope.launch {
-                            logging().info { "onEdit: $it" }
-                            timerViewModel.updateTimerAndSyncRemote(it)
+                            logging().info { "onEdit: $timer" }
+                            timerViewModel.updateTimerAndSyncRemote(timer)
                             navController.navigate(Destination.Timer.route)
                         }
                     }
@@ -218,6 +217,3 @@ fun slideOutWithFadeToTopAnimation(): ExitTransition {
         animationSpec = tween(250)
     ) + fadeOut(animationSpec = tween(250))
 }
-
-
-

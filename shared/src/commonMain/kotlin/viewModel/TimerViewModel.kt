@@ -47,7 +47,7 @@ class TimerViewModel(
 
         viewModelScope.launch {
             repository.countdownTimerRepository.insertOrUpdate(newTimer)
-            _uiState.value.timer.value = repository.countdownTimerRepository.getAll()
+            _uiState.value.timers.value = repository.countdownTimerRepository.getAll()
             syncDataWithRemote()
         }
     }
@@ -55,7 +55,7 @@ class TimerViewModel(
     fun getAllCountdownTimers() {
         viewModelScope.launch {
             _uiState.value.isLoading.value = true
-            _uiState.value.timer.value = repository.countdownTimerRepository.getAll()
+            _uiState.value.timers.value = repository.countdownTimerRepository.getAll()
             _uiState.value.isLoading.value = false
         }
     }
@@ -64,7 +64,7 @@ class TimerViewModel(
         viewModelScope.launch {
             logging().info { "updateTimer: $countdownTimer" }
             repository.countdownTimerRepository.insertOrUpdate(countdownTimer)
-            _uiState.value.timer.value = repository.countdownTimerRepository.getAll()
+            _uiState.value.timers.value = repository.countdownTimerRepository.getAll()
             syncDataWithRemote()
             clearSelectedTimer()
         }
@@ -74,7 +74,7 @@ class TimerViewModel(
         viewModelScope.launch {
             val timer = countdownTimer.copy(isDeleted = true, updatedAtOnDevice = Clock.System.now().toEpochMilliseconds())
             repository.countdownTimerRepository.softDeleteMany(listOf(timer))
-            _uiState.value.timer.value = repository.countdownTimerRepository.getAll()
+            _uiState.value.timers.value = repository.countdownTimerRepository.getAll()
             syncDataWithRemote()
         }
     }
@@ -97,7 +97,7 @@ class TimerViewModel(
 data class TimerUiState(
     var isLoading: MutableStateFlow<Boolean> = MutableStateFlow(false),
     var selectedTimer: MutableStateFlow<CountdownTimer?> = MutableStateFlow(null),
-    var timer: MutableStateFlow<List<CountdownTimer>> =  MutableStateFlow(emptyList()),
+    var timers: MutableStateFlow<List<CountdownTimer>> =  MutableStateFlow(emptyList()),
     var error: MutableStateFlow<String?> = MutableStateFlow(null)
 )
 
