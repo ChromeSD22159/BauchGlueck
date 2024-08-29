@@ -1,11 +1,8 @@
 package de.frederikkohler.bauchglueck.ui.screens.authScreens.timer
 
-import android.content.Context
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.size
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -25,9 +22,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -35,7 +30,6 @@ import com.google.common.primitives.Longs.max
 import data.local.entitiy.CountdownTimer
 import de.frederikkohler.bauchglueck.R
 import de.frederikkohler.bauchglueck.ui.components.clickableWithRipple
-import de.frederikkohler.bauchglueck.ui.theme.AppTheme
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
 import model.countdownTimer.TimerState
@@ -56,8 +50,6 @@ fun TimerCircle(
     remainingTime: (Long) -> Unit = {},
     onTimerUpdate: (CountdownTimer) -> Unit = {}
 ) {
-    val sharedPreferences = LocalContext.current.getSharedPreferences(countdownTimer.timerId, Context.MODE_PRIVATE)
-
     var size by remember {
         mutableStateOf(IntSize.Zero)
     }
@@ -81,18 +73,9 @@ fun TimerCircle(
         )
     }
 
-    // Save currentTime and isTimerRunning to SharedPreferences when they change
-    LaunchedEffect(currentTime) {
-        sharedPreferences.edit().putLong("current_time", currentTime).apply()
-        sharedPreferences.edit().putBoolean("is_timer_running", isTimerRunning).apply()
-    }
 
     // Retrieve currentTime and isTimerRunning from SharedPreferences on app launch
     LaunchedEffect(Unit) {
-        currentTime = sharedPreferences.getLong("current_time", countdownTimer.duration * 1000)
-        isTimerRunning = sharedPreferences.getBoolean("is_timer_running", false)
-
-        // Check if the timer should be completed
         if (isTimerRunning && currentTime <= 0L) {
             isTimerRunning = false
             currentTime = 0L
@@ -202,42 +185,16 @@ fun TimerCircle(
                     cap = StrokeCap.Round
                 )
             }
-            var context = LocalContext.current
 
             Icon(imageVector = ImageVector.vectorResource(
                 id = when (countdownTimer.timerState) {
-                    TimerState.running.name -> R.drawable.icon_play
-                    TimerState.paused.name -> R.drawable.icon_pause
+                    TimerState.running.name -> R.drawable.icon_pause
+                    TimerState.paused.name -> R.drawable.ic_play
                     TimerState.completed.name -> R.drawable.icon_sync
-                    else -> R.drawable.icon_play
+                    else -> R.drawable.ic_play
                 }
             ), contentDescription = "Play/Pause")
 
-        }
-    }
-}
-
-@Preview(
-    showBackground = true,
-    showSystemUi = true,
-    uiMode = android.content.res.Configuration.UI_MODE_NIGHT_NO
-)
-@Composable
-fun TimerCirclePreview() {
-    AppTheme {
-        Box(
-            contentAlignment = Alignment.Center
-        ) {
-            TimerCircle(
-                countdownTimer = CountdownTimer(
-                    name = "Test",
-                    duration = 100L
-                ),
-                handleColor = MaterialTheme.colors.primary, // Point
-                inactiveBarColor = Color.DarkGray, // Circle
-                activeBarColor = MaterialTheme.colors.primary, // Circle
-                modifier = Modifier.size(200.dp),
-            )
         }
     }
 }

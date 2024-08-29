@@ -15,7 +15,15 @@ actual class KeyValueStorage {
         settings[key] = value
     }
 
+    actual fun putLong(key: String, value: Long) {
+        settings[key] = value
+    }
+
     actual fun getString(key: String, defaultValue: String): String {
+        return settings[key, defaultValue]
+    }
+
+    actual fun getLong(key: String, defaultValue: Long): Long {
         return settings[key, defaultValue]
     }
 

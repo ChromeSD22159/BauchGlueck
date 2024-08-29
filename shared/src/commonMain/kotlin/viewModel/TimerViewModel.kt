@@ -19,8 +19,8 @@ class TimerViewModel(
     private val repository: Repository
 ): ViewModel() {
 
-    private val _uiState = MutableStateFlow(TimerUiState())
-    val uiState: StateFlow<TimerUiState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(TimerScreenUiState())
+    val uiState: StateFlow<TimerScreenUiState> = _uiState.asStateFlow()
 
     init {
         logging().info { "TimerViewModel init" }
@@ -70,6 +70,12 @@ class TimerViewModel(
         }
     }
 
+    fun updateTimerWhileRunning(countdownTimer: CountdownTimer) {
+        viewModelScope.launch {
+            repository.countdownTimerRepository.insertOrUpdate(countdownTimer)
+        }
+    }
+
     fun softDeleteTimer(countdownTimer: CountdownTimer) {
         viewModelScope.launch {
             val timer = countdownTimer.copy(isDeleted = true, updatedAtOnDevice = Clock.System.now().toEpochMilliseconds())
@@ -94,7 +100,7 @@ class TimerViewModel(
     }
 }
 
-data class TimerUiState(
+data class TimerScreenUiState(
     var isLoading: MutableStateFlow<Boolean> = MutableStateFlow(false),
     var selectedTimer: MutableStateFlow<CountdownTimer?> = MutableStateFlow(null),
     var timers: MutableStateFlow<List<CountdownTimer>> =  MutableStateFlow(emptyList()),
