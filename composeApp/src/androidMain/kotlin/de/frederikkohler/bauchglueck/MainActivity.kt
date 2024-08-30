@@ -14,11 +14,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
@@ -36,7 +42,14 @@ import de.frederikkohler.bauchglueck.viewModel.FirebaseAuthViewModel
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
 import di.KoinInject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.android.ext.koin.androidContext
 import org.koin.compose.currentKoinScope
 import org.lighthousegames.logging.logging
@@ -46,16 +59,26 @@ class MainActivity : ComponentActivity() {
 
     private val firebaseAuthViewModel: FirebaseAuthViewModel by viewModels()
 
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun onResume() {
+        super.onResume()
 
         KoinInject(applicationContext).init()
 
         setSystemBars()
 
+        app()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun app() {
         setContent {
             AppTheme {
+
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
@@ -65,16 +88,15 @@ class MainActivity : ComponentActivity() {
                     Box(
                         modifier = Modifier.fillMaxSize()
                     ) {
-                        NavGraph(navController, firebaseAuthViewModel)
+                        NavGraph(
+                            navController,
+                            firebaseAuthViewModel,
+                            applicationContext
+                        )
                     }
                 }
             }
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        checkServerReachability()
     }
 
     private fun setSystemBars() {
@@ -103,39 +125,6 @@ class MainActivity : ComponentActivity() {
                 // Undefined mode: Use default setting (optional)
                 controller.isAppearanceLightStatusBars = false // or true based on preference
                 controller.isAppearanceLightNavigationBars = false // or true based on preference
-            }
-        }
-    }
-
-    private fun checkServerReachability() {
-        lifecycleScope.launch {
-            val isReachable = isServerReachable()
-
-            isReachable.onSuccess {
-                logging().info { it }
-
-                val db = getDatabase(applicationContext)
-                val serverHost = ServerHost.LOCAL_FREDERIK.url
-                val user = Firebase.auth.currentUser
-                val deviceId = KeyValueStorage(applicationContext).getOrCreateDeviceId()
-
-                user?.let {
-                    val repository = Repository(
-                        CountdownTimerRepository(db, ServerHost.LOCAL_FREDERIK.url, it, deviceId),
-                        WeightRepository(db, ServerHost.LOCAL_FREDERIK.url, it, deviceId),
-                        WaterIntakeRepository(db, ServerHost.LOCAL_FREDERIK.url, it, deviceId),
-                        MedicationRepository(db, ServerHost.LOCAL_FREDERIK.url, it, deviceId)
-                    )
-
-                    repository.countdownTimerRepository.syncDataWithRemote()
-                    repository.weightRepository.syncDataWithRemote()
-                }
-
-            }
-
-            isReachable.onFailure {
-                logging().error { it.message }
-                Toast.makeText(applicationContext, it.message, Toast.LENGTH_SHORT).show()
             }
         }
     }

@@ -1,6 +1,8 @@
 package de.frederikkohler.bauchglueck.ui.navigations
 
+import android.content.Context
 import android.os.Build
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
@@ -11,15 +13,11 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.layout.Column
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.input.pointer.PointerIcon.Companion.Text
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -36,36 +34,43 @@ import de.frederikkohler.bauchglueck.viewModel.FirebaseAuthViewModel
 import de.frederikkohler.bauchglueck.ui.screens.publicScreens.LoginView
 import de.frederikkohler.bauchglueck.ui.screens.publicScreens.RegisterView
 import dev.gitlive.firebase.Firebase
+import dev.gitlive.firebase.auth.FirebaseUser
 import dev.gitlive.firebase.auth.auth
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.compose.KoinContext
 import org.lighthousegames.logging.logging
 import org.koin.androidx.compose.koinViewModel
+import viewModel.SyncWorkerViewModel
 import viewModel.WeightViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun NavGraph(
     navController: NavHostController,
-    viewModel: FirebaseAuthViewModel
+    viewModel: FirebaseAuthViewModel,
+    appContext: Context,
 ) {
     logging().info { "NavGraph" }
 
     val user = Firebase.auth.currentUser
     val scope = rememberCoroutineScope()
     val timerViewModel = koinViewModel<TimerViewModel>()
+    val syncWorker = koinViewModel<SyncWorkerViewModel>()
+
+    val minimumDelay by syncWorker.uiState.value.minimumDelay.collectAsState()
+    val isFinishedSyncing by syncWorker.uiState.value.isFinishedSyncing.collectAsState()
+    val hasError by syncWorker.uiState.value.hasError.collectAsState()
 
     KoinContext {
-        LaunchedEffect(user) {
-            delay(700)
 
-            if (user != null) {
-                navController.navigate(Destination.Home.route)
-            } else {
-                navController.navigate(Destination.Login.route)
-            }
-        }
+        LaunchScreenDataSyncController(
+            minimumDelay = minimumDelay,
+            isFinishedSyncing = isFinishedSyncing,
+            hasError = hasError,
+            user = user,
+            appContext = appContext,
+            navController = navController
+        )
 
         NavHost(navController = navController, startDestination = Destination.Launch.route) {
             composable(Destination.Launch.route) {
@@ -182,6 +187,30 @@ fun NavGraph(
                     }
                 )
             }
+        }
+    }
+}
+
+@Composable
+fun LaunchScreenDataSyncController(
+    minimumDelay: Boolean,
+    isFinishedSyncing: Boolean,
+    hasError: Boolean,
+    user: FirebaseUser?,
+    appContext: Context,
+    navController: NavHostController,
+) {
+    LaunchedEffect(minimumDelay, isFinishedSyncing, hasError, user) {
+        if (minimumDelay && isFinishedSyncing) {
+            if (user != null) {
+                navController.navigate(Destination.Home.route)
+            } else {
+                navController.navigate(Destination.Login.route)
+            }
+        }
+
+        if (minimumDelay && hasError) {
+            Toast.makeText(appContext, "Keine Serververbindung", Toast.LENGTH_SHORT).show()
         }
     }
 }
