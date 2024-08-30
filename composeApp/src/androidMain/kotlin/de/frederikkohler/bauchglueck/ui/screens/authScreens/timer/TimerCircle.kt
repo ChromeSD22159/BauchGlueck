@@ -33,6 +33,7 @@ import de.frederikkohler.bauchglueck.ui.components.clickableWithRipple
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
 import model.countdownTimer.TimerState
+import org.lighthousegames.logging.logging
 import util.toIsoDate
 import kotlin.math.PI
 import kotlin.math.cos
@@ -48,8 +49,9 @@ fun TimerCircle(
     initialValue: Float = 1f,
     strokeWidth: Dp = 5.dp,
     remainingTime: (Long) -> Unit = {},
-    onTimerUpdate: (CountdownTimer) -> Unit = {}
+    onTick: (CountdownTimer) -> Unit = {}
 ) {
+
     var size by remember {
         mutableStateOf(IntSize.Zero)
     }
@@ -73,16 +75,16 @@ fun TimerCircle(
         )
     }
 
-
     // Retrieve currentTime and isTimerRunning from SharedPreferences on app launch
     LaunchedEffect(Unit) {
+        // Check if the timer should be completed
         if (isTimerRunning && currentTime <= 0L) {
             isTimerRunning = false
             currentTime = 0L
             countdownTimer.timerState = TimerState.completed.name
             countdownTimer.startDate = null
             countdownTimer.endDate = null
-            onTimerUpdate(countdownTimer.copy(updatedAt = Clock.System.now().toEpochMilliseconds().toIsoDate()))
+            onTick(countdownTimer.copy(updatedAt = Clock.System.now().toEpochMilliseconds().toIsoDate()))
         }
     }
 
@@ -99,8 +101,6 @@ fun TimerCircle(
                 countdownTimer.endDate = null
             }
         }
-
-        onTimerUpdate(countdownTimer.copy(updatedAt = Clock.System.now().toEpochMilliseconds().toIsoDate()))
     }
 
     LaunchedEffect(key1 = currentTime, key2 = isTimerRunning) {
@@ -109,9 +109,6 @@ fun TimerCircle(
             currentTime -= 100L
             value = currentTime / (countdownTimer.duration.toFloat() * 1000f)
             remainingTime(currentTime / 1000L)
-
-            // update countdown timer in Database
-            onTimerUpdate(countdownTimer.copy(updatedAt = Clock.System.now().toEpochMilliseconds().toIsoDate()))
         } else if (currentTime <= 0L && isTimerRunning) {
             // Timer completed, update state and reset dates
             isTimerRunning = false
@@ -119,7 +116,7 @@ fun TimerCircle(
             countdownTimer.startDate = null
             countdownTimer.endDate = null
 
-            onTimerUpdate(countdownTimer.copy(updatedAt = Clock.System.now().toEpochMilliseconds().toIsoDate()))
+            onTick(countdownTimer)
         }
     }
 
@@ -140,14 +137,13 @@ fun TimerCircle(
                     if (currentTime <= 0L) {
                         currentTime = countdownTimer.duration * 1000
                         isTimerRunning = true
-
                         countdownTimer.timerState = TimerState.running.name
-                        onTimerUpdate(countdownTimer.copy(updatedAt = Clock.System.now().toEpochMilliseconds().toIsoDate()))
+                        onTick(countdownTimer.copy(updatedAt = Clock.System.now().toEpochMilliseconds().toIsoDate()))
                     } else {
                         isTimerRunning = !isTimerRunning
                         countdownTimer.timerState = TimerState.completed.name
 
-                        onTimerUpdate(countdownTimer.copy(
+                        onTick(countdownTimer.copy(
                             startDate = null,
                             endDate = null,
                             timerState = TimerState.completed.name,
@@ -188,8 +184,8 @@ fun TimerCircle(
 
             Icon(imageVector = ImageVector.vectorResource(
                 id = when (countdownTimer.timerState) {
-                    TimerState.running.name -> R.drawable.icon_pause
-                    TimerState.paused.name -> R.drawable.ic_play
+                    TimerState.running.name -> R.drawable.ic_stop
+                    TimerState.paused.name -> R.drawable.icon_pause
                     TimerState.completed.name -> R.drawable.icon_sync
                     else -> R.drawable.ic_play
                 }

@@ -25,10 +25,12 @@ import de.frederikkohler.bauchglueck.ui.components.BackScaffold
 import de.frederikkohler.bauchglueck.ui.screens.LaunchScreen
 import de.frederikkohler.bauchglueck.ui.screens.authScreens.meals.CalendarScreen
 import de.frederikkohler.bauchglueck.ui.screens.authScreens.home.HomeScreen
+import de.frederikkohler.bauchglueck.ui.screens.authScreens.medication.MedicationScreen
 import de.frederikkohler.bauchglueck.ui.screens.authScreens.timer.AddEditTimerSheet
 import de.frederikkohler.bauchglueck.ui.screens.authScreens.timer.TimerScreen
-import de.frederikkohler.bauchglueck.ui.screens.authScreens.weight.AddWeightSheet
-import de.frederikkohler.bauchglueck.ui.screens.authScreens.weight.WeightScreen
+import de.frederikkohler.bauchglueck.ui.screens.authScreens.weights.addWeight.AddWeightSheet
+import de.frederikkohler.bauchglueck.ui.screens.authScreens.weights.showAllWeights.ShowAllWeights
+import de.frederikkohler.bauchglueck.ui.screens.authScreens.weights.WeightScreen
 import viewModel.TimerViewModel
 import de.frederikkohler.bauchglueck.viewModel.FirebaseAuthViewModel
 import de.frederikkohler.bauchglueck.ui.screens.publicScreens.LoginView
@@ -36,6 +38,7 @@ import de.frederikkohler.bauchglueck.ui.screens.publicScreens.RegisterView
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.FirebaseUser
 import dev.gitlive.firebase.auth.auth
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.compose.KoinContext
 import org.lighthousegames.logging.logging
@@ -55,6 +58,8 @@ fun NavGraph(
     val user = Firebase.auth.currentUser
     val scope = rememberCoroutineScope()
     val timerViewModel = koinViewModel<TimerViewModel>()
+    val weightViewModel = koinViewModel<WeightViewModel>()
+    val medicationViewModel = koinViewModel<TimerViewModel>()
     val syncWorker = koinViewModel<SyncWorkerViewModel>()
 
     val minimumDelay by syncWorker.uiState.value.minimumDelay.collectAsState()
@@ -72,6 +77,10 @@ fun NavGraph(
             navController = navController
         )
 
+        LaunchedEffect(Unit) {
+            weightViewModel.getAllItems()
+        }
+
         NavHost(navController = navController, startDestination = Destination.Launch.route) {
             composable(Destination.Launch.route) {
                 LaunchScreen()
@@ -83,13 +92,9 @@ fun NavGraph(
                 RegisterView( { navController.navigate(it.route) } )
             }
             composable(Destination.Home.route) {
-                val weightViewModel = koinViewModel<WeightViewModel>()
-                weightViewModel.getCardWeights()
-                val dailyAverage by weightViewModel.uiState.value.dailyAverage.collectAsState()
-                val timer by timerViewModel.uiState.value.timers.collectAsState()
                 HomeScreen(
-                    timers = timer,
-                    dailyAverage = dailyAverage,
+                    timerViewModel = timerViewModel,
+                    weightViewModel = weightViewModel,
                     firebaseAuthViewModel = viewModel,
                     navController = navController
                 )
@@ -100,15 +105,19 @@ fun NavGraph(
                 )
             }
 
+            // WEIGHT
             composable(Destination.Weight.route) {
                 WeightScreen(
                     navController = navController,
-                    backNavigationDirection = Destination.Home
+                    backNavigationDirection = Destination.Home,
+                    viewModel = weightViewModel,
                 )
             }
-
-            composable(Destination.AddWeight.route) {
-                val weightViewModel = koinViewModel<WeightViewModel>()
+            composable(
+                route = Destination.AddWeight.route,
+                enterTransition = { slideInWithFadeToTopAnimation() },
+                exitTransition = { slideOutWithFadeToTopAnimation() }
+            ) {
                 weightViewModel.uiState.collectAsState()
 
                 LaunchedEffect(Unit) {
@@ -119,21 +128,28 @@ fun NavGraph(
 
                 AddWeightSheet(
                     navController = navController,
-                    lastWeight = lastWeight?.value ?: 0.0,
+                    lastWeight = lastWeight,
                     onDismiss = {
                         navController.navigate(Destination.Weight.route)
                     },
                     onSaved = {
                         scope.launch {
-                            logging().info { "onSaved: $it" }
-                            weightViewModel.addWeight(it.value)
+                            weightViewModel.addItem(it)
                             navController.navigate(Destination.Weight.route)
                         }
                     }
                 )
-
+            }
+            composable(Destination.ShowAllWeights.route) {
+                ShowAllWeights(
+                    weightViewModel = weightViewModel,
+                    navController = navController
+                )
             }
 
+
+
+            // WATERINTAKE
             composable(Destination.WaterIntake.route) {
                 BackScaffold(
                     title = Destination.WaterIntake.title,
@@ -141,14 +157,24 @@ fun NavGraph(
                 )
             }
 
+
+
+
+            // Medication
+            composable(Destination.Medication.route) {
+                MedicationScreen(
+                    navController = navController
+                )
+            }
+
+
+
+
+            // TIMER
             composable(Destination.Timer.route) {
                 TimerScreen(
                     navController = navController,
-                    timerViewModel,
-                    onEdit = {
-                        timerViewModel.setSelectedTimer(it)
-                        navController.navigate(Destination.EditTimer.route)
-                    }
+                    viewModel = timerViewModel,
                 )
             }
             composable(
@@ -158,32 +184,24 @@ fun NavGraph(
             ) {
                 AddEditTimerSheet(
                     navController = navController,
+                    viewModel = timerViewModel,
                     currentCountdownTimer = null,
-                    onSaved = { timer ->
-                        scope.launch {
-                            logging().info { "onSaved: $timer" }
-                            timerViewModel.addTimer(timer.name, timer.duration)
-                            navController.navigate(Destination.Timer.route)
-                        }
+                    onDismiss = {
+                        navController.navigate(Destination.Timer.route)
                     }
                 )
             }
-
             composable(
                 route = Destination.EditTimer.route,
                 enterTransition = { slideInWithFadeToTopAnimation() },
                 exitTransition = { slideOutWithFadeToTopAnimation() }
             ) {
-                val selectedTimer by timerViewModel.uiState.value.selectedTimer.collectAsState()
                 AddEditTimerSheet(
                     navController = navController,
-                    currentCountdownTimer = selectedTimer,
-                    onSaved = { timer ->
-                        scope.launch {
-                            logging().info { "onEdit: $timer" }
-                            timerViewModel.updateTimerAndSyncRemote(timer)
-                            navController.navigate(Destination.Timer.route)
-                        }
+                    viewModel = timerViewModel,
+                    currentCountdownTimer = timerViewModel.selectedTimer.value,
+                    onDismiss = {
+                        navController.navigate(Destination.Timer.route)
                     }
                 )
             }
@@ -213,20 +231,6 @@ fun LaunchScreenDataSyncController(
             Toast.makeText(appContext, "Keine Serververbindung", Toast.LENGTH_SHORT).show()
         }
     }
-}
-
-sealed class Destination(val route: String, val title: String) {
-    data object Launch : Destination("Launch", "Launch")
-    data object Login : Destination("Login", "Login")
-    data object SignUp : Destination("Register", "Register")
-    data object Home : Destination("Home", "Home")
-    data object Calendar : Destination("Calendar", "Kalender")
-    data object Timer : Destination("Timer", "Timer")
-    data object Weight : Destination("Weight", "Gewicht")
-    data object AddWeight : Destination("AddWeight", "Gewicht hinzufügen")
-    data object WaterIntake : Destination("WaterIntake", "Wasseraufnahme")
-    data object AddTimer : Destination("AddTimer", "Timer hinzufügen")
-    data object EditTimer : Destination("EditTimer", "Timer Bearbeiten")
 }
 
 fun slideInWithFadeToTopAnimation(): EnterTransition {

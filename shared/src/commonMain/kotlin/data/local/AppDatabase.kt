@@ -9,6 +9,8 @@ import data.local.dao.WaterIntakeDao
 import data.local.dao.WeightDao
 import data.local.entitiy.CountdownTimer
 import data.local.entitiy.Medication
+import data.local.entitiy.IntakeTimes
+import data.local.entitiy.MedicationWithIntakeTimes
 import data.local.entitiy.SyncHistory
 import data.local.entitiy.WaterIntake
 import data.local.entitiy.Weight
@@ -19,11 +21,12 @@ import data.local.entitiy.Weight
         SyncHistory::class,
         Weight::class,
         WaterIntake::class,
-        Medication::class
+        Medication::class,
+        IntakeTimes::class,
         //MealPlan::class,
         //Recipe::class
    ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class LocalDatabase: RoomDatabase(), DB {

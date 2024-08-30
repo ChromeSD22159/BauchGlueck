@@ -19,33 +19,40 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import data.local.entitiy.CountdownTimer
 import de.frederikkohler.bauchglueck.ui.components.ItemOverLayScaffold
 import de.frederikkohler.bauchglueck.ui.navigations.Destination
-import de.frederikkohler.bauchglueck.ui.theme.AppTheme
+import dev.gitlive.firebase.Firebase
+import dev.gitlive.firebase.auth.auth
+import util.generateDeviceId
+import viewModel.TimerViewModel
 
 @Composable
 @RequiresApi(Build.VERSION_CODES.O)
 fun AddEditTimerSheet(
     navController: NavController,
+    viewModel: TimerViewModel,
     currentCountdownTimer: CountdownTimer? = null,
     onDismiss: () -> Unit = {},
-    onSaved: (CountdownTimer) -> Unit = {}
 ) {
-    val countdownTimer: CountdownTimer = currentCountdownTimer?.copy() ?: CountdownTimer()
+    val countdownTimer: CountdownTimer = currentCountdownTimer?.copy(duration = currentCountdownTimer.duration / 60) ?:  CountdownTimer(
+        timerId = generateDeviceId(),
+        userId = Firebase.auth.currentUser!!.uid,
+    )
     val focusManager = LocalFocusManager.current
     val isNameFocused = remember { mutableStateOf(false) }
     val isDurationFocused = remember { mutableStateOf(false) }
@@ -61,11 +68,20 @@ fun AddEditTimerSheet(
         unfocusedIndicatorColor = Color.Transparent,
         focusedIndicatorColor = MaterialTheme.colorScheme.primary,
     )
+    var isClicked by remember { mutableStateOf(false) }
+
+    LaunchedEffect(isClicked) {
+        if (isClicked) {
+            viewModel.updateItemAndSyncRemote(countdownTimer.copy(name = text.value, duration = duration.longValue * 60))
+        }
+    }
 
     ItemOverLayScaffold(
         title = "Neuen Timer hinzufügen",
         topNavigationButtons = {
             IconButton(onClick = {
+                focusManager.clearFocus()
+
                 navController.navigate(Destination.Timer.route)
                 onDismiss()
             }) {
@@ -147,7 +163,7 @@ fun AddEditTimerSheet(
                     isDurationFocused.value = false
 
                     focusManager.clearFocus()
-                    navController.navigate(Destination.Timer.route)
+
                     onDismiss()
                 }
             ) {
@@ -156,25 +172,18 @@ fun AddEditTimerSheet(
 
             Button(
                 onClick = {
-                    focusManager.clearFocus()
-                    onSaved(countdownTimer.copy(name = text.value, duration = duration.longValue))
+                    if (!isClicked) {
+                        focusManager.clearFocus()
 
-                    focusManager.clearFocus()
-                    navController.navigate(Destination.Timer.route)
+                        isClicked = true
+
+                        onDismiss()
+                    }
                 }
             ) {
                     Text("Speichern")
             }
 
         }
-    }
-}
-
-@RequiresApi(Build.VERSION_CODES.O)
-@Preview(showBackground = true)
-@Composable
-fun AddTimerPreview() {
-    AppTheme {
-        AddEditTimerSheet(navController = NavController(LocalContext.current))
     }
 }

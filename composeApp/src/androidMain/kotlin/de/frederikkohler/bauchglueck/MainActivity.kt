@@ -4,7 +4,6 @@ import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -14,58 +13,26 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import data.Repository
-import data.local.getDatabase
-import data.network.ServerHost
-import data.network.isServerReachable
-import data.repositories.CountdownTimerRepository
-import data.repositories.WaterIntakeRepository
-import data.repositories.WeightRepository
-import data.repositories.MedicationRepository
 import de.frederikkohler.bauchglueck.ui.navigations.NavGraph
 import de.frederikkohler.bauchglueck.ui.theme.AppTheme
 import de.frederikkohler.bauchglueck.viewModel.FirebaseAuthViewModel
-import dev.gitlive.firebase.Firebase
-import dev.gitlive.firebase.auth.auth
 import di.KoinInject
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import org.koin.android.ext.koin.androidContext
 import org.koin.compose.currentKoinScope
-import org.lighthousegames.logging.logging
-import util.KeyValueStorage
 
 class MainActivity : ComponentActivity() {
 
     private val firebaseAuthViewModel: FirebaseAuthViewModel by viewModels()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
-
     @RequiresApi(Build.VERSION_CODES.O)
-    override fun onResume() {
-        super.onResume()
+    override fun onStart( ) {
+        super.onStart( )
 
         KoinInject(applicationContext).init()
 

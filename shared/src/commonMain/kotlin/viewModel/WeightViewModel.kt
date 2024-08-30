@@ -5,31 +5,30 @@ import data.local.entitiy.Weight
 import data.model.DailyAverage
 import data.model.MonthlyAverage
 import data.model.WeeklyAverage
-import dev.gitlive.firebase.Firebase
-import dev.gitlive.firebase.auth.auth
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import org.lighthousegames.logging.logging
-import util.generateDeviceId
-import util.toIsoDate
 
 class WeightViewModel(
     private val repository: Repository
-): ViewModel() {
+): ViewModel(), BaseViewModel<WeightUiState, Weight> {
+    override val scope: CoroutineScope = viewModelScope
 
     private val _uiState = MutableStateFlow(WeightUiState())
-    val uiState: StateFlow<WeightUiState> = _uiState.asStateFlow()
+    override val uiState: StateFlow<WeightUiState> = _uiState.asStateFlow()
+
 
     private val _lastWeight = MutableStateFlow<Weight?>(null)
     val lastWeight: StateFlow<Weight?> = _lastWeight.asStateFlow()
 
     init {
         logging().info { "WeightViewModel init" }
-        getAllCountdownWeights()
+        getAllItems()
     }
 
     override fun onCleared() {
@@ -37,60 +36,45 @@ class WeightViewModel(
         logging().info { "TimerViewModel onCleared" }
     }
 
-    fun getCardWeights() {
+    override fun addItem(item: Weight) {
         viewModelScope.launch {
-            _uiState.value.dailyAverage.value = repository.weightRepository.getAverageWeightLastDays()
-            _uiState.value.weeklyAverage.value = repository.weightRepository.getAverageWeightLastWeeks()
-            _uiState.value.monthlyAverage.value = repository.weightRepository.getAverageWeightLastMonths()
-        }
-    }
-
-    fun addWeight(value: Double) {
-
-        val newWeight = Weight(
-            weightId = generateDeviceId(),
-            userId = Firebase.auth.currentUser!!.uid,
-            value = value,
-            isDeleted = false,
-            weighed = Clock.System.now().toEpochMilliseconds().toIsoDate(),
-            createdAt = Clock.System.now().toEpochMilliseconds().toIsoDate(),
-            updatedAt = Clock.System.now().toEpochMilliseconds().toIsoDate()
-        )
-
-        viewModelScope.launch {
-            repository.weightRepository.insertOrUpdate(newWeight)
-            _uiState.value.weights.value = repository.weightRepository.getAll()
+            repository.weightRepository.insertOrUpdate(item)
+            _uiState.value.items.value = repository.weightRepository.getAll()
             syncDataWithRemote()
         }
     }
 
-    fun getAllCountdownWeights() {
+    override fun getAllItems() {
         viewModelScope.launch {
             _uiState.value.isLoading.value = true
-            _uiState.value.weights.value = repository.weightRepository.getAll()
+            _uiState.value.items.value = repository.weightRepository.getAll()
+
+            logging().info { "getAllWeights: ${repository.weightRepository.getAll()}" }
+
+            _uiState.value.dailyAverage.value = repository.weightRepository.getAverageWeightLastDays()
             _uiState.value.isLoading.value = false
         }
     }
 
-    fun updateWeightAndSyncRemote(weight: Weight) {
+    override fun softDelete(item: Weight) {
         viewModelScope.launch {
-            logging().info { "updateTimer: $weight" }
-            repository.weightRepository.insertOrUpdate(weight)
-            _uiState.value.weights.value = repository.weightRepository.getAll()
+            val weightToDelete = item.copy(isDeleted = true, updatedAtOnDevice = Clock.System.now().toEpochMilliseconds())
+            repository.weightRepository.softDeleteMany(listOf(weightToDelete))
+            _uiState.value.items.value = repository.weightRepository.getAll()
             syncDataWithRemote()
         }
     }
 
-    fun softDeleteWeight(weight: Weight) {
+    override fun updateItemAndSyncRemote(item: Weight) {
         viewModelScope.launch {
-            val weightCopy = weight.copy(isDeleted = true, updatedAtOnDevice = Clock.System.now().toEpochMilliseconds())
-            repository.weightRepository.softDeleteMany(listOf(weightCopy))
-            _uiState.value.weights.value = repository.weightRepository.getAll()
+            logging().info { "updateTimer: $item" }
+            repository.weightRepository.insertOrUpdate(item)
+            _uiState.value.items.value = repository.weightRepository.getAll()
             syncDataWithRemote()
         }
     }
 
-    fun syncDataWithRemote() {
+    override fun syncDataWithRemote() {
         viewModelScope.launch {
             repository.weightRepository.syncDataWithRemote()
         }
@@ -106,10 +90,13 @@ class WeightViewModel(
 }
 
 data class WeightUiState(
-    var isLoading: MutableStateFlow<Boolean> = MutableStateFlow(false),
-    var weights: MutableStateFlow<List<Weight>> = MutableStateFlow(emptyList()),
+    override val isLoading: MutableStateFlow<Boolean> = MutableStateFlow(false),
+    override val isFinishedSyncing: MutableStateFlow<Boolean> = MutableStateFlow(false),
+    override val minimumDelay: MutableStateFlow<Boolean> = MutableStateFlow(false),
+    override val hasError: MutableStateFlow<Boolean> = MutableStateFlow(false),
+    override var items: MutableStateFlow<List<Weight>> = MutableStateFlow(emptyList()),
     var dailyAverage: MutableStateFlow<List<DailyAverage>> = MutableStateFlow(emptyList()),
     var weeklyAverage: MutableStateFlow<List<WeeklyAverage>> = MutableStateFlow(emptyList()),
     var monthlyAverage: MutableStateFlow<List<MonthlyAverage>> = MutableStateFlow(emptyList()),
     var error: MutableStateFlow<String?> = MutableStateFlow(null),
-)
+): BaseUiState<Weight>

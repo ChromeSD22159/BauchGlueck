@@ -55,6 +55,10 @@ class CountdownTimerSyncManager(
         logging().info { "* * * * * * * * * * SYNCING * * * * * * * * * * " }
         logging().info { "Last Sync Success: $lastSync" }
 
+        localChangedTimers.forEach {
+            logging().info { "Timer: ${it.name} ${it.updatedAtOnDevice}" }
+        }
+
         sendChangedEntriesToServer(localChangedTimers)
 
         // 3. Vom Server alle seit dem letzten Sync geänderten Timer abrufen
