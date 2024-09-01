@@ -8,10 +8,8 @@ import data.local.LocalDatabase
 import data.local.getDatabase
 import data.repositories.CountdownTimerRepository
 import org.koin.android.ext.koin.androidContext
-import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 import util.KeyValueStorage
-import viewModel.TimerViewModel
 
 
 actual val repositoriesModule = module {
@@ -24,3 +22,4 @@ actual val repositoriesModule = module {
     single { WaterIntakeRepository( get(), serverHost = serverHost, deviceID = KeyValueStorage(androidContext()).getOrCreateDeviceId() ) }
     single { WeightRepository( get(), serverHost = serverHost, deviceID = KeyValueStorage(androidContext()).getOrCreateDeviceId() ) }
 }
+

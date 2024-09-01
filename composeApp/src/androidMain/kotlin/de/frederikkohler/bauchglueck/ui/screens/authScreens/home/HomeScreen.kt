@@ -25,6 +25,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,28 +34,32 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavHostController
 import data.FirebaseConnection
-import data.local.entitiy.CountdownTimer
-import data.model.DailyAverage
 import de.frederikkohler.bauchglueck.ui.navigations.Destination
 import de.frederikkohler.bauchglueck.ui.screens.authScreens.SyncIconRotate
 import de.frederikkohler.bauchglueck.ui.screens.authScreens.settingsSheet.SettingSheet
-import viewModel.TimerViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
+import viewModel.TimerScreenViewModel
+import viewModel.WeightScreenViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    timers: List<CountdownTimer>,
-    dailyAverage: List<DailyAverage>,
+    weightScreenViewModel: WeightScreenViewModel,
     firebaseAuthViewModel: FirebaseAuthViewModel = viewModel(),
     navController: NavHostController,
 ) {
+    val timerScreenViewModel = koinViewModel<TimerScreenViewModel>()
+
     val isSyncInProgress by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
     var showSettingSheet by remember { mutableStateOf(false) }
+
+    val dailyAverage by weightScreenViewModel.uiState.value.dailyAverage.collectAsState(initial = emptyList())
+    val timers by timerScreenViewModel.uiState.value.items.collectAsState(initial = emptyList())
 
     Scaffold(
         topBar = {
@@ -115,6 +120,12 @@ fun HomeScreen(
             HomeWaterIntakeCard {
                 scope.launch {
                     navController.navigate(Destination.WaterIntake.route)
+                }
+            }
+
+            HomeMedicationCard {
+                scope.launch {
+                    navController.navigate(Destination.Medication.route)
                 }
             }
 

@@ -2,10 +2,14 @@ package di
 
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
-import viewModel.TimerViewModel
-import viewModel.WeightViewModel
+import viewModel.MedicationViewModel
+import viewModel.SyncWorkerViewModel
+import viewModel.TimerScreenViewModel
+import viewModel.WeightScreenViewModel
 
 actual val viewModelModule = module {
-    viewModel { TimerViewModel(get()) }
-    viewModel { WeightViewModel(get()) }
+    viewModel { TimerScreenViewModel(get()) }
+    viewModel { WeightScreenViewModel(get()) }
+    viewModel { SyncWorkerViewModel(get()) }
+    viewModel { MedicationViewModel(get()) }
 }

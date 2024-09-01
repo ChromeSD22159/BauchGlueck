@@ -40,11 +40,12 @@ import util.DateConverter
 @Composable
 fun TimerCard(
     timer: CountdownTimer,
-    onEditSave: (CountdownTimer) -> Unit = {},
-    onTimerUpdate: (CountdownTimer) -> Unit = {},
+    onClickEdit: (CountdownTimer) -> Unit = {},
+    onTick: (CountdownTimer) -> Unit = {},
     onDelete: (CountdownTimer) -> Unit = {}
 ) {
     var rowSize by remember { mutableStateOf(IntSize.Zero) }
+
     var remainingTime by remember {
         mutableLongStateOf(timer.duration)
     }
@@ -99,14 +100,14 @@ fun TimerCard(
                 inactiveBarColor = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.25f), // Circle
                 activeBarColor = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.5f),
                 remainingTime = { remainingTime = it},
-                onTimerUpdate = { onTimerUpdate(it) }
+                onTick = { onTick(it) }
             )
 
             DropDownMenu(
                 dropDownOptions = listOf(
                     DropdownMenuRow(
                         text = "Edit",
-                        onClick = {  onEditSave(timer)  },
+                        onClick = {  onClickEdit(timer)  },
                         leadingIcon = Icons.Outlined.Edit
                     ),
                     DropdownMenuRow(

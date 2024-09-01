@@ -5,11 +5,13 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -35,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import de.frederikkohler.bauchglueck.ui.navigations.Destination
 import de.frederikkohler.bauchglueck.ui.theme.AppTheme
+import org.lighthousegames.logging.logging
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
@@ -44,6 +47,8 @@ fun BackScaffold(
     navController: NavController,
     topNavigationButtons: @Composable () -> Unit = {},
     backNavigationDirection: Destination = Destination.Home,
+    isLazyColumn: Boolean = false,
+    lazy: @Composable (innerPadding: PaddingValues) -> Unit = {},
     view: @Composable () -> Unit = {}
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
@@ -77,19 +82,21 @@ fun BackScaffold(
                 scrollBehavior = scrollBehavior,
             )
         },
-    ) { _ ->
+    ) { innerPadding ->
 
-        Column(
-            modifier = Modifier
-                .padding(top = 80.dp)
-                .verticalScroll(rememberScrollState())
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
+        logging().info { "BackScaffold: $innerPadding" }
 
-            view()
-
+        if(isLazyColumn) {
+            lazy(innerPadding)
+        } else {
+            Column(
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .verticalScroll(rememberScrollState())
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) { view() }
         }
     }
 }

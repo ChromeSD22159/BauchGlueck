@@ -19,40 +19,86 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import data.local.entitiy.CountdownTimer
 import de.frederikkohler.bauchglueck.ui.components.ItemOverLayScaffold
 import de.frederikkohler.bauchglueck.ui.navigations.Destination
-import de.frederikkohler.bauchglueck.ui.theme.AppTheme
+import dev.gitlive.firebase.Firebase
+import dev.gitlive.firebase.auth.auth
+import org.koin.androidx.compose.koinViewModel
+import org.lighthousegames.logging.logging
+import util.generateDeviceId
+import viewModel.TimerScreenViewModel
 
 @Composable
 @RequiresApi(Build.VERSION_CODES.O)
 fun AddEditTimerSheet(
     navController: NavController,
-    currentCountdownTimer: CountdownTimer? = null,
+    currentCountdownTimer: String? = null,
     onDismiss: () -> Unit = {},
-    onSaved: (CountdownTimer) -> Unit = {}
 ) {
-    val countdownTimer: CountdownTimer = currentCountdownTimer?.copy() ?: CountdownTimer()
+    val viewModel = koinViewModel<TimerScreenViewModel>()
+
+    LaunchedEffect(Unit) {
+        viewModel.getTimerByIdOrNull(currentCountdownTimer)
+    }
+
+    val selectedTimer by viewModel.selectedTimer.collectAsState()
+    var isClicked by remember { mutableStateOf(false) }
+
+    var newOrUpdatedTimer: CountdownTimer by remember {
+        mutableStateOf(selectedTimer ?: CountdownTimer(
+            timerId = generateDeviceId(),
+            userId = Firebase.auth.currentUser?.uid ?: "",
+        ))
+    }
+
+
+    val text = remember { mutableStateOf(newOrUpdatedTimer.name) }
+    val duration = remember { mutableLongStateOf(newOrUpdatedTimer.duration) }
+
+    LaunchedEffect(selectedTimer) { // Move state initialization inside the LaunchedEffect
+       newOrUpdatedTimer = selectedTimer?.let {
+            it.copy(duration = it.duration / 60)
+        } ?: CountdownTimer(
+            timerId = generateDeviceId(),
+            userId = Firebase.auth.currentUser?.uid ?: "",
+        )
+
+        logging().info { "selectedTimer: $selectedTimer" }
+        logging().info { "newOrUpdatedTimer: $newOrUpdatedTimer" }
+
+        text.value = newOrUpdatedTimer.name
+        duration.longValue = newOrUpdatedTimer.duration
+
+    }
+
+
+
     val focusManager = LocalFocusManager.current
     val isNameFocused = remember { mutableStateOf(false) }
     val isDurationFocused = remember { mutableStateOf(false) }
 
-    val text = remember { mutableStateOf(countdownTimer.name) }
-    val duration = remember { mutableLongStateOf(countdownTimer.duration) }
 
+    LaunchedEffect(isClicked) {
+        if (isClicked) {
+            viewModel.updateItemAndSyncRemote(newOrUpdatedTimer.copy(name = text.value, duration = duration.longValue * 60))
+        }
+    }
     val colors = TextFieldDefaults.colors(
         unfocusedTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
         focusedTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 1f),
@@ -66,6 +112,8 @@ fun AddEditTimerSheet(
         title = "Neuen Timer hinzufügen",
         topNavigationButtons = {
             IconButton(onClick = {
+                focusManager.clearFocus()
+
                 navController.navigate(Destination.Timer.route)
                 onDismiss()
             }) {
@@ -147,7 +195,7 @@ fun AddEditTimerSheet(
                     isDurationFocused.value = false
 
                     focusManager.clearFocus()
-                    navController.navigate(Destination.Timer.route)
+
                     onDismiss()
                 }
             ) {
@@ -156,25 +204,18 @@ fun AddEditTimerSheet(
 
             Button(
                 onClick = {
-                    focusManager.clearFocus()
-                    onSaved(countdownTimer.copy(name = text.value, duration = duration.longValue))
+                    if (!isClicked) {
+                        focusManager.clearFocus()
 
-                    focusManager.clearFocus()
-                    navController.navigate(Destination.Timer.route)
+                        isClicked = true
+
+                        onDismiss()
+                    }
                 }
             ) {
                     Text("Speichern")
             }
 
         }
-    }
-}
-
-@RequiresApi(Build.VERSION_CODES.O)
-@Preview(showBackground = true)
-@Composable
-fun AddTimerPreview() {
-    AppTheme {
-        AddEditTimerSheet(navController = NavController(LocalContext.current))
     }
 }
