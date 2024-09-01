@@ -20,7 +20,7 @@ import de.frederikkohler.bauchglueck.ui.components.BackScaffold
 import de.frederikkohler.bauchglueck.ui.components.RoundImageButton
 import de.frederikkohler.bauchglueck.ui.navigations.Destination
 import navigation.Screens
-import viewModel.WeightViewModel
+import viewModel.WeightScreenViewModel
 import androidx.compose.ui.platform.LocalContext
 import de.frederikkohler.bauchglueck.ui.components.clickableWithRipple
 
@@ -29,7 +29,7 @@ import de.frederikkohler.bauchglueck.ui.components.clickableWithRipple
 @Composable
 fun WeightScreen(
     navController: NavController,
-    viewModel: WeightViewModel,
+    viewModel: WeightScreenViewModel,
     backNavigationDirection: Destination = Destination.Home
 ) {
     BackScaffold(

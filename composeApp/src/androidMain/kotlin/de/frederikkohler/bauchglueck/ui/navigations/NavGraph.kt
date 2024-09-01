@@ -19,8 +19,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
+import data.local.entitiy.CountdownTimer
 import de.frederikkohler.bauchglueck.ui.components.BackScaffold
 import de.frederikkohler.bauchglueck.ui.screens.LaunchScreen
 import de.frederikkohler.bauchglueck.ui.screens.authScreens.meals.CalendarScreen
@@ -31,20 +34,18 @@ import de.frederikkohler.bauchglueck.ui.screens.authScreens.timer.TimerScreen
 import de.frederikkohler.bauchglueck.ui.screens.authScreens.weights.addWeight.AddWeightSheet
 import de.frederikkohler.bauchglueck.ui.screens.authScreens.weights.showAllWeights.ShowAllWeights
 import de.frederikkohler.bauchglueck.ui.screens.authScreens.weights.WeightScreen
-import viewModel.TimerViewModel
 import de.frederikkohler.bauchglueck.viewModel.FirebaseAuthViewModel
 import de.frederikkohler.bauchglueck.ui.screens.publicScreens.LoginView
 import de.frederikkohler.bauchglueck.ui.screens.publicScreens.RegisterView
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.FirebaseUser
 import dev.gitlive.firebase.auth.auth
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.compose.KoinContext
 import org.lighthousegames.logging.logging
 import org.koin.androidx.compose.koinViewModel
 import viewModel.SyncWorkerViewModel
-import viewModel.WeightViewModel
+import viewModel.WeightScreenViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -57,9 +58,9 @@ fun NavGraph(
 
     val user = Firebase.auth.currentUser
     val scope = rememberCoroutineScope()
-    val timerViewModel = koinViewModel<TimerViewModel>()
-    val weightViewModel = koinViewModel<WeightViewModel>()
-    val medicationViewModel = koinViewModel<TimerViewModel>()
+
+    val weightScreenViewModel = koinViewModel<WeightScreenViewModel>()
+
     val syncWorker = koinViewModel<SyncWorkerViewModel>()
 
     val minimumDelay by syncWorker.uiState.value.minimumDelay.collectAsState()
@@ -78,7 +79,7 @@ fun NavGraph(
         )
 
         LaunchedEffect(Unit) {
-            weightViewModel.getAllItems()
+            weightScreenViewModel.getAllItems()
         }
 
         NavHost(navController = navController, startDestination = Destination.Launch.route) {
@@ -93,8 +94,7 @@ fun NavGraph(
             }
             composable(Destination.Home.route) {
                 HomeScreen(
-                    timerViewModel = timerViewModel,
-                    weightViewModel = weightViewModel,
+                    weightScreenViewModel = weightScreenViewModel,
                     firebaseAuthViewModel = viewModel,
                     navController = navController
                 )
@@ -110,7 +110,7 @@ fun NavGraph(
                 WeightScreen(
                     navController = navController,
                     backNavigationDirection = Destination.Home,
-                    viewModel = weightViewModel,
+                    viewModel = weightScreenViewModel,
                 )
             }
             composable(
@@ -118,13 +118,13 @@ fun NavGraph(
                 enterTransition = { slideInWithFadeToTopAnimation() },
                 exitTransition = { slideOutWithFadeToTopAnimation() }
             ) {
-                weightViewModel.uiState.collectAsState()
+                weightScreenViewModel.uiState.collectAsState()
 
                 LaunchedEffect(Unit) {
-                    weightViewModel.getLastWeight()
+                    weightScreenViewModel.getLastWeight()
                 }
 
-                val lastWeight by weightViewModel.lastWeight.collectAsState()
+                val lastWeight by weightScreenViewModel.lastWeight.collectAsState()
 
                 AddWeightSheet(
                     navController = navController,
@@ -134,7 +134,7 @@ fun NavGraph(
                     },
                     onSaved = {
                         scope.launch {
-                            weightViewModel.addItem(it)
+                            weightScreenViewModel.addItem(it)
                             navController.navigate(Destination.Weight.route)
                         }
                     }
@@ -142,7 +142,7 @@ fun NavGraph(
             }
             composable(Destination.ShowAllWeights.route) {
                 ShowAllWeights(
-                    weightViewModel = weightViewModel,
+                    weightScreenViewModel = weightScreenViewModel,
                     navController = navController
                 )
             }
@@ -174,7 +174,6 @@ fun NavGraph(
             composable(Destination.Timer.route) {
                 TimerScreen(
                     navController = navController,
-                    viewModel = timerViewModel,
                 )
             }
             composable(
@@ -184,7 +183,6 @@ fun NavGraph(
             ) {
                 AddEditTimerSheet(
                     navController = navController,
-                    viewModel = timerViewModel,
                     currentCountdownTimer = null,
                     onDismiss = {
                         navController.navigate(Destination.Timer.route)
@@ -193,13 +191,12 @@ fun NavGraph(
             }
             composable(
                 route = Destination.EditTimer.route,
+                exitTransition = { slideOutWithFadeToTopAnimation() },
                 enterTransition = { slideInWithFadeToTopAnimation() },
-                exitTransition = { slideOutWithFadeToTopAnimation() }
             ) {
                 AddEditTimerSheet(
                     navController = navController,
-                    viewModel = timerViewModel,
-                    currentCountdownTimer = timerViewModel.selectedTimer.value,
+                    currentCountdownTimer = navController.currentBackStackEntry?.savedStateHandle?.get<String>("timerId"),
                     onDismiss = {
                         navController.navigate(Destination.Timer.route)
                     }

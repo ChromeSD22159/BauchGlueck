@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import org.lighthousegames.logging.logging
 
-class WeightViewModel(
+class WeightScreenViewModel(
     private val repository: Repository
 ): ViewModel(), BaseViewModel<WeightUiState, Weight> {
     override val scope: CoroutineScope = viewModelScope

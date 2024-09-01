@@ -1,5 +1,9 @@
 package de.frederikkohler.bauchglueck.ui.navigations
 
+import data.local.entitiy.CountdownTimer
+import io.ktor.http.ContentType.Application.Json
+import kotlinx.serialization.SerializationException
+
 sealed class Destination(val route: String, val title: String) {
     data object Launch : Destination("Launch", "Launch")
     data object Login : Destination("Login", "Login")

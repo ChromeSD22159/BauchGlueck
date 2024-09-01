@@ -20,6 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -38,28 +39,66 @@ import de.frederikkohler.bauchglueck.ui.components.ItemOverLayScaffold
 import de.frederikkohler.bauchglueck.ui.navigations.Destination
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
+import org.koin.androidx.compose.koinViewModel
+import org.lighthousegames.logging.logging
 import util.generateDeviceId
-import viewModel.TimerViewModel
+import viewModel.TimerScreenViewModel
 
 @Composable
 @RequiresApi(Build.VERSION_CODES.O)
 fun AddEditTimerSheet(
     navController: NavController,
-    viewModel: TimerViewModel,
-    currentCountdownTimer: CountdownTimer? = null,
+    currentCountdownTimer: String? = null,
     onDismiss: () -> Unit = {},
 ) {
-    val countdownTimer: CountdownTimer = currentCountdownTimer?.copy(duration = currentCountdownTimer.duration / 60) ?:  CountdownTimer(
-        timerId = generateDeviceId(),
-        userId = Firebase.auth.currentUser!!.uid,
-    )
+    val viewModel = koinViewModel<TimerScreenViewModel>()
+
+    LaunchedEffect(Unit) {
+        viewModel.getTimerByIdOrNull(currentCountdownTimer)
+    }
+
+    val selectedTimer by viewModel.selectedTimer.collectAsState()
+    var isClicked by remember { mutableStateOf(false) }
+
+    var newOrUpdatedTimer: CountdownTimer by remember {
+        mutableStateOf(selectedTimer ?: CountdownTimer(
+            timerId = generateDeviceId(),
+            userId = Firebase.auth.currentUser?.uid ?: "",
+        ))
+    }
+
+
+    val text = remember { mutableStateOf(newOrUpdatedTimer.name) }
+    val duration = remember { mutableLongStateOf(newOrUpdatedTimer.duration) }
+
+    LaunchedEffect(selectedTimer) { // Move state initialization inside the LaunchedEffect
+       newOrUpdatedTimer = selectedTimer?.let {
+            it.copy(duration = it.duration / 60)
+        } ?: CountdownTimer(
+            timerId = generateDeviceId(),
+            userId = Firebase.auth.currentUser?.uid ?: "",
+        )
+
+        logging().info { "selectedTimer: $selectedTimer" }
+        logging().info { "newOrUpdatedTimer: $newOrUpdatedTimer" }
+
+        text.value = newOrUpdatedTimer.name
+        duration.longValue = newOrUpdatedTimer.duration
+
+    }
+
+
+
     val focusManager = LocalFocusManager.current
     val isNameFocused = remember { mutableStateOf(false) }
     val isDurationFocused = remember { mutableStateOf(false) }
 
-    val text = remember { mutableStateOf(countdownTimer.name) }
-    val duration = remember { mutableLongStateOf(countdownTimer.duration) }
 
+    LaunchedEffect(isClicked) {
+        if (isClicked) {
+            viewModel.updateItemAndSyncRemote(newOrUpdatedTimer.copy(name = text.value, duration = duration.longValue * 60))
+        }
+    }
     val colors = TextFieldDefaults.colors(
         unfocusedTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
         focusedTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 1f),
@@ -68,13 +107,6 @@ fun AddEditTimerSheet(
         unfocusedIndicatorColor = Color.Transparent,
         focusedIndicatorColor = MaterialTheme.colorScheme.primary,
     )
-    var isClicked by remember { mutableStateOf(false) }
-
-    LaunchedEffect(isClicked) {
-        if (isClicked) {
-            viewModel.updateItemAndSyncRemote(countdownTimer.copy(name = text.value, duration = duration.longValue * 60))
-        }
-    }
 
     ItemOverLayScaffold(
         title = "Neuen Timer hinzufügen",

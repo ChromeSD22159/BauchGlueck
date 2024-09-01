@@ -39,25 +39,27 @@ import de.frederikkohler.bauchglueck.ui.screens.authScreens.SyncIconRotate
 import de.frederikkohler.bauchglueck.ui.screens.authScreens.settingsSheet.SettingSheet
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import viewModel.TimerViewModel
-import viewModel.WeightViewModel
+import org.koin.androidx.compose.koinViewModel
+import viewModel.TimerScreenViewModel
+import viewModel.WeightScreenViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    timerViewModel: TimerViewModel,
-    weightViewModel: WeightViewModel,
+    weightScreenViewModel: WeightScreenViewModel,
     firebaseAuthViewModel: FirebaseAuthViewModel = viewModel(),
     navController: NavHostController,
 ) {
+    val timerScreenViewModel = koinViewModel<TimerScreenViewModel>()
+
     val isSyncInProgress by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
     var showSettingSheet by remember { mutableStateOf(false) }
 
-    val dailyAverage by weightViewModel.uiState.value.dailyAverage.collectAsState()
-    val timers by timerViewModel.uiState.value.items.collectAsState(initial = emptyList())
+    val dailyAverage by weightScreenViewModel.uiState.value.dailyAverage.collectAsState(initial = emptyList())
+    val timers by timerScreenViewModel.uiState.value.items.collectAsState(initial = emptyList())
 
     Scaffold(
         topBar = {

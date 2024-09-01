@@ -17,16 +17,17 @@ import de.frederikkohler.bauchglueck.R
 import de.frederikkohler.bauchglueck.ui.components.BackScaffold
 import de.frederikkohler.bauchglueck.ui.components.RoundImageButton
 import de.frederikkohler.bauchglueck.ui.navigations.Destination
+import org.koin.androidx.compose.koinViewModel
 import org.lighthousegames.logging.logging
-import viewModel.TimerViewModel
+import viewModel.TimerScreenViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun TimerScreen(
     navController: NavController,
-    viewModel: TimerViewModel,
     backNavigationDirection: Destination = Destination.Home,
 ) {
+    val viewModel = koinViewModel<TimerScreenViewModel>()
     val timers by viewModel.uiState.value.items.collectAsState(initial = emptyList())
 
     BackScaffold(
@@ -56,8 +57,8 @@ fun TimerScreen(
             TimerCard(
                 timer = timer,
                 onClickEdit = {
-                    viewModel.setSelectedTimer(timer)
                     navController.navigate(Destination.EditTimer.route)
+                    navController.currentBackStackEntry?.savedStateHandle?.set("timerId", timer.timerId)
                 },
                 onDelete = {
                     Log.i("TimerCard Update", "isDeleted: ${it.isDeleted} - ${it.name}\n")

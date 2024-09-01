@@ -33,15 +33,15 @@ import de.frederikkohler.bauchglueck.ui.navigations.Destination
 import de.frederikkohler.bauchglueck.ui.screens.authScreens.weights.components.DeleteDialogManager
 import kotlinx.datetime.LocalDate
 import util.toLocalDate
-import viewModel.WeightViewModel
+import viewModel.WeightScreenViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ShowAllWeights(
     navController: NavController,
-    weightViewModel: WeightViewModel,
+    weightScreenViewModel: WeightScreenViewModel,
 ) {
-    val weights by weightViewModel.uiState.value.items.collectAsState()
+    val weights by weightScreenViewModel.uiState.value.items.collectAsState(initial = emptyList())
 
     BackScaffold(
         title = Destination.ShowAllWeights.title,
@@ -56,7 +56,7 @@ fun ShowAllWeights(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 allWeights(weights) { deleteWeight ->
-                    weightViewModel.softDelete(deleteWeight)
+                    weightScreenViewModel.softDelete(deleteWeight)
                 }
             }
         }

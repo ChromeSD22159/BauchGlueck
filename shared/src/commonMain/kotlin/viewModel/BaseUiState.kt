@@ -1,5 +1,6 @@
 package viewModel
 
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 
 interface BaseUiState<T> {
@@ -7,5 +8,5 @@ interface BaseUiState<T> {
     val isFinishedSyncing: MutableStateFlow<Boolean>
     val minimumDelay: MutableStateFlow<Boolean>
     val hasError: MutableStateFlow<Boolean>
-    val items: MutableStateFlow<List<T>>
+    val items: Flow<List<T>>
 }
