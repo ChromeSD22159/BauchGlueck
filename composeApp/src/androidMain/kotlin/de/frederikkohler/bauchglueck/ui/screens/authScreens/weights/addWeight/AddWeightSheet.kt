@@ -22,11 +22,17 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import data.local.entitiy.Weight
 import de.frederikkohler.bauchglueck.ui.components.ItemOverLayScaffold
@@ -35,66 +41,104 @@ import de.frederikkohler.bauchglueck.ui.navigations.Destination
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
 import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.periodUntil
+import org.koin.androidx.compose.koinViewModel
+import org.lighthousegames.logging.logging
 import util.generateDeviceId
+import viewModel.WeightScreenViewModel
 import kotlin.math.abs
 
 @Composable
 @RequiresApi(Build.VERSION_CODES.O)
 fun AddWeightSheet(
     navController: NavController,
+    steps: Double = 0.1,
     onDismiss: () -> Unit = {},
-    lastWeight: Weight?,
-    onSaved: (Weight) -> Unit = {}
 ) {
+    val viewModel = koinViewModel<WeightScreenViewModel>()
 
+    // Lade das letzte Gewicht, wenn der Composable geladen wird
+    LaunchedEffect(Unit) {
+        viewModel.getLastWeight()
+    }
+
+    // Beobachte den Zustand von lastWeight (aka latestWeight)
+    val latestWeight by viewModel.lastWeight.collectAsState()
+
+    // Merke den aktuellen Gewichtszustand
     val currentWeight: MutableState<Weight> = remember {
-        mutableStateOf(Weight(
+        mutableStateOf(
+            Weight(
                 weightId = generateDeviceId(),
-                userId = Firebase.auth.currentUser!!.uid,
-                weighed = Clock.System.now().toString(),
-                value = 0.0
+                userId = Firebase.auth.currentUser?.uid ?: "",
+                value = 0.0,
+                weighed = Clock.System.now().toString()
             )
         )
     }
 
-    val scrollStateWeightValues = rememberScrollState()
-    val weightList = (50..200 step 10).map { it.toDouble() }
-    val text = remember { mutableStateOf("%.1f".format(currentWeight.value.value) + "kg") }
-    val steps = 0.5
-
-    LaunchedEffect(Unit) {
-        lastWeight?.let {
-            currentWeight.value = currentWeight.value.copy(value = it.value)
+    // Wenn das latestWeight geladen wird, aktualisiere das currentWeight, falls es noch nicht gesetzt wurde
+    LaunchedEffect(latestWeight) {
+        latestWeight?.let { weight ->
+            if (currentWeight.value.value == 0.0) {
+                currentWeight.value = weight.copy(value = weight.value + 0.0)
+            }
         }
     }
 
-    // Aktualisiert den Text basierend auf dem aktuellen Gewichtswert
-    LaunchedEffect(currentWeight.value) {
-        text.value = "%.1f".format(currentWeight.value.value) + "kg"
+    // Berechnung der Gewichtsdifferenz und des Fortschritts
+    val weightDifference by remember {
+        derivedStateOf {
+            latestWeight?.let { lastWeight ->
+                currentWeight.value.value - lastWeight.value
+            } ?: 0.0
+        }
     }
 
+    val calculatedDifferenceProgressNew by remember {
+        derivedStateOf {
+            latestWeight?.let { lastWeight ->
+                if (lastWeight.value != 0.0) {
+                    val percentageChange = (currentWeight.value.value - lastWeight.value) / lastWeight.value
+                    abs(percentageChange).toFloat().coerceIn(0f, 1f)
+                } else {
+                    0f
+                }
+            } ?: 0f
+        }
+    }
+
+    val daysSinceLastWeighing by remember {
+        derivedStateOf {
+            latestWeight?.let { lastWeight ->
+                val lastWeighedDate = Instant.parse(lastWeight.weighed)
+                val currentDate = Clock.System.now()
+
+                val daysBetween = currentDate.periodUntil(lastWeighedDate, TimeZone.currentSystemDefault()).days
+                abs(daysBetween)
+            } ?: 0
+        }
+    }
+
+    // Funktion zum Erhöhen des aktuellen Gewichts
     fun increaseWeight() {
         currentWeight.value = currentWeight.value.copy(
             value = currentWeight.value.value + steps
         )
     }
 
+    // Funktion zum Verringern des aktuellen Gewichts
     fun decreaseWeight() {
         currentWeight.value = currentWeight.value.copy(
             value = currentWeight.value.value - steps
         )
     }
 
-    fun calculateWeightChangePercentage(): Float {
-        if (lastWeight?.value == 0.0 || lastWeight?.value == null) {
-            return 0f // Handle division by zero
-        }
-
-        val difference = currentWeight.value.value - lastWeight.value
-        val percentageChange = (difference / lastWeight.value).coerceIn(-1.0, 1.0)
-
-        return abs(percentageChange).toFloat()
-    }
+    // UI-Elemente und Logik für das Scrollen durch die Gewichtswerte etc.
+    val scrollStateWeightValues = rememberScrollState()
+    val weightList = (50..200 step 10).map { it.toDouble() }
 
     ItemOverLayScaffold(
         title = "Neues Gewicht hinzufügen",
@@ -115,20 +159,36 @@ fun AddWeightSheet(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Box {
+            Box(
+                modifier = Modifier.size(150.dp),
+                contentAlignment = Alignment.Center
+            ) {
                 CircularProgressIndicator(
-                    progress = { calculateWeightChangePercentage() },
+                    progress = { calculatedDifferenceProgressNew },
                     modifier = Modifier.size(150.dp),
                 )
 
-                Text(
-                    text = "%.1f".format(currentWeight.value.value - (lastWeight?.value ?: 0.0)) + "kg",
-                    fontStyle = MaterialTheme.typography.headlineLarge.fontStyle,
-                    modifier = Modifier.align(Alignment.Center)
-                )
+                Column(
+                    modifier = Modifier,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = weightDifference.displayDifferenceWeight(),
+                        fontStyle = MaterialTheme.typography.headlineLarge.fontStyle,
+                    )
+
+                    Text(
+                        text = daysSinceLastWeighing.displayDaysSinceWeightString(),
+                        textAlign = TextAlign.Center,
+                        fontSize = 10.sp
+                    )
+                }
             }
         }
 
+
+        // WEIGHT CONTROLS
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -139,7 +199,7 @@ fun AddWeightSheet(
             }
 
             Text(
-                text = text.value,
+                text = currentWeight.value.value.displayCurrentWeight(),
                 fontStyle = MaterialTheme.typography.headlineLarge.fontStyle,
                 fontWeight = MaterialTheme.typography.headlineLarge.fontWeight
             )
@@ -149,6 +209,8 @@ fun AddWeightSheet(
             }
         }
 
+
+        // WEIGHT VALUES
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -169,6 +231,8 @@ fun AddWeightSheet(
             }
         }
 
+
+        // SAVE CONTROLS
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -189,13 +253,34 @@ fun AddWeightSheet(
 
                 Button(
                     onClick = {
-                        onSaved(currentWeight.value)
-                        navController.navigate(Destination.Timer.route)
+                        viewModel.addItem(currentWeight.value)
+                        navController.navigate(Destination.Home.route)
                     }
                 ) {
                     Text("Speichern")
                 }
             }
         }
+    }
+}
+
+fun Double.displayCurrentWeight(): String {
+    return "%.1f kg".format(this)
+}
+
+fun Double.displayDifferenceWeight(): String {
+    val value = abs(this)
+    return when {
+        (this > 0) -> "+%.1f kg".format(value)
+        (this < 0) -> "-%.1f kg".format(value)
+        else -> "%.1f kg".format(value)
+    }
+}
+
+fun Int.displayDaysSinceWeightString (): String {
+    return when (this) {
+        0 -> "Seit dem letzten\nWiegen heute"
+        1 -> "Seit dem letzten\nWiegen gestern"
+        else -> "Seit dem letzten\nWiegen vor\n$this Tagen"
     }
 }

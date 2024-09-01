@@ -23,15 +23,17 @@ import navigation.Screens
 import viewModel.WeightScreenViewModel
 import androidx.compose.ui.platform.LocalContext
 import de.frederikkohler.bauchglueck.ui.components.clickableWithRipple
+import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalFoundationApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun WeightScreen(
     navController: NavController,
-    viewModel: WeightScreenViewModel,
     backNavigationDirection: Destination = Destination.Home
 ) {
+    val viewmodel = koinViewModel<WeightScreenViewModel>()
+
     BackScaffold(
         title = Screens.Weight.title,
         backNavigationDirection = backNavigationDirection,
