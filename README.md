@@ -22,27 +22,46 @@ KMP Shared ROOM: [ROOM]("https://github.com/android/kotlin-multiplatform-samples
 1. -> ./gradlew :shared:build -> generates the server-<version>.jar for the server
 ```
 
-### Server configuration
-The server URL for this project is managed via the ServerHost enum, which is located in `Shared/commonMain/kotlin/data/network/ServerHost`.
-``` kotlin
-enum class ServerHost(val url: String) {
-    LOCAL_FREDERIK("http://192.168.0.73:1337"),
-    LOCAL_SABINA("http://192.168.1.57:1337"),
-    PRODUCTION("https://api.frederikkohler.de/bauchglueck")
-}
-```
+## Configuration
 
-### Server URL assignment
-The current server URL that the application connects to is set in the file `Shared/commonMain/kotlin/di/repositoriesModule.kt`.
-``` kotlin
-val serverHost = ServerHost.LOCAL_SABINA.url
-```
-`Hinweis: Ändern Sie den Wert von serverHost in repositoriesModule.kt, um zwischen den verschiedenen Serverumgebungen zu wechseln (z. B. lokal, Entwicklung, Produktion).`
+To ensure the application runs correctly, you need to configure both the `API_KEY` and `API_HOST` in your `local.properties` file.
 
-### Backend (Strapi)
+### Steps for Configuration:
+
+1. **Obtain the API Key:**
+  - Log in to your Strapi dashboard.
+  - Navigate to the API Token settings and copy the required API Key.
+
+2. **Set the API Key in `local.properties`:**
+  - Open the `local.properties` file in your project directory.
+  - Add or update the following entry:
+
+    ```properties
+    API_KEY=<YOUR_API_KEY>
+    ```
+
+  - Replace `<YOUR_API_KEY>` with the API Key you obtained from Strapi.
+
+3. **Configure the API Host:**
+  - In the same `local.properties` file, add or update the `API_HOST` entry to match the URL of your running Strapi instance:
+
+    ```properties
+    API_HOST=<YOUR_API_HOST>
+    ```
+
+  - Replace `<YOUR_API_HOST>` with the actual URL of your Strapi instance (e.g., `http://localhost:1337`).
+
+4. **Save and Restart:**
+  - Save the `local.properties` file.
+  - Restart the application to apply the changes.
+
+These configurations ensure that the application can correctly interact with your Strapi API.
+
+
+## Backend (Strapi)
 The backend for this project, built with Strapi, is available in the following repository:
 
 Repository: https://github.com/ChromeSD22159/BauchGueckStrapiBackend
 Please refer to the repository's README for instructions on how to set up and run the Strapi backend server.
 
-Important: Make sure the serverHost configuration in your Kotlin code matches the actual URL of your running Strapi instance.
+Important: Make sure the `API_HOST` in your local.properties configuration in your Kotlin code matches the actual URL of your running Strapi instance.
