@@ -1,8 +1,8 @@
 package di
 
-import data.network.ServerHost
+import de.frederikkohler.bauchglueck.shared.BuildKonfig
 import org.koin.core.module.Module
 
-val serverHost = ServerHost.LOCAL_SABINA.url
+val serverHost = BuildKonfig.API_HOST
 
 expect val repositoriesModule: Module

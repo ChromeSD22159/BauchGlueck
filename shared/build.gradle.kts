@@ -1,3 +1,4 @@
+import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
@@ -8,12 +9,14 @@ plugins {
     alias(libs.plugins.google.services)
     alias(libs.plugins.ksp)
     alias(libs.plugins.room)
+    id("com.codingfeline.buildkonfig") version "0.15.2"
 }
 
 kotlin {
 
     sourceSets.commonMain {
         kotlin.srcDir("build/generated/ksp/metadata")
+        kotlin.srcDir("build/generated/buildkonfig")
     }
 
     androidTarget {
@@ -105,6 +108,21 @@ android {
         minSdk = libs.versions.android.minSdk.get().toInt()
     }
 }
+
+
+
+buildkonfig {
+    packageName = "de.frederikkohler.bauchglueck.shared"
+
+    defaultConfigs {
+        val apiKey: String = gradleLocalProperties(rootDir).getProperty("API_KEY")
+        buildConfigField(com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING, "API_KEY", apiKey)
+
+        val apiHost: String = gradleLocalProperties(rootDir).getProperty("API_HOST") ?: ""
+        buildConfigField(com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING, "API_HOST", apiHost)
+    }
+}
+
 dependencies {
     //implementation(projects.composeApp)
     implementation(libs.bundles.firebase.services)
