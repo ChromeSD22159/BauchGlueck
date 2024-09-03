@@ -12,6 +12,8 @@ sealed class Destination(val route: String, val title: String) {
     data object Calendar : Destination("Calendar", "Kalender")
     data object Timer : Destination("Timer", "Timer")
     data object Medication : Destination("Medication", "Medikation")
+    data object AddMedication : Destination("AddMedication", "Medikation hinzufügen")
+    data object EditMedication : Destination("EditMedication", "Medikation Bearbeiten")
     data object Weight : Destination("Weight", "Gewicht")
     data object ShowAllWeights : Destination("ShowAllWeights", "Alle Gewichtungseinträge")
     data object AddWeight : Destination("AddWeight", "Gewicht hinzufügen")

@@ -12,7 +12,6 @@ import de.frederikkohler.bauchglueck.R
 import de.frederikkohler.bauchglueck.ui.components.BackScaffold
 import de.frederikkohler.bauchglueck.ui.components.RoundImageButton
 import de.frederikkohler.bauchglueck.ui.navigations.Destination
-import navigation.Screens
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -21,7 +20,7 @@ fun WaterIntakeScreen(
     backNavigationDirection: Destination = Destination.Home
 ) {
     BackScaffold(
-        title = Screens.WaterIntake.title,
+        title = Destination.WaterIntake.title,
         navController = navController,
         topNavigationButtons = {
             Row {

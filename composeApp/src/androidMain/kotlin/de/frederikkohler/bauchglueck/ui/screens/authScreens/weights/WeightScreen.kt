@@ -2,7 +2,6 @@ package de.frederikkohler.bauchglueck.ui.screens.authScreens.weights
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,13 +18,11 @@ import de.frederikkohler.bauchglueck.R
 import de.frederikkohler.bauchglueck.ui.components.BackScaffold
 import de.frederikkohler.bauchglueck.ui.components.RoundImageButton
 import de.frederikkohler.bauchglueck.ui.navigations.Destination
-import navigation.Screens
 import viewModel.WeightScreenViewModel
 import androidx.compose.ui.platform.LocalContext
 import de.frederikkohler.bauchglueck.ui.components.clickableWithRipple
 import org.koin.androidx.compose.koinViewModel
 
-@OptIn(ExperimentalFoundationApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun WeightScreen(
@@ -35,7 +32,7 @@ fun WeightScreen(
     val viewmodel = koinViewModel<WeightScreenViewModel>()
 
     BackScaffold(
-        title = Screens.Weight.title,
+        title = Destination.Weight.title,
         backNavigationDirection = backNavigationDirection,
         topNavigationButtons = {
             Row {

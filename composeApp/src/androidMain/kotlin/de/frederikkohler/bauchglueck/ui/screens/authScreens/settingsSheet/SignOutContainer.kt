@@ -36,9 +36,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import navigation.Screens
 
-@OptIn(ExperimentalMaterial3Api::class)
+
 @Composable
 fun SignOutContainer(
     onSignOut: () -> Unit
