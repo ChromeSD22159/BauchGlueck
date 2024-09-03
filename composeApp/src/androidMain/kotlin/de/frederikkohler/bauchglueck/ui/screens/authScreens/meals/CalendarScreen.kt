@@ -6,7 +6,6 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
 import de.frederikkohler.bauchglueck.ui.components.BackScaffold
 import de.frederikkohler.bauchglueck.ui.navigations.Destination
-import navigation.Screens
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -15,7 +14,7 @@ fun CalendarScreen(
     backNavigationDirection: Destination = Destination.Home
 ) {
     BackScaffold(
-        title = Screens.Calendar.title,
+        title = Destination.Calendar.title,
         backNavigationDirection = backNavigationDirection,
         navController = navController
     )

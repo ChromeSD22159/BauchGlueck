@@ -29,13 +29,13 @@ import de.frederikkohler.bauchglueck.ui.components.BackgroundBlobWithStomach
 import androidx.lifecycle.viewmodel.compose.viewModel
 import de.frederikkohler.bauchglueck.viewModel.FirebaseAuthViewModel
 import de.frederikkohler.bauchglueck.ui.components.CustomTextField
+import de.frederikkohler.bauchglueck.ui.navigations.Destination
 import de.frederikkohler.bauchglueck.ui.theme.displayFontFamily
 import dev.icerock.moko.mvvm.flow.compose.observeAsActions
-import navigation.Screens
 
 @Composable
 fun LoginView(
-    onNavigate: (Screens) -> Unit,
+    onNavigate: (Destination) -> Unit,
     loginViewModel: LoginViewModel = viewModel(),
     firebaseViewModel: FirebaseAuthViewModel = viewModel()
 ) {
@@ -120,7 +120,7 @@ fun LoginView(
                 ) {
                     Button(
                         onClick = {
-                            onNavigate(Screens.SignUp)
+                            onNavigate(Destination.SignUp)
                         }
                     ) {
                         Text("Zur Registrierung")
@@ -133,7 +133,7 @@ fun LoginView(
                                 action = { loginState ->
                                     firebaseViewModel.signIn(loginState.mail, loginState.password)
                                     loginState.isSignedIn = true
-                                    onNavigate(Screens.Home)
+                                    onNavigate(Destination.Home)
                                     return@onLoginButtonPressed loginState
                                 }
                             )

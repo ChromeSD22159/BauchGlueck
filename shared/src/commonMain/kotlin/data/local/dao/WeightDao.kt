@@ -26,7 +26,7 @@ interface WeightDao {
     suspend fun getAllAfterTimeStamp(updatedAtOnDevice: Long, userId: String): List<Weight>
 
 
-    @Query("SELECT * FROM weight WHERE userId = :userId AND isDeleted = false LIMIT 1")
+    @Query("SELECT * FROM weight WHERE userId = :userId AND isDeleted = false ORDER BY weighed DESC LIMIT 1")
     suspend fun getLastWeightFromUserId(userId: String): Weight?
 
     @Query("""

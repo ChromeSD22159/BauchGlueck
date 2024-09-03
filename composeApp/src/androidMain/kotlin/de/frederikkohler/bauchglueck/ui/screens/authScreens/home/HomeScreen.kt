@@ -47,11 +47,11 @@ import viewModel.WeightScreenViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    weightScreenViewModel: WeightScreenViewModel,
     firebaseAuthViewModel: FirebaseAuthViewModel = viewModel(),
     navController: NavHostController,
 ) {
     val timerScreenViewModel = koinViewModel<TimerScreenViewModel>()
+    val weightScreenViewModel = koinViewModel<WeightScreenViewModel>()
 
     val isSyncInProgress by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()

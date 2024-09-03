@@ -83,8 +83,6 @@ class WeightScreenViewModel(
     fun getLastWeight() {
         viewModelScope.launch {
            _lastWeight.value =  repository.weightRepository.getLastWeight()
-
-            logging().info { "lastWeight: ${repository.weightRepository.getLastWeight()}" }
         }
     }
 }

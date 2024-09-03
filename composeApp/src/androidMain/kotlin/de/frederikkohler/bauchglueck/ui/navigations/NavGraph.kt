@@ -40,12 +40,10 @@ import de.frederikkohler.bauchglueck.ui.screens.publicScreens.RegisterView
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.FirebaseUser
 import dev.gitlive.firebase.auth.auth
-import kotlinx.coroutines.launch
 import org.koin.compose.KoinContext
 import org.lighthousegames.logging.logging
 import org.koin.androidx.compose.koinViewModel
 import viewModel.SyncWorkerViewModel
-import viewModel.WeightScreenViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -57,9 +55,6 @@ fun NavGraph(
     logging().info { "NavGraph" }
 
     val user = Firebase.auth.currentUser
-    val scope = rememberCoroutineScope()
-
-    val weightScreenViewModel = koinViewModel<WeightScreenViewModel>()
 
     val syncWorker = koinViewModel<SyncWorkerViewModel>()
 
@@ -78,10 +73,6 @@ fun NavGraph(
             navController = navController
         )
 
-        LaunchedEffect(Unit) {
-            weightScreenViewModel.getAllItems()
-        }
-
         NavHost(navController = navController, startDestination = Destination.Launch.route) {
             composable(Destination.Launch.route) {
                 LaunchScreen()
@@ -94,7 +85,6 @@ fun NavGraph(
             }
             composable(Destination.Home.route) {
                 HomeScreen(
-                    weightScreenViewModel = weightScreenViewModel,
                     firebaseAuthViewModel = viewModel,
                     navController = navController
                 )
@@ -109,8 +99,7 @@ fun NavGraph(
             composable(Destination.Weight.route) {
                 WeightScreen(
                     navController = navController,
-                    backNavigationDirection = Destination.Home,
-                    viewModel = weightScreenViewModel,
+                    backNavigationDirection = Destination.Home
                 )
             }
             composable(
@@ -118,31 +107,15 @@ fun NavGraph(
                 enterTransition = { slideInWithFadeToTopAnimation() },
                 exitTransition = { slideOutWithFadeToTopAnimation() }
             ) {
-                weightScreenViewModel.uiState.collectAsState()
-
-                LaunchedEffect(Unit) {
-                    weightScreenViewModel.getLastWeight()
-                }
-
-                val lastWeight by weightScreenViewModel.lastWeight.collectAsState()
-
                 AddWeightSheet(
                     navController = navController,
-                    lastWeight = lastWeight,
                     onDismiss = {
                         navController.navigate(Destination.Weight.route)
-                    },
-                    onSaved = {
-                        scope.launch {
-                            weightScreenViewModel.addItem(it)
-                            navController.navigate(Destination.Weight.route)
-                        }
                     }
                 )
             }
             composable(Destination.ShowAllWeights.route) {
                 ShowAllWeights(
-                    weightScreenViewModel = weightScreenViewModel,
                     navController = navController
                 )
             }
