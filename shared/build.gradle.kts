@@ -120,6 +120,9 @@ buildkonfig {
 
         val apiHost: String = gradleLocalProperties(rootDir).getProperty("API_HOST") ?: ""
         buildConfigField(com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING, "API_HOST", apiHost)
+
+        val isDEV: String = gradleLocalProperties(rootDir).getProperty("DEV") ?: ""
+        buildConfigField(com.codingfeline.buildkonfig.compiler.FieldSpec.Type.BOOLEAN, "DEV", isDEV)
     }
 }
 
