@@ -4,7 +4,6 @@ import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
-import androidx.room.PrimaryKey
 import androidx.room.Relation
 import androidx.room.TypeConverters
 import kotlinx.datetime.Clock
@@ -13,11 +12,12 @@ import util.DateConverter
 import util.generateDeviceId
 
 @Serializable
-@Entity
+@Entity(
+    primaryKeys = ["medicationId"],
+)
 data class Medication(
-    val id: Int,
+    var id: Int = 0,
 
-    @PrimaryKey
     var medicationId: String = generateDeviceId(),
 
     var userId: String = "",
@@ -33,6 +33,7 @@ data class Medication(
 
 @Serializable
 @Entity(
+    primaryKeys = ["intakeTimeId"],
     foreignKeys = [ForeignKey(
         entity = Medication::class,
         parentColumns = ["medicationId"],
@@ -42,7 +43,6 @@ data class Medication(
     indices = [Index("medicationId")]
 )
 data class IntakeTime(
-    @PrimaryKey
     var intakeTimeId: String = generateDeviceId(),
 
     var intakeTime: String = Clock.System.now().toString(),
@@ -56,6 +56,7 @@ data class IntakeTime(
 
 @Serializable
 @Entity(
+    primaryKeys = ["intakeStatusId"],
     foreignKeys = [ForeignKey(
         entity = IntakeTime::class,
         parentColumns = ["intakeTimeId"],
@@ -65,7 +66,6 @@ data class IntakeTime(
     indices = [Index("intakeTimeId")]
 )
 data class IntakeStatus(
-    @PrimaryKey
     var intakeStatusId: String = generateDeviceId(),
 
     var intakeTimeId: String = "",

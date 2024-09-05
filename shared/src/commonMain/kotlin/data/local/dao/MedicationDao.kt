@@ -25,6 +25,16 @@ interface MedicationDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertIntakeStatuses(intakeStatuses: List<IntakeStatus>)
 
+    @Query("SELECT * FROM Medication WHERE medicationId = :medicationId")
+    suspend fun getMedicationByMedicationId(medicationId: String): Medication?
+
+    @Query("SELECT * FROM IntakeTime WHERE intakeTimeId = :intakeTimeId")
+    suspend fun getIntakeTimesByIntakeTimeId(intakeTimeId: String): IntakeTime?
+
+    @Query("SELECT * FROM IntakeStatus WHERE intakeStatusId = :intakeStatusId")
+    suspend fun getIntakeStatusesByIntakeStatusId(intakeStatusId: String): IntakeStatus?
+
+
     @Transaction
     @Query("""
         SELECT * FROM Medication
@@ -32,6 +42,7 @@ interface MedicationDao {
             SELECT * FROM IntakeTime
             WHERE Medication.medicationId = IntakeTime.medicationId
         )
+        ORDER BY Medication.name ASC
     """)
     fun getMedicationsWithIntakeTimesForToday(): Flow<List<MedicationWithIntakeDetailsForToday>>
 
@@ -39,6 +50,7 @@ interface MedicationDao {
     @Query("""
         SELECT * FROM Medication
         WHERE medicationId = :medicationId
+        ORDER BY Medication.name ASC
     """)
     fun getMedicationsWithIntakeTimesForTodayByMedicationID(medicationId: String): Flow<MedicationWithIntakeDetailsForToday>
 

@@ -7,8 +7,8 @@ import data.local.entitiy.Medication
 import data.local.entitiy.MedicationIntakeDataAfterTimeStamp
 import data.local.entitiy.MedicationWithIntakeDetails
 import data.local.entitiy.MedicationWithIntakeDetailsForToday
-import data.network.syncManager.CountdownTimerSyncManager
-import data.network.syncManager.MedicationSyncManager
+import data.remote.syncManager.CountdownTimerSyncManager
+import data.remote.syncManager.MedicationSyncManager
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.FirebaseUser
 import dev.gitlive.firebase.auth.auth

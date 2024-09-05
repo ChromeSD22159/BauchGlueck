@@ -4,7 +4,7 @@ import data.local.LocalDataSource
 import data.local.LocalDatabase
 import data.local.dao.CountdownTimerDao
 import data.local.entitiy.CountdownTimer
-import data.network.syncManager.CountdownTimerSyncManager
+import data.remote.syncManager.CountdownTimerSyncManager
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.FirebaseUser
 import dev.gitlive.firebase.auth.auth

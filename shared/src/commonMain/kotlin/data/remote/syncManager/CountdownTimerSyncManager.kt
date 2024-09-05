@@ -1,4 +1,4 @@
-package data.network.syncManager
+package data.remote.syncManager
 
 import data.local.LocalDataSource
 import data.local.LocalDatabase

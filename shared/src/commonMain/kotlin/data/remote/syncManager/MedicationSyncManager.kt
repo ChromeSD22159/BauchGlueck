@@ -1,4 +1,4 @@
-package data.network.syncManager
+package data.remote.syncManager
 
 import data.local.LocalDataSource
 import data.local.LocalDatabase
@@ -7,11 +7,9 @@ import data.local.dao.MedicationDao
 import data.local.dao.SyncHistoryDao
 import data.local.entitiy.IntakeStatus
 import data.local.entitiy.IntakeTime
-import data.local.entitiy.Medication
 import data.local.entitiy.MedicationIntakeDataAfterTimeStamp
 import data.local.entitiy.SyncHistory
 import data.remote.StrapiMedicationApiClient
-import data.remote.StrapiMedicationResponse
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.FirebaseUser
 import dev.gitlive.firebase.auth.auth
@@ -19,6 +17,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.withContext
 import org.lighthousegames.logging.logging
+import util.debugJsonHelper
 import util.onError
 import util.onSuccess
 
@@ -76,8 +75,6 @@ class MedicationSyncManager(
 
         sendChangedEntriesToServer(localChangedMedications)
 
-        /*
-        // 3. Vom Server alle seit dem letzten Sync geänderten Timer abrufen
         val response = apiService.fetchItemsAfterTimestamp(lastSync, user!!.uid)
         response.onSuccess { serverTimers ->
 
@@ -90,60 +87,42 @@ class MedicationSyncManager(
             }
 
             for (serverMedication in serverTimers) {
-                val localMedication = localService.getMedicationsWithIntakeTimesByMedicationID(serverMedication.medicationId)
 
-                if (localMedication != null) {
-                    logging().info { "Medication: ${serverMedication.name}: ${serverMedication.updatedAtOnDevice}" }
+                val existingMedicationOrNull = localService.getMedicationByMedicationId(serverMedication.medicationId)
+                val medicationToUpdate = serverMedication.toMedication()
 
-                    if (serverMedication.updatedAtOnDevice > localMedication.medication.updatedAtOnDevice) {
-                        // Wenn der medication auf dem Server neuer ist, aktualisiere den lokalen Timer
-                        localMedication.medication.name = serverMedication.name
-                        localMedication.medication.isDeleted = serverMedication.isDeleted
-                        localMedication.medication.updatedAtOnDevice = serverMedication.updatedAtOnDevice
-                        localMedication.medication.dosage = serverMedication.dosage
+                logging().info { "existingMedicationOrNull: ${existingMedicationOrNull?.medicationId}" }
+                logging().info { "medicationToUpdate: ${medicationToUpdate.medicationId}" }
 
-                        localService.insertMedication(localMedication.medication)
-                        localService.insertIntakeTimes(localMedication.intakeTimesWithStatus.map { it.intakeTime })
-                        localService.insertIntakeStatuses(localMedication.intakeTimesWithStatus.flatMap { it.intakeStatuses })
-                    }
-                } else {
-                    // Wenn der Medication noch nicht lokal existiert, füge ihn hinzu
-                    localService.insertMedication(
-                        Medication(
-                            id = serverMedication.id,
-                            medicationId = serverMedication.medicationId,
-                            userId = serverMedication.userId,
-                            name = serverMedication.name,
-                            dosage = serverMedication.dosage,
-                            updatedAtOnDevice = serverMedication.updatedAtOnDevice,
-                            isDeleted = serverMedication.isDeleted
-                        )
+                localService.insertMedication(medicationToUpdate)
+
+                val intakeTimes = serverMedication.intakeTimes.map { intakeTime ->
+                    IntakeTime(
+                        intakeTimeId = intakeTime.intakeTimeId,
+                        intakeTime = intakeTime.intakeTime,
+                        updatedAtOnDevice = intakeTime.updatedAtOnDevice,
+                        isDeleted = false,
+                        medicationId = medicationToUpdate.medicationId
                     )
+                }.filter { it.intakeTimeId.length >= 19 }
+                localService.insertIntakeTimes(intakeTimes)
 
-                    localService.insertIntakeTimes(
-                        serverMedication.intakeTimes.map {
-                            IntakeTime(
-                                intakeTimeId = it.id.toString(),
-                                intakeTime = it.intakeTime,
-                                medicationId = serverMedication.medicationId,
-                                updatedAtOnDevice = it.updatedAtOnDevice
-                            )
-                        }
-                    )
 
-                    serverMedication.intakeTimes.map {
-                        localService.insertIntakeStatuses(
-                            it.intakeStatuses.map { intakeStatus ->
-                                IntakeStatus(
-                                    intakeTimeId = it.id.toString(),
-                                    date = intakeStatus.date.toLong(),
-                                    isTaken = intakeStatus.isTaken,
-                                    updatedAtOnDevice = intakeStatus.updatedAtOnDevice
-                                )
-                            }
+                val intakeStatuses: List<IntakeStatus> = serverMedication.intakeTimes.flatMap { intakeTime ->
+                    intakeTime.intakeStatuses.map { status ->
+                        IntakeStatus(
+                            intakeStatusId = status.intakeStatusId,
+                            intakeTimeId = intakeTime.intakeTimeId,
+                            date = status.date,
+                            isTaken = status.isTaken,
+                            isDeleted = status.isDeleted
                         )
                     }
-                }
+                }.filter { it.intakeStatusId.length >= 19 && it.intakeTimeId.length >= 19 }
+
+                //debugJsonHelper(intakeStatuses)
+
+                localService.insertIntakeStatuses(intakeStatuses)
             }
 
             val newTimerStamp = SyncHistory(deviceId = deviceID,table = table)
@@ -152,6 +131,6 @@ class MedicationSyncManager(
             logging().info { "Save TimerStamp: ${newTimerStamp.lastSync}" }
         }
         response.onError { return }
-        */
+
     }
 }

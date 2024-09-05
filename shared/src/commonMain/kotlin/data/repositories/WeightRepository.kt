@@ -5,26 +5,20 @@ import data.local.LocalDatabase
 import data.local.dao.WeightDao
 import data.local.entitiy.Weight
 import data.model.DailyAverage
-import data.model.MonthlyAverage
-import data.model.WeeklyAverage
-import data.network.syncManager.WeightSyncManager
+import data.remote.syncManager.WeightSyncManager
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.FirebaseUser
 import dev.gitlive.firebase.auth.auth
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
-import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
-import kotlinx.datetime.isoDayNumber
 import kotlinx.datetime.minus
 import kotlinx.datetime.offsetAt
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
-import org.lighthousegames.logging.logging
 import util.toLocalDate
 
 class WeightRepository(
