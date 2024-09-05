@@ -25,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import data.local.entitiy.Weight
 import de.frederikkohler.bauchglueck.ui.components.BackScaffold
@@ -42,7 +43,7 @@ fun ShowAllWeights(
     navController: NavController,
 ) {
     val viewModel = koinViewModel<WeightScreenViewModel>()
-    val weights by viewModel.uiState.value.items.collectAsState(initial = emptyList())
+    val weights by viewModel.allWeights.collectAsStateWithLifecycle(initialValue = emptyList())
 
     BackScaffold(
         title = Destination.ShowAllWeights.title,

@@ -12,6 +12,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import de.frederikkohler.bauchglueck.R
 import de.frederikkohler.bauchglueck.ui.components.BackScaffold
@@ -28,7 +29,7 @@ fun TimerScreen(
     backNavigationDirection: Destination = Destination.Home,
 ) {
     val viewModel = koinViewModel<TimerScreenViewModel>()
-    val timers by viewModel.uiState.value.items.collectAsState(initial = emptyList())
+    val timers by viewModel.allTimers.collectAsStateWithLifecycle(initialValue = emptyList())
 
     BackScaffold(
         title = Destination.Timer.title,

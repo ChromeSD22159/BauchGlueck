@@ -3,88 +3,137 @@ package data.local.entitiy
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.ForeignKey
-import androidx.room.PrimaryKey
+import androidx.room.Index
 import androidx.room.Relation
 import androidx.room.TypeConverters
 import kotlinx.datetime.Clock
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import util.DateConverter
+import util.generateDeviceId
 
 @Serializable
-@Entity
+@Entity(
+    primaryKeys = ["medicationId"],
+)
 data class Medication(
+    var id: Int = 0,
 
-    val id: Int = 0,
+    var medicationId: String = generateDeviceId(),
 
-    @SerialName("userId")
     var userId: String = "",
 
-    @PrimaryKey
-    @SerialName("medicationId")
-    var medicationId: String = "",
+    var name: String = "",
 
-    @SerialName("name")
-    val name: String = "Medikamenten Namen",
+    var dosage: String = "",
 
-    @SerialName("dosage")
-    val dosage: String = "z.B. 200mg",
-
-    @SerialName("isDeleted")
     var isDeleted: Boolean = false,
 
-    @SerialName("updatedAtOnDevice")
-    @TypeConverters(DateConverter::class)
-    var updatedAtOnDevice: Long = Clock.System.now().toEpochMilliseconds(),
-
-
-    @SerialName("createdAt")
-    @TypeConverters(DateConverter::class)
-    var createdAt: Long = Clock.System.now().toEpochMilliseconds(),
-
-    @SerialName("updatedAt")
-    @TypeConverters(DateConverter::class)
-    var updatedAt: Long = Clock.System.now().toEpochMilliseconds()
+    var updatedAtOnDevice: Long = Clock.System.now().toEpochMilliseconds()
 )
 
+@Serializable
 @Entity(
+    primaryKeys = ["intakeTimeId"],
     foreignKeys = [ForeignKey(
         entity = Medication::class,
         parentColumns = ["medicationId"],
-        childColumns = ["id"],
+        childColumns = ["medicationId"],
         onDelete = ForeignKey.CASCADE
-    )]
+    )],
+    indices = [Index("medicationId")]
 )
+data class IntakeTime(
+    var intakeTimeId: String = generateDeviceId(),
 
-data class IntakeTimes(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    val intakeTime: String = "08:00",
+    var intakeTime: String = Clock.System.now().toString(),
 
-    @SerialName("token")
-    @TypeConverters(DateConverter::class)
-    var token: Long = Clock.System.now().toEpochMilliseconds(),
-
-    @SerialName("medicationId")
     var medicationId: String = "",
 
-    @SerialName("isDeleted")
     var isDeleted: Boolean = false,
 
-    @SerialName("createdAt")
-    @TypeConverters(DateConverter::class)
-    var createdAt: String = Clock.System.now().toString(),
-
-    @SerialName("updatedAt")
-    @TypeConverters(DateConverter::class)
-    var updatedAt: String = Clock.System.now().toString(),
+    var updatedAtOnDevice: Long = Clock.System.now().toEpochMilliseconds()
 )
 
-data class MedicationWithIntakeTimes(
+@Serializable
+@Entity(
+    primaryKeys = ["intakeStatusId"],
+    foreignKeys = [ForeignKey(
+        entity = IntakeTime::class,
+        parentColumns = ["intakeTimeId"],
+        childColumns = ["intakeTimeId"],
+        onDelete = ForeignKey.CASCADE
+    )],
+    indices = [Index("intakeTimeId")]
+)
+data class IntakeStatus(
+    var intakeStatusId: String = generateDeviceId(),
+
+    var intakeTimeId: String = "",
+
+    @TypeConverters(DateConverter::class)
+    var date: Long = Clock.System.now().toEpochMilliseconds(),
+
+    var isTaken: Boolean = false,
+
+    var isDeleted: Boolean = false,
+
+    var updatedAtOnDevice: Long = Clock.System.now().toEpochMilliseconds()
+)
+
+@Serializable
+data class MedicationWithIntakeDetails(
     @Embedded val medication: Medication,
 
     @Relation(
-        parentColumn = "id",
+        parentColumn = "medicationId",
         entityColumn = "medicationId"
     )
-    val intakeTimes: List<IntakeTimes>
+    val intakeTimesWithStatus: List<IntakeTimeWithStatus>
+)
+
+@Serializable
+data class IntakeTimeWithStatus(
+    @Embedded val intakeTime: IntakeTime,
+
+    @Relation(
+        parentColumn = "intakeTimeId",
+        entityColumn = "intakeTimeId"
+    )
+    var intakeStatuses: List<IntakeStatus>
+)
+
+@Serializable
+data class MedicationWithIntakeDetailsForToday(
+    @Embedded val medication: Medication,
+
+    @Relation(
+        entity = IntakeTime::class,
+        parentColumn = "medicationId",
+        entityColumn = "medicationId"
+    )
+    val intakeTimesWithStatus: List<IntakeTimeWithStatus>
+)
+
+@Serializable
+data class MedicationIntakeDataAfterTimeStamp(
+    @Embedded val medication: Medication,
+
+    @Relation(
+        entity = IntakeTime::class,
+        parentColumn = "medicationId",
+        entityColumn = "medicationId"
+    )
+    val intakeTimesWithStatus: List<IntakeTimeWithStatus>
+)
+
+@Serializable
+data class MedicationIntakeData(
+    @Embedded val medication: Medication,
+
+    @Relation(
+        entity = IntakeTime::class,
+        parentColumn = "medicationId",
+        entityColumn = "medicationId"
+    )
+    val intakeTimesWithStatus: List<IntakeTimeWithStatus>
 )

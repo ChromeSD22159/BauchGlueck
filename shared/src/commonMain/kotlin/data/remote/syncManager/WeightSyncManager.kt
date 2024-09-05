@@ -1,4 +1,4 @@
-package data.network.syncManager
+package data.remote.syncManager
 
 import data.local.LocalDataSource
 import data.local.LocalDatabase
@@ -21,9 +21,10 @@ import util.onSuccess
 class WeightSyncManager(
     db: LocalDatabase,
     serverHost: String,
-    private var deviceID: String
+    private var deviceID: String,
+    private val table: RoomTable = RoomTable.WEIGHT,
+    private var user: FirebaseUser? = Firebase.auth.currentUser
 ) {
-    var user: FirebaseUser? = Firebase.auth.currentUser
     private val apiService: StrapiWeightApiClient = StrapiWeightApiClient(serverHost)
     private var localService: WeightDao = LocalDataSource(db).weight
     private var syncHistory: SyncHistoryDao = LocalDataSource(db).syncHistory
@@ -49,7 +50,7 @@ class WeightSyncManager(
     suspend fun syncWeights() {
         if (user == null) return
 
-        val lastSync = syncHistory.getLatestSyncTimer(deviceID)?.sortedByDescending { it.lastSync }?.firstOrNull { it.table == RoomTable.WEIGHT }?.lastSync ?: 0L
+        val lastSync = syncHistory.getLatestSyncTimer(deviceID).sortedByDescending { it.lastSync }.firstOrNull { it.table == table }?.lastSync ?: 0L
         val localChangedWeights = localService.getAllAfterTimeStamp(lastSync, user!!.uid)
 
         logging().info { "* * * * * * * * * * SYNCING * * * * * * * * * * " }
@@ -83,7 +84,7 @@ class WeightSyncManager(
                         localWeight.weighed = serverWeight.weighed
                         localWeight.updatedAt = serverWeight.updatedAt
 
-                        localService.insertOrUpdate(localWeight)
+                        localService.insert(localWeight)
                     }
                 } else {
                     // Wenn der Weight noch nicht lokal existiert, füge ihn hinzu

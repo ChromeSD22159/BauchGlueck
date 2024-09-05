@@ -3,13 +3,16 @@ package data.repositories
 import data.local.LocalDataSource
 import data.local.LocalDatabase
 import data.local.dao.MedicationDao
-import data.local.dao.SyncHistoryDao
 import data.local.entitiy.Medication
-import data.remote.StrapiCountdownTimerApiClient
+import data.local.entitiy.MedicationIntakeDataAfterTimeStamp
+import data.local.entitiy.MedicationWithIntakeDetails
+import data.local.entitiy.MedicationWithIntakeDetailsForToday
+import data.remote.syncManager.CountdownTimerSyncManager
+import data.remote.syncManager.MedicationSyncManager
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.FirebaseUser
 import dev.gitlive.firebase.auth.auth
-import kotlinx.datetime.Clock
+import kotlinx.coroutines.flow.Flow
 
 class MedicationRepository(
     db: LocalDatabase,
@@ -17,24 +20,24 @@ class MedicationRepository(
     var user: FirebaseUser? = Firebase.auth.currentUser,
     var deviceID: String
 ) {
-
     private var localService: MedicationDao = LocalDataSource(db).medications
-    private var syncHistory: SyncHistoryDao = LocalDataSource(db).syncHistory
-    private val apiService: StrapiCountdownTimerApiClient = StrapiCountdownTimerApiClient(serverHost)
+    private var syncManager: MedicationSyncManager = MedicationSyncManager(db, serverHost, deviceID)
 
-    suspend fun insertMedication(medication: Medication) {
-        localService.insertMedication(medication)
+    suspend fun insertMedicationWithIntakeDetails(medicationWithIntakeDetails: MedicationWithIntakeDetails) {
+        localService.insertMedication(medicationWithIntakeDetails.medication)
+        localService.insertIntakeTimes(medicationWithIntakeDetails.intakeTimesWithStatus.map { it.intakeTime })
+        localService.insertIntakeStatuses(medicationWithIntakeDetails.intakeTimesWithStatus.flatMap { it.intakeStatuses })
     }
 
-    suspend fun getAllMedications(): List<Medication> {
-        return localService.getAllMedications(user!!.uid)
+    fun getMedicationsWithIntakeTimesForToday(): Flow<List<MedicationWithIntakeDetailsForToday>> {
+        return localService.getMedicationsWithIntakeTimesForToday()
     }
 
-    suspend fun updateMedication(medication: Medication) {
-        localService.updateMedication(medication)
+    fun getMedicationsWithIntakeTimesForTodayByMedicationID(medicationId: String): Flow<MedicationWithIntakeDetailsForToday> {
+        return localService.getMedicationsWithIntakeTimesForTodayByMedicationID(medicationId)
     }
 
-    suspend fun softDeleteMedicationById(id: Int) {
-        localService.softDeleteMedicationById(id)
+    suspend fun syncDataWithRemote() {
+        syncManager.syncMedications()
     }
 }

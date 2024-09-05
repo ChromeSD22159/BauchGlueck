@@ -26,6 +26,9 @@ data class WaterIntake(
     @SerialName("isDeleted")
     val isDeleted: Boolean = false,
 
+    @SerialName("updatedAtOnDevice")
+    var updatedAtOnDevice: Long = Clock.System.now().toEpochMilliseconds(),
+
     @SerialName("createdAt")
     @TypeConverters(DateConverter::class)
     var createdAt: Long = Clock.System.now().toEpochMilliseconds(),
