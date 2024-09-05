@@ -11,6 +11,7 @@ import data.local.entitiy.Weight
 import data.model.DailyAverage
 import data.model.MonthlyAverage
 import data.model.WeeklyAverage
+import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.Clock
 
 @Dao
@@ -18,6 +19,9 @@ interface WeightDao {
     // GET
     @Query("SELECT * FROM weight WHERE userId = :userId AND isDeleted = false")
     suspend fun getAll(userId: String): List<Weight>
+
+    @Query("SELECT * FROM weight WHERE isDeleted = false")
+    fun getAllAsFlow(): Flow<List<Weight>>
 
     @Query("SELECT * FROM weight WHERE weightId = :weightId AND isDeleted = false")
     suspend fun getById(weightId: String): Weight?
@@ -27,22 +31,7 @@ interface WeightDao {
 
 
     @Query("SELECT * FROM weight WHERE userId = :userId AND isDeleted = false ORDER BY weighed DESC LIMIT 1")
-    suspend fun getLastWeightFromUserId(userId: String): Weight?
-
-    @Query("""
-        SELECT AVG(value) as avgValue, 
-               strftime('%Y-%W', updatedAt / 1000, 'unixepoch') as week 
-        FROM Weight
-        WHERE isDeleted = 0
-          AND updatedAt >= :startDate
-        GROUP BY week
-        ORDER BY updatedAt DESC
-        LIMIT :weeks
-    """)
-    suspend fun getAverageWeightLastWeeks(weeks: Int, startDate: Long): List<WeeklyAverage>
-
-
-
+    fun getLastWeightFromUserId(userId: String): Flow<Weight?>
 
     @Query("""
         SELECT 
@@ -57,32 +46,10 @@ interface WeightDao {
     """)
     suspend fun getAverageWeightLastDays(days: Int, startDate: Long): List<DailyAverage>
 
-    @Query("""
-        SELECT AVG(value) as avgValue, 
-               strftime('%Y-%m', updatedAt / 1000, 'unixepoch') as month 
-        FROM Weight
-        WHERE isDeleted = 0
-          AND updatedAt >= :startDate
-        GROUP BY month
-        ORDER BY updatedAt DESC
-        LIMIT :months
-    """)
-    suspend fun getAverageWeightLastMonths(months: Int, startDate: Long): List<MonthlyAverage>
 
     // POST
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(weight: Weight): Long
-
-    @Update(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun update(weight: Weight)
-
-    @Transaction
-    suspend fun insertOrUpdate(weight: Weight) {
-        val id = insert(weight)
-        if (id == -1L) {
-            update(weight)
-        }
-    }
 
     // Delete
     @Update

@@ -44,6 +44,7 @@ import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.periodUntil
 import org.koin.androidx.compose.koinViewModel
+import org.lighthousegames.logging.logging
 import util.generateDeviceId
 import viewModel.WeightScreenViewModel
 import kotlin.math.abs
@@ -56,48 +57,39 @@ fun AddWeightScreen(
     onDismiss: () -> Unit = {},
 ) {
     val viewModel = koinViewModel<WeightScreenViewModel>()
+    val lastWeight by viewModel.lastWeight.collectAsState(initial = null)
 
-    // Lade das letzte Gewicht, wenn der Composable geladen wird
-    LaunchedEffect(Unit) {
-        viewModel.getLastWeight()
-    }
-
-    // Beobachte den Zustand von lastWeight (aka latestWeight)
-    val latestWeight by viewModel.lastWeight.collectAsState()
-
-    // Merke den aktuellen Gewichtszustand
-    val currentWeight: MutableState<Weight> = remember {
+    val currentWeight = remember {
         mutableStateOf(
             Weight(
                 weightId = generateDeviceId(),
                 userId = Firebase.auth.currentUser?.uid ?: "",
                 value = 0.0,
-                weighed = Clock.System.now().toString()
+                weighed = Clock.System.now().toString(),
+                updatedAtOnDevice = Clock.System.now().toEpochMilliseconds(),
+                createdAt = Clock.System.now().toString(),
+                updatedAt = Clock.System.now().toString()
             )
         )
     }
 
-    // Wenn das latestWeight geladen wird, aktualisiere das currentWeight, falls es noch nicht gesetzt wurde
-    LaunchedEffect(latestWeight) {
-        latestWeight?.let { weight ->
-            if (currentWeight.value.value == 0.0) {
-                currentWeight.value = weight.copy(value = weight.value + 0.0)
+    LaunchedEffect(Unit) {
+        viewModel.lastWeight.collect {
+            if (it != null) {
+                currentWeight.value.value = it.value
             }
         }
     }
 
-    // Berechnung der Gewichtsdifferenz und des Fortschritts
     val weightDifference by remember {
         derivedStateOf {
-            latestWeight?.let { lastWeight ->
-                currentWeight.value.value - lastWeight.value
-            } ?: 0.0
+            currentWeight.value.value - (lastWeight?.value ?: 0.0)
         }
     }
 
     val calculatedDifferenceProgressNew by remember {
         derivedStateOf {
-            latestWeight?.let { lastWeight ->
+            lastWeight?.let { lastWeight ->
                 if (lastWeight.value != 0.0) {
                     val percentageChange = (currentWeight.value.value - lastWeight.value) / lastWeight.value
                     abs(percentageChange).toFloat().coerceIn(0f, 1f)
@@ -110,7 +102,7 @@ fun AddWeightScreen(
 
     val daysSinceLastWeighing by remember {
         derivedStateOf {
-            latestWeight?.let { lastWeight ->
+            lastWeight?.let { lastWeight ->
                 val lastWeighedDate = Instant.parse(lastWeight.weighed)
                 val currentDate = Clock.System.now()
 
@@ -120,21 +112,18 @@ fun AddWeightScreen(
         }
     }
 
-    // Funktion zum Erhöhen des aktuellen Gewichts
     fun increaseWeight() {
         currentWeight.value = currentWeight.value.copy(
             value = currentWeight.value.value + steps
         )
     }
 
-    // Funktion zum Verringern des aktuellen Gewichts
     fun decreaseWeight() {
         currentWeight.value = currentWeight.value.copy(
             value = currentWeight.value.value - steps
         )
     }
 
-    // UI-Elemente und Logik für das Scrollen durch die Gewichtswerte etc.
     val scrollStateWeightValues = rememberScrollState()
     val weightList = (50..200 step 10).map { it.toDouble() }
 
@@ -251,6 +240,9 @@ fun AddWeightScreen(
 
                 Button(
                     onClick = {
+
+                        logging().info { "currentWeight.value: ${currentWeight.value}" }
+
                         viewModel.addItem(currentWeight.value)
                         navController.navigate(Destination.Home.route)
                     }

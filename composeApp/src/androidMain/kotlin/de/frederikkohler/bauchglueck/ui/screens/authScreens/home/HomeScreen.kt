@@ -58,7 +58,7 @@ fun HomeScreen(
 
     var showSettingSheet by remember { mutableStateOf(false) }
 
-    val dailyAverage by weightScreenViewModel.uiState.value.dailyAverage.collectAsState(initial = emptyList())
+    val dailyAverage by weightScreenViewModel.dailyAverage.collectAsState(initial = emptyList())
     val timers by timerScreenViewModel.uiState.value.items.collectAsState(initial = emptyList())
 
     Scaffold(

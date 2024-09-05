@@ -84,7 +84,7 @@ class WeightSyncManager(
                         localWeight.weighed = serverWeight.weighed
                         localWeight.updatedAt = serverWeight.updatedAt
 
-                        localService.insertOrUpdate(localWeight)
+                        localService.insert(localWeight)
                     }
                 } else {
                     // Wenn der Weight noch nicht lokal existiert, füge ihn hinzu
