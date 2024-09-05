@@ -41,6 +41,7 @@ import de.frederikkohler.bauchglueck.ui.screens.authScreens.settingsSheet.Settin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import org.lighthousegames.logging.logging
 import viewModel.TimerScreenViewModel
 import viewModel.WeightScreenViewModel
 
@@ -113,8 +114,9 @@ fun HomeScreen(
             }
 
             HomeTimerCard(timers) {
+                logging().info { "HomeTimerCard ${it.route}" }
                 scope.launch {
-                    navController.navigate(Destination.Timer.route)
+                    navController.navigate(it.route)
                 }
             }
 

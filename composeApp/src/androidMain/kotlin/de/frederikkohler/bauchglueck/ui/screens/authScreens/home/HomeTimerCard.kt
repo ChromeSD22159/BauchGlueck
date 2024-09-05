@@ -32,13 +32,14 @@ import data.local.entitiy.CountdownTimer
 import de.frederikkohler.bauchglueck.R
 import de.frederikkohler.bauchglueck.ui.components.CardTitle
 import de.frederikkohler.bauchglueck.ui.components.clickableWithRipple
+import de.frederikkohler.bauchglueck.ui.navigations.Destination
 import util.DateConverter
 
 @Composable
 fun HomeTimerCard(
     timers: List<CountdownTimer>,
     title: String = "Timer",
-    onNavigate: () -> Unit
+    onNavigate: (Destination) -> Unit
 ) {
 
     Column {
@@ -74,7 +75,7 @@ fun HomeTimerCard(
                         .clip(RoundedCornerShape(8.dp))
                         .background(MaterialTheme.colorScheme.primaryContainer)
                         .padding(6.dp).clickableWithRipple {
-                            onNavigate()
+                            onNavigate(Destination.Timer)
                         },
                     verticalArrangement = Arrangement.spacedBy(4.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
@@ -95,8 +96,8 @@ fun HomeTimerCard(
 
             Box(
                 modifier = Modifier
-                    .clickable {
-                        onNavigate()
+                    .clickableWithRipple {
+                       onNavigate(Destination.AddTimer)
                     }
                     .height(80.dp)
                     .width(100.dp)

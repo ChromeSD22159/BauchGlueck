@@ -13,6 +13,7 @@ import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.FirebaseUser
 import dev.gitlive.firebase.auth.auth
 import kotlinx.coroutines.flow.Flow
+import kotlinx.datetime.Clock
 
 class MedicationRepository(
     db: LocalDatabase,
@@ -24,9 +25,11 @@ class MedicationRepository(
     private var syncManager: MedicationSyncManager = MedicationSyncManager(db, serverHost, deviceID)
 
     suspend fun insertMedicationWithIntakeDetails(medicationWithIntakeDetails: MedicationWithIntakeDetails) {
-        localService.insertMedication(medicationWithIntakeDetails.medication)
-        localService.insertIntakeTimes(medicationWithIntakeDetails.intakeTimesWithStatus.map { it.intakeTime })
-        localService.insertIntakeStatuses(medicationWithIntakeDetails.intakeTimesWithStatus.flatMap { it.intakeStatuses })
+        val times = medicationWithIntakeDetails.intakeTimesWithStatus.map { it.intakeTime }
+        val statuses = medicationWithIntakeDetails.intakeTimesWithStatus.flatMap { it.intakeStatuses }
+        localService.insertMedication(medicationWithIntakeDetails.medication.copy(updatedAtOnDevice = Clock.System.now().toEpochMilliseconds()))
+        localService.insertIntakeTimes(times.map { it.copy(updatedAtOnDevice = Clock.System.now().toEpochMilliseconds()) })
+        localService.insertIntakeStatuses(statuses.map { it.copy(updatedAtOnDevice = Clock.System.now().toEpochMilliseconds()) })
     }
 
     fun getMedicationsWithIntakeTimesForToday(): Flow<List<MedicationWithIntakeDetailsForToday>> {
