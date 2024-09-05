@@ -12,7 +12,7 @@ interface SyncHistoryDao {
     suspend fun insertSyncHistory(syncHistory: SyncHistory)
 
     @Query("SELECT * FROM SyncHistory WHERE deviceId = :deviceId ORDER BY lastSync")
-    suspend fun getLatestSyncTimer(deviceId: String): List<SyncHistory>?
+    suspend fun getLatestSyncTimer(deviceId: String): List<SyncHistory>
 
     @Query("DELETE FROM SyncHistory")
     suspend fun deleteAllSyncHistory()

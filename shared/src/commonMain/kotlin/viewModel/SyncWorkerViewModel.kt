@@ -32,6 +32,7 @@ class SyncWorkerViewModel(
                 repository.firebaseRepository.user?.let {
                     repository.countdownTimerRepository.syncDataWithRemote()
                     repository.weightRepository.syncDataWithRemote()
+                    //repository.medicationRepository.syncDataWithRemote()
                 }
 
                 _uiState.value.isFinishedSyncing.value = true
