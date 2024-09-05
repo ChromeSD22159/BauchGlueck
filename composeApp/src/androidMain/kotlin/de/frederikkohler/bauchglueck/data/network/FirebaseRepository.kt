@@ -38,17 +38,6 @@ class FirebaseRepository: AuthApi {
 
     override suspend fun saveUserProfile(userProfile: UserProfile, connection: FirebaseConnection): Result<Unit> = suspendCoroutine { continuation ->
 
-    /*
-    when (connection) {
-        FirebaseConnection.Local -> {
-            db.android.disableNetwork().await()
-        }
-        FirebaseConnection.Remote -> {
-            db.android.enableNetwork().await()
-        }
-    }
-    */
-
         val userRef = db.android.collection(FirebaseCollection.Users.collectionName)
                                 .document(userProfile.uid)
 
