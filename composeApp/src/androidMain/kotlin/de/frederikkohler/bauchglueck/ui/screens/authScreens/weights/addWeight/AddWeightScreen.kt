@@ -30,7 +30,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -45,14 +44,13 @@ import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.periodUntil
 import org.koin.androidx.compose.koinViewModel
-import org.lighthousegames.logging.logging
 import util.generateDeviceId
 import viewModel.WeightScreenViewModel
 import kotlin.math.abs
 
 @Composable
 @RequiresApi(Build.VERSION_CODES.O)
-fun AddWeightSheet(
+fun AddWeightScreen(
     navController: NavController,
     steps: Double = 0.1,
     onDismiss: () -> Unit = {},

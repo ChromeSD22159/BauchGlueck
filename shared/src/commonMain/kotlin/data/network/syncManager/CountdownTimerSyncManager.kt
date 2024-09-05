@@ -21,7 +21,8 @@ import util.onSuccess
 class CountdownTimerSyncManager(
     db: LocalDatabase,
     serverHost: String,
-    private var deviceID: String
+    private var deviceID: String,
+    private val table: RoomTable = RoomTable.COUNTDOWN_TIMER
 ) {
     var user: FirebaseUser? = Firebase.auth.currentUser
     private val apiService: StrapiCountdownTimerApiClient = StrapiCountdownTimerApiClient(serverHost)
@@ -49,7 +50,7 @@ class CountdownTimerSyncManager(
     suspend fun syncTimers() {
         if (user == null) return
 
-        val lastSync = syncHistory.getLatestSyncTimer(deviceID)?.sortedByDescending { it.lastSync }?.firstOrNull { it.table == RoomTable.COUNTDOWN_TIMER }?.lastSync ?: 0L
+        val lastSync = syncHistory.getLatestSyncTimer(deviceID).sortedByDescending { it.lastSync }.firstOrNull { it.table == table }?.lastSync ?: 0L
         val localChangedTimers = localService.getAllAfterTimeStamp(lastSync, user!!.uid)
 
         logging().info { "* * * * * * * * * * SYNCING * * * * * * * * * * " }

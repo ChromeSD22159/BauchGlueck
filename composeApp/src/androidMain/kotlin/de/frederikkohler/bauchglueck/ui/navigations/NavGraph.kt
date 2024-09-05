@@ -17,21 +17,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.navArgument
-import data.local.entitiy.CountdownTimer
 import de.frederikkohler.bauchglueck.ui.components.BackScaffold
 import de.frederikkohler.bauchglueck.ui.screens.LaunchScreen
 import de.frederikkohler.bauchglueck.ui.screens.authScreens.meals.CalendarScreen
 import de.frederikkohler.bauchglueck.ui.screens.authScreens.home.HomeScreen
+import de.frederikkohler.bauchglueck.ui.screens.authScreens.medication.AddEditMedicationScreen
 import de.frederikkohler.bauchglueck.ui.screens.authScreens.medication.MedicationScreen
 import de.frederikkohler.bauchglueck.ui.screens.authScreens.timer.AddEditTimerSheet
 import de.frederikkohler.bauchglueck.ui.screens.authScreens.timer.TimerScreen
-import de.frederikkohler.bauchglueck.ui.screens.authScreens.weights.addWeight.AddWeightSheet
+import de.frederikkohler.bauchglueck.ui.screens.authScreens.weights.addWeight.AddWeightScreen
 import de.frederikkohler.bauchglueck.ui.screens.authScreens.weights.showAllWeights.ShowAllWeights
 import de.frederikkohler.bauchglueck.ui.screens.authScreens.weights.WeightScreen
 import de.frederikkohler.bauchglueck.viewModel.FirebaseAuthViewModel
@@ -107,7 +104,7 @@ fun NavGraph(
                 enterTransition = { slideInWithFadeToTopAnimation() },
                 exitTransition = { slideOutWithFadeToTopAnimation() }
             ) {
-                AddWeightSheet(
+                AddWeightScreen(
                     navController = navController,
                     onDismiss = {
                         navController.navigate(Destination.Weight.route)
@@ -139,7 +136,26 @@ fun NavGraph(
                     navController = navController
                 )
             }
-
+            composable(
+                route = Destination.AddMedication.route,
+                enterTransition = { slideInWithFadeToTopAnimation() },
+                exitTransition = { slideOutWithFadeToTopAnimation() }
+            ) {
+                AddEditMedicationScreen(
+                    navController = navController,
+                    currentMedication = null
+                )
+            }
+            composable(
+                route = Destination.EditMedication.route,
+                exitTransition = { slideOutWithFadeToTopAnimation() },
+                enterTransition = { slideInWithFadeToTopAnimation() },
+            ) {
+                AddEditMedicationScreen(
+                    navController = navController,
+                    currentMedication = navController.currentBackStackEntry?.savedStateHandle?.get<String>("medicationId")
+                )
+            }
 
 
 
