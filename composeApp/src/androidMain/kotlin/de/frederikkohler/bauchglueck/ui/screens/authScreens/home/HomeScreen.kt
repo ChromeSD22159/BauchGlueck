@@ -32,6 +32,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import data.FirebaseConnection
 import de.frederikkohler.bauchglueck.ui.navigations.Destination
@@ -59,7 +60,7 @@ fun HomeScreen(
     var showSettingSheet by remember { mutableStateOf(false) }
 
     val dailyAverage by weightScreenViewModel.dailyAverage.collectAsState(initial = emptyList())
-    val timers by timerScreenViewModel.uiState.value.items.collectAsState(initial = emptyList())
+    val timers by timerScreenViewModel.allTimers.collectAsStateWithLifecycle(initialValue = emptyList())
 
     Scaffold(
         topBar = {
