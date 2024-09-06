@@ -43,6 +43,10 @@ kotlin {
             api(libs.logging)
             api(libs.koin.core)
             implementation(libs.koin.compose)
+            implementation(libs.coil.compose)
+            implementation(libs.coil.mp)
+            implementation(libs.coil.network.ktor)
+            implementation(libs.coil.compose.core)
         }
     }
 }

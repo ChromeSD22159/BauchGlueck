@@ -27,7 +27,7 @@ import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
 import org.koin.androidx.compose.koinViewModel
 import org.lighthousegames.logging.logging
-import util.generateDeviceId
+import util.generateId
 import viewModel.TimerScreenViewModel
 
 @Composable
@@ -48,7 +48,7 @@ fun AddEditTimerSheet(
 
     var newOrUpdatedTimer: CountdownTimer by remember {
         mutableStateOf(selectedTimer ?: CountdownTimer(
-            timerId = generateDeviceId(),
+            timerId = generateId(),
             userId = Firebase.auth.currentUser?.uid ?: "",
         ))
     }
@@ -61,7 +61,7 @@ fun AddEditTimerSheet(
        newOrUpdatedTimer = selectedTimer?.let {
             it.copy(duration = it.duration / 60)
         } ?: CountdownTimer(
-            timerId = generateDeviceId(),
+            timerId = generateId(),
             userId = Firebase.auth.currentUser?.uid ?: "",
         )
 

@@ -32,7 +32,7 @@ actual class KeyValueStorage(context: Context) {
         val deviceId = getString("deviceId", "")
 
         if (deviceId == "") {
-            val newDeviceId = generateDeviceId()
+            val newDeviceId = generateId()
             putString("deviceId", newDeviceId)
             return newDeviceId
         } else {

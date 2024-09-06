@@ -21,7 +21,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -45,7 +44,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.periodUntil
 import org.koin.androidx.compose.koinViewModel
 import org.lighthousegames.logging.logging
-import util.generateDeviceId
+import util.generateId
 import viewModel.WeightScreenViewModel
 import kotlin.math.abs
 
@@ -62,7 +61,7 @@ fun AddWeightScreen(
     val currentWeight = remember {
         mutableStateOf(
             Weight(
-                weightId = generateDeviceId(),
+                weightId = generateId(),
                 userId = Firebase.auth.currentUser?.uid ?: "",
                 value = 0.0,
                 weighed = Clock.System.now().toString(),
