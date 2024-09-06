@@ -14,9 +14,7 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import util.createHttpClientEngine
 
-fun createHttpClient(
-
-): HttpClient {
+fun createHttpClient(): HttpClient {
     val engine = createHttpClientEngine()
     val apiKey = BuildKonfig.API_KEY
     
