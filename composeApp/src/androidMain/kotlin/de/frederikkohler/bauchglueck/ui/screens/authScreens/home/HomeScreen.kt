@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -41,6 +42,7 @@ import de.frederikkohler.bauchglueck.ui.screens.authScreens.settingsSheet.Settin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import org.lighthousegames.logging.logging
 import viewModel.TimerScreenViewModel
 import viewModel.WeightScreenViewModel
 
@@ -98,6 +100,10 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(90.dp))
 
+            Button(onClick = { navController.navigate(Destination.Recipes.route) }) {
+                Text(text = "Rezepte")
+            }
+
             HomeCalendarCard {
                 scope.launch {
                     navController.navigate(Destination.Calendar.route)
@@ -113,8 +119,9 @@ fun HomeScreen(
             }
 
             HomeTimerCard(timers) {
+                logging().info { "HomeTimerCard ${it.route}" }
                 scope.launch {
-                    navController.navigate(Destination.Timer.route)
+                    navController.navigate(it.route)
                 }
             }
 

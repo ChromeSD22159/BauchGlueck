@@ -25,6 +25,7 @@ kotlin {
         androidMain.dependencies {
             implementation(compose.preview)
             implementation("androidx.compose.animation:animation:1.5.4")
+            implementation("androidx.core:core-splashscreen:1.0.0")
             implementation(libs.androidx.activity.compose)
             implementation(libs.ktor.client.okhttp)
             implementation(libs.koin.android)
@@ -43,6 +44,10 @@ kotlin {
             api(libs.logging)
             api(libs.koin.core)
             implementation(libs.koin.compose)
+            implementation(libs.coil.compose)
+            implementation(libs.coil.mp)
+            implementation(libs.coil.network.ktor)
+            implementation(libs.coil.compose.core)
         }
     }
 }
@@ -91,7 +96,7 @@ dependencies {
     implementation(projects.shared)
     implementation(libs.androidx.material3.android)
     implementation(libs.androidx.ui.text.google.fonts)
-    implementation(libs.play.services.measurement.api)
+    //implementation(libs.play.services.measurement.api)
     implementation(libs.bundles.firebase.services)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.legacy.support.v4)

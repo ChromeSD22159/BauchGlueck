@@ -55,7 +55,7 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
-import util.generateDeviceId
+import util.generateId
 import viewModel.MedicationViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -70,7 +70,7 @@ fun AddEditMedicationScreen(
         mutableStateOf( MedicationWithIntakeDetails(
             medication = Medication(
                 id = 0,
-                medicationId = generateDeviceId(),
+                medicationId = generateId(),
                 userId = Firebase.auth.currentUser?.uid ?: "",
                 dosage = "",
                 name = "",
