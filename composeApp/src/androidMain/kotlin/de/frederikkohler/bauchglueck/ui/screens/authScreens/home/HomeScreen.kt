@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -98,6 +99,10 @@ fun HomeScreen(
         ) {
 
             Spacer(modifier = Modifier.height(90.dp))
+
+            Button(onClick = { navController.navigate(Destination.Recipes.route) }) {
+                Text(text = "Rezepte")
+            }
 
             HomeCalendarCard {
                 scope.launch {

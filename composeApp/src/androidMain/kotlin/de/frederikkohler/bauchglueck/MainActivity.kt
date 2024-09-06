@@ -3,7 +3,6 @@ package de.frederikkohler.bauchglueck
 import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Build
-import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -20,6 +19,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import coil3.ImageLoader
+import coil3.PlatformContext
+import coil3.annotation.ExperimentalCoilApi
+import coil3.compose.setSingletonImageLoaderFactory
+import coil3.request.crossfade
+import coil3.util.DebugLogger
 import de.frederikkohler.bauchglueck.ui.navigations.NavGraph
 import de.frederikkohler.bauchglueck.ui.theme.AppTheme
 import de.frederikkohler.bauchglueck.viewModel.FirebaseAuthViewModel
@@ -41,10 +46,15 @@ class MainActivity : ComponentActivity() {
         app()
     }
 
+    @OptIn(ExperimentalCoilApi::class)
     @RequiresApi(Build.VERSION_CODES.O)
     private fun app() {
         setContent {
             AppTheme {
+
+                setSingletonImageLoaderFactory { context ->
+                    getAsyncImageLoader(context)
+                }
 
                 Surface(
                     modifier = Modifier.fillMaxSize(),
@@ -104,3 +114,7 @@ inline fun <reified T: ViewModel> koinViewModel(): T {
         scope.get<T>()
     }
 }
+
+fun getAsyncImageLoader(context: PlatformContext) = ImageLoader.Builder(context).crossfade(true).logger(
+    DebugLogger()
+).build()

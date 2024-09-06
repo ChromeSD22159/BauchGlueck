@@ -6,7 +6,7 @@ import data.repositories.WaterIntakeRepository
 import data.repositories.WeightRepository
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
-import viewModel.StrapiRecipeApiClient
+import data.remote.StrapiRecipeApiClient
 
 class Repository(
     val countdownTimerRepository: CountdownTimerRepository,

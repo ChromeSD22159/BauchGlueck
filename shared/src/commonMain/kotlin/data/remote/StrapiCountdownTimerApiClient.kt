@@ -16,21 +16,19 @@ import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.serialization.SerializationException
 import util.NetworkError
 import util.Result
-import viewModel.apiCall
-import viewModel.generateRequestURL
-import viewModel.replacePlaceholders
+import data.network.replacePlaceholders
 
 class StrapiCountdownTimerApiClient(
     private val serverHost: String,
     private val httpClient: HttpClient = createHttpClient()
-): StrapiSyncApi<CountdownTimer, SyncResponse> {
+): BaseApiClient() {
 
     enum class ApiEndpoint(override var urlPath: String, override val method: HttpMethod): BaseApiEndpoint {
         COUNTDOWN_TIMER_UPDATE_REMOTE_DATA("/api/timer/updateRemoteData", HttpMethod.Post),
         COUNTDOWN_TIMER_FETCH_TIMERS_AFTER_TIMESTAMP("/api/timer/fetchItemsAfterTimeStamp?timeStamp={timestamp}&userId={userID}", HttpMethod.Get)
     }
 
-    override suspend fun updateRemoteData(entities: List<CountdownTimer>): Result<SyncResponse, NetworkError> {
+    suspend fun updateRemoteData(entities: List<CountdownTimer>): Result<SyncResponse, NetworkError> {
         val endpoint = ApiEndpoint.COUNTDOWN_TIMER_UPDATE_REMOTE_DATA
 
         val response = try {
@@ -65,12 +63,11 @@ class StrapiCountdownTimerApiClient(
         }
     }
 
-    override suspend fun fetchItemsAfterTimestamp(timestamp: Long, userID: String): Result<List<CountdownTimer>, NetworkError> {
+    suspend fun fetchItemsAfterTimestamp(timestamp: Long, userID: String): Result<List<CountdownTimer>, NetworkError> {
         val endpoint = ApiEndpoint.COUNTDOWN_TIMER_FETCH_TIMERS_AFTER_TIMESTAMP
         endpoint.replacePlaceholders("{timestamp}", timestamp.toString())
         endpoint.replacePlaceholders("{userID}", userID)
-        endpoint.generateRequestURL(serverHost)
 
-        return  apiCall<List<CountdownTimer>>(endpoint.urlPath , httpClient, timestamp)
+        return apiCall(endpoint.generateRequestURL(serverHost) , httpClient, timestamp)
     }
 }

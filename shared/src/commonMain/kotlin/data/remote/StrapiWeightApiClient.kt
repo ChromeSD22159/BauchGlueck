@@ -17,21 +17,19 @@ import kotlinx.serialization.SerializationException
 import org.lighthousegames.logging.logging
 import util.NetworkError
 import util.Result
-import viewModel.apiCall
-import viewModel.generateRequestURL
-import viewModel.replacePlaceholders
+import data.network.replacePlaceholders
 
 class StrapiWeightApiClient(
     private val serverHost: String,
     private val httpClient: HttpClient = createHttpClient()
-): StrapiSyncApi<Weight, SyncResponse> {
+): BaseApiClient() {
 
     enum class ApiEndpoint(override var urlPath: String, override val method: HttpMethod): BaseApiEndpoint {
         COUNTDOWN_TIMER_UPDATE_REMOTE_DATA("/api/weight/updateRemoteData", HttpMethod.Post),
         COUNTDOWN_TIMER_FETCH_TIMERS_AFTER_TIMESTAMP("/api/weight/fetchItemsAfterTimeStamp?timeStamp={timestamp}&userId={userID}", HttpMethod.Get)
     }
 
-    override suspend fun updateRemoteData(entities: List<Weight>): Result<SyncResponse, NetworkError> {
+    suspend fun updateRemoteData(entities: List<Weight>): Result<SyncResponse, NetworkError> {
         val endpoint = ApiEndpoint.COUNTDOWN_TIMER_UPDATE_REMOTE_DATA
 
         val response = try {
@@ -67,12 +65,11 @@ class StrapiWeightApiClient(
         }
     }
 
-    override suspend fun fetchItemsAfterTimestamp(timestamp: Long, userID: String): Result<List<Weight>, NetworkError> {
+    suspend fun fetchItemsAfterTimestamp(timestamp: Long, userID: String): Result<List<Weight>, NetworkError> {
         val endpoint = ApiEndpoint.COUNTDOWN_TIMER_FETCH_TIMERS_AFTER_TIMESTAMP
         endpoint.replacePlaceholders("{timestamp}", timestamp.toString())
         endpoint.replacePlaceholders("{userID}", userID)
-        endpoint.generateRequestURL(serverHost)
 
-        return apiCall( endpoint.urlPath , httpClient, timestamp)
+        return apiCall(endpoint.generateRequestURL(serverHost) , httpClient, timestamp)
     }
 }
