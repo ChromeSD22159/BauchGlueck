@@ -16,8 +16,12 @@ import data.local.entitiy.SyncHistory
 import data.local.entitiy.WaterIntake
 import data.local.entitiy.Weight
 import data.local.entitiy.Meal
+import data.local.entitiy.MealPlanDay
+import data.local.entitiy.MealPlanSpot
 import data.local.entitiy.MealCategory
 import data.local.entitiy.MealCategoryCrossRef
+import data.local.entitiy.ShoppingList
+import data.local.entitiy.ShoppingListItem
 
 @Database(
     entities = [
@@ -30,11 +34,13 @@ import data.local.entitiy.MealCategoryCrossRef
         IntakeStatus::class,
         Meal::class,
         MealCategory::class,
-        MealCategoryCrossRef::class
-        //MealPlan::class,
-        //Recipe::class
+        MealCategoryCrossRef::class,
+        MealPlanDay::class,
+        MealPlanSpot::class,
+        ShoppingList::class,
+        ShoppingListItem::class
    ],
-    version = 6,
+    version = 8,
     exportSchema = false
 )
 abstract class LocalDatabase: RoomDatabase(), DB {
