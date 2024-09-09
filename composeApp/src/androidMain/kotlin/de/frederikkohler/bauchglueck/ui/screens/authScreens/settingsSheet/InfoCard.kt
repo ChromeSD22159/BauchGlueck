@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.dp
 import de.frederikkohler.bauchglueck.R
 import de.frederikkohler.bauchglueck.ui.theme.AppTheme
 import de.frederikkohler.bauchglueck.utils.getDifferenceDateString
-import model.UserProfile
+import data.model.UserProfile
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable

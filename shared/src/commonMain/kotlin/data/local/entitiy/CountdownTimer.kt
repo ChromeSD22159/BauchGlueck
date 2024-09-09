@@ -44,3 +44,10 @@ data class CountdownTimer(
 
     var toUpdateAtLong: Long = Instant.parse(updatedAt).toEpochMilliseconds()
 }
+
+enum class TimerState(val value: String) {
+    running("running"),
+    paused("paused"),
+    completed("completed"),
+    notRunning("notRunning")
+}
