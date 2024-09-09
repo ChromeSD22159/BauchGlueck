@@ -7,6 +7,7 @@ import viewModel.TimerScreenViewModel
 import viewModel.WeightScreenViewModel
 import viewModel.MedicationViewModel
 import viewModel.RecipeViewModel
+import viewModel.MealViewModel
 
 actual val viewModelModule = module {
     singleOf(::TimerScreenViewModel)
@@ -14,4 +15,5 @@ actual val viewModelModule = module {
     singleOf(::SyncWorkerViewModel)
     singleOf(::MedicationViewModel)
     singleOf(::RecipeViewModel)
+    singleOf(::MealViewModel)
 }

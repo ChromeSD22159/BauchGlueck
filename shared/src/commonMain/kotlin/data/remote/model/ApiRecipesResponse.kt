@@ -2,6 +2,8 @@ package data.remote.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 @Serializable
 data class ApiRecipesResponse(
@@ -15,10 +17,50 @@ data class ApiRecipesResponse(
     @SerialName("isPrivate") val isPrivate: Boolean,
     @SerialName("isDeleted") val isDeleted: Boolean,
     @SerialName("preparation") val preparation: String,
-    @SerialName("ingredients") val ingredients: List<Ingredient>,
+    @SerialName("preparationTimeInMinutes") val preparationTimeInMinutes: Int,
+    @SerialName("ingredients") var ingredients: List<Ingredient>,
     @SerialName("mainImage") val mainImage: MainImage,
-    @SerialName("category") val category: Category
-)
+    @SerialName("category") val category: Category,
+    @SerialName("protein") val protein: Double = 0.0,
+    @SerialName("fat") val fat: Double = 0.0,
+    @SerialName("sugar") val sugar : Double = 0.0,
+    @SerialName("kcal") val kcal: Double = 0.0,
+) {
+    var ingredientsString: String
+        get() {
+            return Json.encodeToString(this.ingredients)
+        }
+        set(_) {}
+
+    var mainImageString: String
+        get() {
+            return Json.encodeToString(this.mainImage)
+        }
+        set(_) {}
+
+    fun toRoomMeal(): data.local.entitiy.Meal {
+        return data.local.entitiy.Meal(
+            id = this.id,
+            mealId = this.mealId,
+            userId = this.userId,
+            name = this.name,
+            description = this.description,
+            isSnack = this.isSnack,
+            isPrivate = this.isPrivate,
+            isDeleted = this.isDeleted,
+            preparation = this.preparation,
+            preparationTimeInMinutes = this.preparationTimeInMinutes,
+            ingredientsString = this.ingredientsString,
+            mainImageString = this.mainImageString,
+            protein = this.protein,
+            fat = this.fat,
+            sugar = this.sugar,
+            kcal = this.kcal,
+            updatedAtOnDevice = this.updatedAtOnDevice,
+            categoryId = this.category.categoryId
+        )
+    }
+}
 
 @Serializable
 data class Ingredient(
@@ -71,6 +113,13 @@ data class ImageFormat(
 @Serializable
 data class Category(
     @SerialName("id") val id: Int,
-    @SerialName("categoryId") val categoryId: String,
-    @SerialName("name") val name: String
-)
+    @SerialName("categoryId") var categoryId: String,
+    @SerialName("name") var name: String
+) {
+    fun toRoomCategory(): data.local.entitiy.MealCategory {
+        return data.local.entitiy.MealCategory(
+            categoryId = this.categoryId,
+            name = this.name
+        )
+    }
+}

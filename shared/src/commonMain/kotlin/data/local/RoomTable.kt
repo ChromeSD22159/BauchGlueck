@@ -5,7 +5,8 @@ enum class RoomTable(val tableName: String) {
     SYNC_HISTORY("syncHistory"),
     WEIGHT("weight"),
     WATER_INTAKE("waterIntake"),
-    MEDICATION("medication");
+    MEDICATION("medication"),
+    Meal("meal");
     //MEAL_PLAN("mealPlan"),
     //RECIPE("recipe")
 

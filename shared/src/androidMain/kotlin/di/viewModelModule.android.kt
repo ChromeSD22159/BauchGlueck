@@ -2,6 +2,7 @@ package di
 
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
+import viewModel.MealViewModel
 import viewModel.MedicationViewModel
 import viewModel.RecipeViewModel
 import viewModel.SyncWorkerViewModel
@@ -14,4 +15,6 @@ actual val viewModelModule = module {
     viewModel { SyncWorkerViewModel(get()) }
     viewModel { MedicationViewModel(get()) }
     viewModel { RecipeViewModel(get()) }
+    viewModel { MealViewModel(get()) }
+
 }

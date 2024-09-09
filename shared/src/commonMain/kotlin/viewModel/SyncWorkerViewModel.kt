@@ -33,6 +33,7 @@ class SyncWorkerViewModel(
                     repository.countdownTimerRepository.syncDataWithRemote()
                     repository.weightRepository.syncDataWithRemote()
                     repository.medicationRepository.syncDataWithRemote()
+                    repository.mealRepository.syncLocalStartUpMeals()
                 }
 
                 _uiState.value.isFinishedSyncing.value = true

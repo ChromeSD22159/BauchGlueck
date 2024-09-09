@@ -43,6 +43,7 @@ kotlin {
             implementation(libs.multiplatform.settings)
             api(libs.logging)
             api(libs.koin.core)
+            implementation(libs.kotlinx.serialization.json)
             implementation(libs.koin.compose)
             implementation(libs.coil.compose)
             implementation(libs.coil.mp)

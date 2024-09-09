@@ -8,4 +8,5 @@ class LocalDataSource(
     val waterIntake = db.waterIntake
     val syncHistory = db.syncHistoryDao
     val medications = db.medicationDao
+    val meals = db.mealDao
 }

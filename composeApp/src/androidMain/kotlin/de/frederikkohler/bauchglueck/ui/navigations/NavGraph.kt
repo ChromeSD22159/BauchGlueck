@@ -4,33 +4,30 @@ import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import bauchglueck.composeapp.generated.resources.Res
-import bauchglueck.composeapp.generated.resources.stromarch
-import coil3.compose.AsyncImage
 import de.frederikkohler.bauchglueck.ui.components.BackScaffold
+import de.frederikkohler.bauchglueck.ui.components.GenerateRecipeWithGemini
 import de.frederikkohler.bauchglueck.ui.screens.LaunchScreen
 import de.frederikkohler.bauchglueck.ui.screens.authScreens.meals.CalendarScreen
 import de.frederikkohler.bauchglueck.ui.screens.authScreens.home.HomeScreen
@@ -47,12 +44,13 @@ import de.frederikkohler.bauchglueck.ui.screens.publicScreens.RegisterView
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
 import di.serverHost
-import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.KoinContext
 import org.lighthousegames.logging.logging
 import org.koin.androidx.compose.koinViewModel
 import viewModel.RecipeViewModel
 import viewModel.SyncWorkerViewModel
+import de.frederikkohler.bauchglueck.ui.components.RecipeCard
+import kotlin.random.Random
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -235,42 +233,30 @@ fun NavGraphBuilder.recipesComposable(navController: NavHostController) {
     composable(Destination.Recipes.route) {
         val recipeViewModel = koinViewModel<RecipeViewModel>()
 
-        val recipesState by recipeViewModel.recipes.collectAsStateWithLifecycle()
+        val localMealsCount by recipeViewModel.localMealCount.collectAsStateWithLifecycle(initialValue = 0)
+        val localMealsState by recipeViewModel.localMeals.collectAsStateWithLifecycle(initialValue = emptyList())
 
-        LaunchedEffect(Unit) {
-            recipeViewModel.fetchRecipes()
+        LaunchedEffect(localMealsCount) {
+            logging().info { "localMealsState: $localMealsCount" }
         }
 
-        LaunchedEffect(recipesState) {
-            logging().info { "recipesState: ${recipesState.size}" }
-        }
-
-        LazyColumn(
-            modifier = Modifier
-                .padding(20.dp)
-                .fillMaxSize(),
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+        Column(
+            modifier = Modifier.padding(top = 55.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            items(recipesState) { recipe ->
-                Column(
-                    modifier = Modifier
-                        .wrapContentHeight()
-                        .padding(vertical = 8.dp)
+            Text(
+                modifier = Modifier.padding(horizontal = 10.dp),
+                text = "Rezepte"
+            )
 
-                ) {
-
-                    AsyncImage(
-                        model = serverHost + recipe.mainImage.formats.small.url,
-                        placeholder = painterResource(Res.drawable.stromarch),
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.clip(CircleShape)
-                    )
-
-                    Text(text = recipe.name)
-
-                    Text(text = recipe.description)
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize(),
+                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 0.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                items(localMealsState) { meal ->
+                    RecipeCard(meal)
                 }
             }
         }
@@ -319,3 +305,6 @@ fun NavGraphBuilder.timerComposable(navController: NavHostController) {
         )
     }
 }
+
+
+
