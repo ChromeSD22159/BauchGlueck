@@ -103,7 +103,7 @@ fun RecipeCard(
                             rowModifier = Modifier.weight(1f),
                             items = listOf(
                                 Pair(R.drawable.ic_sugar, "${mealWithCategories.meal.sugar}g"),
-                                Pair(R.drawable.ic_kcal, "${mealWithCategories.meal.kcal.decimal(0)}g")
+                                Pair(R.drawable.ic_kcal, "${mealWithCategories.meal.kcal.decimal(0)} kcal")
                             )
                         )
                     }

@@ -6,13 +6,18 @@ import data.local.RoomTable
 import data.local.dao.MealPlanDao
 import data.local.dao.MedicationDao
 import data.local.dao.SyncHistoryDao
+import data.local.entitiy.MealPlanDay
+import data.local.entitiy.MealPlanDayWithSpots
 import data.remote.BaseApiClient
 
 import data.remote.StrapiApiClient
 import data.remote.model.ApiMealPlanDayResponse
+import data.remote.model.SyncResponse
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.FirebaseUser
 import dev.gitlive.firebase.auth.auth
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import util.debugJsonHelper
 import util.onSuccess
 
@@ -29,70 +34,46 @@ class MealPlanSyncManager(
 
     suspend fun syncMealPlan() {
         if (user == null) return
-        val lastSync = syncHistory.getLatestSyncTimer(deviceID).sortedByDescending { it.lastSync }.firstOrNull { it.table == table }?.lastSync ?: 0L
+        val lastSync =  syncHistory.lastSync(deviceID, table)
+        val localChangedMealPlans = localService.getMealPlansWithSpotsAfterTimeStamp(lastSync)
 
+        // Send Changed MealPlans to Server
+        /*
+        apiService.sendChangedEntriesToServer<MealPlanDayWithSpots, SyncResponse>(
+            localChangedMealPlans,
+            table,
+            BaseApiClient.UpdateRemoteEndpoint.MEAL_PLAN
+        )
+        */
+
+
+        // Receive Changed MealPlans from Server
         val response = apiService.fetchItemsAfterTimestamp<List<ApiMealPlanDayResponse>>(
             BaseApiClient.FetchAfterTimestampEndpoint.MealPlan,
             lastSync,
             user!!.uid
         )
+        response.onSuccess { mealPlayDays ->
+            mealPlayDays.forEach {
 
-        response.onSuccess {
-            debugJsonHelper(it)
-        }
+                val plan = it.toMealPlanDay()
 
-        /*
-        apiService.sendChangedEntriesToServer<MedicationIntakeDataAfterTimeStamp, SyncResponse>(
-            localChangedMedications,
-            table,
-            BaseApiClient.UpdateRemoteEndpoint.MEDICATION
-        )
-        */
+                val slots: List<data.local.entitiy.MealPlanSpot> = emptyList()
 
-        /*
-        val response = apiService.fetchItemsAfterTimestamp<List<ApiMedicationResponse>>(
-            BaseApiClient.FetchAfterTimestampEndpoint.MEDICATION,
-            lastSync,
-            user!!.uid
-        )
+                it.mealPlanSlots.forEach { slot ->
+                    val mealPlanSlot = slot.toRoomMealPlanSlot()
+                    mealPlanSlot.mealPlanDayId = plan.mealPlanDayId
+                    mealPlanSlot.meal = Json.encodeToString(slot.meal)
+                    mealPlanSlot.mealObject = slot.meal.toRoomMeal()
+                    slots.plus(mealPlanSlot)
+                }
 
-        response.onSuccess { serverTimers ->
+                localService.insertMealPlanDay(plan)
 
-            for (serverMedication in serverTimers) {
-
-                val medicationToUpdate = serverMedication.toMedication()
-
-                localService.insertMedication(medicationToUpdate)
-
-                val intakeTimes = serverMedication.intakeTimes.map { intakeTime ->
-                    IntakeTime(
-                        intakeTimeId = intakeTime.intakeTimeId,
-                        intakeTime = intakeTime.intakeTime,
-                        updatedAtOnDevice = intakeTime.updatedAtOnDevice,
-                        isDeleted = false,
-                        medicationId = medicationToUpdate.medicationId
-                    )
-                }.filter { it.intakeTimeId.length >= 19 }
-                localService.insertIntakeTimes(intakeTimes)
-
-                val intakeStatuses: List<IntakeStatus> = serverMedication.intakeTimes.flatMap { intakeTime ->
-                    intakeTime.intakeStatuses.map { status ->
-                        IntakeStatus(
-                            intakeStatusId = status.intakeStatusId,
-                            intakeTimeId = intakeTime.intakeTimeId,
-                            date = status.date,
-                            isTaken = status.isTaken,
-                            isDeleted = status.isDeleted
-                        )
-                    }
-                }.filter { it.intakeStatusId.length >= 19 && it.intakeTimeId.length >= 19 }
-
-                localService.insertIntakeStatuses(intakeStatuses)
+                if (slots.isNotEmpty()) {
+                    localService.insertMealPlanSpots(slots)
+                }
             }
-
-            syncHistory.setNewTimeStamp(table, deviceID)
         }
-        response.onError { return }
-        */
     }
 }

@@ -14,7 +14,17 @@ data class ApiMealPlanDayResponse(
     val date: String,
     val isDeleted: Boolean,
     val mealPlanSlots: List<MealPlanSlot>,
-)
+) {
+    fun toMealPlanDay(): data.local.entitiy.MealPlanDay {
+        return data.local.entitiy.MealPlanDay(
+            mealPlanDayId = this.mealPlanDayId,
+            userId = this.userId,
+            date = this.date,
+            isDeleted = this.isDeleted,
+            updatedAtOnDevice = this.updatedAtOnDevice.toLong(),
+        )
+    }
+}
 
 @Serializable
 data class MealPlanSlot(
@@ -24,7 +34,20 @@ data class MealPlanSlot(
     val isDeleted: Boolean,
     val updatedAtOnDevice: Long,
     val meal: Meal,
-)
+) {
+    fun toRoomMealPlanSlot(): data.local.entitiy.MealPlanSpot {
+        return data.local.entitiy.MealPlanSpot(
+            mealPlanDayId = "",
+            mealPlanSpotId = this.mealPlanSlotId,
+            mealId = this.meal.mealId,
+            userId = this.userId,
+            meal = Json.encodeToString(this.meal),
+            timeSlot = this.timeSlot,
+            isDeleted = this.isDeleted,
+            updatedAtOnDevice = this.updatedAtOnDevice,
+        )
+    }
+}
 
 @Serializable
 data class Meal(

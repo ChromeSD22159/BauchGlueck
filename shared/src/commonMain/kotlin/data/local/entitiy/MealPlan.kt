@@ -42,7 +42,7 @@ data class MealPlanDay(
 )
 data class MealPlanSpot(
     @PrimaryKey val mealPlanSpotId: String = "",
-    val mealPlanDayId: String = "",
+    var mealPlanDayId: String = "",
     val mealId: String = "",
     val userId: String = "",
     val timeSlot: String = "",
