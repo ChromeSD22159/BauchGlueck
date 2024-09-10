@@ -9,7 +9,11 @@ import data.local.entitiy.IntakeStatus
 import data.local.entitiy.IntakeTime
 import data.local.entitiy.MedicationIntakeDataAfterTimeStamp
 import data.local.entitiy.SyncHistory
-import data.remote.StrapiMedicationApiClient
+import data.local.entitiy.WaterIntake
+import data.remote.BaseApiClient
+import data.remote.StrapiApiClient
+import data.remote.model.ApiMedicationResponse
+import data.remote.model.SyncResponse
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.FirebaseUser
 import dev.gitlive.firebase.auth.auth
@@ -17,7 +21,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.withContext
 import org.lighthousegames.logging.logging
-import util.debugJsonHelper
 import util.onError
 import util.onSuccess
 
@@ -28,30 +31,9 @@ class MedicationSyncManager(
     private val table: RoomTable = RoomTable.MEDICATION,
     private var user: FirebaseUser? = Firebase.auth.currentUser
 ) {
-    private val apiService: StrapiMedicationApiClient = StrapiMedicationApiClient(serverHost)
+    private val apiService: StrapiApiClient = StrapiApiClient(serverHost)
     private var localService: MedicationDao = LocalDataSource(db).medications
     private var syncHistory: SyncHistoryDao = LocalDataSource(db).syncHistory
-
-    private suspend fun sendChangedEntriesToServer(items: List<MedicationIntakeDataAfterTimeStamp>) {
-        withContext(Dispatchers.IO) {
-            try {
-                logging().info { "Send Medication to Update on Server > > >" }
-                items.forEach {
-                    logging().info { "> > > Medication: $it" }
-                }
-
-                val response = apiService.updateRemoteData(items)
-
-                logging().info { "Send Medication to Update on Server < < < $response" }
-
-                // TODO: Handle Response - - Maybe Hard delete Medication? and send ids to server?
-                response.onSuccess { logging().info { "Medication Sync Success" } }
-                response.onError { logging().info { "Medication Sync Error" } }
-            } catch (e: Exception) {
-                logging().info { "Medication Sync Error" }
-            }
-        }
-    }
 
     suspend fun syncMedications() {
         if (user == null) return
@@ -73,11 +55,15 @@ class MedicationSyncManager(
             }
         }
 
-        sendChangedEntriesToServer(localChangedMedications)
+        apiService.sendChangedEntriesToServer<MedicationIntakeDataAfterTimeStamp, SyncResponse>(localChangedMedications)
 
-        val response = apiService.fetchItemsAfterTimestamp(lastSync, user!!.uid)
+        val response = apiService.fetchItemsAfterTimestamp<List<ApiMedicationResponse>>(
+            BaseApiClient.FetchAfterTimestampEndpoint.MEDICATION,
+            lastSync,
+            user!!.uid
+        )
+
         response.onSuccess { serverTimers ->
-
             logging().info { "serverTimers: ${serverTimers.size}" }
             logging().info { "localTimers: ${localChangedMedications.size}" }
 
@@ -125,10 +111,8 @@ class MedicationSyncManager(
                 localService.insertIntakeStatuses(intakeStatuses)
             }
 
-            val newTimerStamp = SyncHistory(deviceId = deviceID,table = table)
-            syncHistory.insertSyncHistory(newTimerStamp)
-
-            logging().info { "Save TimerStamp: ${newTimerStamp.lastSync}" }
+            val newWeightStamp = syncHistory.setNewTimeStamp(table, deviceID)
+            logging().info { "Save TimerStamp: ${newWeightStamp.lastSync}" }
         }
         response.onError { return }
 

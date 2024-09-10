@@ -19,8 +19,8 @@ interface WaterIntakeDao {
     @Query("SELECT * FROM water_intake WHERE waterIntakeId = :waterIntakeId AND isDeleted = false")
     suspend fun getById(waterIntakeId: String): WaterIntake?
 
-    @Query("SELECT * FROM water_intake WHERE updatedAt > :updatedAt AND userId = :userId AND isDeleted = false")
-    suspend fun getAllAfterTimeStamp(updatedAt: Long, userId: String): List<WaterIntake>
+    @Query("SELECT * FROM water_intake WHERE updatedAtOnDevice > :updatedAtOnDevice AND userId = :userId AND isDeleted = false")
+    suspend fun getAllAfterTimeStamp(updatedAtOnDevice: Long, userId: String): List<WaterIntake>
 
     // POST
     @Upsert

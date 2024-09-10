@@ -2,12 +2,9 @@ package data.repositories
 
 import data.local.LocalDataSource
 import data.local.LocalDatabase
-import data.local.dao.MedicationDao
-import data.local.dao.SyncHistoryDao
 import data.local.dao.WaterIntakeDao
-import data.local.entitiy.Medication
 import data.local.entitiy.WaterIntake
-import data.remote.StrapiCountdownTimerApiClient
+import data.remote.syncManager.WaterIntakeSyncManager
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.FirebaseUser
 import dev.gitlive.firebase.auth.auth
@@ -21,8 +18,7 @@ class WaterIntakeRepository(
 ) {
 
     private var localService: WaterIntakeDao = LocalDataSource(db).waterIntake
-    private var syncHistory: SyncHistoryDao = LocalDataSource(db).syncHistory
-    private val apiService: StrapiCountdownTimerApiClient = StrapiCountdownTimerApiClient(serverHost)
+    private var syncManager: WaterIntakeSyncManager = WaterIntakeSyncManager(db, serverHost, deviceID)
 
     suspend fun getAll(): List<WaterIntake> {
         return user?.let {
@@ -37,12 +33,12 @@ class WaterIntakeRepository(
 
     suspend fun insertOrUpdate(countdownTimers: List<WaterIntake>) {
         countdownTimers.forEach {
-            this.localService.insertOrUpdate(it.copy(updatedAt = Clock.System.now().toEpochMilliseconds()))
+            this.localService.insertOrUpdate(it.copy(updatedAtOnDevice = Clock.System.now().toEpochMilliseconds()))
         }
     }
 
     suspend fun updateMany(countdownTimers: List<WaterIntake>) {
-        val toUpdate = countdownTimers.map { it.copy(updatedAt = Clock.System.now().toEpochMilliseconds()) }
+        val toUpdate = countdownTimers.map { it.copy(updatedAtOnDevice = Clock.System.now().toEpochMilliseconds()) }
         localService.updateMany(toUpdate)
     }
 
@@ -70,24 +66,7 @@ class WaterIntakeRepository(
         } ?: emptyList()
     }
 
-    /*
-    suspend fun syncDataWithServer() {
-        val lastSync = syncHistory.getLatestSyncTimer(deviceID)?.lastSync ?: 0L
-        val pendingChanges = medications.getAllAfterTimeStamp(lastSync, user!!.uid)
-        if (pendingChanges.isNotEmpty()) {
-
-            val serverResponse = apiService.syncCountdownTimers(pendingChanges)
-
-            serverResponse.onSuccess { timerResponse ->
-                val deletedTimers :List<Medication?> = timerResponse.deletedTimers.map { medications.getById(it.timerId) }
-
-                deletedTimers.forEach { timer : Medication? ->
-                    timer?.let {
-                        countdownTimer.hardDeleteOne(it)
-                    }
-                }
-            }
-        }
+    suspend fun syncWaterIntakes() {
+        syncManager.syncWaterIntakes()
     }
-     */
 }

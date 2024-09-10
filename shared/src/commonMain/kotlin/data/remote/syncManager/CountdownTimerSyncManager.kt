@@ -7,7 +7,10 @@ import data.local.dao.CountdownTimerDao
 import data.local.dao.SyncHistoryDao
 import data.local.entitiy.CountdownTimer
 import data.local.entitiy.SyncHistory
-import data.remote.StrapiCountdownTimerApiClient
+import data.local.entitiy.WaterIntake
+import data.remote.BaseApiClient
+import data.remote.StrapiApiClient
+import data.remote.model.SyncResponse
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.FirebaseUser
 import dev.gitlive.firebase.auth.auth
@@ -25,54 +28,29 @@ class CountdownTimerSyncManager(
     private val table: RoomTable = RoomTable.COUNTDOWN_TIMER
 ) {
     var user: FirebaseUser? = Firebase.auth.currentUser
-    private val apiService: StrapiCountdownTimerApiClient = StrapiCountdownTimerApiClient(serverHost)
+    private val apiService: StrapiApiClient = StrapiApiClient(serverHost)
     private var localService: CountdownTimerDao = LocalDataSource(db).countdownTimer
     private var syncHistory: SyncHistoryDao = LocalDataSource(db).syncHistory
-
-    private suspend fun sendChangedEntriesToServer(items: List<CountdownTimer>) {
-        withContext(Dispatchers.IO) {
-            try {
-                logging().info { "Send Timer to Update on Server > > >" }
-                items.forEach {
-                    logging().info { "> > > Timer: ${it.toString()}" }
-                }
-                val response = apiService.updateRemoteData(items)
-
-                // TODO: Handle Response - - Maybe Hard delete Timer? and send ids to server?
-                response.onSuccess { logging().info { "Timer Sync Success" } }
-                response.onError { logging().info { "Timer Sync Error" } }
-            } catch (e: Exception) {
-                logging().info { "Timer Sync Error" }
-            }
-        }
-    }
 
     suspend fun syncTimers() {
         if (user == null) return
 
-        val lastSync = syncHistory.getLatestSyncTimer(deviceID).sortedByDescending { it.lastSync }.firstOrNull { it.table == table }?.lastSync ?: 0L
+        val lastSync = syncHistory.lastSync(deviceID, table)
         val localChangedTimers = localService.getAllAfterTimeStamp(lastSync, user!!.uid)
+
+        apiService.sendChangedEntriesToServer<CountdownTimer, SyncResponse>(localChangedTimers)
 
         logging().info { "* * * * * * * * * * SYNCING * * * * * * * * * * " }
         logging().info { "Last Sync Success: $lastSync" }
 
-        localChangedTimers.forEach {
-            logging().info { "Timer: ${it.name} ${it.updatedAtOnDevice}" }
-        }
-
-        sendChangedEntriesToServer(localChangedTimers)
-
         // 3. Vom Server alle seit dem letzten Sync geänderten Timer abrufen
-        val response = apiService.fetchItemsAfterTimestamp(lastSync, user!!.uid)
+        val response = apiService.fetchItemsAfterTimestamp<List<CountdownTimer>>(
+            BaseApiClient.FetchAfterTimestampEndpoint.COUNTDOWN_TIMER,
+            lastSync,
+            user!!.uid
+        )
+
         response.onSuccess { serverTimers ->
-
-            logging().info { "serverTimers: ${serverTimers.size}" }
-            logging().info { "localTimers: ${localChangedTimers.size}" }
-
-            logging().info { "Received Timer to Update from Server < < <" }
-            serverTimers.forEach {
-                logging().info { "< < < Timer: ${it.toString()}" }
-            }
 
             for (serverTimer in serverTimers) {
                 val localTimer = localService.getById(serverTimer.timerId)
@@ -112,10 +90,8 @@ class CountdownTimerSyncManager(
                 }
             }
 
-            val newTimerStamp = SyncHistory(deviceId = deviceID,table = RoomTable.COUNTDOWN_TIMER)
-            syncHistory.insertSyncHistory(newTimerStamp)
-
-            logging().info { "Save TimerStamp: ${newTimerStamp.lastSync}" }
+            val newWeightStamp = syncHistory.setNewTimeStamp(table, deviceID)
+            logging().info { "Save TimerStamp: ${newWeightStamp.lastSync}" }
         }
         response.onError { return }
     }
