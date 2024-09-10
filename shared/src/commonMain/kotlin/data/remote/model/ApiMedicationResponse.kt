@@ -80,7 +80,7 @@ data class IntakeStatus(
     val date: Long,
 
     @SerialName("isTaken")
-    val isTaken: Boolean,
+    val isTaken: Boolean = false,
 
     @SerialName("updatedAtOnDevice")
     val updatedAtOnDevice: Long

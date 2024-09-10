@@ -27,7 +27,7 @@ class WeightSyncManager(
     private var deviceID: String,
     private val table: RoomTable = RoomTable.WEIGHT,
     private var user: FirebaseUser? = Firebase.auth.currentUser
-) {
+): BaseSyncManager() {
     private val apiService: StrapiApiClient = StrapiApiClient(serverHost)
     private var localService: WeightDao = LocalDataSource(db).weight
     private var syncHistory: SyncHistoryDao = LocalDataSource(db).syncHistory
@@ -38,7 +38,11 @@ class WeightSyncManager(
         val lastSync = syncHistory.lastSync(deviceID, table)
         val localChangedWeights = localService.getAllAfterTimeStamp(lastSync, user!!.uid)
 
-        apiService.sendChangedEntriesToServer<Weight, SyncResponse>(localChangedWeights)
+        apiService.sendChangedEntriesToServer<Weight, SyncResponse>(
+            localChangedWeights,
+            table,
+            BaseApiClient.UpdateRemoteEndpoint.WEIGHT
+        )
 
         logging().info { "* * * * * * * * * * SYNCING * * * * * * * * * * " }
         logging().info { "Last Sync Success: $lastSync" }
@@ -104,8 +108,5 @@ class WeightSyncManager(
             logging().info { "Save WeightStamp after Sync: ${localWeights.size}" }
             return
         }
-
-        val localWeights = localService.getAll(user!!.uid)
-        logging().info { "Save WeightStamp after Sync: ${localWeights.size}" }
     }
 }

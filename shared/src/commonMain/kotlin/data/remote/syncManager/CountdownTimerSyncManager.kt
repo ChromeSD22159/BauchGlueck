@@ -26,7 +26,7 @@ class CountdownTimerSyncManager(
     serverHost: String,
     private var deviceID: String,
     private val table: RoomTable = RoomTable.COUNTDOWN_TIMER
-) {
+): BaseSyncManager() {
     var user: FirebaseUser? = Firebase.auth.currentUser
     private val apiService: StrapiApiClient = StrapiApiClient(serverHost)
     private var localService: CountdownTimerDao = LocalDataSource(db).countdownTimer
@@ -38,7 +38,11 @@ class CountdownTimerSyncManager(
         val lastSync = syncHistory.lastSync(deviceID, table)
         val localChangedTimers = localService.getAllAfterTimeStamp(lastSync, user!!.uid)
 
-        apiService.sendChangedEntriesToServer<CountdownTimer, SyncResponse>(localChangedTimers)
+        apiService.sendChangedEntriesToServer<CountdownTimer, SyncResponse>(
+            localChangedTimers,
+            table,
+            BaseApiClient.UpdateRemoteEndpoint.COUNTDOWN_TIMER
+        )
 
         logging().info { "* * * * * * * * * * SYNCING * * * * * * * * * * " }
         logging().info { "Last Sync Success: $lastSync" }

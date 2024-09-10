@@ -30,7 +30,7 @@ class MedicationSyncManager(
     private var deviceID: String,
     private val table: RoomTable = RoomTable.MEDICATION,
     private var user: FirebaseUser? = Firebase.auth.currentUser
-) {
+): BaseSyncManager() {
     private val apiService: StrapiApiClient = StrapiApiClient(serverHost)
     private var localService: MedicationDao = LocalDataSource(db).medications
     private var syncHistory: SyncHistoryDao = LocalDataSource(db).syncHistory
@@ -55,7 +55,11 @@ class MedicationSyncManager(
             }
         }
 
-        apiService.sendChangedEntriesToServer<MedicationIntakeDataAfterTimeStamp, SyncResponse>(localChangedMedications)
+        apiService.sendChangedEntriesToServer<MedicationIntakeDataAfterTimeStamp, SyncResponse>(
+            localChangedMedications,
+            table,
+            BaseApiClient.UpdateRemoteEndpoint.MEDICATION
+        )
 
         val response = apiService.fetchItemsAfterTimestamp<List<ApiMedicationResponse>>(
             BaseApiClient.FetchAfterTimestampEndpoint.MEDICATION,

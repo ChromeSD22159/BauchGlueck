@@ -19,6 +19,8 @@ import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.datetime.Clock
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.lighthousegames.logging.logging
 import util.NetworkError
 import util.Result
@@ -142,7 +144,10 @@ open class BaseApiClient(
      * @param Q Der Typ der Entität(en), die an die API gesendet werden.
      * @param R Der Typ der Antwort, die von der API erwartet wird.
      */
-    suspend inline fun <reified Q, reified R> updateRemoteData(apiEndpoint: UpdateRemoteEndpoint, entities: Q): Result<R, NetworkError> {
+    suspend inline fun <reified Q, reified R> updateRemoteData(
+        apiEndpoint: UpdateRemoteEndpoint,
+        entities: Q,
+    ): Result<R, NetworkError> {
         val response = try {
             httpClient.post {
                 url("${serverHost}${apiEndpoint.urlPath}")
@@ -154,13 +159,14 @@ open class BaseApiClient(
         } catch (e: SerializationException) {
             return Result.Error(NetworkError.SERIALIZATION)
         } catch (e: Exception) {
+            logging().info { "!!! !!! !!! $apiEndpoint -> ${e.message}" }
             return Result.Error(NetworkError.REQUEST_TIMEOUT)
         }
 
         return when (response.status.value) {
             in 200..299 -> {
                 try {
-                    Result.Success(response.body())
+                    Result.Success(response.body<R>())
                 } catch (e: SerializationException) {
                     Result.Error(NetworkError.SERIALIZATION)
                 }
