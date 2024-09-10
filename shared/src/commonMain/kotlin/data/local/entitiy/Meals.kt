@@ -8,7 +8,10 @@ import androidx.room.Junction
 import androidx.room.Relation
 import data.remote.model.Ingredient
 import data.remote.model.MainImage
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Serializer
 import kotlinx.serialization.json.Json
+
 
 
 @Entity(
@@ -24,6 +27,7 @@ import kotlinx.serialization.json.Json
     ],
     indices = [Index("categoryId")]
 )
+@Serializable
 data class Meal(
     var id: Int = 0,
     var mealId: String, // PK

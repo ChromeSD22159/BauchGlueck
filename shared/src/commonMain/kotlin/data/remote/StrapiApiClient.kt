@@ -3,7 +3,9 @@ package data.remote
 import data.network.BaseApiEndpoint
 import data.network.createHttpClient
 import data.network.replacePlaceholders
+import data.remote.model.ApiChangeLog
 import data.remote.model.ApiRecipesResponse
+import data.remote.model.ApiAppStatistics
 import io.ktor.client.HttpClient
 import io.ktor.client.call.NoTransformationFoundException
 import io.ktor.client.call.body
@@ -19,8 +21,6 @@ import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.datetime.Clock
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import org.lighthousegames.logging.logging
 import util.NetworkError
 import util.Result
@@ -52,11 +52,12 @@ open class BaseApiClient(
         MealPlan("/api/mealPlan/getUpdatedMealPlanDayEntries?timeStamp={timestamp}&userId={userID}", HttpMethod.Get)
     }
 
-    enum class ApiEndpoint(override var urlPath: String, override val method: HttpMethod):
-        BaseApiEndpoint {
+    enum class ApiEndpoint(override var urlPath: String, override val method: HttpMethod): BaseApiEndpoint {
         RECIPES_OVERVIEW_REMOTE_DATA("/api/recipes/overview?count={count}", HttpMethod.Get),
         STARTUP_MEALS("/api/getStartUpMeals", HttpMethod.Get),
         STARTUP_MEALS_COUNT("/api/getStartUpMealsCount", HttpMethod.Get),
+        ChangeLog("/api/changeLog", HttpMethod.Get),
+        AppStatistics("/api/appStatistics", HttpMethod.Get)
     }
 
     suspend fun getRecipesOverview(maxCount: Int?): Result<List<ApiRecipesResponse>, NetworkError> {
@@ -70,8 +71,18 @@ open class BaseApiClient(
         return apiCall(ApiEndpoint.STARTUP_MEALS.generateRequestURL(serverHost) , httpClient)
     }
 
-    open suspend fun fetchStartUpMealsCount(): Result<LengthResponse, NetworkError> {
+    suspend fun fetchStartUpMealsCount(): Result<LengthResponse, NetworkError> {
         return apiCall(ApiEndpoint.STARTUP_MEALS_COUNT.generateRequestURL(serverHost) , httpClient)
+    }
+
+    suspend fun fetchChangeLog(): Result<List<ApiChangeLog>, NetworkError> {
+        val endpoint = ApiEndpoint.ChangeLog.generateRequestURL(serverHost)
+        return apiCall(endpoint, httpClient)
+    }
+
+    suspend fun fetchAppStatistics(): Result<ApiAppStatistics, NetworkError> {
+        val endpoint = ApiEndpoint.AppStatistics.generateRequestURL(serverHost)
+        return apiCall(endpoint, httpClient)
     }
 
 

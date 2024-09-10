@@ -7,6 +7,8 @@ import data.repositories.WeightRepository
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
 import data.remote.StrapiRecipeApiClient
+import data.remote.syncManager.AppDataSyncManager
+import data.repositories.FirebaseRepository
 import data.repositories.MealPlanRepository
 import data.repositories.MealRepository
 
@@ -20,9 +22,7 @@ class Repository(
 ) {
     val firebaseRepository: FirebaseRepository = FirebaseRepository()
     val recipeRepository: StrapiRecipeApiClient = StrapiRecipeApiClient()
-
+    val appDataSyncManager: AppDataSyncManager = AppDataSyncManager()
 }
 
-class FirebaseRepository() {
-    val user = Firebase.auth.currentUser
-}
+

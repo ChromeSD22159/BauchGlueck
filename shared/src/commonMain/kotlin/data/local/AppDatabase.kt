@@ -2,6 +2,7 @@ package data.local
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import data.local.dao.ChangeLogDao
 import data.local.dao.CountdownTimerDao
 import data.local.dao.MealDao
 import data.local.dao.MealPlanDao
@@ -10,6 +11,7 @@ import data.local.dao.ShoppingListDao
 import data.local.dao.SyncHistoryDao
 import data.local.dao.WaterIntakeDao
 import data.local.dao.WeightDao
+import data.local.entitiy.ChangeLog
 import data.local.entitiy.CountdownTimer
 import data.local.entitiy.IntakeStatus
 import data.local.entitiy.IntakeTime
@@ -38,9 +40,10 @@ import data.local.entitiy.ShoppingList
         MealCategoryCrossRef::class,
         MealPlanDay::class,
         MealPlanSpot::class,
-        ShoppingList::class
+        ShoppingList::class,
+        ChangeLog::class
    ],
-    version = 8,
+    version = 10,
     exportSchema = false
 )
 abstract class LocalDatabase: RoomDatabase(), DB {
@@ -52,6 +55,7 @@ abstract class LocalDatabase: RoomDatabase(), DB {
     abstract val mealDao: MealDao
     abstract val mealPlanDao: MealPlanDao
     abstract val shoppingListDao: ShoppingListDao
+    abstract val changeLogDao: ChangeLogDao
 
      override fun clearAllTables() {
          super.clearAllTables()
