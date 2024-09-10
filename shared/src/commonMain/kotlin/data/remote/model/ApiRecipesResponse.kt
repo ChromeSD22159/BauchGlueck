@@ -93,7 +93,10 @@ data class MainImage(
 @Serializable
 data class Formats(
     @SerialName("thumbnail") val thumbnail: ImageFormat,
-    @SerialName("small") val small: ImageFormat
+    @SerialName("xsmall") val xsmall: ImageFormat,
+    @SerialName("small") val small: ImageFormat,
+    @SerialName("medium") val medium: ImageFormat,
+    @SerialName("large") val large: ImageFormat
 )
 
 @Serializable

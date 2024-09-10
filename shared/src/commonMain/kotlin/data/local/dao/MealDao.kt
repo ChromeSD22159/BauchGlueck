@@ -43,6 +43,7 @@ interface MealDao {
     @Query("SELECT * FROM meals")
     fun getMealWithCategories(): Flow<List<MealWithCategories>>
 
+    @Transaction
     @Query("SELECT * FROM meals WHERE updatedAtOnDevice > :timeStamp")
     suspend fun getMealsWithCategoriesAfterTimeStamp(timeStamp: Long): List<MealWithCategories>
 }

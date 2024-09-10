@@ -3,51 +3,53 @@ package data.remote.syncManager
 import data.local.LocalDataSource
 import data.local.LocalDatabase
 import data.local.RoomTable
+import data.local.dao.MealPlanDao
 import data.local.dao.MedicationDao
 import data.local.dao.SyncHistoryDao
-import data.local.entitiy.IntakeStatus
-import data.local.entitiy.IntakeTime
-import data.local.entitiy.MedicationIntakeDataAfterTimeStamp
-import data.local.entitiy.SyncHistory
-import data.local.entitiy.WaterIntake
 import data.remote.BaseApiClient
+
 import data.remote.StrapiApiClient
-import data.remote.model.ApiMedicationResponse
-import data.remote.model.SyncResponse
+import data.remote.model.ApiMealPlanDayResponse
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.FirebaseUser
 import dev.gitlive.firebase.auth.auth
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
-import kotlinx.coroutines.withContext
-import org.lighthousegames.logging.logging
-import util.onError
+import util.debugJsonHelper
 import util.onSuccess
 
-class MedicationSyncManager(
+class MealPlanSyncManager(
     db: LocalDatabase,
     serverHost: String,
     private var deviceID: String,
-    private val table: RoomTable = RoomTable.MEDICATION,
+    private val table: RoomTable = RoomTable.MEAL_PLAN,
     private var user: FirebaseUser? = Firebase.auth.currentUser
 ): BaseSyncManager() {
     private val apiService: StrapiApiClient = StrapiApiClient(serverHost)
-    private var localService: MedicationDao = LocalDataSource(db).medications
+    private var localService: MealPlanDao = LocalDataSource(db).mealPlan
     private var syncHistory: SyncHistoryDao = LocalDataSource(db).syncHistory
 
-    suspend fun syncMedications() {
+    suspend fun syncMealPlan() {
         if (user == null) return
+        val lastSync = syncHistory.getLatestSyncTimer(deviceID).sortedByDescending { it.lastSync }.firstOrNull { it.table == table }?.lastSync ?: 0L
 
-        val lastSync = syncHistory.lastSync(deviceID, table)
+        val response = apiService.fetchItemsAfterTimestamp<List<ApiMealPlanDayResponse>>(
+            BaseApiClient.FetchAfterTimestampEndpoint.MealPlan,
+            lastSync,
+            user!!.uid
+        )
 
-        val localChangedMedications = localService.getMedicationsWithIntakeTimesAfterTimeStamp(lastSync, user!!.uid)
+        response.onSuccess {
+            debugJsonHelper(it)
+        }
 
+        /*
         apiService.sendChangedEntriesToServer<MedicationIntakeDataAfterTimeStamp, SyncResponse>(
             localChangedMedications,
             table,
             BaseApiClient.UpdateRemoteEndpoint.MEDICATION
         )
+        */
 
+        /*
         val response = apiService.fetchItemsAfterTimestamp<List<ApiMedicationResponse>>(
             BaseApiClient.FetchAfterTimestampEndpoint.MEDICATION,
             lastSync,
@@ -55,15 +57,9 @@ class MedicationSyncManager(
         )
 
         response.onSuccess { serverTimers ->
-            logging().info { "serverTimers: ${serverTimers.size}" }
-            logging().info { "localTimers: ${localChangedMedications.size}" }
-
-            logging().info { "Received Timer to Update from Server < < <" }
-            serverTimers.forEach {
-                logging().info { "< < < Timer: ${it.toString()}" }
-            }
 
             for (serverMedication in serverTimers) {
+
                 val medicationToUpdate = serverMedication.toMedication()
 
                 localService.insertMedication(medicationToUpdate)
@@ -78,7 +74,6 @@ class MedicationSyncManager(
                     )
                 }.filter { it.intakeTimeId.length >= 19 }
                 localService.insertIntakeTimes(intakeTimes)
-
 
                 val intakeStatuses: List<IntakeStatus> = serverMedication.intakeTimes.flatMap { intakeTime ->
                     intakeTime.intakeStatuses.map { status ->
@@ -98,6 +93,6 @@ class MedicationSyncManager(
             syncHistory.setNewTimeStamp(table, deviceID)
         }
         response.onError { return }
-
+        */
     }
 }

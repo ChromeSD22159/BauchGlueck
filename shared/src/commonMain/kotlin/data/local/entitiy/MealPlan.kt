@@ -3,56 +3,81 @@ package data.local.entitiy
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Ignore
+import androidx.room.Index
+import androidx.room.PrimaryKey
 import androidx.room.Relation
-import kotlinx.serialization.Serializable
+import kotlinx.datetime.Clock
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
-@Serializable
-@Entity(
-    tableName = "mealPlanDay",
-    primaryKeys = ["mealPlanId"],
-)
+
+@Entity(tableName = "mealPlanDay")
 data class MealPlanDay(
-    val mealPlanId: String,
-    val userId: String,
-    val date: String,
+    @PrimaryKey val mealPlanDayId: String = "", // KPYT-EPTZ-SADL-FTLS
+    val userId: String = "",
+    val date: String = "",
     val isDeleted: Boolean = false,
-    val updatedAtOnDevice: Long? = 0
+    val updatedAtOnDevice: Long = Clock.System.now().toEpochMilliseconds()
 )
-@Serializable
+
+
 @Entity(
     tableName = "mealPlanSpot",
-    primaryKeys = ["mealPlanDayId", "mealId"],  // Composite primary key
     foreignKeys = [
         ForeignKey(
             entity = MealPlanDay::class,
-            parentColumns = ["mealPlanId"],
+            parentColumns = ["mealPlanDayId"],
             childColumns = ["mealPlanDayId"],
             onDelete = ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            entity = Meal::class,
+            parentColumns = ["mealId"],
+            childColumns = ["mealId"],
+            onDelete = ForeignKey.CASCADE
         )
-    ]
+    ],
+    indices = [Index("mealPlanDayId"), Index("mealId")]
 )
 data class MealPlanSpot(
-    val mealPlanDayId: String,
-    val mealId: String,
-    val userId: String,
-    val timeSlot: String,
+    @PrimaryKey val mealPlanSpotId: String = "",
+    val mealPlanDayId: String = "",
+    val mealId: String = "",
+    val userId: String = "",
+    val timeSlot: String = "",
     val isDeleted: Boolean = false,
-    val updatedAtOnDevice: Long? = 0
-)
+    var meal: String? = null,
+    val updatedAtOnDevice: Long = Clock.System.now().toEpochMilliseconds()
+) {
+    var mealObject: Meal?
+        get() = try {
+            meal?.let {
+                Json.decodeFromString(it)
+            }
+        } catch (e: Exception) {
+            null
+        }
+        set(value) {
+            meal = if(value != null) { Json.encodeToString(value) } else { null  }
+        }
+}
+
 
 data class MealPlanDayWithSpots(
     @Embedded val mealPlanDay: MealPlanDay,
     @Relation(
-        parentColumn = "mealPlanId",
-        entityColumn = "mealPlanDayId"
+        parentColumn = "mealPlanDayId",      // In MealPlanDay
+        entityColumn = "mealPlanDayId"       // In MealPlanSpot
     )
-    val spots: List<MealPlanSpotWithMeal>
+    val spots: List<MealPlanSpot>
 )
+
 data class MealPlanSpotWithMeal(
     @Embedded val mealPlanSpot: MealPlanSpot,
     @Relation(
-        parentColumn = "mealId",
-        entityColumn = "mealId"
+        parentColumn = "mealId",             // In MealPlanSpot
+        entityColumn = "mealId"              // In Meal
     )
-    val meal: Meal?
+    val meal: Meal
 )

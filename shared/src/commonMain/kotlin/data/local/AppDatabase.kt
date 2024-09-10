@@ -4,7 +4,9 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import data.local.dao.CountdownTimerDao
 import data.local.dao.MealDao
+import data.local.dao.MealPlanDao
 import data.local.dao.MedicationDao
+import data.local.dao.ShoppingListDao
 import data.local.dao.SyncHistoryDao
 import data.local.dao.WaterIntakeDao
 import data.local.dao.WeightDao
@@ -21,7 +23,6 @@ import data.local.entitiy.MealPlanSpot
 import data.local.entitiy.MealCategory
 import data.local.entitiy.MealCategoryCrossRef
 import data.local.entitiy.ShoppingList
-import data.local.entitiy.ShoppingListItem
 
 @Database(
     entities = [
@@ -37,8 +38,7 @@ import data.local.entitiy.ShoppingListItem
         MealCategoryCrossRef::class,
         MealPlanDay::class,
         MealPlanSpot::class,
-        ShoppingList::class,
-        ShoppingListItem::class
+        ShoppingList::class
    ],
     version = 8,
     exportSchema = false
@@ -50,7 +50,8 @@ abstract class LocalDatabase: RoomDatabase(), DB {
     abstract val waterIntake: WaterIntakeDao
     abstract val medicationDao: MedicationDao
     abstract val mealDao: MealDao
-    //abstract val mealPlanDao: MealPlanDao
+    abstract val mealPlanDao: MealPlanDao
+    abstract val shoppingListDao: ShoppingListDao
 
      override fun clearAllTables() {
          super.clearAllTables()

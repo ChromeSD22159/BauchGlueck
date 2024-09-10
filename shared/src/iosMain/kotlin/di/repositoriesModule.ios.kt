@@ -8,6 +8,7 @@ import data.repositories.MealRepository
 import data.local.LocalDatabase
 import data.local.getDatabaseiOS
 import data.repositories.CountdownTimerRepository
+import data.repositories.MealPlanRepository
 import org.koin.dsl.module
 import util.KeyValueStorage
 
@@ -21,5 +22,6 @@ actual val repositoriesModule = module {
     single { WaterIntakeRepository(get(), serverHost, deviceID = KeyValueStorage().getOrCreateDeviceId() ) }
     single { WeightRepository(get(), serverHost, deviceID = KeyValueStorage().getOrCreateDeviceId() ) }
     single { MealRepository(get(), serverHost, deviceID = KeyValueStorage().getOrCreateDeviceId() ) }
+    single { MealPlanRepository(get(), serverHost, deviceID = KeyValueStorage().getOrCreateDeviceId() ) }
 }
 

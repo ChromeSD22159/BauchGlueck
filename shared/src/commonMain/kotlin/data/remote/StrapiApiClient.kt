@@ -48,7 +48,8 @@ open class BaseApiClient(
         WATER_INTAKE("/api/water-intake/fetchItemsAfterTimeStamp?timeStamp={timestamp}&userId={userID}", HttpMethod.Get),
         WEIGHT("/api/weight/fetchItemsAfterTimeStamp?timeStamp={timestamp}&userId={userID}", HttpMethod.Get),
         MEDICATION("/api/medication/getUpdatedMedicationEntries?timeStamp={timestamp}&userId={userID}", HttpMethod.Get),
-        COUNTDOWN_TIMER("/api/timer/fetchItemsAfterTimeStamp?timeStamp={timestamp}&userId={userID}", HttpMethod.Get)
+        COUNTDOWN_TIMER("/api/timer/fetchItemsAfterTimeStamp?timeStamp={timestamp}&userId={userID}", HttpMethod.Get),
+        MealPlan("/api/mealPlan/getUpdatedMealPlanDayEntries?timeStamp={timestamp}&userId={userID}", HttpMethod.Get)
     }
 
     enum class ApiEndpoint(override var urlPath: String, override val method: HttpMethod):

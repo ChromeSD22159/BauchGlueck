@@ -8,8 +8,8 @@ import androidx.room.Junction
 import androidx.room.Relation
 import data.remote.model.Ingredient
 import data.remote.model.MainImage
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+
 
 @Entity(
     tableName = "meals",
@@ -63,7 +63,7 @@ data class Meal(
 }
 
 
-@Serializable
+
 @Entity(
     tableName = "categories",
     primaryKeys = ["categoryId"],
@@ -80,9 +80,11 @@ data class MealCategory(
     }
 }
 
+
 @Entity(
     tableName = "meal_category_cross_ref",
     primaryKeys = ["mealId", "categoryId"],
+    indices = [Index("mealId"), Index("categoryId")],
     foreignKeys = [
         ForeignKey(entity = Meal::class, parentColumns = ["mealId"], childColumns = ["mealId"], onDelete = ForeignKey.CASCADE),
         ForeignKey(entity = MealCategory::class, parentColumns = ["categoryId"], childColumns = ["categoryId"], onDelete = ForeignKey.CASCADE)
@@ -93,6 +95,7 @@ data class MealCategoryCrossRef(
     val categoryId: String
 )
 
+
 data class CategoryWithMeals(
     @Embedded val mealCategory: MealCategory,
     @Relation(
@@ -102,6 +105,7 @@ data class CategoryWithMeals(
     )
     val meals: List<Meal>
 )
+
 
 data class MealWithCategories(
     @Embedded val meal: Meal,
