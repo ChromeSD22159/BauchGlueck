@@ -4,14 +4,11 @@ import data.AuthApi
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Log
-import com.google.firebase.Timestamp
-import com.google.firebase.firestore.SetOptions
 import data.FirebaseConnection
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.FirebaseAuth
 import dev.gitlive.firebase.auth.FirebaseUser
 import dev.gitlive.firebase.auth.auth
-import dev.gitlive.firebase.firestore.FieldValue
 import dev.gitlive.firebase.firestore.FirebaseFirestore
 import dev.gitlive.firebase.firestore.android
 import dev.gitlive.firebase.firestore.firestore
@@ -21,9 +18,8 @@ import data.network.FirebaseCollection
 import dev.gitlive.firebase.analytics.analytics
 import dev.gitlive.firebase.database.database
 import kotlinx.coroutines.tasks.await
-import model.UserProfile
+import data.model.UserProfile
 import java.io.ByteArrayOutputStream
-import model.countdownTimer.CountdownTimer
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
@@ -169,36 +165,6 @@ class FirebaseRepository: AuthApi {
             }
             .addOnFailureListener { e ->
                 continuation.resume(Result.failure(e))
-            }
-    }
-
-    override suspend fun fetchTimers(): Result<List<CountdownTimer>> = suspendCoroutine { continuation ->
-        val timersRef = db.android.collection(FirebaseCollection.Timers.collectionName).whereEqualTo("userId", auth.currentUser?.uid)
-        timersRef.get()
-            .addOnSuccessListener { document ->
-                val timers = document.documents.mapNotNull { doc ->
-
-                    CountdownTimer(
-                        id = doc.id,
-                        userId = doc.data?.get("userId") as? String ?: "",
-                        name = doc.data?.get("name") as? String ?: "",
-                        duration = (doc.data?.get("duration") as? Number)?.toInt() ?: 0,
-                        startDate = doc.data?.get("startDate") as? FieldValue,
-                        endDate = doc.data?.get("endDate") as? FieldValue,
-                        timerState = doc.data?.get("timerState") as? String ?: "",
-                        timerType = doc.data?.get("timerType") as? String ?: "",
-                        remainingDuration = (doc.data?.get("remainingDuration") as? Number)?.toInt() ?: 0,
-                        notificate = doc.data?.get("notificate") as? Boolean ?: true,
-                        showActivity = doc.data?.get("showActivity") as? Boolean ?: true
-                    )
-
-                   // doc.toObject(CountdownTimer::class.java)
-                }
-                Log.d("FirebaseRepository.timers", "Fetched timers: ${timers.size}")
-                continuation.resume(Result.success(timers)) // timers
-            }
-            .addOnFailureListener {
-                continuation.resume(Result.failure(it))
             }
     }
 

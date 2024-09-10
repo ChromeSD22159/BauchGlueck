@@ -12,8 +12,7 @@ import dev.icerock.moko.mvvm.flow.CMutableStateFlow
 import dev.icerock.moko.mvvm.flow.cMutableStateFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import model.UserProfile
-import model.countdownTimer.CountdownTimer
+import data.model.UserProfile
 
 class FirebaseAuthViewModel(
     private val firebaseRepository: FirebaseRepository = FirebaseRepository()
@@ -37,9 +36,6 @@ class FirebaseAuthViewModel(
 
     private val _password: CMutableStateFlow<String> = MutableStateFlow("").cMutableStateFlow()
     val password: CMutableStateFlow<String> = _password.cMutableStateFlow()
-
-    private val _timers = MutableStateFlow<List<CountdownTimer>>(emptyList()).cMutableStateFlow()
-    val timers: CMutableStateFlow<List<CountdownTimer>> = _timers.cMutableStateFlow()
 
     init {
         viewModelScope.launch {
@@ -126,17 +122,6 @@ class FirebaseAuthViewModel(
         }
     }
 
-    fun fetchTimers() {
-        viewModelScope.launch {
-            firebaseRepository.fetchTimers().onSuccess { timers ->
-                _showSyn.value = true
-                _timers.value = timers
-                _showSyn.value = false
-            }.onFailure {
-                _showSyn.value = false
-            }
-        }
-    }
 
     fun setUserOnline() {
         viewModelScope.launch {

@@ -13,27 +13,9 @@ import util.DateConverter
 data class WaterIntake(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
-
-    @SerialName("userId")
     var userId: String = "",
-
-    @SerialName("waterIntakeId")
     var waterIntakeId: String = "",
-
-    @SerialName("value")
-    val value: Double = 0.0,
-
-    @SerialName("isDeleted")
-    val isDeleted: Boolean = false,
-
-    @SerialName("updatedAtOnDevice")
+    var value: Double = 0.0,
+    var isDeleted: Boolean = false,
     var updatedAtOnDevice: Long = Clock.System.now().toEpochMilliseconds(),
-
-    @SerialName("createdAt")
-    @TypeConverters(DateConverter::class)
-    var createdAt: Long = Clock.System.now().toEpochMilliseconds(),
-
-    @SerialName("updatedAt")
-    @TypeConverters(DateConverter::class)
-    var updatedAt: Long = Clock.System.now().toEpochMilliseconds()
 )

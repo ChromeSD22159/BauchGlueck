@@ -75,14 +75,13 @@ kotlin {
 
             // new Firebase
             implementation(libs.bundles.firebase.services)
-
+            implementation(libs.room.common)
             implementation(libs.room.runtime)
             implementation(libs.sqlite.bundled)
 
             implementation(libs.multiplatform.settings)
 
             implementation(libs.koin.core)
-
             api(libs.logging)
         }
         iosMain.dependencies {
@@ -123,6 +122,12 @@ buildkonfig {
 
         val isDEV: String = gradleLocalProperties(rootDir).getProperty("DEV") ?: ""
         buildConfigField(com.codingfeline.buildkonfig.compiler.FieldSpec.Type.BOOLEAN, "DEV", isDEV)
+
+        val geminiApiHost: String = gradleLocalProperties(rootDir).getProperty("GEMINI_API_HOST") ?: ""
+        buildConfigField(com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING, "GEMINI_API_HOST", geminiApiHost)
+
+        val geminiApiKey: String = gradleLocalProperties(rootDir).getProperty("GEMINI_API_KEY") ?: ""
+        buildConfigField(com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING, "GEMINI_API_KEY", geminiApiKey)
     }
 }
 

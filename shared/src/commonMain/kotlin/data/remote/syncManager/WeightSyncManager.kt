@@ -6,8 +6,11 @@ import data.local.RoomTable
 import data.local.dao.SyncHistoryDao
 import data.local.dao.WeightDao
 import data.local.entitiy.SyncHistory
+import data.local.entitiy.WaterIntake
 import data.local.entitiy.Weight
-import data.remote.StrapiWeightApiClient
+import data.remote.BaseApiClient
+import data.remote.StrapiApiClient
+import data.remote.model.SyncResponse
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.FirebaseUser
 import dev.gitlive.firebase.auth.auth
@@ -24,42 +27,33 @@ class WeightSyncManager(
     private var deviceID: String,
     private val table: RoomTable = RoomTable.WEIGHT,
     private var user: FirebaseUser? = Firebase.auth.currentUser
-) {
-    private val apiService: StrapiWeightApiClient = StrapiWeightApiClient(serverHost)
+): BaseSyncManager() {
+    private val apiService: StrapiApiClient = StrapiApiClient(serverHost)
     private var localService: WeightDao = LocalDataSource(db).weight
     private var syncHistory: SyncHistoryDao = LocalDataSource(db).syncHistory
-
-    private suspend fun sendChangedEntriesToServer(items: List<Weight>) {
-        withContext(Dispatchers.IO) {
-            try {
-                logging().info { "Send Weight to Update on Server > > >" }
-                items.forEach {
-                    logging().info { "> > > Weight: ${it.toString()}" }
-                }
-                val response = apiService.updateRemoteData(items)
-
-                // TODO: Handle Response - - Maybe Hard delete Weight? and send ids to server?
-                response.onSuccess { logging().info { "Weight Sync Success" } }
-                response.onError { logging().info { "Weight Sync Error" } }
-            } catch (e: Exception) {
-                logging().info { "Weight Sync Error" }
-            }
-        }
-    }
 
     suspend fun syncWeights() {
         if (user == null) return
 
-        val lastSync = syncHistory.getLatestSyncTimer(deviceID).sortedByDescending { it.lastSync }.firstOrNull { it.table == table }?.lastSync ?: 0L
+        val lastSync = syncHistory.lastSync(deviceID, table)
         val localChangedWeights = localService.getAllAfterTimeStamp(lastSync, user!!.uid)
+
+        apiService.sendChangedEntriesToServer<Weight, SyncResponse>(
+            localChangedWeights,
+            table,
+            BaseApiClient.UpdateRemoteEndpoint.WEIGHT
+        )
 
         logging().info { "* * * * * * * * * * SYNCING * * * * * * * * * * " }
         logging().info { "Last Sync Success: $lastSync" }
 
-        sendChangedEntriesToServer(localChangedWeights)
-
         // 3. Vom Server alle seit dem letzten Sync geänderten Weight abrufen
-        val response = apiService.fetchItemsAfterTimestamp(lastSync, user!!.uid)
+        val response = apiService.fetchItemsAfterTimestamp<List<Weight>>(
+            BaseApiClient.FetchAfterTimestampEndpoint.WEIGHT,
+            lastSync,
+            user!!.uid
+        )
+
         response.onSuccess { serverWeights ->
 
             logging().info { "serverWeights: ${serverWeights.size}" }
@@ -102,9 +96,7 @@ class WeightSyncManager(
                 }
             }
 
-            val newWeightStamp = SyncHistory(deviceId = deviceID,table = RoomTable.WEIGHT)
-            syncHistory.insertSyncHistory(newWeightStamp)
-
+            val newWeightStamp = syncHistory.setNewTimeStamp(table, deviceID)
             logging().info { "Save WeightStamp: ${newWeightStamp.lastSync}" }
             val localWeights = localService.getAll(user!!.uid)
             logging().info { "Save WeightStamp after Sync: ${localWeights.size}" }
@@ -116,8 +108,5 @@ class WeightSyncManager(
             logging().info { "Save WeightStamp after Sync: ${localWeights.size}" }
             return
         }
-
-        val localWeights = localService.getAll(user!!.uid)
-        logging().info { "Save WeightStamp after Sync: ${localWeights.size}" }
     }
 }

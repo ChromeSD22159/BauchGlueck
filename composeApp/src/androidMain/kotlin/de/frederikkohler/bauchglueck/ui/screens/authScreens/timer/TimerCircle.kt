@@ -28,12 +28,11 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.google.common.primitives.Longs.max
 import data.local.entitiy.CountdownTimer
+import data.local.entitiy.TimerState
 import de.frederikkohler.bauchglueck.R
 import de.frederikkohler.bauchglueck.ui.components.clickableWithRipple
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
-import model.countdownTimer.TimerState
-import org.lighthousegames.logging.logging
 import util.toIsoDate
 import kotlin.math.PI
 import kotlin.math.cos

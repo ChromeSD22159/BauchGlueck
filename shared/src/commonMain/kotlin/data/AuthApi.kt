@@ -2,8 +2,7 @@ package data
 
 import dev.gitlive.firebase.auth.FirebaseAuth
 import dev.gitlive.firebase.auth.FirebaseUser
-import model.UserProfile
-import model.countdownTimer.CountdownTimer
+import data.model.UserProfile
 
 expect interface AuthApi {
     val auth: FirebaseAuth
@@ -16,7 +15,6 @@ expect interface AuthApi {
     suspend fun fetchUserProfile(uid: String): Result<UserProfile?>
     suspend fun uploadAndSaveProfileImage(image: Any): Result<Exception?>
     suspend fun downloadProfileImage(imageURL: String): Result<Any?>
-    suspend fun fetchTimers(): Result<List<CountdownTimer>>
     suspend fun setUserOnline()
     suspend fun setUserOffline()
 }

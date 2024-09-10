@@ -5,9 +5,9 @@ enum class RoomTable(val tableName: String) {
     SYNC_HISTORY("syncHistory"),
     WEIGHT("weight"),
     WATER_INTAKE("waterIntake"),
-    MEDICATION("medication");
-    //MEAL_PLAN("mealPlan"),
-    //RECIPE("recipe")
+    MEDICATION("medication"),
+    Meal("meal"),
+    MEAL_PLAN("mealPlan");
 
     fun getTableName(name: String): RoomTable {
         return RoomTable.valueOf(name)

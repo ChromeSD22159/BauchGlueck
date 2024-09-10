@@ -34,12 +34,6 @@ class CountdownTimerRepository(
 
     suspend fun insertOrUpdate(countdownTimer: CountdownTimer) = this.localService.insertOrUpdate(countdownTimer.copy(updatedAtOnDevice = Clock.System.now().toEpochMilliseconds()))
 
-    suspend fun insertOrUpdate(countdownTimers: List<CountdownTimer>) {
-        countdownTimers.forEach {
-            this.localService.insertOrUpdate(it.copy(updatedAtOnDevice = Clock.System.now().toEpochMilliseconds()))
-        }
-    }
-
     suspend fun softDeleteMany(countdownTimers: List<CountdownTimer>) {
         val toUpdate = countdownTimers.map { it.copy(isDeleted = true, updatedAtOnDevice = Clock.System.now().toEpochMilliseconds()) }
             localService.softDeleteMany(toUpdate)
