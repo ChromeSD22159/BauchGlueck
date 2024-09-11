@@ -44,7 +44,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.periodUntil
 import org.koin.androidx.compose.koinViewModel
 import org.lighthousegames.logging.logging
-import util.generateId
+import util.UUID
 import viewModel.WeightScreenViewModel
 import kotlin.math.abs
 
@@ -61,7 +61,7 @@ fun AddWeightScreen(
     val currentWeight = remember {
         mutableStateOf(
             Weight(
-                weightId = generateId(),
+                weightId = UUID.randomUUID(),
                 userId = Firebase.auth.currentUser?.uid ?: "",
                 value = 0.0,
                 weighed = Clock.System.now().toString(),

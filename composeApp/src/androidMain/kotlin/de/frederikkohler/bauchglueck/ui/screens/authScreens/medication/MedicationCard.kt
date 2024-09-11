@@ -37,7 +37,7 @@ import de.frederikkohler.bauchglueck.R
 import de.frederikkohler.bauchglueck.ui.components.clickableWithRipple
 import de.frederikkohler.bauchglueck.ui.theme.AppTheme
 import kotlinx.datetime.Clock
-import util.generateId
+import util.UUID
 
 @Composable
 fun MedicationCard(
@@ -97,7 +97,7 @@ fun MedicationCard(
                         if (thisStatus == null) {
                             // If there's no status, create a new one and mark it as taken
                             val newList = intakeTimeWithStatus.intakeStatuses + IntakeStatus(
-                                intakeStatusId = generateId(),
+                                intakeStatusId = UUID.randomUUID(),
                                 intakeTimeId = intakeTime.intakeTimeId,
                                 isTaken = true,
                                 updatedAtOnDevice = Clock.System.now().toEpochMilliseconds()

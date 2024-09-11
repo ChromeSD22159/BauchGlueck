@@ -45,6 +45,7 @@ import org.koin.androidx.compose.koinViewModel
 import org.lighthousegames.logging.logging
 import viewModel.TimerScreenViewModel
 import viewModel.WeightScreenViewModel
+import java.util.UUID
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
