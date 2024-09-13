@@ -219,15 +219,16 @@ data class LengthResponse(
 @Serializable
 data class GeneratedRecipeResponse(
     val description: String,
-    val fat: Double,
+    val fat: Int,
     val ingredients: List<Ingredient>,
-    val kcal: Double,
+    val kcal: Int,
     val name: String,
     val preparation: String,
     val preparationTimeInMinutes: String,
-    val protein: Double,
-    val sugar: Double,
+    val protein: Int,
+    val sugar: Int,
 )
+
 @Serializable
 data class Ingredient(
     val name: String,

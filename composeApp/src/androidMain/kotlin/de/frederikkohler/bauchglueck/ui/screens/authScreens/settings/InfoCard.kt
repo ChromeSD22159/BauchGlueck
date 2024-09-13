@@ -1,4 +1,4 @@
-package de.frederikkohler.bauchglueck.ui.screens.authScreens.settingsSheet
+package de.frederikkohler.bauchglueck.ui.screens.authScreens.settings
 
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -69,8 +69,6 @@ fun InfoCard(
                         firstnames
                     )
                 )
-
-
 
                 Text(
                     modifier = Modifier,

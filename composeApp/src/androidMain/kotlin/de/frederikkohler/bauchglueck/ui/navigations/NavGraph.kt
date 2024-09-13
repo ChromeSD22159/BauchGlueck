@@ -43,7 +43,7 @@ import org.koin.androidx.compose.koinViewModel
 import viewModel.RecipeViewModel
 import viewModel.SyncWorkerViewModel
 import de.frederikkohler.bauchglueck.ui.components.RecipeCard
-import de.frederikkohler.bauchglueck.ui.screens.authScreens.settingsSheet.SettingScreen
+import de.frederikkohler.bauchglueck.ui.screens.authScreens.settings.SettingScreen
 import viewModel.FirebaseAuthViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -310,10 +310,8 @@ fun NavGraphBuilder.settingsComposable(navController: NavHostController, firebas
             navController = navController,
         ) {
             SettingScreen(
-                firebaseAuthViewModel = firebaseAuthViewModel,
-                onSignOut = {
-                    firebaseAuthViewModel.onLogout()
-                }
+                navController,
+                firebaseAuthViewModel = firebaseAuthViewModel
             )
         }
     }

@@ -1,4 +1,4 @@
-package de.frederikkohler.bauchglueck.ui.screens.authScreens.settingsSheet
+package de.frederikkohler.bauchglueck.ui.screens.authScreens.settings
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement

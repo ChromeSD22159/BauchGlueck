@@ -1,4 +1,4 @@
-package de.frederikkohler.bauchglueck.ui.screens.authScreens.settingsSheet
+package de.frederikkohler.bauchglueck.ui.screens.authScreens.settings
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -36,12 +36,13 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun SurgeryDatePicker(
-    firebaseAuthViewModel: FirebaseAuthViewModel
+    firebaseAuthViewModel: FirebaseAuthViewModel,
+    onUpdate: (Long) -> Unit
 ) {
-    val userFormState by firebaseAuthViewModel.userFormState.collectAsStateWithLifecycle()
+    val userFormState by firebaseAuthViewModel.userFormState.value.userProfile.collectAsStateWithLifecycle()
     val modalBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val datePickerState = rememberDatePickerState(
-        initialSelectedDateMillis = userFormState.userProfile?.surgeryDateTimeStamp ?: System.currentTimeMillis()
+        initialSelectedDateMillis = userFormState.surgeryDateTimeStamp
     )
     var showDatePicker by remember { mutableStateOf(false) }
 
@@ -66,7 +67,7 @@ fun SurgeryDatePicker(
         }
     }
 
-    userFormState.currentUser?.let { userProfile ->
+    userFormState.let { userProfile ->
         if (showDatePicker) {
             ModalBottomSheet(
                 modifier = Modifier
@@ -80,9 +81,7 @@ fun SurgeryDatePicker(
                     ),
                 onDismissRequest = {
                     showDatePicker = false
-                    userFormState.userProfile?.let {
-                        firebaseAuthViewModel.onUpdateUserProfile(it.copy(surgeryDateTimeStamp = datePickerState.selectedDateMillis ?: 0L))
-                    }
+                    onUpdate(datePickerState.selectedDateMillis ?: 0)
                 },
                 sheetState = modalBottomSheetState
             ) {
@@ -94,6 +93,7 @@ fun SurgeryDatePicker(
                 Button(
                     onClick = {
                         showDatePicker = false
+                        onUpdate(datePickerState.selectedDateMillis ?: 0)
                     },
                     modifier = Modifier
                         .padding(8.dp)
