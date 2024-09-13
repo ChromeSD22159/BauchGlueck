@@ -1,6 +1,5 @@
 package de.frederikkohler.bauchglueck.ui.screens.publicScreens
 
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsIgnoringVisibility
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
@@ -31,22 +31,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import de.frederikkohler.bauchglueck.ui.components.BackgroundBlobWithStomach
-import androidx.lifecycle.viewmodel.compose.viewModel
-import dev.icerock.moko.mvvm.flow.compose.observeAsActions
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.frederikkohler.bauchglueck.R
-import de.frederikkohler.bauchglueck.viewModel.FirebaseAuthViewModel
-import de.frederikkohler.bauchglueck.ui.components.CustomTextField
+import de.frederikkohler.bauchglueck.koinViewModel
+import de.frederikkohler.bauchglueck.ui.components.FormScreens.FormTextFieldWithIcon
 import de.frederikkohler.bauchglueck.ui.navigations.Destination
 import de.frederikkohler.bauchglueck.ui.theme.displayFontFamily
-import viewModel.RegisterViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -55,20 +51,14 @@ import java.util.Locale
 @Composable
 fun RegisterView(
     onNavigate: (Destination) -> Unit,
-    registerViewModel: RegisterViewModel = viewModel(),
-    firebaseAuthViewModel: FirebaseAuthViewModel = viewModel()
 ) {
-    val isProcessing by registerViewModel.isProcessing.collectAsStateWithLifecycle()
-    val isButtonEnabled by registerViewModel.isButtonEnabled.collectAsStateWithLifecycle()
+    val firebaseViewModel = koinViewModel<viewModel.FirebaseAuthViewModel>()
+
+    val state = firebaseViewModel.userFormState.collectAsStateWithLifecycle()
+
     val modalBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val datePickerState = rememberDatePickerState()
     var showDatePicker by remember { mutableStateOf(false) }
-
-    val context = LocalContext.current
-
-    registerViewModel.actions.observeAsActions { action ->
-        Toast.makeText(context, action.toString(), Toast.LENGTH_LONG).show()
-    }
 
     Box(
         modifier = Modifier
@@ -116,29 +106,28 @@ fun RegisterView(
                 )
             }
 
-            CustomTextField(
-                stringResource(R.string.register_firstname_text),
-                registerViewModel.firstName,
-                KeyboardType.Text
-            ) {
-                registerViewModel.firstName.value = it
-            }
+            FormTextFieldWithIcon(
+                inputValue = state.value.firstName,
+                onValueChange = {
+                    firebaseViewModel.onChangeFirstName(it)
+                }
+            )
 
-            CustomTextField(
-                stringResource(R.string.register_lastname_text),
-                registerViewModel.lastName,
-                KeyboardType.Text
-            ) {
-                registerViewModel.lastName.value = it
-            }
+            FormTextFieldWithIcon(
+                inputValue = state.value.lastName,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                onValueChange = {
+                    firebaseViewModel.onChangeLastName(it)
+                }
+            )
 
-            CustomTextField(
-                stringResource(R.string.register_mail_text),
-                registerViewModel.mail,
-                KeyboardType.Email
-            ) {
-                registerViewModel.mail.value = it
-            }
+            FormTextFieldWithIcon(
+                inputValue = state.value.email,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                onValueChange = {
+                    firebaseViewModel.onChangeEmail(it)
+                }
+            )
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -164,23 +153,23 @@ fun RegisterView(
                 }
             }
 
-            CustomTextField(
-                stringResource(R.string.register_password_text),
-                registerViewModel.password,
-                KeyboardType.Password
-            ) {
-                registerViewModel.password.value = it
-            }
+            FormTextFieldWithIcon(
+                inputValue = state.value.password,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                onValueChange = {
+                    firebaseViewModel.onChangePassword(it)
+                }
+            )
 
-            CustomTextField(
-                stringResource(R.string.register_reenter_password_text),
-                registerViewModel.reEnterPassword,
-                KeyboardType.Password
-            ) {
-                registerViewModel.reEnterPassword.value = it
-            }
+            FormTextFieldWithIcon(
+                inputValue = state.value.confirmPassword,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                onValueChange = {
+                    firebaseViewModel.onChangeConfirmPassword(it)
+                }
+            )
 
-            if (isProcessing) {
+            if (state.value.isProcessing) {
                 CircularProgressIndicator()
             } else {
                 Row(
@@ -196,30 +185,16 @@ fun RegisterView(
                     }
 
                     Button(
-                        enabled = isButtonEnabled,
-
                         onClick = {
-                            registerViewModel.onRegisterButtonPressed(
-                                action = { registerState ->
-                                    firebaseAuthViewModel.signUp(
-                                        registerState.mail,
-                                        registerState.password,
-                                        complete = {
-                                            it.onSuccess {
-                                                onNavigate(Destination.Login)
-                                                registerState.isSignedIn = false
-                                            }
-                                        }
-                                    )
-
-                                    return@onRegisterButtonPressed registerState
-                                }
-                            )
+                            firebaseViewModel.onSignUp()
+                            onNavigate(Destination.Home)
                         }
                     ) {
                         Text(stringResource(R.string.register_register_button_text))
                     }
                 }
+                
+                Text(text = firebaseViewModel.userFormState.value.error ?: "")
             }
 
             if (showDatePicker) {

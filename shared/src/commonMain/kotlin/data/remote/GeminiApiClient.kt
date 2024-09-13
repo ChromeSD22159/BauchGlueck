@@ -5,11 +5,13 @@ import de.frederikkohler.bauchglueck.shared.BuildKonfig
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
+import io.ktor.util.InternalAPI
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -47,11 +49,8 @@ data class Candidate(
 )
 
 class GeminiApiClient(
-    private val baseUrl: String = BuildKonfig.GEMINI_API_HOST,
-    private val apiKey: String = BuildKonfig.GEMINI_API_KEY,
     private val httpClient: HttpClient = createHttpClient(),
 ) {
-
     @OptIn(ExperimentalSerializationApi::class)
     private val client = HttpClient {
         install(ContentNegotiation) {
@@ -60,6 +59,8 @@ class GeminiApiClient(
     }
 
     suspend fun generateContent(prompt: String): String? {
+        val baseUrl: String = BuildKonfig.GEMINI_API_HOST
+        val apiKey: String = BuildKonfig.GEMINI_API_KEY
         val part = Part(text = prompt)
         val contents = Content( parts = listOf(part) , role = "user")
         val request = GenerateContentRequest(contents)

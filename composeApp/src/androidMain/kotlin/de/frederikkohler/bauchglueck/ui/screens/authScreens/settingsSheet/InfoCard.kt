@@ -22,10 +22,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
+import data.model.UserProfile
 import de.frederikkohler.bauchglueck.R
 import de.frederikkohler.bauchglueck.ui.theme.AppTheme
 import de.frederikkohler.bauchglueck.utils.getDifferenceDateString
-import data.model.UserProfile
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable

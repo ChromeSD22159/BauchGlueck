@@ -1,14 +1,11 @@
 package de.frederikkohler.bauchglueck.ui.screens.publicScreens
 
-import viewModel.LoginViewModel
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -18,35 +15,28 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.frederikkohler.bauchglueck.ui.components.BackgroundBlobWithStomach
-import androidx.lifecycle.viewmodel.compose.viewModel
-import de.frederikkohler.bauchglueck.viewModel.FirebaseAuthViewModel
-import de.frederikkohler.bauchglueck.ui.components.CustomTextField
+import de.frederikkohler.bauchglueck.koinViewModel
+import de.frederikkohler.bauchglueck.ui.components.FormScreens.FormTextFieldWithIcon
 import de.frederikkohler.bauchglueck.ui.navigations.Destination
 import de.frederikkohler.bauchglueck.ui.theme.displayFontFamily
-import dev.icerock.moko.mvvm.flow.compose.observeAsActions
+import viewModel.FirebaseAuthViewModel
 
 @Composable
 fun LoginView(
-    onNavigate: (Destination) -> Unit,
-    loginViewModel: LoginViewModel = viewModel(),
-    firebaseViewModel: FirebaseAuthViewModel = viewModel()
+    onNavigate: (Destination) -> Unit
 ) {
-    val isProcessing by loginViewModel.isProcessing.collectAsStateWithLifecycle()
-    val isButtonEnabled by loginViewModel.isButtonEnabled.collectAsStateWithLifecycle()
+    val firebaseViewModel = koinViewModel<FirebaseAuthViewModel>()
 
-    val context = LocalContext.current
-
-    loginViewModel.actions.observeAsActions { action ->
-        Toast.makeText(context, action.toString(), Toast.LENGTH_LONG).show()
-    }
+    val state = firebaseViewModel.userFormState.collectAsStateWithLifecycle()
 
     Box(
         modifier = Modifier
@@ -95,23 +85,21 @@ fun LoginView(
                 )
             }
 
-            CustomTextField(
-                "Deine E-Mail",
-                loginViewModel.mail,
-                KeyboardType.Email
-            ) {
-                loginViewModel.mail.value = it
-            }
+            FormTextFieldWithIcon(
+                inputValue = state.value.email,
+                onValueChange = {
+                    firebaseViewModel.onChangeEmail(it)
+                }
+            )
 
-            CustomTextField(
-                "Dein Passwort",
-                loginViewModel.password,
-                KeyboardType.Password
-            ) {
-                loginViewModel.password.value = it
-            }
+            FormTextFieldWithIcon(
+                inputValue = state.value.password,
+                onValueChange = {
+                    firebaseViewModel.onChangePassword(it)
+                }
+            )
 
-            if (isProcessing) {
+            if (state.value.isProcessing) {
                 CircularProgressIndicator()
             } else {
                 Row(
@@ -126,17 +114,11 @@ fun LoginView(
                         Text("Zur Registrierung")
                     }
 
+                    // TODO: Add Forgot Password Button
                     Button(
-                        enabled = isButtonEnabled,
+                        enabled = true,
                         onClick = {
-                            loginViewModel.onLoginButtonPressed(
-                                action = { loginState ->
-                                    firebaseViewModel.signIn(loginState.mail, loginState.password)
-                                    loginState.isSignedIn = true
-                                    onNavigate(Destination.Home)
-                                    return@onLoginButtonPressed loginState
-                                }
-                            )
+                            firebaseViewModel.onLogin()
                         }
                     ) {
                         Text("Login")

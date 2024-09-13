@@ -25,13 +25,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import data.FirebaseConnection
 import de.frederikkohler.bauchglueck.R
-import de.frederikkohler.bauchglueck.ui.theme.AppTheme
-import de.frederikkohler.bauchglueck.viewModel.FirebaseAuthViewModel
+import viewModel.FirebaseAuthViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -41,10 +38,10 @@ import java.util.Locale
 fun SurgeryDatePicker(
     firebaseAuthViewModel: FirebaseAuthViewModel
 ) {
-    val user by firebaseAuthViewModel.userProfile.collectAsStateWithLifecycle()
+    val userFormState by firebaseAuthViewModel.userFormState.collectAsStateWithLifecycle()
     val modalBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val datePickerState = rememberDatePickerState(
-        initialSelectedDateMillis = user?.surgeryDateTimeStamp ?: System.currentTimeMillis()
+        initialSelectedDateMillis = userFormState.userProfile?.surgeryDateTimeStamp ?: System.currentTimeMillis()
     )
     var showDatePicker by remember { mutableStateOf(false) }
 
@@ -69,7 +66,7 @@ fun SurgeryDatePicker(
         }
     }
 
-    user?.let { userProfile ->
+    userFormState.currentUser?.let { userProfile ->
         if (showDatePicker) {
             ModalBottomSheet(
                 modifier = Modifier
@@ -83,12 +80,9 @@ fun SurgeryDatePicker(
                     ),
                 onDismissRequest = {
                     showDatePicker = false
-
-                    val updatedProfile = userProfile.copy(
-                        surgeryDateTimeStamp = datePickerState.selectedDateMillis ?: 0L
-                    )
-                    firebaseAuthViewModel.updateUserProfile(updatedProfile)
-                    firebaseAuthViewModel.saveUserProfile(FirebaseConnection.Remote)
+                    userFormState.userProfile?.let {
+                        firebaseAuthViewModel.onUpdateUserProfile(it.copy(surgeryDateTimeStamp = datePickerState.selectedDateMillis ?: 0L))
+                    }
                 },
                 sheetState = modalBottomSheetState
             ) {

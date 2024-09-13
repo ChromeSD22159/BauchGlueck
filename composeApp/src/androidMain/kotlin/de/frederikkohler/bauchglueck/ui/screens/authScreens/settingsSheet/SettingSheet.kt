@@ -32,14 +32,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import de.frederikkohler.bauchglueck.viewModel.FirebaseAuthViewModel
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import data.FirebaseConnection
 import de.frederikkohler.bauchglueck.R
 import de.frederikkohler.bauchglueck.ui.components.profileSlider.ProfileSlider
 import de.frederikkohler.bauchglueck.ui.components.profileSlider.ProfileSliderUnit
 import kotlinx.coroutines.launch
+import viewModel.FirebaseAuthViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(
@@ -66,7 +65,6 @@ fun SettingSheet(
         } else {
             scope.launch {
                 sheetState.hide()
-                firebaseAuthViewModel.saveUserProfile(FirebaseConnection.Remote)
             }
         }
     }
@@ -128,7 +126,7 @@ fun SettingSheetContent(
     firebaseAuthViewModel: FirebaseAuthViewModel,
     onSignOut: () -> Unit
 ) {
-    val user by firebaseAuthViewModel.userProfile.collectAsStateWithLifecycle()
+    val userFormState by firebaseAuthViewModel.userFormState.collectAsStateWithLifecycle()
 
     Column(
         modifier = Modifier
@@ -136,7 +134,7 @@ fun SettingSheetContent(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        user?.let { userProfile ->
+        userFormState.userProfile?.let { userProfile ->
             InfoCard(userProfile)
 
             SurgeryDatePicker(firebaseAuthViewModel)
@@ -145,8 +143,7 @@ fun SettingSheetContent(
                 label = stringResource(R.string.settings_sheet_startgewicht_label),
                 value = userProfile.startWeight,
                 onValueChange = {
-                    val updatedProfile = userProfile.copy(startWeight = it)
-                    firebaseAuthViewModel.updateUserProfile(updatedProfile)
+                    firebaseAuthViewModel.onUpdateUserProfile(userProfile.copy(startWeight = it))
                 },
                 valueRange = 40f..300f,
                 steps = 260,
@@ -158,8 +155,7 @@ fun SettingSheetContent(
                 label = stringResource(R.string.settings_sheet_wasseraufnahme_label),
                 value = userProfile.waterIntake,
                 onValueChange = {
-                    val updatedProfile = userProfile.copy(waterIntake = it)
-                    firebaseAuthViewModel.updateUserProfile(updatedProfile)
+                    firebaseAuthViewModel.onUpdateUserProfile(userProfile.copy(waterIntake = it))
                 },
                 valueRange = 20f..500f,
                 steps = 480,
@@ -171,8 +167,7 @@ fun SettingSheetContent(
                 label = stringResource(R.string.settings_sheet_wasseraufnahme_am_tag_label),
                 value = userProfile.waterDayIntake / 1000,
                 onValueChange = {
-                    val updatedProfile = userProfile.copy(waterDayIntake = it * 1000)
-                    firebaseAuthViewModel.updateUserProfile(updatedProfile)
+                    firebaseAuthViewModel.onUpdateUserProfile(userProfile.copy(waterDayIntake = it))
                 },
                 valueRange = 1.0f..3.5f,
                 steps = 25,

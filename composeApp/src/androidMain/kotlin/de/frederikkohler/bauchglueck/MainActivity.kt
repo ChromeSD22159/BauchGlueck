@@ -5,7 +5,6 @@ import android.graphics.Color
 import android.os.Build
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -27,13 +26,10 @@ import coil3.request.crossfade
 import coil3.util.DebugLogger
 import de.frederikkohler.bauchglueck.ui.navigations.NavGraph
 import de.frederikkohler.bauchglueck.ui.theme.AppTheme
-import de.frederikkohler.bauchglueck.viewModel.FirebaseAuthViewModel
 import di.KoinInject
 import org.koin.compose.currentKoinScope
 
 class MainActivity : ComponentActivity() {
-
-    private val firebaseAuthViewModel: FirebaseAuthViewModel by viewModels()
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onStart( ) {
@@ -52,6 +48,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             AppTheme {
 
+                val firebaseViewModel = koinViewModel<viewModel.FirebaseAuthViewModel>()
+
                 setSingletonImageLoaderFactory { context ->
                     getAsyncImageLoader(context)
                 }
@@ -67,7 +65,7 @@ class MainActivity : ComponentActivity() {
                     ) {
                         NavGraph(
                             navController,
-                            firebaseAuthViewModel,
+                            firebaseViewModel,
                             applicationContext
                         )
                     }

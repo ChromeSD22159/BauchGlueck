@@ -8,6 +8,7 @@ import viewModel.RecipeViewModel
 import viewModel.SyncWorkerViewModel
 import viewModel.TimerScreenViewModel
 import viewModel.WeightScreenViewModel
+import viewModel.FirebaseAuthViewModel
 
 actual val viewModelModule = module {
     viewModel { TimerScreenViewModel(get()) }
@@ -16,5 +17,5 @@ actual val viewModelModule = module {
     viewModel { MedicationViewModel(get()) }
     viewModel { RecipeViewModel(get()) }
     viewModel { MealViewModel(get()) }
-
+    viewModel { FirebaseAuthViewModel() }
 }

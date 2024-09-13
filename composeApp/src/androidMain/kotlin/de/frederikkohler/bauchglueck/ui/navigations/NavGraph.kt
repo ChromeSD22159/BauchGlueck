@@ -38,19 +38,17 @@ import de.frederikkohler.bauchglueck.ui.screens.authScreens.timer.TimerScreen
 import de.frederikkohler.bauchglueck.ui.screens.authScreens.weights.addWeight.AddWeightScreen
 import de.frederikkohler.bauchglueck.ui.screens.authScreens.weights.showAllWeights.ShowAllWeights
 import de.frederikkohler.bauchglueck.ui.screens.authScreens.weights.WeightScreen
-import de.frederikkohler.bauchglueck.viewModel.FirebaseAuthViewModel
 import de.frederikkohler.bauchglueck.ui.screens.publicScreens.LoginView
 import de.frederikkohler.bauchglueck.ui.screens.publicScreens.RegisterView
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
-import di.serverHost
 import org.koin.compose.KoinContext
 import org.lighthousegames.logging.logging
 import org.koin.androidx.compose.koinViewModel
 import viewModel.RecipeViewModel
 import viewModel.SyncWorkerViewModel
 import de.frederikkohler.bauchglueck.ui.components.RecipeCard
-import kotlin.random.Random
+import viewModel.FirebaseAuthViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -135,7 +133,6 @@ fun NavGraphBuilder.login(navController: NavHostController) {
 fun NavGraphBuilder.home(navController: NavHostController, firebaseAuthViewModel: FirebaseAuthViewModel) {
     composable(Destination.Home.route) {
         HomeScreen(
-            firebaseAuthViewModel = firebaseAuthViewModel,
             navController = navController
         )
     }
@@ -143,7 +140,7 @@ fun NavGraphBuilder.home(navController: NavHostController, firebaseAuthViewModel
 
 fun NavGraphBuilder.signUp(navController: NavHostController) {
     composable(Destination.SignUp.route) {
-        RegisterView( { navController.navigate(it.route) } )
+        RegisterView { navController.navigate(it.route) }
     }
 }
 

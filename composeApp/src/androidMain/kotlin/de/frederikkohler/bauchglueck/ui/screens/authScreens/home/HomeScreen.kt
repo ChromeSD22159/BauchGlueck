@@ -11,10 +11,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import de.frederikkohler.bauchglueck.R
 import de.frederikkohler.bauchglueck.ui.components.RoundImageButton
-import de.frederikkohler.bauchglueck.viewModel.FirebaseAuthViewModel
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -35,25 +33,32 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import data.FirebaseConnection
+import data.model.RecipeCategory
+import data.remote.StrapiApiClient
 import de.frederikkohler.bauchglueck.ui.navigations.Destination
 import de.frederikkohler.bauchglueck.ui.screens.authScreens.SyncIconRotate
 import de.frederikkohler.bauchglueck.ui.screens.authScreens.settingsSheet.SettingSheet
+import dev.gitlive.firebase.Firebase
+import dev.gitlive.firebase.auth.auth
+import di.serverHost
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.lighthousegames.logging.logging
+import util.debugJsonHelper
+import util.onError
+import util.onSuccess
+import viewModel.FirebaseAuthViewModel
 import viewModel.TimerScreenViewModel
 import viewModel.WeightScreenViewModel
-import java.util.UUID
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    firebaseAuthViewModel: FirebaseAuthViewModel = viewModel(),
     navController: NavHostController,
 ) {
+    val firebaseViewModel = koinViewModel<FirebaseAuthViewModel>()
     val timerScreenViewModel = koinViewModel<TimerScreenViewModel>()
     val weightScreenViewModel = koinViewModel<WeightScreenViewModel>()
 
@@ -105,6 +110,32 @@ fun HomeScreen(
                 Text(text = "Rezepte")
             }
 
+            Button(onClick = {
+                scope.launch {
+                    val response = StrapiApiClient( serverHost ).createRecipe(RecipeCategory.HAUPTGERICHT)
+
+                    response.onSuccess {
+                        logging().info { "Success: ${it.name}" }
+
+                        debugJsonHelper(it)
+                    }
+                    response.onError {
+                        logging().info { "Error: $it" }
+                    }
+                }
+            }) {
+                Text(text = "Generate Recipe")
+            }
+
+            Button(onClick = {
+                scope.launch {
+                    Firebase.auth.signOut()
+                    navController.navigate(Destination.Login.route)
+                }
+            }) {
+                Text(text = "Logout")
+            }
+
             HomeCalendarCard {
                 scope.launch {
                     navController.navigate(Destination.Calendar.route)
@@ -144,20 +175,20 @@ fun HomeScreen(
                 showSettingSheet = showSettingSheet,
                 onDismissRequest = {
                     showSettingSheet = false
-                    firebaseAuthViewModel.saveUserProfile(FirebaseConnection.Remote)
                 },
                 onSignOut = {
                     scope.launch {
-                        firebaseAuthViewModel.signOut()
+                        firebaseViewModel.onLogout()
+
                         delay(250)
                         showSettingSheet = false
                         delay(250)
-                        if (firebaseAuthViewModel.user.value == null) {
+                        if (firebaseViewModel.userFormState.value.currentUser == null) {
                             navController.navigate(Destination.Login.route)
                         }
                     }
                 },
-                firebaseAuthViewModel = firebaseAuthViewModel,
+                firebaseAuthViewModel = firebaseViewModel,
             )
         }
     }

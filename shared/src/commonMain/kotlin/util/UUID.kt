@@ -5,6 +5,11 @@ object UUID {
         return generateUUID()
     }
 
+    fun String.verifyStructure(): Boolean {
+        val blockLengths = listOf(6, 4, 4, 4, 12)
+        return this.split("-").map { it.length }.zip(blockLengths).all { it.first == it.second }
+    }
+
     private fun generateUUID(): String {
         val chars = ('a'..'z') + ('0'..'9') + ('A'..'Z')
         val listBlocks = listOf(6, 4, 4, 4, 12)

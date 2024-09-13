@@ -1,5 +1,6 @@
 package data.remote
 
+import data.model.RecipeCategory
 import data.network.BaseApiEndpoint
 import data.network.createHttpClient
 import data.network.replacePlaceholders
@@ -21,6 +22,7 @@ import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.datetime.Clock
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
+import kotlinx.serialization.json.Json
 import org.lighthousegames.logging.logging
 import util.NetworkError
 import util.Result
@@ -34,8 +36,7 @@ open class BaseApiClient(
     open val serverHost: String,
     open val httpClient: HttpClient = createHttpClient()
 ) {
-    enum class UpdateRemoteEndpoint(override var urlPath: String, override val method: HttpMethod):
-        BaseApiEndpoint {
+    enum class UpdateRemoteEndpoint(override var urlPath: String, override val method: HttpMethod): BaseApiEndpoint {
         WATER_INTAKE("/api/water-intake/updateRemoteData", HttpMethod.Post),
         WEIGHT("/api/weight/updateRemoteData", HttpMethod.Post),
         MEDICATION("/api/medication/syncDeviceMedicationData", HttpMethod.Post),
@@ -43,14 +44,17 @@ open class BaseApiClient(
         COUNTDOWN_TIMER("/api/timer/updateRemoteData", HttpMethod.Post),
     }
 
-    enum class FetchAfterTimestampEndpoint(override var urlPath: String, override val method: HttpMethod):
-        BaseApiEndpoint {
+    enum class FetchAfterTimestampEndpoint(override var urlPath: String, override val method: HttpMethod): BaseApiEndpoint {
         WATER_INTAKE("/api/water-intake/fetchItemsAfterTimeStamp?timeStamp={timestamp}&userId={userID}", HttpMethod.Get),
         WEIGHT("/api/weight/fetchItemsAfterTimeStamp?timeStamp={timestamp}&userId={userID}", HttpMethod.Get),
         MEDICATION("/api/medication/getUpdatedMedicationEntries?timeStamp={timestamp}&userId={userID}", HttpMethod.Get),
         COUNTDOWN_TIMER("/api/timer/fetchItemsAfterTimeStamp?timeStamp={timestamp}&userId={userID}", HttpMethod.Get),
-        MealPlan("/api/mealPlan/getUpdatedMealPlanDayEntries?timeStamp={timestamp}&userId={userID}", HttpMethod.Get)
+        MealPlan("/api/mealPlan/getUpdatedMealPlanDayEntries?timeStamp={timestamp}&userId={userID}", HttpMethod.Get),
+        GenerateRecipe("/api/recipes/generateRecipe?category={RecipeKind}", HttpMethod.Get)
     }
+
+    // TODO check MealPlan Routes AND SyncLogic
+    // TODO check ShoppingList Routes AND SyncLogic
 
     enum class ApiEndpoint(override var urlPath: String, override val method: HttpMethod): BaseApiEndpoint {
         RECIPES_OVERVIEW_REMOTE_DATA("/api/recipes/overview?count={count}", HttpMethod.Get),
@@ -85,6 +89,19 @@ open class BaseApiClient(
         return apiCall(endpoint, httpClient)
     }
 
+    suspend fun createRecipe(category: RecipeCategory): Result<GeneratedRecipeResponse, NetworkError> {
+        val endpoint = FetchAfterTimestampEndpoint.GenerateRecipe
+        endpoint.replacePlaceholders("{RecipeKind}", category.name)
+
+        return try {
+            val response = httpClient.get(endpoint.generateRequestURL(serverHost))
+            val generatedRecipe: GeneratedRecipeResponse = Json.decodeFromString(response.body())
+            Result.Success(generatedRecipe)
+        } catch (e: Exception) {
+            println("Fehler bei der Deserialisierung: $e")
+            Result.Error(NetworkError.SERIALIZATION)
+        }
+    }
 
 
     /**
@@ -199,3 +216,21 @@ data class LengthResponse(
     val length: Int
 )
 
+@Serializable
+data class GeneratedRecipeResponse(
+    val description: String,
+    val fat: Double,
+    val ingredients: List<Ingredient>,
+    val kcal: Double,
+    val name: String,
+    val preparation: String,
+    val preparationTimeInMinutes: String,
+    val protein: Double,
+    val sugar: Double,
+)
+@Serializable
+data class Ingredient(
+    val name: String,
+    val unit: String,
+    val value: String,
+)
