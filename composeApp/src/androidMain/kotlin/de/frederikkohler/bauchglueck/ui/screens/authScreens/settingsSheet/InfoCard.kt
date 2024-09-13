@@ -22,7 +22,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
-import data.model.UserProfile
 import de.frederikkohler.bauchglueck.R
 import de.frederikkohler.bauchglueck.ui.theme.AppTheme
 import de.frederikkohler.bauchglueck.utils.getDifferenceDateString
@@ -30,7 +29,8 @@ import de.frederikkohler.bauchglueck.utils.getDifferenceDateString
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun InfoCard(
-    userProfile: UserProfile
+    firstnames: String,
+    surgeryDateTimeStamp: Long
 ) {
     val context = LocalContext.current
 
@@ -66,7 +66,7 @@ fun InfoCard(
                     color = MaterialTheme.colorScheme.onPrimary,
                     text = context.getString(
                         R.string.settings_sheet_hallo_firstname,
-                        userProfile.firstName
+                        firstnames
                     )
                 )
 
@@ -83,7 +83,7 @@ fun InfoCard(
                     modifier = Modifier,
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onPrimary,
-                    text = getDifferenceDateString(userProfile.surgeryDateTimeStamp)
+                    text = getDifferenceDateString(surgeryDateTimeStamp)
                 )
             }
         }

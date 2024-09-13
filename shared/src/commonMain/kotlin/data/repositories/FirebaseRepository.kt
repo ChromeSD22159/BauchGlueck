@@ -41,12 +41,12 @@ class FirebaseRepository() {
         firestore.collection(collectionName).document(auth.currentUser!!.uid).set(userProfile)
     }
 
-    suspend fun readUserProfile(): UserProfile? {
-        if (auth.currentUser == null) return null
-        val documentSnapshot = firestore.collection(collectionName).document(auth.currentUser!!.uid).get()
-        if (documentSnapshot.exists) {
-            return documentSnapshot.data(UserProfile.serializer())
+    suspend fun readUserProfileById(userId: String): UserProfile? {
+        val documentSnapshot = firestore.collection(collectionName).document(userId).get()
+        return if (documentSnapshot.exists) {
+            documentSnapshot.data(UserProfile.serializer())
+        } else {
+            null
         }
-        return null
     }
 }

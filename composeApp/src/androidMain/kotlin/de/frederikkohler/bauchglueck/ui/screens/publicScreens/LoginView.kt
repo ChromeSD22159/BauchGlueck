@@ -14,9 +14,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -24,7 +21,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.frederikkohler.bauchglueck.ui.components.BackgroundBlobWithStomach
-import de.frederikkohler.bauchglueck.koinViewModel
 import de.frederikkohler.bauchglueck.ui.components.FormScreens.FormTextFieldWithIcon
 import de.frederikkohler.bauchglueck.ui.navigations.Destination
 import de.frederikkohler.bauchglueck.ui.theme.displayFontFamily
@@ -32,9 +28,9 @@ import viewModel.FirebaseAuthViewModel
 
 @Composable
 fun LoginView(
+    firebaseViewModel: FirebaseAuthViewModel,
     onNavigate: (Destination) -> Unit
 ) {
-    val firebaseViewModel = koinViewModel<FirebaseAuthViewModel>()
 
     val state = firebaseViewModel.userFormState.collectAsStateWithLifecycle()
 
@@ -118,12 +114,17 @@ fun LoginView(
                     Button(
                         enabled = true,
                         onClick = {
-                            firebaseViewModel.onLogin()
+                            val result = firebaseViewModel.onLogin()
+                            if (result.isSuccess) {
+                                onNavigate(Destination.Home)
+                            }
                         }
                     ) {
                         Text("Login")
                     }
                 }
+
+                Text(text = firebaseViewModel.userFormState.value.error)
             }
 
             Spacer(modifier = Modifier)

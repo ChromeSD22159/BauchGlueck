@@ -21,4 +21,5 @@ sealed class Destination(val route: String, val title: String) {
     data object AddTimer : Destination("AddTimer", "Timer hinzufügen")
     data object EditTimer : Destination("EditTimer", "Timer Bearbeiten")
     data object Recipes : Destination("Recipes", "Rezepte")
+    data object Settings : Destination("Settings", "Settings")
 }

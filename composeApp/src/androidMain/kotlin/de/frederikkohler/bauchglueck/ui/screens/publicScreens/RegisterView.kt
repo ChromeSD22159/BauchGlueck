@@ -39,10 +39,10 @@ import androidx.compose.ui.unit.dp
 import de.frederikkohler.bauchglueck.ui.components.BackgroundBlobWithStomach
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.frederikkohler.bauchglueck.R
-import de.frederikkohler.bauchglueck.koinViewModel
 import de.frederikkohler.bauchglueck.ui.components.FormScreens.FormTextFieldWithIcon
 import de.frederikkohler.bauchglueck.ui.navigations.Destination
 import de.frederikkohler.bauchglueck.ui.theme.displayFontFamily
+import viewModel.FirebaseAuthViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -50,11 +50,10 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun RegisterView(
+    firebaseAuthViewModel: FirebaseAuthViewModel,
     onNavigate: (Destination) -> Unit,
 ) {
-    val firebaseViewModel = koinViewModel<viewModel.FirebaseAuthViewModel>()
-
-    val state = firebaseViewModel.userFormState.collectAsStateWithLifecycle()
+    val state = firebaseAuthViewModel.userFormState.collectAsStateWithLifecycle()
 
     val modalBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val datePickerState = rememberDatePickerState()
@@ -109,7 +108,7 @@ fun RegisterView(
             FormTextFieldWithIcon(
                 inputValue = state.value.firstName,
                 onValueChange = {
-                    firebaseViewModel.onChangeFirstName(it)
+                    firebaseAuthViewModel.onChangeFirstName(it)
                 }
             )
 
@@ -117,7 +116,7 @@ fun RegisterView(
                 inputValue = state.value.lastName,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                 onValueChange = {
-                    firebaseViewModel.onChangeLastName(it)
+                    firebaseAuthViewModel.onChangeLastName(it)
                 }
             )
 
@@ -125,7 +124,7 @@ fun RegisterView(
                 inputValue = state.value.email,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 onValueChange = {
-                    firebaseViewModel.onChangeEmail(it)
+                    firebaseAuthViewModel.onChangeEmail(it)
                 }
             )
 
@@ -157,7 +156,7 @@ fun RegisterView(
                 inputValue = state.value.password,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 onValueChange = {
-                    firebaseViewModel.onChangePassword(it)
+                    firebaseAuthViewModel.onChangePassword(it)
                 }
             )
 
@@ -165,7 +164,7 @@ fun RegisterView(
                 inputValue = state.value.confirmPassword,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 onValueChange = {
-                    firebaseViewModel.onChangeConfirmPassword(it)
+                    firebaseAuthViewModel.onChangeConfirmPassword(it)
                 }
             )
 
@@ -186,15 +185,17 @@ fun RegisterView(
 
                     Button(
                         onClick = {
-                            firebaseViewModel.onSignUp()
-                            onNavigate(Destination.Home)
+                            val result = firebaseAuthViewModel.onSignUp()
+                            if (result.isSuccess) {
+                                onNavigate(Destination.Home)
+                            }
                         }
                     ) {
                         Text(stringResource(R.string.register_register_button_text))
                     }
                 }
                 
-                Text(text = firebaseViewModel.userFormState.value.error ?: "")
+                Text(text = firebaseAuthViewModel.userFormState.value.error)
             }
 
             if (showDatePicker) {

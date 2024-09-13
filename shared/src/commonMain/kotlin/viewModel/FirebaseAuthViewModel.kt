@@ -2,7 +2,9 @@ package viewModel
 
 import data.repositories.FirebaseRepository
 import data.model.UserProfile
+import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.FirebaseUser
+import dev.gitlive.firebase.auth.auth
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,19 +19,50 @@ class FirebaseAuthViewModel : ViewModel() {
     val userFormState = _userFormState.asStateFlow()
 
     init {
-        viewModelScope.launch {
-            _userFormState.value = _userFormState.value.copy(userProfile = firebaseRepository.readUserProfile())
+        authStateChanged()
+    }
 
-            logging().info { "UserFormState: ${firebaseRepository.readUserProfile()}" }
+    private fun authStateChanged() {
+        viewModelScope.launch {
+            Firebase.auth.authStateChanged.collect {
+                if (it != null) {
+                    val profile = firebaseRepository.readUserProfileById(it.uid)
+                    _userFormState.value = _userFormState.value.copy(currentUser = it, userProfile = profile)
+                } else {
+                    _userFormState.value = _userFormState.value.copy(currentUser = null, userProfile = null)
+                }
+            }
         }
     }
 
-    fun onLogin() {
+    fun onLogin(): Result<Boolean> {
+        var result = Result.success(false)
         viewModelScope.launch {
-            _userFormState.value = _userFormState.value.copy(isProcessing = true)
-            val response = firebaseRepository.signIn(_userFormState.value.email, _userFormState.value.password)
-            _userFormState.value = _userFormState.value.copy(currentUser = response.user, isProcessing = false)
+            _userFormState.value = _userFormState.value.copy(isProcessing = true, error = "")
+
+            logging().info { "onLogin: ${_userFormState.value.email} ${_userFormState.value.password}" }
+
+            val errorMessage = validateInput(
+                email = _userFormState.value.email,
+                password = _userFormState.value.password
+            )
+
+            if (errorMessage != null) {
+                _userFormState.value = _userFormState.value.copy(error = errorMessage, isProcessing = false)
+                return@launch
+            }
+
+            logging().info { "errorMessage $errorMessage" }
+
+            try {
+                val response = firebaseRepository.signIn(_userFormState.value.email, _userFormState.value.password)
+                _userFormState.value = _userFormState.value.copy(currentUser = response.user, isProcessing = false)
+                result = Result.success(true)
+            } catch (e: Exception) {
+                _userFormState.value = _userFormState.value.copy(error = e.message ?: "Unknown error", isProcessing = false)
+            }
         }
+        return result
     }
 
     fun onLogout() {
@@ -42,37 +75,47 @@ class FirebaseAuthViewModel : ViewModel() {
         _userFormState.value = UserFormState()
     }
 
-    fun onSignUp() {
+    fun onSignUp(): Result<Boolean> {
+        var result = Result.success(false)
         viewModelScope.launch {
             _userFormState.value = _userFormState.value.copy(isProcessing = true)
-            if (_userFormState.value.password == _userFormState.value.confirmPassword) {
 
-                val newUserProfile = UserProfile(
-                    firstName = _userFormState.value.firstName,
-                    lastName = _userFormState.value.lastName,
-                    email = _userFormState.value.email,
-                    surgeryDateTimeStamp = 0,
-                    mainMeals = 0,
-                    betweenMeals = 0,
-                    profileImageURL = "",
-                    startWeight = 0.0,
-                    waterIntake = 0.0,
-                    waterDayIntake = 0.0
-                )
+            val errorMessage = validateInput(
+                firstName = _userFormState.value.firstName,
+                lastName = _userFormState.value.lastName,
+                email = _userFormState.value.email,
+                password = _userFormState.value.password,
+                confirmPassword = _userFormState.value.confirmPassword
+            )
 
-                val hasError = firebaseRepository.createUserWithEmailAndPassword(newUserProfile, userFormState.value.password)
-
-                if (hasError != null) {
-                    _userFormState.value = _userFormState.value.copy(error = hasError.message ?: "Unknown error")
-                } else {
-                    _userFormState.value = _userFormState.value.copy(error = "")
-                }
-            } else {
-                _userFormState.value = _userFormState.value.copy(error = "Passwords do not match")
+            if (errorMessage != null) {
+                _userFormState.value = _userFormState.value.copy(error = errorMessage, isProcessing = false)
+                return@launch
             }
 
-            _userFormState.value = _userFormState.value.copy(isProcessing = false)
+            val newUserProfile = UserProfile(
+                firstName = _userFormState.value.firstName,
+                lastName = _userFormState.value.lastName,
+                email = _userFormState.value.email,
+                surgeryDateTimeStamp = 0,
+                mainMeals = 0,
+                betweenMeals = 0,
+                profileImageURL = "",
+                startWeight = 0.0,
+                waterIntake = 0.0,
+                waterDayIntake = 0.0
+            )
+
+            val error = firebaseRepository.createUserWithEmailAndPassword(newUserProfile, _userFormState.value.password)
+
+            if (error != null) {
+                _userFormState.value = _userFormState.value.copy(error = error.message ?: "Unknown error", isProcessing = false)
+                result = Result.success(true)
+            } else {
+                _userFormState.value.copy(error = "", isProcessing = false)
+            }
         }
+        return result
     }
 
     fun onChangeFirstName(firstName: String) {
@@ -100,6 +143,33 @@ class FirebaseAuthViewModel : ViewModel() {
     ) {
         viewModelScope.launch {
             firebaseRepository.saveUserProfile(userProfile)
+        }
+    }
+
+    private fun validateInput(
+        email: String,
+        password: String,
+        confirmPassword: String? = null,
+        firstName: String? = null,
+        lastName: String? = null
+    ): String? {
+        return when {
+            email.isEmpty() -> {
+                "Please enter an email"
+            }
+            password.isEmpty() -> {
+                "Please enter a password"
+            }
+            confirmPassword != null && password != confirmPassword -> {
+                "Passwords do not match"
+            }
+            firstName != null && firstName.isEmpty() -> {
+                "Please enter a first name"
+            }
+            lastName != null && lastName.isEmpty() -> {
+                "Please enter a last name"
+            }
+            else -> null
         }
     }
 }

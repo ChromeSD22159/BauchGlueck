@@ -4,14 +4,10 @@ import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
@@ -27,7 +23,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import de.frederikkohler.bauchglueck.ui.components.BackScaffold
-import de.frederikkohler.bauchglueck.ui.components.GenerateRecipeWithGemini
 import de.frederikkohler.bauchglueck.ui.screens.LaunchScreen
 import de.frederikkohler.bauchglueck.ui.screens.authScreens.meals.CalendarScreen
 import de.frederikkohler.bauchglueck.ui.screens.authScreens.home.HomeScreen
@@ -48,6 +43,7 @@ import org.koin.androidx.compose.koinViewModel
 import viewModel.RecipeViewModel
 import viewModel.SyncWorkerViewModel
 import de.frederikkohler.bauchglueck.ui.components.RecipeCard
+import de.frederikkohler.bauchglueck.ui.screens.authScreens.settingsSheet.SettingScreen
 import viewModel.FirebaseAuthViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -62,6 +58,7 @@ fun NavGraph(
     val user = Firebase.auth.currentUser
 
     val syncWorker = koinViewModel<SyncWorkerViewModel>()
+    val firebaseAuthViewModel = koinViewModel<FirebaseAuthViewModel>()
 
     val minimumDelay by syncWorker.uiState.value.minimumDelay.collectAsState()
     val isFinishedSyncing by syncWorker.uiState.value.isFinishedSyncing.collectAsState()
@@ -81,9 +78,9 @@ fun NavGraph(
         NavHost(navController = navController, startDestination = Destination.Launch.route) {
             launchScreen()
 
-            login(navController)
-            signUp(navController)
-            home(navController, viewModel)
+            login(navController, firebaseAuthViewModel)
+            signUp(navController, firebaseAuthViewModel)
+            home(navController)
             calendar(navController)
 
             // WEIGHT
@@ -104,6 +101,8 @@ fun NavGraph(
             editTimerComposable(navController)
 
             recipesComposable(navController)
+
+            settingsComposable(navController, firebaseAuthViewModel)
         }
     }
 }
@@ -123,14 +122,14 @@ fun NavGraphBuilder.calendar(navController: NavHostController) {
     }
 }
 
-fun NavGraphBuilder.login(navController: NavHostController) {
+fun NavGraphBuilder.login(navController: NavHostController, firebaseAuthViewModel: FirebaseAuthViewModel) {
     composable(Destination.Login.route) {
-        LoginView( { navController.navigate(it.route) } )
+        LoginView(firebaseAuthViewModel) { navController.navigate(it.route) }
     }
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-fun NavGraphBuilder.home(navController: NavHostController, firebaseAuthViewModel: FirebaseAuthViewModel) {
+fun NavGraphBuilder.home(navController: NavHostController) {
     composable(Destination.Home.route) {
         HomeScreen(
             navController = navController
@@ -138,9 +137,9 @@ fun NavGraphBuilder.home(navController: NavHostController, firebaseAuthViewModel
     }
 }
 
-fun NavGraphBuilder.signUp(navController: NavHostController) {
+fun NavGraphBuilder.signUp(navController: NavHostController, firebaseAuthViewModel: FirebaseAuthViewModel) {
     composable(Destination.SignUp.route) {
-        RegisterView { navController.navigate(it.route) }
+        RegisterView(firebaseAuthViewModel) { navController.navigate(it.route) }
     }
 }
 
@@ -303,5 +302,21 @@ fun NavGraphBuilder.timerComposable(navController: NavHostController) {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
+fun NavGraphBuilder.settingsComposable(navController: NavHostController, firebaseAuthViewModel: FirebaseAuthViewModel) {
+    composable(Destination.Settings.route) {
+        BackScaffold(
+            title = Destination.Settings.title,
+            navController = navController,
+        ) {
+            SettingScreen(
+                firebaseAuthViewModel = firebaseAuthViewModel,
+                onSignOut = {
+                    firebaseAuthViewModel.onLogout()
+                }
+            )
+        }
+    }
+}
 
 

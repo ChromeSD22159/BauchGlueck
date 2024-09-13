@@ -26,29 +26,22 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import data.model.RecipeCategory
 import data.remote.StrapiApiClient
 import de.frederikkohler.bauchglueck.ui.navigations.Destination
-import de.frederikkohler.bauchglueck.ui.screens.authScreens.SyncIconRotate
-import de.frederikkohler.bauchglueck.ui.screens.authScreens.settingsSheet.SettingSheet
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
 import di.serverHost
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.lighthousegames.logging.logging
 import util.debugJsonHelper
 import util.onError
 import util.onSuccess
-import viewModel.FirebaseAuthViewModel
 import viewModel.TimerScreenViewModel
 import viewModel.WeightScreenViewModel
 
@@ -58,14 +51,10 @@ import viewModel.WeightScreenViewModel
 fun HomeScreen(
     navController: NavHostController,
 ) {
-    val firebaseViewModel = koinViewModel<FirebaseAuthViewModel>()
     val timerScreenViewModel = koinViewModel<TimerScreenViewModel>()
     val weightScreenViewModel = koinViewModel<WeightScreenViewModel>()
 
-    val isSyncInProgress by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
-
-    var showSettingSheet by remember { mutableStateOf(false) }
 
     val dailyAverage by weightScreenViewModel.dailyAverage.collectAsState(initial = emptyList())
     val timers by timerScreenViewModel.allTimers.collectAsStateWithLifecycle(initialValue = emptyList())
@@ -82,13 +71,10 @@ fun HomeScreen(
                 },
                 actions = {
                     Row {
-                        if (isSyncInProgress) {
-                            SyncIconRotate()
-                        }
 
                         Box(modifier = Modifier.padding(end = 16.dp)) {
                             RoundImageButton(R.drawable.ic_gear) {
-                                showSettingSheet = true
+                                navController.navigate(Destination.Settings.route)
                             }
                         }
                     }
@@ -106,34 +92,38 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(90.dp))
 
-            Button(onClick = { navController.navigate(Destination.Recipes.route) }) {
-                Text(text = "Rezepte")
-            }
+            Row {
 
-            Button(onClick = {
-                scope.launch {
-                    val response = StrapiApiClient( serverHost ).createRecipe(RecipeCategory.HAUPTGERICHT)
-
-                    response.onSuccess {
-                        logging().info { "Success: ${it.name}" }
-
-                        debugJsonHelper(it)
-                    }
-                    response.onError {
-                        logging().info { "Error: $it" }
-                    }
+                Button(onClick = { navController.navigate(Destination.Recipes.route) }) {
+                    Text(text = "Rezepte")
                 }
-            }) {
-                Text(text = "Generate Recipe")
-            }
 
-            Button(onClick = {
-                scope.launch {
-                    Firebase.auth.signOut()
-                    navController.navigate(Destination.Login.route)
+                Button(onClick = {
+                    scope.launch {
+                        val response =
+                            StrapiApiClient(serverHost).createRecipe(RecipeCategory.HAUPTGERICHT)
+
+                        response.onSuccess {
+                            logging().info { "Success: ${it.name}" }
+
+                            debugJsonHelper(it)
+                        }
+                        response.onError {
+                            logging().info { "Error: $it" }
+                        }
+                    }
+                }) {
+                    Text(text = "Generate Recipe")
                 }
-            }) {
-                Text(text = "Logout")
+
+                Button(onClick = {
+                    scope.launch {
+                        Firebase.auth.signOut()
+                        navController.navigate(Destination.Login.route)
+                    }
+                }) {
+                    Text(text = "Logout")
+                }
             }
 
             HomeCalendarCard {
@@ -170,26 +160,6 @@ fun HomeScreen(
             }
 
             Spacer(modifier = Modifier.height(30.dp))
-
-            SettingSheet(
-                showSettingSheet = showSettingSheet,
-                onDismissRequest = {
-                    showSettingSheet = false
-                },
-                onSignOut = {
-                    scope.launch {
-                        firebaseViewModel.onLogout()
-
-                        delay(250)
-                        showSettingSheet = false
-                        delay(250)
-                        if (firebaseViewModel.userFormState.value.currentUser == null) {
-                            navController.navigate(Destination.Login.route)
-                        }
-                    }
-                },
-                firebaseAuthViewModel = firebaseViewModel,
-            )
         }
     }
 }
