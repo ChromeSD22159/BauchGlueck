@@ -8,11 +8,19 @@ import kotlinx.datetime.minus
 import kotlinx.datetime.plus
 import kotlinx.datetime.todayIn
 
-class DateRepository {
+object DateRepository {
+    val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
+    val tomorrow = today.plus(1, DateTimeUnit.DAY)
+
     fun getNextSevenDays(): List<LocalDate> {
-        val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
         return (0..7).map { today.plus(it, DateTimeUnit.DAY) }
     }
+
+    var getTheNextMonthDays: List<LocalDate>
+        get() {
+            return (0..30).map { today.plus(it, DateTimeUnit.DAY) }
+        }
+        set(value) {}
 
     fun getFirstAndLastDayOfSevenPreviousWeeks(): List<Pair<LocalDate, LocalDate>> {
         val today = Clock.System.todayIn(TimeZone.currentSystemDefault())

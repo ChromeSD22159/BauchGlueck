@@ -39,10 +39,13 @@ fun createHttpClient(): HttpClient {
                 }
             }
         }
-        install(HttpTimeout) {
-            requestTimeoutMillis = 15000 // Timeout für die gesamte Anfrage (15 Sekunden)
-            connectTimeoutMillis = 10000 // Timeout für den Verbindungsaufbau (10 Sekunden)
-            socketTimeoutMillis = 10000  // Timeout für den Socket (10 Sekunden)
+        if(!BuildKonfig.DEV) {
+            install(HttpTimeout) {
+                requestTimeoutMillis = 15000 // Timeout für die gesamte Anfrage (15 Sekunden)
+                connectTimeoutMillis = 10000 // Timeout für den Verbindungsaufbau (10 Sekunden)
+                socketTimeoutMillis = 10000  // Timeout für den Socket (10 Sekunden)
+            }
         }
+
     }
 }

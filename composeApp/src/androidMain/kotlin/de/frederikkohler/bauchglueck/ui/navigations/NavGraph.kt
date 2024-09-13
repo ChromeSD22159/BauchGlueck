@@ -81,7 +81,7 @@ fun NavGraph(
             login(navController, firebaseAuthViewModel)
             signUp(navController, firebaseAuthViewModel)
             home(navController)
-            calendar(navController)
+            calendar(navController, firebaseAuthViewModel)
 
             // WEIGHT
             weight(navController)
@@ -114,10 +114,15 @@ fun NavGraphBuilder.launchScreen() {
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-fun NavGraphBuilder.calendar(navController: NavHostController) {
+fun NavGraphBuilder.calendar(
+    navController: NavHostController,
+    firebaseAuthViewModel: FirebaseAuthViewModel
+) {
     composable(Destination.Calendar.route) {
         CalendarScreen(
-            navController = navController
+            navController = navController,
+            backNavigationDirection = Destination.Home,
+            firebaseAuthViewModel = firebaseAuthViewModel
         )
     }
 }

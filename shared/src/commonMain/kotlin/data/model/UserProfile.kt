@@ -17,7 +17,7 @@ data class UserProfile(
     val lastName: String = "",
     val email: String = "",
     var surgeryDateTimeStamp: Long = Clock.System.now().toEpochMilliseconds(),
-    val mainMeals: Int = 3,
+    var mainMeals: Int = 3,
     val betweenMeals: Int = 3,
     var profileImageURL: String? = null,
     var startWeight: Double  = 100.0,
@@ -37,5 +37,11 @@ data class UserProfile(
     fun updateSurgeryDate(newDateLong: Long) {
         surgeryDateTimeStamp = newDateLong
     }
+
+    var totalMeals: Int
+        get() = mainMeals + betweenMeals
+        set(value) {
+            mainMeals = value - betweenMeals
+        }
 }
 
