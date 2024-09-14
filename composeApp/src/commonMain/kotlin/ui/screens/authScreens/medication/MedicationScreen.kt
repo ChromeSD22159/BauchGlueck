@@ -11,8 +11,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import bauchglueck.composeapp.generated.resources.Res
+import bauchglueck.composeapp.generated.resources.ic_gear
+import bauchglueck.composeapp.generated.resources.ic_pills_fill
 import data.local.entitiy.MedicationWithIntakeDetails
-import de.frederikkohler.bauchglueck.R
 import org.koin.androidx.compose.koinViewModel
 import ui.components.BackScaffold
 import ui.components.RoundImageButton
@@ -40,7 +42,7 @@ fun MedicationScreen(
         topNavigationButtons = {
             Row {
                 RoundImageButton(
-                    icon = R.drawable.ic_pills_fill,
+                    icon = Res.drawable.ic_pills_fill,
                     modifier = Modifier.padding(end = 16.dp),
                     action = {
                         navController.navigate(Destination.AddMedication.route)
@@ -50,7 +52,7 @@ fun MedicationScreen(
 
             Row {
                 RoundImageButton(
-                    icon = R.drawable.ic_gear,
+                    icon = Res.drawable.ic_gear,
                     modifier = Modifier.padding(end = 16.dp)
                 )
             }

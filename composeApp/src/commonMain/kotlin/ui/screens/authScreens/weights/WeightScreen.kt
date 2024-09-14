@@ -14,12 +14,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import de.frederikkohler.bauchglueck.R
 import ui.components.BackScaffold
 import ui.components.RoundImageButton
 import ui.navigations.Destination
 import viewModel.WeightScreenViewModel
 import androidx.compose.ui.platform.LocalContext
+import bauchglueck.composeapp.generated.resources.Res
+import bauchglueck.composeapp.generated.resources.ic_add_timer
+import bauchglueck.composeapp.generated.resources.ic_gear
 import ui.components.clickableWithRipple
 import org.koin.androidx.compose.koinViewModel
 
@@ -37,7 +39,7 @@ fun WeightScreen(
         topNavigationButtons = {
             Row {
                 RoundImageButton(
-                    icon = R.drawable.ic_add_timer,
+                    icon = Res.drawable.ic_add_timer,
                     modifier = Modifier.padding(end = 16.dp),
                     action = {
                         navController.navigate(Destination.AddWeight.route)
@@ -47,7 +49,7 @@ fun WeightScreen(
 
             Row {
                 RoundImageButton(
-                    icon = R.drawable.ic_gear,
+                    icon = Res.drawable.ic_gear,
                     modifier = Modifier.padding(end = 16.dp)
                 )
             }

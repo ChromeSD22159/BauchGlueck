@@ -31,10 +31,12 @@ data class CountdownTimer(
 
     var toUpdateAtLong: Long = Instant.parse(updatedAt).toEpochMilliseconds()
 
-    var timerStateEnum: TimerState
+    var toTimerState: TimerState
         get() = TimerState.fromValue(this.timerState)
         set(value) { timerState = value.value }
 }
+
+
 
 enum class TimerState(val value: String) {
     running("running"),

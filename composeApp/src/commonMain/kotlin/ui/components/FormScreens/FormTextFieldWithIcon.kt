@@ -11,11 +11,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import de.frederikkohler.bauchglueck.R
+import bauchglueck.composeapp.generated.resources.Res
+import bauchglueck.composeapp.generated.resources.ic_pills_fill
+import org.jetbrains.compose.resources.DrawableResource
+import org.jetbrains.compose.resources.vectorResource
 
 /**
  * A Composable function that displays a text field with a leading icon.
@@ -30,7 +31,7 @@ import de.frederikkohler.bauchglueck.R
 @Composable
 fun FormTextFieldWithIcon(
     modifier: Modifier = Modifier,
-    leadingIcon: Int = R.drawable.ic_pills_fill,
+    leadingIcon: DrawableResource = Res.drawable.ic_pills_fill,
     keyboardOptions: KeyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
     inputValue: String,
     onValueChange: (String) -> Unit,
@@ -47,7 +48,7 @@ fun FormTextFieldWithIcon(
     TextField(
         leadingIcon = {
             Icon(
-                imageVector = ImageVector.vectorResource(id = leadingIcon),
+                imageVector = vectorResource(resource = leadingIcon),
                 contentDescription = "Localized description"
             )
         },

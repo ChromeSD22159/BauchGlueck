@@ -20,7 +20,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import de.frederikkohler.bauchglueck.R
+import bauchglueck.composeapp.generated.resources.Res
+import bauchglueck.composeapp.generated.resources.icon_calendar
 import ui.components.HeadCard
 import viewModel.DateViewModel
 
@@ -33,7 +34,7 @@ fun HomeCalendarCard(
 
     HeadCard(
         modifier = Modifier.padding(start = 10.dp, end = 10.dp),
-        icon = R.drawable.icon_calendar,
+        icon = Res.drawable.icon_calendar,
         title = "Kalender",
         onNavigate = { onNavigate() }
     ) {

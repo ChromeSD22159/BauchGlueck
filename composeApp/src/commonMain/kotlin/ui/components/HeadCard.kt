@@ -20,14 +20,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
+import org.jetbrains.compose.resources.DrawableResource
+import org.jetbrains.compose.resources.vectorResource
 
 @Composable
 fun HeadCard(
     modifier: Modifier = Modifier,
-    icon: Int? = null,
+    icon: DrawableResource? = null,
     title: String,
     arrowIcon: Boolean = true,
     onNavigate: () -> Unit,
@@ -41,14 +41,17 @@ fun HeadCard(
             .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.15f)),
         verticalArrangement = Arrangement.spacedBy(space = 0.dp, alignment = Alignment.CenterVertically)
     ) {
-        CardHeadRow(icon, title, arrowIcon = arrowIcon)
+        icon?.let {
+            CardHeadRow(it, title, arrowIcon = arrowIcon)
+        }
+
 
         content()
     }
 }
 
 @Composable
-fun CardHeadRow(icon: Int?, title: String, arrowIcon: Boolean) {
+fun CardHeadRow(icon: DrawableResource, title: String, arrowIcon: Boolean) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -59,7 +62,7 @@ fun CardHeadRow(icon: Int?, title: String, arrowIcon: Boolean) {
     ) {
         if (icon != null) {
             Icon(
-                imageVector = ImageVector.vectorResource(icon),
+                imageVector = vectorResource(icon),
                 contentDescription = "icon",
                 modifier = Modifier
                     .size(20.dp)

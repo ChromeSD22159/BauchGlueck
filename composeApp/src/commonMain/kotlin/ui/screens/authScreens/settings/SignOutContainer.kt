@@ -18,11 +18,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
+import bauchglueck.composeapp.generated.resources.Res
+import bauchglueck.composeapp.generated.resources.icon_stromach
 import de.frederikkohler.bauchglueck.R
+import org.jetbrains.compose.resources.vectorResource
 import ui.theme.AppTheme
 
 
@@ -62,7 +63,7 @@ fun SignOutContainer(
                 )
             ) {
                 Icon(
-                    imageVector = ImageVector.vectorResource(id = R.drawable.icon_stromach),
+                    imageVector = vectorResource(Res.drawable.icon_stromach),
                     contentDescription = "icon",
                     modifier = Modifier
                         .size(30.dp)

@@ -27,16 +27,16 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import bauchglueck.composeapp.generated.resources.Res
+import bauchglueck.composeapp.generated.resources.ic_pills_fill
 import data.local.entitiy.IntakeStatus
 import data.local.entitiy.MedicationWithIntakeDetailsForToday
-import de.frederikkohler.bauchglueck.R
 import ui.components.clickableWithRipple
 import ui.theme.AppTheme
 import kotlinx.datetime.Clock
+import org.jetbrains.compose.resources.vectorResource
 import util.UUID
 
 @Composable
@@ -62,7 +62,7 @@ fun MedicationCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
-                imageVector = ImageVector.vectorResource(R.drawable.ic_pills_fill),
+                imageVector = vectorResource(Res.drawable.ic_pills_fill),
                 contentDescription = "Medication Icon"
             )
 

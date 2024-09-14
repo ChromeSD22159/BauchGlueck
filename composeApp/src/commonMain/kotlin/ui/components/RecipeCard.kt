@@ -15,13 +15,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import bauchglueck.composeapp.generated.resources.Res
+import bauchglueck.composeapp.generated.resources.ic_fat
+import bauchglueck.composeapp.generated.resources.ic_kcal
+import bauchglueck.composeapp.generated.resources.ic_stopwatch
+import bauchglueck.composeapp.generated.resources.icon_plus
+import bauchglueck.composeapp.generated.resources.placeholder_image
+import bauchglueck.composeapp.generated.resources.ic_protein
+import bauchglueck.composeapp.generated.resources.ic_sugar
 import coil3.compose.AsyncImage
 import data.local.entitiy.MealWithCategories
 import de.frederikkohler.bauchglueck.R
 import di.serverHost
+import org.jetbrains.compose.resources.painterResource
 
 @Composable
 fun RecipeCard(
@@ -42,7 +50,7 @@ fun RecipeCard(
 
                 AsyncImage(
                     model = serverHost + mealWithCategories.meal.mainImage?.formats?.small?.url,
-                    placeholder = painterResource(R.drawable.placeholder_image),
+                    placeholder = painterResource(Res.drawable.placeholder_image),
                     contentDescription = null,
                     contentScale = ContentScale.FillHeight,
                     modifier = Modifier.fillMaxHeight()
@@ -87,8 +95,8 @@ fun RecipeCard(
                         IconListWithText(
                             rowModifier = Modifier.weight(1f),
                             items = listOf(
-                                Pair(R.drawable.ic_protein, "${mealWithCategories.meal.protein}g"),
-                                Pair(R.drawable.ic_fat, "${mealWithCategories.meal.fat}g")
+                                Pair(Res.drawable.ic_protein, "${mealWithCategories.meal.protein}g"),
+                                Pair(Res.drawable.ic_fat, "${mealWithCategories.meal.fat}g")
                             )
                         )
                     }
@@ -102,8 +110,8 @@ fun RecipeCard(
                         IconListWithText(
                             rowModifier = Modifier.weight(1f),
                             items = listOf(
-                                Pair(R.drawable.ic_sugar, "${mealWithCategories.meal.sugar}g"),
-                                Pair(R.drawable.ic_kcal, "${mealWithCategories.meal.kcal.decimal(0)} kcal")
+                                Pair(Res.drawable.ic_sugar, "${mealWithCategories.meal.sugar}g"),
+                                Pair(Res.drawable.ic_kcal, "${mealWithCategories.meal.kcal.decimal(0)} kcal")
                             )
                         )
                     }
@@ -116,8 +124,8 @@ fun RecipeCard(
                         IconListWithText(
                             rowModifier = Modifier.weight(1f),
                             items = listOf(
-                                Pair(R.drawable.ic_grid_2_2, mealWithCategories.categories.firstOrNull { true }?.name ?: "No Category"),
-                                Pair(R.drawable.ic_stopwatch, "${mealWithCategories.meal.preparationTimeInMinutes} min.")
+                                Pair(Res.drawable.icon_plus, mealWithCategories.categories.firstOrNull { true }?.name ?: "No Category"),
+                                Pair(Res.drawable.ic_stopwatch, "${mealWithCategories.meal.preparationTimeInMinutes} min.")
                             )
                         )
                     }

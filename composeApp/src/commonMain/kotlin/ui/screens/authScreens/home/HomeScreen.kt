@@ -30,6 +30,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import bauchglueck.composeapp.generated.resources.Res
+import bauchglueck.composeapp.generated.resources.ic_gear
 import data.model.RecipeCategory
 import data.remote.StrapiApiClient
 import ui.navigations.Destination
@@ -73,7 +75,7 @@ fun HomeScreen(
                     Row {
 
                         Box(modifier = Modifier.padding(end = 16.dp)) {
-                            RoundImageButton(R.drawable.ic_gear) {
+                            RoundImageButton(Res.drawable.ic_gear) {
                                 navController.navigate(Destination.Settings.route)
                             }
                         }

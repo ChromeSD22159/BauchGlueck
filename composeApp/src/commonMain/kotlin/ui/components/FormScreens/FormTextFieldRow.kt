@@ -9,13 +9,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import de.frederikkohler.bauchglueck.R
+import bauchglueck.composeapp.generated.resources.Res
+import bauchglueck.composeapp.generated.resources.ic_pills_fill
+import org.jetbrains.compose.resources.DrawableResource
 
 @Composable
 fun FormTextFieldRow(
     rowModifier: Modifier = Modifier,
     modifierTextField: Modifier = Modifier,
-    leadingIcon: Int = R.drawable.ic_pills_fill,
+    leadingIcon: DrawableResource = Res.drawable.ic_pills_fill,
     keyboardType: KeyboardType = KeyboardType.Text,
     inputValue: String,
     onValueChange: (String) -> Unit,

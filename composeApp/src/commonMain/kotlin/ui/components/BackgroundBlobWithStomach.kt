@@ -11,9 +11,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
+import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import bauchglueck.composeapp.generated.resources.Res
+import bauchglueck.composeapp.generated.resources.background_splash_big
+import bauchglueck.composeapp.generated.resources.background_splash_small
+import bauchglueck.composeapp.generated.resources.magen
 import de.frederikkohler.bauchglueck.R
 
 @Composable
@@ -24,7 +28,7 @@ fun BackgroundBlobWithStomach() {
     ) {
 
         Image(
-            painter = painterResource(id = R.drawable.magen),
+            painter = painterResource(Res.drawable.magen),
             contentDescription = "Stromach",
             contentScale = ContentScale.Crop,
             modifier = Modifier
@@ -34,7 +38,7 @@ fun BackgroundBlobWithStomach() {
         )
 
         Image(
-            painter = painterResource(id = R.drawable.background_splash_small),
+            painter = painterResource(Res.drawable.background_splash_small),
             contentDescription = "image description",
             contentScale = ContentScale.Crop,
             modifier = Modifier
@@ -43,7 +47,7 @@ fun BackgroundBlobWithStomach() {
         )
 
         Image(
-            painter = painterResource(id = R.drawable.background_splash_big),
+            painter = painterResource(Res.drawable.background_splash_big),
             contentDescription = "image description",
             contentScale = ContentScale.None,
             modifier = Modifier

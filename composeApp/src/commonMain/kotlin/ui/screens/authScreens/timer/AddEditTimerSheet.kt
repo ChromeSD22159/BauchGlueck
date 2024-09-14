@@ -17,8 +17,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.navigation.NavController
+import bauchglueck.composeapp.generated.resources.Res
+import bauchglueck.composeapp.generated.resources.ic_stopwatch
 import data.local.entitiy.CountdownTimer
-import de.frederikkohler.bauchglueck.R
 import ui.components.FormScreens.FormControlButtons
 import ui.components.FormScreens.FormTextFieldRow
 import ui.components.ItemOverLayScaffold
@@ -105,7 +106,7 @@ fun AddEditTimerSheet(
 
         FormTextFieldRow(
             keyboardType = KeyboardType.Text,
-            leadingIcon = R.drawable.ic_stopwatch,
+            leadingIcon = Res.drawable.ic_stopwatch,
             inputValue = text.value,
             displayText = "Dient zur bessern zu differenzierung.",
             onValueChange = { text.value = it }
@@ -113,7 +114,7 @@ fun AddEditTimerSheet(
 
         FormTextFieldRow(
             keyboardType = KeyboardType.Number,
-            leadingIcon = R.drawable.ic_stopwatch,
+            leadingIcon = Res.drawable.ic_stopwatch,
             inputValue = duration.longValue.toString(),
             displayText = "Timerlaufzeit in Minuten",
             onValueChange = {

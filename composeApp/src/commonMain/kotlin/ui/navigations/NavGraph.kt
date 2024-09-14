@@ -266,13 +266,13 @@ fun NavGraphBuilder.recipesComposable(navController: NavHostController) {
 @RequiresApi(Build.VERSION_CODES.O)
 fun NavGraphBuilder.editTimerComposable(navController: NavHostController) {
     composable(
-        route = Destination.AddTimer.route,
+        route = Destination.EditTimer.route,
         enterTransition = { NavigationTransition.slideInWithFadeToTopAnimation() },
         exitTransition = { NavigationTransition.slideOutWithFadeToTopAnimation() }
     ) {
         AddEditTimerSheet(
             navController = navController,
-            currentCountdownTimer = null,
+            currentCountdownTimer = navController.currentBackStackEntry?.savedStateHandle?.get<String>("timerId"),
             onDismiss = {
                 navController.navigate(Destination.Timer.route)
             }

@@ -21,8 +21,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import bauchglueck.composeapp.generated.resources.Res
+import bauchglueck.composeapp.generated.resources.ic_chart
 import data.model.DailyAverage
-import de.frederikkohler.bauchglueck.R
 import ui.components.HeadCard
 
 @Composable
@@ -54,7 +55,7 @@ fun WeightLossCard(
             .padding(start = 10.dp, end = 10.dp),
     ) {
         HeadCard(
-            icon = R.drawable.ic_chart,
+            icon = Res.drawable.ic_chart,
             title = title,
             onNavigate = { onNavigate() }
         ) {

@@ -1,11 +1,16 @@
 package ui.theme
 
 import androidx.compose.material3.Typography
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.googlefonts.GoogleFont
 import androidx.compose.ui.text.googlefonts.Font
+import bauchglueck.composeapp.generated.resources.Res
+import bauchglueck.composeapp.generated.resources.Rodetta
 import de.frederikkohler.bauchglueck.R
+import org.jetbrains.compose.resources.ExperimentalResourceApi
 
 val provider = GoogleFont.Provider(
     providerAuthority = "com.google.android.gms.fonts",
@@ -22,7 +27,7 @@ val bodyFontFamily = FontFamily(
 
 val displayFontFamily = FontFamily(
     Font(
-        googleFont = GoogleFont("Aclonica"),
+        googleFont = GoogleFont("Fredoka"), // Aclonica
         fontProvider = provider,
     )
 )
@@ -47,4 +52,3 @@ val AppTypography = Typography(
     labelMedium = baseline.labelMedium.copy(fontFamily = bodyFontFamily),
     labelSmall = baseline.labelSmall.copy(fontFamily = bodyFontFamily),
 )
-

@@ -243,15 +243,9 @@ data class ColorFamily(
     val onColorContainer: Color
 )
 
-val unspecified_scheme = ColorFamily(
-    Color.Unspecified, Color.Unspecified, Color.Unspecified, Color.Unspecified
-)
-
 @Composable
 fun AppTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = false,
     content: @Composable() () -> Unit
 ) {
 
@@ -263,7 +257,7 @@ fun AppTheme(
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = AppTypography,
+        typography = myTypography(),
         content = content
     )
 }

@@ -36,6 +36,7 @@ fun DropDownMenu(
             .wrapContentSize(Alignment.TopStart)
     ) {
         IconButton(
+            modifier = modifier,
             onClick = { expanded = true },
             interactionSource = remember { MutableInteractionSource() },
         ) {

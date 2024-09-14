@@ -7,17 +7,17 @@ import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import org.jetbrains.compose.resources.DrawableResource
+import org.jetbrains.compose.resources.vectorResource
 
 @Composable
 fun IconWithText(
     rowModifier: Modifier = Modifier,
     textSize: Float,
-    image: Int,
+    image: DrawableResource,
     text: String,
     gap: Dp = 4.dp
 ) {
@@ -28,7 +28,7 @@ fun IconWithText(
     ) {
         Icon(
             modifier = Modifier.size(textSize.dp),
-            imageVector = ImageVector.vectorResource(image),
+            imageVector = vectorResource(image),
             contentDescription = "$image"
         )
 

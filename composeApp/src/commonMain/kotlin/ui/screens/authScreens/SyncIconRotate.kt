@@ -22,10 +22,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
-import de.frederikkohler.bauchglueck.R
+import bauchglueck.composeapp.generated.resources.Res
+import bauchglueck.composeapp.generated.resources.icon_sync
+import org.jetbrains.compose.resources.vectorResource
 
 @Composable
 fun SyncIconRotate() {
@@ -59,7 +59,7 @@ fun SyncIconRotate() {
                 .padding(5.dp)
         ) {
             Icon(
-                imageVector =  ImageVector.vectorResource(id = R.drawable.icon_sync),
+                imageVector = vectorResource(Res.drawable.icon_sync),
                 contentDescription = "icon",
                 tint = MaterialTheme.colorScheme.onPrimary,
                 modifier = Modifier

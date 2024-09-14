@@ -23,12 +23,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import bauchglueck.composeapp.generated.resources.Res
+import bauchglueck.composeapp.generated.resources.ic_add_timer
 import data.local.entitiy.CountdownTimer
-import de.frederikkohler.bauchglueck.R
+import org.jetbrains.compose.resources.vectorResource
 import ui.components.CardTitle
 import ui.components.clickableWithRipple
 import ui.navigations.Destination
@@ -47,7 +47,7 @@ fun HomeTimerCard(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(
-                imageVector = ImageVector.vectorResource(R.drawable.ic_add_timer),
+                imageVector = vectorResource(Res.drawable.ic_add_timer),
                 contentDescription = "icon",
                 modifier = Modifier
                     .size(20.dp)

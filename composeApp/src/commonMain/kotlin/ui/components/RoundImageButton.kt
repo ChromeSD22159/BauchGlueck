@@ -12,21 +12,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.vectorResource
-import de.frederikkohler.bauchglueck.R
 import ui.theme.AppTheme
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import bauchglueck.composeapp.generated.resources.Res
+import bauchglueck.composeapp.generated.resources.ic_gear
+import org.jetbrains.compose.resources.DrawableResource
+import org.jetbrains.compose.resources.vectorResource
 
 @Composable
 fun RoundImageButton(
-    icon: Int,
+    icon: DrawableResource,
     modifier: Modifier = Modifier,
     action: () -> Unit = {}
 ) {
     Icon(
-        imageVector =  ImageVector.vectorResource(id = icon),
+        imageVector =  vectorResource(icon),
         contentDescription = "icon",
         tint = MaterialTheme.colorScheme.onPrimary,
         modifier = modifier
@@ -52,7 +53,7 @@ fun RoundImageButton(
 fun RoundImageButtonPreview() {
     AppTheme {
         RoundImageButton(
-            icon = R.drawable.ic_gear,
+            icon = Res.drawable.ic_gear,
             modifier = Modifier
         )
     }
