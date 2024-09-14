@@ -4,6 +4,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -53,7 +54,7 @@ fun CalendarScreen(
         backNavigationDirection = backNavigationDirection,
         navController = navController
     ) {
-        Calendar(days = viewModel.days) { viewModel.setSelectedDate(it) }
+        Calendar(days = viewModel.days, selectedDate) { viewModel.setSelectedDate(it) }
 
         userFormState?.userProfile?.value?.totalMeals?.let { it ->
             DateCard(date = selectedDate)
@@ -68,6 +69,7 @@ fun CalendarScreen(
 @Composable
 fun Calendar(
     days: List<LocalDate>,
+    selectedDate: LocalDate,
     onClick: (LocalDate) -> Unit = {}
 ) {
     LazyRow(
@@ -78,7 +80,15 @@ fun Calendar(
         items(days) {
             Box(
                 Modifier
-                    .background(Color.Gray.copy(alpha = 0.7f), shape = CircleShape)
+                    .background(
+                        color = if (it == selectedDate) Color.Gray.copy(alpha = 0.6f) else Color.Gray.copy(alpha = 0.9f),
+                        shape = CircleShape
+                    )
+                    .border(
+                        width = if (it == DateRepository.today) 2.dp else 0.dp,
+                        color = if (it == DateRepository.today) Color.Black.copy(alpha = 0.7f) else Color.Gray.copy(alpha = 0f),
+                        shape = CircleShape
+                    )
                     .size(25.dp)
                     .clickableWithRipple {
                         onClick(it)
@@ -89,7 +99,7 @@ fun Calendar(
                     modifier = Modifier,
                     fontSize = MaterialTheme.typography.labelSmall.fontSize,
                     color = Color.White,
-                    text = "${it.dayOfMonth}"
+                    text = it.dayOfMonth.toDigits()
                 )
             }
         }
