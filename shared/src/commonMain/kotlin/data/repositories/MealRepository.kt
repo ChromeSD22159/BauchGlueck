@@ -13,9 +13,8 @@ import kotlinx.coroutines.flow.Flow
 class MealRepository(
     db: LocalDatabase,
     var serverHost: String,
-    var user: FirebaseUser? = Firebase.auth.currentUser,
     var deviceID: String
-) {
+): BaseRepository() {
     private var localService: MealDao = LocalDataSource(db).meals
     private var syncManager: MealSyncManager = MealSyncManager(db, serverHost, deviceID)
 

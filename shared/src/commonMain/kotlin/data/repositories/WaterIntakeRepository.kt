@@ -15,16 +15,14 @@ class WaterIntakeRepository(
     var serverHost: String,
     var user: FirebaseUser? = Firebase.auth.currentUser,
     var deviceID: String
-) {
+): BaseRepository() {
 
     private var localService: WaterIntakeDao = LocalDataSource(db).waterIntake
     private var syncManager: WaterIntakeSyncManager = WaterIntakeSyncManager(db, serverHost, deviceID)
 
     suspend fun getAll(): List<WaterIntake> {
-        return user?.let {
-            localService.getAll(it.uid)
-
-        } ?: emptyList()
+        val currentUserId = userId ?: return emptyList()
+        return localService.getAll(currentUserId)
     }
 
     suspend fun getById(timerId: String): WaterIntake? = this.localService.getById(timerId)
@@ -52,18 +50,16 @@ class WaterIntakeRepository(
     }
 
     suspend fun hardDeleteAllByUserId() {
-        user?.let {
-            localService.hardDeleteAllByUserId(it.uid)
-        }
+        val currentUserId = userId ?: return
+        localService.hardDeleteAllByUserId(currentUserId)
     }
 
     suspend fun getAllAfterTimeStamp(timeStamp: Long): List<WaterIntake> {
-        return user?.let {
-            localService.getAllAfterTimeStamp(
-                timeStamp,
-                it.uid
-            )
-        } ?: emptyList()
+        val currentUserId = userId ?: return emptyList()
+        return localService.getAllAfterTimeStamp(
+            timeStamp,
+            currentUserId
+        )
     }
 
     suspend fun syncWaterIntakes() {

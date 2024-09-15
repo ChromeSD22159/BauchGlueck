@@ -6,9 +6,12 @@ import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.FirebaseUser
 import dev.gitlive.firebase.auth.auth
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
 import org.lighthousegames.logging.logging
 
 class FirebaseAuthViewModel : ViewModel() {
@@ -52,21 +55,19 @@ class FirebaseAuthViewModel : ViewModel() {
 
             if (errorMessage != null) {
                 _userFormState.value = _userFormState.value.copy(error = errorMessage, isProcessing = false)
+                delay(5000)
+                _userFormState.value = _userFormState.value.copy(error = "")
             }
 
             try {
-                val response = firebaseRepository.signIn(
+                firebaseRepository.signIn(
                     _userFormState.value.email,
                     _userFormState.value.password
-                )
-
-                _userFormState.value = _userFormState.value.copy(
-                    isProcessing = false,
-                    email = "",
-                    password = "",
-                    confirmPassword = ""
-                )
+                ).user?.let {
+                    resetLoginState()
+                }
             } catch (e: Exception) {
+                logging().e { "Error logging in: $e" }
                 _userFormState.value = _userFormState.value.copy(
                     error = e.message ?: "Unknown error",
                     isProcessing = false
@@ -92,7 +93,6 @@ class FirebaseAuthViewModel : ViewModel() {
 
             val errorMessage = validateInput(
                 firstName = _userFormState.value.firstName,
-                lastName = _userFormState.value.lastName,
                 email = _userFormState.value.email,
                 password = _userFormState.value.password,
                 confirmPassword = _userFormState.value.confirmPassword
@@ -100,28 +100,31 @@ class FirebaseAuthViewModel : ViewModel() {
 
             if (errorMessage != null) {
                 _userFormState.value = _userFormState.value.copy(error = errorMessage, isProcessing = false)
+                delay(5000)
+                _userFormState.value = _userFormState.value.copy(error = "")
                 return@launch
             }
 
             val newUserProfile = UserProfile(
                 firstName = _userFormState.value.firstName,
-                lastName = _userFormState.value.lastName,
                 email = _userFormState.value.email,
-                surgeryDateTimeStamp = 0,
-                mainMeals = 0,
-                betweenMeals = 0,
+                surgeryDateTimeStamp = Clock.System.now().toEpochMilliseconds(),
+                mainMeals = 3,
+                betweenMeals = 3,
                 profileImageURL = "",
-                startWeight = 0.0,
-                waterIntake = 0.0,
-                waterDayIntake = 0.0
+                startWeight = 80.0,
+                waterIntake = 200.0,
+                waterDayIntake = 2000.0
             )
 
             val error = firebaseRepository.createUserWithEmailAndPassword(newUserProfile, _userFormState.value.password)
 
             if (error != null) {
-                _userFormState.value = _userFormState.value.copy(error = error.message ?: "Unknown error", isProcessing = false, email = "", password = "", confirmPassword = "")
+                resetLoginState()
+                onLogout()
                 result = true
             } else {
+                result = false
                 _userFormState.value = _userFormState.value.copy(error = "", isProcessing = false)
             }
         }
@@ -130,10 +133,6 @@ class FirebaseAuthViewModel : ViewModel() {
 
     fun onChangeFirstName(firstName: String) {
         _userFormState.value = _userFormState.value.copy(firstName = firstName)
-    }
-
-    fun onChangeLastName(lastName: String) {
-        _userFormState.value = _userFormState.value.copy(lastName = lastName)
     }
 
     fun onChangeEmail(email: String) {
@@ -146,6 +145,12 @@ class FirebaseAuthViewModel : ViewModel() {
 
     fun onChangeConfirmPassword(confirmPassword: String) {
         _userFormState.value = _userFormState.value.copy(confirmPassword = confirmPassword)
+    }
+
+    fun forgotPassword(email: String) {
+        viewModelScope.launch {
+            firebaseRepository.forgotPassword(email)
+        }
     }
 
     fun onUpdateUserProfile(
@@ -162,7 +167,6 @@ class FirebaseAuthViewModel : ViewModel() {
         password: String,
         confirmPassword: String? = null,
         firstName: String? = null,
-        lastName: String? = null
     ): String? {
         return when {
             email.isEmpty() -> {
@@ -177,17 +181,26 @@ class FirebaseAuthViewModel : ViewModel() {
             firstName != null && firstName.isEmpty() -> {
                 "Please enter a first name"
             }
-            lastName != null && lastName.isEmpty() -> {
-                "Please enter a last name"
-            }
             else -> null
+        }
+    }
+
+    private fun resetLoginState() {
+        _userFormState.update {
+            it.copy(
+                isProcessing = false,
+                error = "",
+                email = "",
+                password = "",
+                confirmPassword = "",
+                firstName = "",
+            )
         }
     }
 }
 
 data class UserFormState(
     val firstName: String = "",
-    val lastName: String = "",
     val email: String = "",
     val password: String = "",
     val confirmPassword: String = "",

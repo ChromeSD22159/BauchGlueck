@@ -14,7 +14,6 @@ import util.toLong
 data class UserProfile(
     var uid: String = "",
     val firstName: String = "",
-    val lastName: String = "",
     val email: String = "",
     var surgeryDateTimeStamp: Long = Clock.System.now().toEpochMilliseconds(),
     var mainMeals: Int = 3,

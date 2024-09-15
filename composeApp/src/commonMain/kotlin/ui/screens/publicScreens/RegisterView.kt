@@ -38,7 +38,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import ui.components.BackgroundBlobWithStomach
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import bauchglueck.composeapp.generated.resources.Res
+import bauchglueck.composeapp.generated.resources.ic_mail_fill
+import bauchglueck.composeapp.generated.resources.ic_person_fill_view
+import bauchglueck.composeapp.generated.resources.icon_sync
 import de.frederikkohler.bauchglueck.R
+import ui.components.FormScreens.FormPasswordTextFieldWithIcon
 import ui.components.FormScreens.FormTextFieldWithIcon
 import ui.navigations.Destination
 import ui.theme.displayFontFamily
@@ -107,21 +112,15 @@ fun RegisterView(
 
             FormTextFieldWithIcon(
                 inputValue = state.value.firstName,
+                leadingIcon = Res.drawable.ic_person_fill_view,
                 onValueChange = {
                     firebaseAuthViewModel.onChangeFirstName(it)
                 }
             )
 
             FormTextFieldWithIcon(
-                inputValue = state.value.lastName,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                onValueChange = {
-                    firebaseAuthViewModel.onChangeLastName(it)
-                }
-            )
-
-            FormTextFieldWithIcon(
                 inputValue = state.value.email,
+                leadingIcon = Res.drawable.ic_mail_fill,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 onValueChange = {
                     firebaseAuthViewModel.onChangeEmail(it)
@@ -152,17 +151,15 @@ fun RegisterView(
                 }
             }
 
-            FormTextFieldWithIcon(
+            FormPasswordTextFieldWithIcon(
                 inputValue = state.value.password,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 onValueChange = {
                     firebaseAuthViewModel.onChangePassword(it)
                 }
             )
 
-            FormTextFieldWithIcon(
+            FormPasswordTextFieldWithIcon(
                 inputValue = state.value.confirmPassword,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 onValueChange = {
                     firebaseAuthViewModel.onChangeConfirmPassword(it)
                 }

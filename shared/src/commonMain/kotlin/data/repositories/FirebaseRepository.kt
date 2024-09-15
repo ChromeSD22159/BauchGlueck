@@ -37,6 +37,10 @@ class FirebaseRepository() {
         }
     }
 
+    suspend fun forgotPassword(email: String) {
+        auth.sendPasswordResetEmail(email)
+    }
+
     suspend fun saveUserProfile(userProfile: UserProfile) {
         if (auth.currentUser == null) return
         firestore.collection(collectionName).document(auth.currentUser!!.uid).set(userProfile)

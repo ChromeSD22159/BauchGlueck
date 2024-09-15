@@ -8,6 +8,7 @@ sealed class Destination(val route: String, val title: String) {
     data object Launch : Destination("Launch", "Launch")
     data object Login : Destination("Login", "Login")
     data object SignUp : Destination("Register", "Register")
+    data object ForgotPassword : Destination("ForgotPassword", "ForgotPassword")
     data object Home : Destination("Home", "Home")
     data object Calendar : Destination("Calendar", "Kalender")
     data object Timer : Destination("Timer", "Timer")

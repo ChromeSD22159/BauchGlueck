@@ -39,11 +39,11 @@ import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
 import org.koin.compose.KoinContext
 import org.lighthousegames.logging.logging
-import org.koin.androidx.compose.koinViewModel
 import viewModel.RecipeViewModel
 import viewModel.SyncWorkerViewModel
 import ui.components.RecipeCard
 import ui.screens.authScreens.settings.SettingScreen
+import ui.screens.publicScreens.ForgotPasswordScreen
 import viewModel.FirebaseAuthViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -79,6 +79,7 @@ fun NavGraph(
             launchScreen()
 
             login(navController, firebaseAuthViewModel)
+            forgotPassword(navController, firebaseAuthViewModel)
             signUp(navController, firebaseAuthViewModel)
             home(navController)
             calendar(navController, firebaseAuthViewModel)
@@ -129,7 +130,16 @@ fun NavGraphBuilder.calendar(
 
 fun NavGraphBuilder.login(navController: NavHostController, firebaseAuthViewModel: FirebaseAuthViewModel) {
     composable(Destination.Login.route) {
-        LoginView(firebaseAuthViewModel) { navController.navigate(it.route) }
+        LoginView(navController, firebaseAuthViewModel) { navController.navigate(it.route) }
+    }
+}
+
+fun NavGraphBuilder.forgotPassword(navController: NavHostController, firebaseAuthViewModel: FirebaseAuthViewModel) {
+    composable(Destination.ForgotPassword.route) {
+        ForgotPasswordScreen(
+            firebaseViewModel = firebaseAuthViewModel,
+            onNavigate = { navController.navigate(it.route) }
+        )
     }
 }
 
