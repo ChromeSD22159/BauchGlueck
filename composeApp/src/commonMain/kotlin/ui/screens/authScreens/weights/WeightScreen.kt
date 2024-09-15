@@ -19,6 +19,7 @@ import ui.components.RoundImageButton
 import ui.navigations.Destination
 import viewModel.WeightScreenViewModel
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
 import bauchglueck.composeapp.generated.resources.Res
 import bauchglueck.composeapp.generated.resources.ic_add_timer
 import bauchglueck.composeapp.generated.resources.ic_gear
@@ -31,7 +32,7 @@ fun WeightScreen(
     navController: NavController,
     backNavigationDirection: Destination = Destination.Home
 ) {
-    val viewmodel = koinViewModel<WeightScreenViewModel>()
+    val viewmodel = viewModel<WeightScreenViewModel>()
 
     BackScaffold(
         title = Destination.Weight.title,

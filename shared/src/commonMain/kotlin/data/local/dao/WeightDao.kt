@@ -20,8 +20,8 @@ interface WeightDao {
     @Query("SELECT * FROM weight WHERE userId = :userId AND isDeleted = false")
     suspend fun getAll(userId: String): List<Weight>
 
-    @Query("SELECT * FROM weight WHERE isDeleted = false")
-    fun getAllAsFlow(): Flow<List<Weight>>
+    @Query("SELECT * FROM weight WHERE userId = :userId AND isDeleted = false")
+    fun getAllAsFlow(userId: String): Flow<List<Weight>>
 
     @Query("SELECT * FROM weight WHERE weightId = :weightId AND isDeleted = false")
     suspend fun getById(weightId: String): Weight?
@@ -39,12 +39,14 @@ interface WeightDao {
             weighed AS date
         FROM Weight
         WHERE isDeleted = 0
-        AND weighed >= :startDate 
+        AND weighed >= :startDate
+        AND userId = :userId
         GROUP BY date 
         ORDER BY date DESC
         LIMIT :days
     """)
-    suspend fun getAverageWeightLastDays(days: Int, startDate: Long): List<DailyAverage>
+    suspend fun getAverageWeightLastDays(days: Int, startDate: Long, userId: String): List<DailyAverage>
+
 
 
     // POST

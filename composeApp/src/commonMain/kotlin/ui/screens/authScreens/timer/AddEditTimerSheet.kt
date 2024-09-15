@@ -16,6 +16,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import bauchglueck.composeapp.generated.resources.Res
 import bauchglueck.composeapp.generated.resources.ic_stopwatch
@@ -26,6 +27,7 @@ import ui.components.ItemOverLayScaffold
 import ui.navigations.Destination
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
+import kotlinx.datetime.Clock
 import org.koin.androidx.compose.koinViewModel
 import org.lighthousegames.logging.logging
 import util.UUID
@@ -38,7 +40,7 @@ fun AddEditTimerSheet(
     currentCountdownTimer: String? = null,
     onDismiss: () -> Unit = {},
 ) {
-    val viewModel = koinViewModel<TimerScreenViewModel>()
+    val viewModel = viewModel<TimerScreenViewModel>()
 
     LaunchedEffect(Unit) {
         viewModel.getTimerByIdOrNull(currentCountdownTimer)
@@ -66,26 +68,13 @@ fun AddEditTimerSheet(
             userId = Firebase.auth.currentUser?.uid ?: "",
         )
 
-        logging().info { "selectedTimer: $selectedTimer" }
-        logging().info { "newOrUpdatedTimer: $newOrUpdatedTimer" }
-
         text.value = newOrUpdatedTimer.name
         duration.longValue = newOrUpdatedTimer.duration
-
     }
-
-
 
     val focusManager = LocalFocusManager.current
     val isNameFocused = remember { mutableStateOf(false) }
     val isDurationFocused = remember { mutableStateOf(false) }
-
-
-    LaunchedEffect(isClicked) {
-        if (isClicked) {
-            viewModel.updateItemAndSyncRemote(newOrUpdatedTimer.copy(name = text.value, duration = duration.longValue * 60))
-        }
-    }
 
     ItemOverLayScaffold(
         title = "Neuen Timer hinzufügen",
@@ -126,6 +115,13 @@ fun AddEditTimerSheet(
             onSave = {
                 if (!isClicked) {
                     focusManager.clearFocus()
+
+                    viewModel.updateItemAndSyncRemote(
+                        newOrUpdatedTimer.copy(
+                            name = text.value,
+                            duration = duration.longValue * 60
+                        )
+                    )
 
                     isClicked = true
 

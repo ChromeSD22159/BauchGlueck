@@ -24,26 +24,21 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import bauchglueck.composeapp.generated.resources.Res
 import bauchglueck.composeapp.generated.resources.ic_gear
-import data.model.RecipeCategory
-import data.remote.StrapiApiClient
 import ui.navigations.Destination
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
-import di.serverHost
 import kotlinx.coroutines.launch
-import org.koin.androidx.compose.koinViewModel
 import org.lighthousegames.logging.logging
-import util.debugJsonHelper
-import util.onError
-import util.onSuccess
 import viewModel.TimerScreenViewModel
 import viewModel.WeightScreenViewModel
 
@@ -53,13 +48,17 @@ import viewModel.WeightScreenViewModel
 fun HomeScreen(
     navController: NavHostController,
 ) {
-    val timerScreenViewModel = koinViewModel<TimerScreenViewModel>()
-    val weightScreenViewModel = koinViewModel<WeightScreenViewModel>()
+    val timerScreenViewModel = viewModel<TimerScreenViewModel>()
+    val weightScreenViewModel = viewModel<WeightScreenViewModel>()
 
     val scope = rememberCoroutineScope()
 
     val dailyAverage by weightScreenViewModel.dailyAverage.collectAsState(initial = emptyList())
     val timers by timerScreenViewModel.allTimers.collectAsStateWithLifecycle(initialValue = emptyList())
+
+    LaunchedEffect(timers) {
+        logging().info { "CountdownTimerRepository getAll ${timers.size}" }
+    }
 
     Scaffold(
         topBar = {
@@ -94,6 +93,12 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(90.dp))
 
+            LaunchedEffect(Unit) {
+                logging().info { "HomeScreen: ${Firebase.auth.currentUser?.uid}" }
+            }
+
+            /*
+
             Row {
 
                 Button(onClick = { navController.navigate(Destination.Recipes.route) }) {
@@ -127,6 +132,7 @@ fun HomeScreen(
                     Text(text = "Logout")
                 }
             }
+             */
 
             HomeCalendarCard {
                 scope.launch {

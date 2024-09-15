@@ -12,6 +12,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import bauchglueck.composeapp.generated.resources.Res
 import bauchglueck.composeapp.generated.resources.ic_add_timer
@@ -19,7 +20,6 @@ import bauchglueck.composeapp.generated.resources.ic_gear
 import ui.components.BackScaffold
 import ui.components.RoundImageButton
 import ui.navigations.Destination
-import org.koin.androidx.compose.koinViewModel
 import org.lighthousegames.logging.logging
 import viewModel.TimerScreenViewModel
 
@@ -29,7 +29,7 @@ fun TimerScreen(
     navController: NavController,
     backNavigationDirection: Destination = Destination.Home,
 ) {
-    val viewModel = koinViewModel<TimerScreenViewModel>()
+    val viewModel = viewModel<TimerScreenViewModel>()
     val timers by viewModel.allTimers.collectAsStateWithLifecycle(initialValue = emptyList())
 
     BackScaffold(

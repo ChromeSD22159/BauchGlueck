@@ -55,43 +55,46 @@ import ui.theme.AppTheme
 import ui.theme.rodettaFontFamily
 import util.formatTimeToMMSS
 
+@Preview(showBackground = true, uiMode = UI_MODE_NIGHT_NO)
 @Composable
-@Preview(
-    showBackground = true,
-    uiMode = UI_MODE_NIGHT_YES
-)
-fun NewTimerCardDarkPreview() {
+fun TestPreview(
+    timer: CountdownTimer = CountdownTimer(
+        name = "TimerName"
+    )
+) {
     AppTheme {
         Box(
-            modifier = Modifier.background(MaterialTheme.colorScheme.background)
+            modifier = Modifier
+                .background(MaterialTheme.colorScheme.background)
         ) {
-            TimerCard()
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp)
+                    .background(
+                        MaterialTheme.colorScheme.secondary.copy(alpha = 0.2f),
+                        RoundedCornerShape(10.dp)
+                    )
+                    .padding(10.dp)
+                ,
+            ) {
+                Text(
+                    modifier = Modifier.padding(top = 5.dp),
+                    text = timer.name,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    fontFamily = MaterialTheme.typography.headlineMedium.fontFamily,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
         }
     }
 }
-
-@Composable
-@Preview(
-    showBackground = true,
-    uiMode = UI_MODE_NIGHT_NO
-)
-fun NewTimerCardLightPreview() {
-    AppTheme {
-        Box(
-            modifier = Modifier.background(MaterialTheme.colorScheme.background)
-        ) {
-            TimerCard()
-        }
-    }
-}
-
 
 @Composable
 fun TimerCard(
-    timer: CountdownTimer = CountdownTimer(
-        name = "TimerName",
-        duration = 1000,
-    ),
+    timer: CountdownTimer,
     onClickEdit: (CountdownTimer) -> Unit = {},
     onDelete: (CountdownTimer) -> Unit = {},
     onTimerUpdate: (CountdownTimer) -> Unit = {}
@@ -146,7 +149,8 @@ fun TimerCard(
                    modifier = Modifier.padding(top = 5.dp),
                    text = timer.name,
                    color = MaterialTheme.colorScheme.onBackground,
-                   fontStyle = MaterialTheme.typography.titleMedium.fontStyle,
+                   fontFamily = MaterialTheme.typography.headlineMedium.fontFamily,
+                   fontWeight = FontWeight.Bold
                )
 
                DropDownMenu(

@@ -12,22 +12,24 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.Clock
+import org.lighthousegames.logging.logging
 
 class CountdownTimerRepository(
     db: LocalDatabase,
     var serverHost: String,
-    var user: FirebaseUser? = Firebase.auth.currentUser,
     var deviceID: String
-) {
+): BaseRepository() {
     private var localService: CountdownTimerDao = LocalDataSource(db).countdownTimer
     private var syncManager: CountdownTimerSyncManager = CountdownTimerSyncManager(db, serverHost, deviceID)
 
-     fun getAll(): Flow<List<CountdownTimer>> {
-        if (user == null) return emptyFlow()
+    fun getAll(): Flow<List<CountdownTimer>> {
+        val currentUserId = userId ?: return emptyFlow()
+        logging().info { "CountdownTimerRepository getAll $currentUserId" }
+         val timer = localService.getAll(currentUserId).map { items ->
+             items.filter { !it.isDeleted }
+         }
 
-        return localService.getAll(user!!.uid).map { items ->
-            items.filter { !it.isDeleted }
-        }
+        return timer
     }
 
     suspend fun getById(timerId: String): CountdownTimer? = this.localService.getById(timerId)
@@ -40,12 +42,11 @@ class CountdownTimerRepository(
     }
 
     suspend fun getAllAfterTimeStamp(timeStamp: Long): List<CountdownTimer> {
-        return user?.let {
-            localService.getAllAfterTimeStamp(
-                timeStamp,
-                it.uid
-            )
-        } ?: emptyList()
+        val currentUserId = userId ?: return emptyList()
+        return localService.getAllAfterTimeStamp(
+            timeStamp,
+            currentUserId
+        )
     }
 
     suspend fun syncDataWithRemote() {

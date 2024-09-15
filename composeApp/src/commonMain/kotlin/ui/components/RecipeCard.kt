@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import bauchglueck.composeapp.generated.resources.Res
 import bauchglueck.composeapp.generated.resources.ic_fat
+import bauchglueck.composeapp.generated.resources.ic_grid_2_2
 import bauchglueck.composeapp.generated.resources.ic_kcal
 import bauchglueck.composeapp.generated.resources.ic_stopwatch
 import bauchglueck.composeapp.generated.resources.icon_plus
@@ -124,7 +125,7 @@ fun RecipeCard(
                         IconListWithText(
                             rowModifier = Modifier.weight(1f),
                             items = listOf(
-                                Pair(Res.drawable.icon_plus, mealWithCategories.categories.firstOrNull { true }?.name ?: "No Category"),
+                                Pair(Res.drawable.ic_grid_2_2, mealWithCategories.categories.firstOrNull { true }?.name ?: "No Category"),
                                 Pair(Res.drawable.ic_stopwatch, "${mealWithCategories.meal.preparationTimeInMinutes} min.")
                             )
                         )

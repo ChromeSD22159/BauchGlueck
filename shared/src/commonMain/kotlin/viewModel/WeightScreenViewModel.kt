@@ -13,11 +13,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import org.lighthousegames.logging.logging
 
-class WeightScreenViewModel(
-    private val repository: Repository
-): ViewModel() {
+class WeightScreenViewModel : ViewModel(), KoinComponent {
+    private val repository: Repository by inject()
     private val scope: CoroutineScope = viewModelScope
 
     var allWeights: Flow<List<Weight>> = repository.weightRepository.getAllAsFlow()
@@ -27,6 +28,7 @@ class WeightScreenViewModel(
     var dailyAverage: StateFlow<List<DailyAverage>> = _dailyAverage.asStateFlow()
 
     init {
+        logging().info { "WeightScreenViewModel init" }
         getAverageWeightLastDays()
     }
 

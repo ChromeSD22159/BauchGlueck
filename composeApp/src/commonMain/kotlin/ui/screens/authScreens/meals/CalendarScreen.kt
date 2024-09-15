@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import ui.components.BackScaffold
 import ui.components.clickableWithRipple
@@ -45,7 +46,7 @@ fun CalendarScreen(
     backNavigationDirection: Destination = Destination.Home,
     firebaseAuthViewModel: FirebaseAuthViewModel
 ) {
-    val viewModel = koinViewModel<MealViewModel>()
+    val viewModel = viewModel<MealViewModel>()
     val userFormState by firebaseAuthViewModel.userFormState.collectAsStateWithLifecycle(initialValue = null)
     val selectedDate by viewModel.selectedDate.collectAsStateWithLifecycle(initialValue = DateRepository.today)
 

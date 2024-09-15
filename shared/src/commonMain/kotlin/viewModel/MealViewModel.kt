@@ -10,11 +10,12 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import util.DateRepository
 
-class MealViewModel(
-    private val repository: Repository,
-): ViewModel() {
+class MealViewModel: ViewModel(), KoinComponent {
+    private val repository: Repository by inject()
     private val localMeals: Flow<List<MealWithCategories>> = repository.mealRepository.getAllMealsMeals()
     private val dateRepository = DateRepository
 

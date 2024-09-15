@@ -11,6 +11,7 @@ import viewModel.WeightScreenViewModel
 import viewModel.FirebaseAuthViewModel
 
 actual val viewModelModule = module {
+    /*
     viewModel { TimerScreenViewModel(get()) }
     viewModel { WeightScreenViewModel(get()) }
     viewModel { SyncWorkerViewModel(get()) }
@@ -18,4 +19,5 @@ actual val viewModelModule = module {
     viewModel { RecipeViewModel(get()) }
     viewModel { MealViewModel(get()) }
     viewModel { FirebaseAuthViewModel() }
+     */
 }

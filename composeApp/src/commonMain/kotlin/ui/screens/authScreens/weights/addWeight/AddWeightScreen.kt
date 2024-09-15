@@ -31,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import data.local.entitiy.Weight
 import ui.components.ItemOverLayScaffold
@@ -55,7 +56,7 @@ fun AddWeightScreen(
     steps: Double = 0.1,
     onDismiss: () -> Unit = {},
 ) {
-    val viewModel = koinViewModel<WeightScreenViewModel>()
+    val viewModel = viewModel<WeightScreenViewModel>()
     val lastWeight by viewModel.lastWeight.collectAsState(initial = null)
 
     val currentWeight = remember {

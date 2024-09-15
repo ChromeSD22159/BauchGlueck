@@ -10,6 +10,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import bauchglueck.composeapp.generated.resources.Res
 import bauchglueck.composeapp.generated.resources.ic_gear
@@ -26,7 +27,7 @@ import viewModel.MedicationViewModel
 @Composable
 fun MedicationScreen(
     navController: NavHostController,
-    viewModel: MedicationViewModel = koinViewModel<MedicationViewModel>()
+    viewModel: MedicationViewModel = viewModel<MedicationViewModel>()
 ) {
     val allMedications by viewModel.medicationsWithIntakeDetailsForToday.collectAsStateWithLifecycle(initialValue = emptyList())
 

@@ -38,6 +38,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import data.local.entitiy.IntakeTime
 import data.local.entitiy.IntakeTimeWithStatus
@@ -64,7 +65,7 @@ fun AddEditMedicationScreen(
     navController: NavHostController,
     currentMedication: String? = null
 ) {
-    val viewModel = koinViewModel<MedicationViewModel>()
+    val viewModel = viewModel<MedicationViewModel>()
 
     var newOrUpdatedTimer: MedicationWithIntakeDetails by remember {
         mutableStateOf( MedicationWithIntakeDetails(

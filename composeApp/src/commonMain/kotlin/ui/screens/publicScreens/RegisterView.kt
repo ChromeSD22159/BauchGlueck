@@ -186,7 +186,7 @@ fun RegisterView(
                     Button(
                         onClick = {
                             val result = firebaseAuthViewModel.onSignUp()
-                            if (result.isSuccess) {
+                            if (result) {
                                 onNavigate(Destination.Home)
                             }
                         }

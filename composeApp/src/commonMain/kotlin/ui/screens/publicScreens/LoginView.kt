@@ -14,6 +14,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -33,6 +34,12 @@ fun LoginView(
 ) {
 
     val state = firebaseViewModel.userFormState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(firebaseViewModel.user) {
+        if (firebaseViewModel.user != null) {
+            onNavigate(Destination.Home)
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -114,10 +121,7 @@ fun LoginView(
                     Button(
                         enabled = true,
                         onClick = {
-                            val result = firebaseViewModel.onLogin()
-                            if (result.isSuccess) {
-                                onNavigate(Destination.Home)
-                            }
+                            firebaseViewModel.onLogin()
                         }
                     ) {
                         Text("Login")

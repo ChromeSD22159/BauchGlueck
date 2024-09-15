@@ -17,6 +17,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -55,8 +56,8 @@ fun NavGraph(
 
     val user = Firebase.auth.currentUser
 
-    val syncWorker = koinViewModel<SyncWorkerViewModel>()
-    val firebaseAuthViewModel = koinViewModel<FirebaseAuthViewModel>()
+    val syncWorker = viewModel<SyncWorkerViewModel>()
+    val firebaseAuthViewModel = viewModel<FirebaseAuthViewModel>()
 
     val minimumDelay by syncWorker.uiState.value.minimumDelay.collectAsState()
     val isFinishedSyncing by syncWorker.uiState.value.isFinishedSyncing.collectAsState()
@@ -231,7 +232,7 @@ fun NavGraphBuilder.editMedication(navController: NavHostController) {
 
 fun NavGraphBuilder.recipesComposable(navController: NavHostController) {
     composable(Destination.Recipes.route) {
-        val recipeViewModel = koinViewModel<RecipeViewModel>()
+        val recipeViewModel = viewModel<RecipeViewModel>()
 
         val localMealsCount by recipeViewModel.localMealCount.collectAsStateWithLifecycle(initialValue = 0)
         val localMealsState by recipeViewModel.localMeals.collectAsStateWithLifecycle(initialValue = emptyList())
