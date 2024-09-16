@@ -11,9 +11,8 @@ import dev.gitlive.firebase.auth.auth
 class MealPlanRepository(
     db: LocalDatabase,
     var serverHost: String,
-    var user: FirebaseUser? = Firebase.auth.currentUser,
     var deviceID: String
-) {
+): BaseRepository() {
     private var localService: MealDao = LocalDataSource(db).meals
     private var syncManager: MealPlanSyncManager = MealPlanSyncManager(db, serverHost, deviceID)
 

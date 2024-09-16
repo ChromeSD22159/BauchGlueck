@@ -18,9 +18,8 @@ import kotlinx.datetime.Clock
 class MedicationRepository(
     db: LocalDatabase,
     var serverHost: String,
-    var user: FirebaseUser? = Firebase.auth.currentUser,
     var deviceID: String
-) {
+): BaseRepository() {
     private var localService: MedicationDao = LocalDataSource(db).medications
     private var syncManager: MedicationSyncManager = MedicationSyncManager(db, serverHost, deviceID)
 

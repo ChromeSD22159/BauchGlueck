@@ -6,11 +6,8 @@ import data.local.dao.WeightDao
 import data.local.entitiy.Weight
 import data.model.DailyAverage
 import data.remote.syncManager.WeightSyncManager
-import dev.gitlive.firebase.Firebase
-import dev.gitlive.firebase.auth.FirebaseUser
-import dev.gitlive.firebase.auth.auth
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.TimeZone
@@ -24,20 +21,21 @@ import util.toLocalDate
 class WeightRepository(
     db: LocalDatabase,
     var serverHost: String,
-    var user: FirebaseUser? = Firebase.auth.currentUser,
     var deviceID: String
-) {
+): BaseRepository() {
 
     private var localService: WeightDao = LocalDataSource(db).weight
     private var syncManager: WeightSyncManager = WeightSyncManager(db, serverHost, deviceID)
 
     suspend fun getAll(): List<Weight> {
-        return user?.let { firebaseUser ->
-            localService.getAll(firebaseUser.uid).filter { !it.isDeleted }
-        } ?: emptyList()
+        val currentUserId = userId ?: return emptyList()
+        return localService.getAll(currentUserId).filter { !it.isDeleted }
     }
 
-    fun getAllAsFlow() = this.localService.getAllAsFlow()
+    fun getAllAsFlow(): Flow<List<Weight>> {
+        val currentUserId = userId ?: return emptyFlow()
+        return this.localService.getAllAsFlow(currentUserId)
+    }
 
     suspend fun getById(weightId: String): Weight? = this.localService.getById(weightId)
 
@@ -64,23 +62,21 @@ class WeightRepository(
     }
 
     suspend fun hardDeleteAllByUserId() {
-        user?.let {
-            localService.hardDeleteAllByUserId(it.uid)
-        }
+        val currentUserId = userId ?: return
+        localService.hardDeleteAllByUserId(currentUserId)
     }
 
     suspend fun getAllAfterTimeStamp(timeStamp: Long): List<Weight> {
-        return user?.let {
-            localService.getAllAfterTimeStamp(
-                timeStamp,
-                it.uid
-            )
-        } ?: emptyList()
+        val currentUserId = userId ?: return emptyList()
+        return  localService.getAllAfterTimeStamp(
+            timeStamp,
+            currentUserId
+        )
     }
 
     fun getLastWeight(): Flow<Weight?> {
-        if (user == null) return flowOf(null)
-        return localService.getLastWeightFromUserId(user!!.uid)
+        val currentUserId = userId ?: return emptyFlow()
+        return localService.getLastWeightFromUserId(currentUserId)
     }
 
     suspend fun syncDataWithRemote() {
@@ -88,12 +84,18 @@ class WeightRepository(
     }
 
     suspend fun getAverageWeightLastDays(days: Int = 7): List<DailyAverage> {
+        val currentUserId = userId ?: return emptyList()
+
         val endDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
         val startDate = endDate.minus(days - 1, DateTimeUnit.DAY)
 
         val timezoneOffset = TimeZone.currentSystemDefault().offsetAt(Clock.System.now()).totalSeconds
 
-        val weightsFromDb = localService.getAverageWeightLastDays(days, startDate.atStartOfDayIn(TimeZone.currentSystemDefault()).toEpochMilliseconds())
+        val weightsFromDb = localService.getAverageWeightLastDays(
+            days = days,
+            startDate = startDate.atStartOfDayIn(TimeZone.currentSystemDefault()).toEpochMilliseconds(),
+            userId = currentUserId,
+        )
 
         val dayList = mutableListOf<DailyAverage>()
 

@@ -128,6 +128,12 @@ buildkonfig {
 
         val geminiApiKey: String = gradleLocalProperties(rootDir).getProperty("GEMINI_API_KEY") ?: ""
         buildConfigField(com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING, "GEMINI_API_KEY", geminiApiKey)
+
+        val chatGptApiKey: String = gradleLocalProperties(rootDir).getProperty("CHAT_GPT_API_KEY") ?: ""
+        buildConfigField(com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING, "CHAT_GPT_API_KEY", chatGptApiKey)
+
+        val chatGptHost: String = gradleLocalProperties(rootDir).getProperty("CHAT_GPT_HOST") ?: ""
+        buildConfigField(com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING, "CHAT_GPT_HOST", chatGptHost)
     }
 }
 

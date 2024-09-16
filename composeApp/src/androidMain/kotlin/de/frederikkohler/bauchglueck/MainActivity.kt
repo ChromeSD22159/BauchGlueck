@@ -1,40 +1,27 @@
 package de.frederikkohler.bauchglueck
 
+import App
 import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Build
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import coil3.ImageLoader
 import coil3.PlatformContext
 import coil3.annotation.ExperimentalCoilApi
 import coil3.compose.setSingletonImageLoaderFactory
 import coil3.request.crossfade
 import coil3.util.DebugLogger
-import de.frederikkohler.bauchglueck.ui.navigations.NavGraph
-import de.frederikkohler.bauchglueck.ui.theme.AppTheme
-import de.frederikkohler.bauchglueck.viewModel.FirebaseAuthViewModel
 import di.KoinInject
-import org.koin.compose.currentKoinScope
+import util.ApplicationContextHolder
 
 class MainActivity : ComponentActivity() {
 
-    private val firebaseAuthViewModel: FirebaseAuthViewModel by viewModels()
-
+    @OptIn(ExperimentalCoilApi::class)
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onStart( ) {
         super.onStart( )
@@ -43,35 +30,16 @@ class MainActivity : ComponentActivity() {
 
         setSystemBars()
 
-        app()
-    }
-
-    @OptIn(ExperimentalCoilApi::class)
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun app() {
         setContent {
-            AppTheme {
+            ApplicationContextHolder.context = applicationContext
 
-                setSingletonImageLoaderFactory { context ->
-                    getAsyncImageLoader(context)
-                }
+            // TODO implement AsyncImageLoader on iOS
+            setSingletonImageLoaderFactory { context ->
+                getAsyncImageLoader(context)
+            }
 
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    val navController: NavHostController = rememberNavController()
-
-                    Box(
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        NavGraph(
-                            navController,
-                            firebaseAuthViewModel,
-                            applicationContext
-                        )
-                    }
-                }
+            App {
+                Toast.makeText(applicationContext, "Keine Serververbindung", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -104,14 +72,6 @@ class MainActivity : ComponentActivity() {
                 controller.isAppearanceLightNavigationBars = false // or true based on preference
             }
         }
-    }
-}
-
-@Composable
-inline fun <reified T: ViewModel> koinViewModel(): T {
-    val scope = currentKoinScope()
-    return viewModel {
-        scope.get<T>()
     }
 }
 

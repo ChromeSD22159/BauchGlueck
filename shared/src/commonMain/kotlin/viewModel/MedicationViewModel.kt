@@ -15,12 +15,12 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.toLocalDateTime
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import org.lighthousegames.logging.logging
 
-class MedicationViewModel(
-    private val repository: Repository,
-): ViewModel() {
-
+class MedicationViewModel: ViewModel(), KoinComponent {
+    private val repository: Repository by inject()
     private val medicationRepository = repository.medicationRepository
     private var scope = viewModelScope
     private val todayStart: Long

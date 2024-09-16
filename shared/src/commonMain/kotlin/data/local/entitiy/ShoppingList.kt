@@ -7,7 +7,7 @@ import kotlinx.datetime.Clock
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import util.generateId
+import util.UUID
 
 @Serializable
 @Entity(
@@ -16,7 +16,7 @@ import util.generateId
 data class ShoppingList(
     @PrimaryKey var id: Int = 0,
     val name: String = "",
-    val shoppingListId: String = generateId(),
+    val shoppingListId: String = UUID.randomUUID(),
     val userId: String = "",
     val description: String = "",
     val startDate: String = "",

@@ -9,11 +9,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import util.onSuccess
 
-class RecipeViewModel(
-    private val repository: Repository,
-): ViewModel() {
+class RecipeViewModel: ViewModel(), KoinComponent {
+    private val repository: Repository by inject()
     private val scope = viewModelScope
 
     private val _recipes: MutableStateFlow<List<ApiRecipesResponse>> = MutableStateFlow(emptyList())

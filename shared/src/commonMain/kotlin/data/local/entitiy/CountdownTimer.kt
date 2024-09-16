@@ -5,7 +5,6 @@ import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import util.DateConverter
 
@@ -32,10 +31,12 @@ data class CountdownTimer(
 
     var toUpdateAtLong: Long = Instant.parse(updatedAt).toEpochMilliseconds()
 
-    var timerStateEnum: TimerState
+    var toTimerState: TimerState
         get() = TimerState.fromValue(this.timerState)
         set(value) { timerState = value.value }
 }
+
+
 
 enum class TimerState(val value: String) {
     running("running"),

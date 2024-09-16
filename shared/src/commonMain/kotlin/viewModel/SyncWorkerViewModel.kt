@@ -8,12 +8,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import org.lighthousegames.logging.logging
 
 
-class SyncWorkerViewModel(
-    private val repository: Repository,
-): ViewModel() {
+class SyncWorkerViewModel: ViewModel(), KoinComponent {
+    private val repository: Repository by inject()
+
     private val scope = viewModelScope
 
     private var _uiState: MutableStateFlow<SyncWorkerUiState> = MutableStateFlow(SyncWorkerUiState())

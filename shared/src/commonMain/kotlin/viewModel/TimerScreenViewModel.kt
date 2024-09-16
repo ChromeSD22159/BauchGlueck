@@ -2,6 +2,8 @@ package viewModel
 
 import data.Repository
 import data.local.entitiy.CountdownTimer
+import dev.gitlive.firebase.Firebase
+import dev.gitlive.firebase.auth.auth
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -10,21 +12,18 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import org.lighthousegames.logging.logging
 
-class TimerScreenViewModel(
-    private val repository: Repository
-): ViewModel() {
+class TimerScreenViewModel: ViewModel(), KoinComponent {
+    private val repository: Repository by inject()
     private val scope: CoroutineScope = viewModelScope
 
     var allTimers: Flow<List<CountdownTimer>> = repository.countdownTimerRepository.getAll()
 
     private val _selectedTimer: MutableStateFlow<CountdownTimer?> = MutableStateFlow(null)
     val selectedTimer: StateFlow<CountdownTimer?> = _selectedTimer.asStateFlow()
-
-    init {
-        logging().info { "TimerViewModel init" }
-    }
 
     override fun onCleared() {
         super.onCleared()

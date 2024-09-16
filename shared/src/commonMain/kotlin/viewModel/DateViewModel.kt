@@ -12,7 +12,7 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 
 class DateViewModel: ViewModel() {
-    private val dateRepository: DateRepository = DateRepository()
+    private val dateRepository: DateRepository = DateRepository
 
     init {
         viewModelScope.launch {

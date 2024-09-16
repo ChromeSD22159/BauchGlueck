@@ -2,11 +2,11 @@ package data.remote.model
 
 import kotlinx.datetime.Clock
 import kotlinx.serialization.Serializable
-import util.generateId
+import util.UUID
 
 @Serializable
 data class ShoppingListItem(
-    val shoppingListItemId: String = generateId(),
+    val shoppingListItemId: String = UUID.randomUUID(),
     val name: String = "",
     val unit: String = "",
     val note: String = "",

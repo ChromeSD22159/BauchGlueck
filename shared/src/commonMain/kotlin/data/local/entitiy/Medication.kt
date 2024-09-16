@@ -9,7 +9,7 @@ import androidx.room.TypeConverters
 import kotlinx.datetime.Clock
 import kotlinx.serialization.Serializable
 import util.DateConverter
-import util.generateId
+import util.UUID
 
 @Serializable
 @Entity(
@@ -18,7 +18,7 @@ import util.generateId
 data class Medication(
     var id: Int = 0,
 
-    var medicationId: String = generateId(),
+    var medicationId: String = UUID.randomUUID(),
 
     var userId: String = "",
 
@@ -43,7 +43,7 @@ data class Medication(
     indices = [Index("medicationId")]
 )
 data class IntakeTime(
-    var intakeTimeId: String = generateId(),
+    var intakeTimeId: String = UUID.randomUUID(),
 
     var intakeTime: String = Clock.System.now().toString(),
 
@@ -66,7 +66,7 @@ data class IntakeTime(
     indices = [Index("intakeTimeId")]
 )
 data class IntakeStatus(
-    var intakeStatusId: String = generateId(),
+    var intakeStatusId: String = UUID.randomUUID(),
 
     var intakeTimeId: String = "",
 

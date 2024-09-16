@@ -2,6 +2,7 @@ package data.network
 
 import de.frederikkohler.bauchglueck.shared.BuildKonfig
 import io.ktor.client.HttpClient
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.auth.Auth
 import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.client.plugins.auth.providers.bearer
@@ -38,5 +39,13 @@ fun createHttpClient(): HttpClient {
                 }
             }
         }
+        if(!BuildKonfig.DEV) {
+            install(HttpTimeout) {
+                requestTimeoutMillis = 15000 // Timeout für die gesamte Anfrage (15 Sekunden)
+                connectTimeoutMillis = 10000 // Timeout für den Verbindungsaufbau (10 Sekunden)
+                socketTimeoutMillis = 10000  // Timeout für den Socket (10 Sekunden)
+            }
+        }
+
     }
 }
