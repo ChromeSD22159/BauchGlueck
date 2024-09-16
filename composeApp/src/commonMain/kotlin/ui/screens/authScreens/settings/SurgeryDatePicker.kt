@@ -7,9 +7,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsIgnoringVisibility
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDatePickerState
@@ -76,19 +79,20 @@ fun SurgeryDatePicker(
             ) {
                 DatePicker(
                     state = datePickerState,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = DatePickerDefaults.colors(
+                        containerColor = MaterialTheme.colorScheme.background,
+                        titleContentColor = MaterialTheme.colorScheme.primary,
+                        headlineContentColor = MaterialTheme.colorScheme.onBackground,
+                    )
                 )
 
-                Button(
-                    onClick = {
-                        showDatePicker = false
-                        onUpdate(datePickerState.selectedDateMillis ?: 0)
-                    },
-                    modifier = Modifier
-                        .padding(8.dp)
-                        .fillMaxWidth()
+                TextButton(
+                    modifier = Modifier.padding(8.dp).fillMaxWidth(),
+                    text = "Bestätigen"
                 ) {
-                    Text(stringResource(R.string.confirm_text))
+                    showDatePicker = false
+                    onUpdate(datePickerState.selectedDateMillis ?: 0)
                 }
 
             }

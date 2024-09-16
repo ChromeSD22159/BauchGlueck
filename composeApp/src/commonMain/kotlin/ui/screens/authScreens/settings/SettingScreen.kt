@@ -1,31 +1,20 @@
 package ui.screens.authScreens.settings
 
-import android.content.Intent
-import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Divider
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -34,20 +23,15 @@ import bauchglueck.composeapp.generated.resources.ic_globe
 import bauchglueck.composeapp.generated.resources.ic_grid_2_2
 import bauchglueck.composeapp.generated.resources.ic_info
 import bauchglueck.composeapp.generated.resources.ic_mail
-import bauchglueck.composeapp.generated.resources.ic_mail_fill
-import bauchglueck.composeapp.generated.resources.ic_person_fill_view
 import bauchglueck.composeapp.generated.resources.ic_star
 import de.frederikkohler.bauchglueck.R
-import org.jetbrains.compose.resources.DrawableResource
-import org.jetbrains.compose.resources.vectorResource
 import ui.components.profileSlider.ProfileSlider
 import ui.components.profileSlider.ProfileSliderUnit
 import ui.navigations.Destination
 import org.lighthousegames.logging.logging
 import ui.components.FormScreens.PlusMinusButtonForms
-import ui.components.clickableWithRipple
+import ui.components.SectionLink
 import ui.components.theme.Section
-import ui.components.theme.text.BodyText
 import util.appVersion
 import viewModel.FirebaseAuthViewModel
 
@@ -66,7 +50,7 @@ fun SettingScreen(
     Column(
         modifier = Modifier
             .fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
 
         currentProfile.let { profile ->
@@ -93,7 +77,6 @@ fun SettingScreen(
                     unitType = ProfileSliderUnit.Int
                 )
             }
-
 
             Section {
                 ProfileSlider(
@@ -226,36 +209,3 @@ fun SettingScreen(
     }
 }
 
-@Composable
-fun SectionLink(
-    icon: DrawableResource = Res.drawable.ic_person_fill_view,
-    displayText: String,
-    url: String = "https://www.google.com/"
-) {
-    val brushes = Brush.verticalGradient(listOf(
-        MaterialTheme.colorScheme.primary,
-        MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
-    ))
-
-    val context = LocalContext.current
-    val intent = remember { Intent(Intent.ACTION_VIEW, Uri.parse(url)) }
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickableWithRipple { context.startActivity(intent) },
-        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.Start),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(
-            modifier = Modifier
-                .background(brushes, CircleShape)
-                .padding(4.dp),
-            imageVector = vectorResource(resource = icon),
-            tint = MaterialTheme.colorScheme.onPrimary,
-            contentDescription = displayText
-        )
-
-        BodyText(text = displayText)
-    }
-}

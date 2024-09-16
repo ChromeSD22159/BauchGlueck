@@ -17,13 +17,14 @@ import ui.theme.AppTheme
 @Composable
 fun TextButton(
     text: String,
+    modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colorScheme.onPrimary,
     shape: RoundedCornerShape = RoundedCornerShape(50.dp),
     onClick: () -> Unit = {}
 ) {
     AppTheme {
         Box(
-            modifier = Modifier
+            modifier = modifier
                 .background(
                     brush = Brush.verticalGradient(
                         colors = listOf(

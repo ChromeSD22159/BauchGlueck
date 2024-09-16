@@ -19,6 +19,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
@@ -43,6 +44,7 @@ import bauchglueck.composeapp.generated.resources.ic_person_fill_view
 import bauchglueck.composeapp.generated.resources.magen
 import de.frederikkohler.bauchglueck.R
 import org.jetbrains.compose.resources.painterResource
+import org.lighthousegames.logging.logging
 import ui.components.FormScreens.FormPasswordTextFieldWithIcon
 import ui.components.FormScreens.FormTextFieldWithIcon
 import ui.components.theme.AppBackground
@@ -53,6 +55,7 @@ import ui.components.theme.text.BodyText
 import ui.components.theme.text.ErrorText
 import ui.components.theme.text.HeadlineText
 import ui.navigations.Destination
+import ui.screens.authScreens.settings.SurgeryDatePicker
 import viewModel.FirebaseAuthViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -73,8 +76,6 @@ fun RegisterView(
     AppBackground {
         AppBackgroundWithImage()
 
-
-        
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -199,18 +200,19 @@ fun RegisterView(
                 ) {
                     DatePicker(
                         state = datePickerState,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = DatePickerDefaults.colors(
+                            containerColor = MaterialTheme.colorScheme.background,
+                            titleContentColor = MaterialTheme.colorScheme.primary,
+                            headlineContentColor = MaterialTheme.colorScheme.onBackground,
+                        )
                     )
 
-                    Button(
-                        onClick = {
-                            showDatePicker = false
-                        },
-                        modifier = Modifier
-                            .padding(8.dp)
-                            .fillMaxWidth()
+                    TextButton(
+                        modifier = Modifier.padding(8.dp).fillMaxWidth(),
+                        text = "Bestätigen"
                     ) {
-                        Text(stringResource(R.string.confirm_text))
+                        showDatePicker = false
                     }
                 }
             }

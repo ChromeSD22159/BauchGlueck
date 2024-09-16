@@ -10,7 +10,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import bauchglueck.composeapp.generated.resources.Res
+import bauchglueck.composeapp.generated.resources.ic_minus
+import bauchglueck.composeapp.generated.resources.ic_plus
 import ui.components.theme.Section
+import ui.components.theme.button.IconButton
 import ui.components.theme.button.TextButton
 
 @Composable
@@ -20,16 +24,15 @@ fun PlusMinusButtonForms(
     onPlus: () -> Unit,
     onMinus: () -> Unit
 ) {
-    val shape = RoundedCornerShape(8.dp)
     Section(title) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            TextButton(text = "-", shape = shape) {
-                onMinus()
-            }
+            IconButton(
+                resource = Res.drawable.ic_minus,
+            ) { onMinus() }
 
             Column(
                 modifier = Modifier.weight(1f),
@@ -38,9 +41,9 @@ fun PlusMinusButtonForms(
                 displayColumn()
             }
 
-            TextButton(text = "+", shape = shape) {
-                onPlus()
-            }
+            IconButton(
+                resource = Res.drawable.ic_plus,
+            ) { onPlus() }
         }
     }
 }
