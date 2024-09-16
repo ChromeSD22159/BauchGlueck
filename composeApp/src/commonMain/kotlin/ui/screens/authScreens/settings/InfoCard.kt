@@ -13,17 +13,16 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import bauchglueck.composeapp.generated.resources.Res
 import bauchglueck.composeapp.generated.resources.icon_stromach
-import de.frederikkohler.bauchglueck.R
 import org.jetbrains.compose.resources.vectorResource
+import ui.components.theme.text.BodyText
+import ui.components.theme.text.HeadlineText
 import ui.theme.AppTheme
 import utils.getDifferenceDateString
 
@@ -33,20 +32,20 @@ fun InfoCard(
     firstnames: String,
     surgeryDateTimeStamp: Long
 ) {
-    val context = LocalContext.current
+    val brush = Brush.verticalGradient(
+        colors = listOf(
+            MaterialTheme.colorScheme.primary,
+            MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+        )
+    )
 
     AppTheme {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(16.dp))
+                .clip(MaterialTheme.shapes.medium)
                 .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(
-                            MaterialTheme.colorScheme.primary,
-                            MaterialTheme.colorScheme.primaryContainer
-                        ),
-                    )
+                    brush = brush
                 )
                 .padding(16.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -61,29 +60,12 @@ fun InfoCard(
             )
 
             Column {
-                Text(
-                    modifier = Modifier,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    text = context.getString(
-                        R.string.settings_sheet_hallo_firstname,
-                        firstnames
-                    )
-                )
 
-                Text(
-                    modifier = Modifier,
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    text = context.getString(R.string.settings_sheet_unglaublich)
-                )
+                HeadlineText(text = "Hallo, $firstnames", color = MaterialTheme.colorScheme.onPrimary)
 
-                Text(
-                    modifier = Modifier,
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    text = getDifferenceDateString(surgeryDateTimeStamp)
-                )
+                BodyText("Unglaublich, wie schnell die Zeit vergeht!", color = MaterialTheme.colorScheme.onPrimary)
+
+                BodyText(getDifferenceDateString(surgeryDateTimeStamp))
             }
         }
     }

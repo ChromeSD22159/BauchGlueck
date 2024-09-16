@@ -18,6 +18,7 @@ import ui.theme.AppTheme
 fun TextButton(
     text: String,
     color: Color = MaterialTheme.colorScheme.onPrimary,
+    shape: RoundedCornerShape = RoundedCornerShape(50.dp),
     onClick: () -> Unit = {}
 ) {
     AppTheme {
@@ -30,7 +31,7 @@ fun TextButton(
                             MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
                         )
                     ),
-                    shape = RoundedCornerShape(50.dp)
+                    shape = shape
                 )
                 .padding(vertical = 6.dp, horizontal = 12.dp)
                 .clickableWithRipple {

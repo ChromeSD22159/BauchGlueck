@@ -17,6 +17,7 @@ import coil3.compose.setSingletonImageLoaderFactory
 import coil3.request.crossfade
 import coil3.util.DebugLogger
 import di.KoinInject
+import util.ApplicationContextHolder
 
 class MainActivity : ComponentActivity() {
 
@@ -30,6 +31,8 @@ class MainActivity : ComponentActivity() {
         setSystemBars()
 
         setContent {
+            ApplicationContextHolder.context = applicationContext
+
             // TODO implement AsyncImageLoader on iOS
             setSingletonImageLoaderFactory { context ->
                 getAsyncImageLoader(context)
