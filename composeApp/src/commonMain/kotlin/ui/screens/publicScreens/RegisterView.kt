@@ -1,8 +1,7 @@
 package ui.screens.publicScreens
 
-import androidx.compose.foundation.background
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
@@ -11,8 +10,10 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsIgnoringVisibility
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
@@ -31,22 +32,27 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import ui.components.BackgroundBlobWithStomach
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import bauchglueck.composeapp.generated.resources.Res
 import bauchglueck.composeapp.generated.resources.ic_mail_fill
 import bauchglueck.composeapp.generated.resources.ic_person_fill_view
-import bauchglueck.composeapp.generated.resources.icon_sync
+import bauchglueck.composeapp.generated.resources.magen
 import de.frederikkohler.bauchglueck.R
+import org.jetbrains.compose.resources.painterResource
 import ui.components.FormScreens.FormPasswordTextFieldWithIcon
 import ui.components.FormScreens.FormTextFieldWithIcon
+import ui.components.theme.AppBackground
+import ui.components.theme.background.AppBackgroundWithImage
+import ui.components.theme.button.IconButton
+import ui.components.theme.button.TextButton
+import ui.components.theme.text.BodyText
+import ui.components.theme.text.ErrorText
+import ui.components.theme.text.HeadlineText
 import ui.navigations.Destination
-import ui.theme.displayFontFamily
 import viewModel.FirebaseAuthViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -64,14 +70,11 @@ fun RegisterView(
     val datePickerState = rememberDatePickerState()
     var showDatePicker by remember { mutableStateOf(false) }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
-        contentAlignment = Alignment.TopEnd
-    ) {
-        BackgroundBlobWithStomach()
+    AppBackground {
+        AppBackgroundWithImage()
 
+
+        
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -89,25 +92,22 @@ fun RegisterView(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text(
-                    text = stringResource(R.string.register_hallo_text),
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.headlineMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                        fontFamily = displayFontFamily
-                    ),
-                    color = MaterialTheme.colorScheme.primary,
+
+                Image(
+                    painter = painterResource(Res.drawable.magen),
+                    contentDescription = "Logo",
+                    contentScale = ContentScale.Crop,
                     modifier = Modifier
+                        .padding(top = 25.dp, end = 10.dp)
+                        .width(150.dp)
+                        .height(150.dp)
                 )
 
-                Text(
-                    text = stringResource(R.string.register_create_account_text),
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier
-                        .padding(bottom = 16.dp)
+                HeadlineText(
+                    text = "Hallo!",
+                    color = MaterialTheme.colorScheme.primary,
                 )
+                BodyText("Erstelle dein Konto!")
             }
 
             FormTextFieldWithIcon(
@@ -132,23 +132,16 @@ fun RegisterView(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = stringResource(R.string.register_surgery_date_text),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
+
+                BodyText("Operationsdatum:")
 
                 val selectedDate = datePickerState.selectedDateMillis ?: System.currentTimeMillis()
-                val datePattern = stringResource(R.string.date_pattern)
+                val datePattern = "dd. MM. yyyy"
                 val formattedDate = remember {
                     SimpleDateFormat(datePattern, Locale.getDefault()).format(Date(selectedDate))
                 }
 
-                Button(
-                    onClick = { showDatePicker = true }
-                ) {
-                    Text(formattedDate)
-                }
+                TextButton(text = formattedDate) { showDatePicker = true }
             }
 
             FormPasswordTextFieldWithIcon(
@@ -172,27 +165,22 @@ fun RegisterView(
                     modifier = Modifier.align(Alignment.End),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Button(
-                        onClick = {
-                            onNavigate(Destination.Login)
-                        }
-                    ) {
-                        Text(stringResource(R.string.register_login_button_text))
+
+                    TextButton("Zur Anmeldung") {
+                        onNavigate(Destination.Login)
                     }
 
-                    Button(
+                    IconButton(
                         onClick = {
                             val result = firebaseAuthViewModel.onSignUp()
                             if (result) {
                                 onNavigate(Destination.Home)
                             }
                         }
-                    ) {
-                        Text(stringResource(R.string.register_register_button_text))
-                    }
+                    )
                 }
-                
-                Text(text = firebaseAuthViewModel.userFormState.value.error)
+
+                ErrorText(text = firebaseAuthViewModel.userFormState.value.error)
             }
 
             if (showDatePicker) {

@@ -1,49 +1,42 @@
 package ui.theme
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import bauchglueck.composeapp.generated.resources.Res
-import bauchglueck.composeapp.generated.resources.Rodetta
+import bauchglueck.composeapp.generated.resources.rodetta
 import org.jetbrains.compose.resources.Font
 import androidx.compose.material3.Typography
+import androidx.compose.ui.text.font.toFontFamily
 import androidx.compose.ui.text.googlefonts.GoogleFont
+import androidx.compose.ui.text.googlefonts.Font
 
 @Composable
-fun rodettaFontFamily() = FontFamily(
-    Font(Res.font.Rodetta, weight = FontWeight.Light),
-    Font(Res.font.Rodetta, weight = FontWeight.Normal),
-    Font(Res.font.Rodetta, weight = FontWeight.Medium),
-    Font(Res.font.Rodetta, weight = FontWeight.SemiBold),
-    Font(Res.font.Rodetta, weight = FontWeight.Bold)
-)
+fun themeTypography() = Typography().run {
+    val myFontFamily = Font(
+        Res.font.rodetta,
+        weight = FontWeight.Normal
+    ).toFontFamily()
 
-val displayFontFamilyTest = FontFamily(
-    androidx.compose.ui.text.googlefonts.Font(
-        googleFont = GoogleFont("Fredoka"), // Aclonica
+    val source =  Font(
+        googleFont = GoogleFont("Source Sans 3"), // Aclonica
         fontProvider = provider,
-    )
-)
+    ).toFontFamily()
 
-@Composable
-fun myTypography() = Typography().run {
-
-    val fontFamily = rodettaFontFamily()
     copy(
-        displayLarge = displayLarge.copy(fontFamily = fontFamily),
-        displayMedium = displayMedium.copy(fontFamily = fontFamily),
-        displaySmall = displaySmall.copy(fontFamily = fontFamily),
-        headlineLarge = headlineLarge.copy(fontFamily = fontFamily),
-        headlineMedium = headlineMedium.copy(fontFamily = fontFamily),
-        headlineSmall = headlineSmall.copy(fontFamily = fontFamily),
-        titleLarge = titleLarge.copy(fontFamily = fontFamily),
-        titleMedium = titleMedium.copy(fontFamily = fontFamily),
-        titleSmall = titleSmall.copy(fontFamily = fontFamily),
-        bodyLarge = bodyLarge.copy(fontFamily =  displayFontFamilyTest),
-        bodyMedium = bodyMedium.copy(fontFamily = displayFontFamilyTest),
-        bodySmall = bodySmall.copy(fontFamily = displayFontFamilyTest),
-        labelLarge = labelLarge.copy(fontFamily = displayFontFamilyTest),
-        labelMedium = labelMedium.copy(fontFamily = displayFontFamilyTest),
-        labelSmall = labelSmall.copy(fontFamily = displayFontFamilyTest)
+        displayLarge = displayLarge.copy(fontFamily = myFontFamily),
+        displayMedium = displayMedium.copy(fontFamily = myFontFamily),
+        displaySmall = displaySmall.copy(fontFamily = myFontFamily),
+        headlineLarge = headlineLarge.copy(fontFamily = myFontFamily),
+        headlineMedium = headlineMedium.copy(fontFamily = myFontFamily),
+        headlineSmall = headlineSmall.copy(fontFamily = myFontFamily),
+        titleLarge = titleLarge.copy(fontFamily = myFontFamily),
+        titleMedium = titleMedium.copy(fontFamily = myFontFamily),
+        titleSmall = titleSmall.copy(fontFamily = myFontFamily),
+        bodyLarge = bodyLarge.copy(fontFamily =  source),
+        bodyMedium = bodyMedium.copy(fontFamily = source),
+        bodySmall = bodySmall.copy(fontFamily = source),
+        labelLarge = labelLarge.copy(fontFamily = source),
+        labelMedium = labelMedium.copy(fontFamily = source),
+        labelSmall = labelSmall.copy(fontFamily = source)
     )
 }

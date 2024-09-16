@@ -130,7 +130,7 @@ fun NavGraphBuilder.calendar(
 
 fun NavGraphBuilder.login(navController: NavHostController, firebaseAuthViewModel: FirebaseAuthViewModel) {
     composable(Destination.Login.route) {
-        LoginView(navController, firebaseAuthViewModel) { navController.navigate(it.route) }
+        LoginView(navController, firebaseAuthViewModel)
     }
 }
 

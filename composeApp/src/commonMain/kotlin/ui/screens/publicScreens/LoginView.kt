@@ -1,60 +1,52 @@
 package ui.screens.publicScreens
 
-import androidx.compose.foundation.background
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import bauchglueck.composeapp.generated.resources.Res
-import bauchglueck.composeapp.generated.resources.ic_lock_fill
 import bauchglueck.composeapp.generated.resources.ic_mail_fill
-import ui.components.BackgroundBlobWithStomach
+import bauchglueck.composeapp.generated.resources.magen
+import org.jetbrains.compose.resources.painterResource
+import org.lighthousegames.logging.logging
 import ui.components.FormScreens.FormPasswordTextFieldWithIcon
 import ui.components.FormScreens.FormTextFieldWithIcon
 import ui.components.clickableWithRipple
+import ui.components.theme.AppBackground
+import ui.components.theme.background.AppBackgroundWithImage
+import ui.components.theme.button.IconButton
+import ui.components.theme.button.TextButton
+import ui.components.theme.text.BodyText
+import ui.components.theme.text.ErrorText
+import ui.components.theme.text.HeadlineText
 import ui.navigations.Destination
-import ui.theme.displayFontFamily
 import viewModel.FirebaseAuthViewModel
 
 @Composable
 fun LoginView(
     navController: NavHostController,
     firebaseViewModel: FirebaseAuthViewModel,
-    onNavigate: (Destination) -> Unit
 ) {
 
     val state = firebaseViewModel.userFormState.collectAsStateWithLifecycle()
 
-    LaunchedEffect(firebaseViewModel.user) {
-        if (firebaseViewModel.user != null) {
-            onNavigate(Destination.Home)
-        }
-    }
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
-        contentAlignment = Alignment.TopEnd
-    ) {
-        BackgroundBlobWithStomach()
+    AppBackground  {
+        AppBackgroundWithImage()
 
         Column(
             modifier = Modifier
@@ -74,24 +66,25 @@ fun LoginView(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text(
-                    text = "Willkommen zurück!",
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.primary,
-                    style = MaterialTheme.typography.headlineMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                        fontFamily = displayFontFamily
-                    ),
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
+
+
+                Image(
+                    painter = painterResource(Res.drawable.magen),
+                    contentDescription = "Logo",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .padding(top = 25.dp, end = 10.dp)
+                        .width(150.dp)
+                        .height(150.dp)
                 )
 
-                Text(
+                HeadlineText(
+                    text = "Willkommen zurück!",
+                    color = MaterialTheme.colorScheme.primary,
+                )
+
+                BodyText(
                     text = "Mit deinem Konto anmelden!",
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier
-                        .padding(bottom = 16.dp)
                 )
             }
 
@@ -117,36 +110,35 @@ fun LoginView(
                     modifier = Modifier.align(Alignment.End),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Button(
-                        onClick = {
-                            onNavigate(Destination.SignUp)
-                        }
-                    ) {
-                        Text("Zur Registrierung")
+                    TextButton("Zur Registrierung") {
+                        navController.navigate(Destination.SignUp.route)
                     }
 
-                    // TODO: Add Forgot Password Button
-                    Button(
-                        enabled = true,
-                        onClick = {
-                            firebaseViewModel.onLogin()
-                        }
-                    ) {
-                        Text("Login")
+                    IconButton {
+                       firebaseViewModel.onLogin {
+                           if (it.user != null) {
+                               logging().info { "Login successful" }
+                               navController.navigate(Destination.Home.route)
+                           }
+                       }
                     }
                 }
 
-                Text(text = firebaseViewModel.userFormState.value.error)
+                ErrorText(
+                    text = firebaseViewModel.userFormState.value.error,
+                    color = MaterialTheme.colorScheme.error
+                )
             }
 
-            Text(
+            BodyText(
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
                     .clickableWithRipple { navController.navigate(Destination.ForgotPassword.route) },
-                text = "Passwort vergessen?"
+                text = "Passwort vergessen?",
             )
 
             Spacer(modifier = Modifier)
         }
     }
 }
+

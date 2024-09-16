@@ -3,6 +3,7 @@ package viewModel
 import data.repositories.FirebaseRepository
 import data.model.UserProfile
 import dev.gitlive.firebase.Firebase
+import dev.gitlive.firebase.auth.AuthResult
 import dev.gitlive.firebase.auth.FirebaseUser
 import dev.gitlive.firebase.auth.auth
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
@@ -44,8 +45,9 @@ class FirebaseAuthViewModel : ViewModel() {
         }
     }
 
-    fun onLogin() {
+    fun onLogin(result: (AuthResult) -> Unit) {
         viewModelScope.launch {
+
             _userFormState.value = _userFormState.value.copy(isProcessing = true, error = "")
 
             val errorMessage = validateInput(
@@ -60,11 +62,16 @@ class FirebaseAuthViewModel : ViewModel() {
             }
 
             try {
-                firebaseRepository.signIn(
+                val authResult = firebaseRepository.signIn(
                     _userFormState.value.email,
                     _userFormState.value.password
-                ).user?.let {
+                )
+
+                if(authResult.user != null) {
                     resetLoginState()
+                    result(authResult)
+                } else {
+                    result(authResult)
                 }
             } catch (e: Exception) {
                 logging().e { "Error logging in: $e" }
@@ -169,17 +176,17 @@ class FirebaseAuthViewModel : ViewModel() {
         firstName: String? = null,
     ): String? {
         return when {
-            email.isEmpty() -> {
-                "Please enter an email"
+            email.isEmpty() || email == "" -> {
+                "Bitte geben Sie eine E-Mail ein"
             }
-            password.isEmpty() -> {
-                "Please enter a password"
+            password.isEmpty() || password == "" -> {
+                "Bitte geben Sie ein Passwort ein"
             }
             confirmPassword != null && password != confirmPassword -> {
-                "Passwords do not match"
+                "Passwörter stimmen nicht überein"
             }
             firstName != null && firstName.isEmpty() -> {
-                "Please enter a first name"
+                "Bitte geben Sie einen Vornamen ein"
             }
             else -> null
         }
@@ -201,8 +208,8 @@ class FirebaseAuthViewModel : ViewModel() {
 
 data class UserFormState(
     val firstName: String = "",
-    val email: String = "",
-    val password: String = "",
+    val email: String = "info@frederikkohler.de",
+    val password: String = "Fr3d3rik@Kohler",
     val confirmPassword: String = "",
     val isProcessing: Boolean = false,
     val userProfile: MutableStateFlow<UserProfile> = MutableStateFlow(UserProfile()),

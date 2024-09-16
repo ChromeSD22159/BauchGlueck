@@ -36,6 +36,7 @@ import androidx.navigation.NavController
 import ui.navigations.Destination
 import ui.theme.AppTheme
 import org.lighthousegames.logging.logging
+import ui.components.theme.background.AppBackgroundWithImage
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
@@ -136,7 +137,7 @@ fun ItemOverLayScaffold(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.TopEnd
         ) {
-            BackgroundBlobWithStomach()
+            AppBackgroundWithImage()
 
             Column(
                 modifier = Modifier

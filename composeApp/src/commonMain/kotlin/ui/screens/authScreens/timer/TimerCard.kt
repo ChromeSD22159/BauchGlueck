@@ -1,7 +1,6 @@
 package ui.screens.authScreens.timer
 
 import android.content.res.Configuration.UI_MODE_NIGHT_NO
-import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -52,7 +51,6 @@ import ui.components.DropDownMenu
 import ui.components.DropdownMenuRow
 import ui.components.clickableWithRipple
 import ui.theme.AppTheme
-import ui.theme.rodettaFontFamily
 import util.formatTimeToMMSS
 
 @Preview(showBackground = true, uiMode = UI_MODE_NIGHT_NO)
