@@ -123,12 +123,6 @@ fun NavGraphBuilder.home(
 
             WaterIntakeCard(firebaseAuthViewModel = firebaseAuthViewModel)
 
-            HomeWaterIntakeCard {
-                scope.launch {
-                    navController.navigate(Destination.WaterIntake.route)
-                }
-            }
-
             HomeMedicationCard {
                 scope.launch {
                     navController.navigate(Destination.Medication.route)
