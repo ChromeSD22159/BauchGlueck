@@ -108,7 +108,7 @@ fun NavGraphBuilder.authScreens(
     firebaseAuthViewModel: FirebaseAuthViewModel,
     showContentInDevelopment: Boolean
 ) {
-    home(navController, showContentInDevelopment)
+    home(navController, showContentInDevelopment, firebaseAuthViewModel)
     mealPlan(navController, firebaseAuthViewModel)
 
     weight(navController)
