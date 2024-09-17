@@ -33,7 +33,7 @@ import bauchglueck.composeapp.generated.resources.Res
 import bauchglueck.composeapp.generated.resources.ic_pills_fill
 import data.local.entitiy.IntakeStatus
 import data.local.entitiy.MedicationWithIntakeDetailsForToday
-import ui.components.clickableWithRipple
+import ui.components.theme.clickableWithRipple
 import ui.theme.AppTheme
 import kotlinx.datetime.Clock
 import org.jetbrains.compose.resources.vectorResource

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import ui.components.theme.button.TextButton
 
 /**
  * A Composable function that displays a row of buttons for canceling and saving actions.
@@ -23,16 +24,8 @@ fun FormControlButtons(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Button(
-            displayText = "Abbrechen",
-            onClick = { onCancel() }
-        )
+        TextButton(text = "Abbrechen") { onCancel() }
 
-        Button(
-            displayText = "Speichern",
-            onClick = {
-                onSave()
-            }
-        )
+        TextButton(text = "Speichern") { onSave() }
     }
 }

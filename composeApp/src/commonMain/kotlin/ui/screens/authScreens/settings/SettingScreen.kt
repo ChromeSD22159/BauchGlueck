@@ -18,6 +18,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.composable
 import bauchglueck.composeapp.generated.resources.Res
 import bauchglueck.composeapp.generated.resources.ic_globe
 import bauchglueck.composeapp.generated.resources.ic_grid_2_2
@@ -30,10 +33,30 @@ import ui.components.profileSlider.ProfileSliderUnit
 import ui.navigations.Destination
 import org.lighthousegames.logging.logging
 import ui.components.FormScreens.PlusMinusButtonForms
-import ui.components.SectionLink
+import ui.components.theme.SectionLink
 import ui.components.theme.Section
+import ui.components.theme.ScreenHolder
 import util.appVersion
 import viewModel.FirebaseAuthViewModel
+
+
+@RequiresApi(Build.VERSION_CODES.O)
+fun NavGraphBuilder.settingsComposable(navController: NavHostController, firebaseAuthViewModel: FirebaseAuthViewModel) {
+    composable(Destination.Settings.route) {
+        ScreenHolder(
+            title = Destination.Settings.title,
+            showBackButton = true,
+            onNavigate = {
+                navController.navigate(Destination.Home.route)
+            }
+        ) {
+            SettingScreen(
+                navController,
+                firebaseAuthViewModel = firebaseAuthViewModel
+            )
+        }
+    }
+}
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable

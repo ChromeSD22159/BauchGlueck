@@ -65,7 +65,7 @@ fun InfoCard(
 
                 BodyText("Unglaublich, wie schnell die Zeit vergeht!", color = MaterialTheme.colorScheme.onPrimary)
 
-                BodyText(getDifferenceDateString(surgeryDateTimeStamp))
+                BodyText(getDifferenceDateString(surgeryDateTimeStamp), color = MaterialTheme.colorScheme.onPrimary)
             }
         }
     }

@@ -1,6 +1,15 @@
+package util
 
 import kotlinx.serialization.Serializable
-import platform.Foundation.*
+import platform.Foundation.NSCalendar
+import platform.Foundation.NSCalendarUnitDay
+import platform.Foundation.NSDate
+import platform.Foundation.NSDateComponents
+import platform.Foundation.NSDateFormatter
+import platform.Foundation.NSTimeZone
+import platform.Foundation.localTimeZone
+import platform.Foundation.timeIntervalSince1970
+import platform.Foundation.timeZoneWithAbbreviation
 
 @Serializable
 actual object DateTime {
@@ -56,7 +65,9 @@ actual object DateTime {
             month = forwardedMonth.toLong()
         }
 
-        val forwardDate = calendar.dateByAddingComponents(components, currentDate, NSCalendarUnitDay)
+        val forwardDate = calendar.dateByAddingComponents(components, currentDate,
+            NSCalendarUnitDay
+        )
         val dateFormatter = NSDateFormatter().apply {
             dateFormat = outputFormat
         }
@@ -71,20 +82,3 @@ actual object DateTime {
         TODO("Not yet implemented")
     }
 }
-
-
-/*
-extension DateTime {
-    actual static func getTimestampInMillisFromString(timestamp: String, inputFormat: String) -> Int64 {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = inputFormat
-        dateFormatter.timeZone = TimeZone(abbreviation: "GMT") // Use GMT for consistency
-
-        if let date = dateFormatter.date(from: timestamp) {
-            return Int64(date.timeIntervalSince1970 * 1000) // Convert seconds to milliseconds
-        } else {
-            return 0 // Or handle parsing errors differently
-        }
-    }
-}
- */

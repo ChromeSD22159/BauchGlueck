@@ -1,16 +1,12 @@
 package ui.navigations
 
-import data.local.entitiy.CountdownTimer
-import io.ktor.http.ContentType.Application.Json
-import kotlinx.serialization.SerializationException
-
 sealed class Destination(val route: String, val title: String) {
     data object Launch : Destination("Launch", "Launch")
     data object Login : Destination("Login", "Login")
     data object SignUp : Destination("Register", "Register")
     data object ForgotPassword : Destination("ForgotPassword", "ForgotPassword")
     data object Home : Destination("Home", "Home")
-    data object Calendar : Destination("Calendar", "Kalender")
+    data object MealPlanCalendar : Destination("Calendar", "Kalender")
     data object Timer : Destination("Timer", "Timer")
     data object Medication : Destination("Medication", "Medikation")
     data object AddMedication : Destination("AddMedication", "Medikation hinzufügen")
@@ -19,8 +15,16 @@ sealed class Destination(val route: String, val title: String) {
     data object ShowAllWeights : Destination("ShowAllWeights", "Alle Gewichtungseinträge")
     data object AddWeight : Destination("AddWeight", "Gewicht hinzufügen")
     data object WaterIntake : Destination("WaterIntake", "Wasseraufnahme")
+    data object AddWaterIntake: Destination("AddWaterIntake", "Flüssigkeit hinzufügen")
     data object AddTimer : Destination("AddTimer", "Timer hinzufügen")
     data object EditTimer : Destination("EditTimer", "Timer Bearbeiten")
     data object Recipes : Destination("Recipes", "Rezepte")
-    data object Settings : Destination("Settings", "Settings")
+    data object SearchRecipe: Destination("SearchRecipe", "Rezept suchen")
+    data object RecipeOverview: Destination("RecipeOverview", "Rezept übersicht")
+    data object AddRecipe: Destination("AddRecipe", "Rezept hinzufügen")
+    data object EditRecipe: Destination("EditRecipe", "Rezept Bearbeiten")
+    data object ShoppingLists: Destination("ShoppingLists", "Shoppinglisten")
+    data object ShoppingListDetail: Destination("ShoppingListDetail", "Shoppinglist Detail")
+    data object ShoppingListGenerate: Destination("ShoppingListGenerate", "Shopping Liste erstellen")
+    data object Settings : Destination("Settings", "Einstellungen")
 }

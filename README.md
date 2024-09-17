@@ -15,7 +15,7 @@ This is a Kotlin Multiplatform project targeting Android, iOS.
 
 
 SharedViewModel: [Github Shared MVVM](https://github.com/sunildhiman90/KMPAppSharedViewModel/tree/main)
-SharedDateTime: [Shared DateTime](https://raed-o-ghazal.medium.com/kotlinx-localdatetime-manipulation-for-kmm-eacfede93aba)
+SharedDateTime: [Shared util.DateTime](https://raed-o-ghazal.medium.com/kotlinx-localdatetime-manipulation-for-kmm-eacfede93aba)
 KMP Shared ROOM: [ROOM]("https://github.com/android/kotlin-multiplatform-samples/tree/main/Fruitties")
 
 ``` kotlin

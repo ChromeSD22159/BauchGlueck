@@ -17,7 +17,7 @@ import util.createHttpClientEngine
 
 fun createHttpClient(): HttpClient {
     val engine = createHttpClientEngine()
-    val apiKey = BuildKonfig.API_KEY
+    val api = BuildKonfig.API
     
     return HttpClient(engine) {
         install(Logging) {
@@ -35,7 +35,7 @@ fun createHttpClient(): HttpClient {
         install(Auth) {
             bearer {
                 loadTokens {
-                    BearerTokens(apiKey, "xyz111")
+                    BearerTokens(api, "xyz111")
                 }
             }
         }

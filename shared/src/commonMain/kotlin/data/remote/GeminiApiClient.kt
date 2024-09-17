@@ -15,7 +15,7 @@ import io.ktor.util.InternalAPI
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-
+/*
 @Serializable
 data class Part(val text: String)
 
@@ -59,8 +59,8 @@ class GeminiApiClient(
     }
 
     suspend fun generateContent(prompt: String): String? {
-        val baseUrl: String = BuildKonfig.GEMINI_API_HOST
-        val apiKey: String = BuildKonfig.GEMINI_API_KEY
+        //  val baseUrl: String = BuildKonfig.GEMINI_API_HOST
+        //        val apiKey: String = BuildKonfig.GEMINI_API_KEY
         val part = Part(text = prompt)
         val contents = Content( parts = listOf(part) , role = "user")
         val request = GenerateContentRequest(contents)
@@ -81,4 +81,4 @@ class GeminiApiClient(
             return null
         }
     }
-}
+}*/

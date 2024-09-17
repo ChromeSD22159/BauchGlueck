@@ -1,6 +1,5 @@
-package ui.components
+package ui.components.theme
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -15,7 +14,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,6 +21,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.vectorResource
+import ui.components.theme.text.BodyText
 
 @Composable
 fun HeadCard(
@@ -37,14 +36,12 @@ fun HeadCard(
         modifier = modifier
             .clickable { onNavigate() }
             .fillMaxWidth()
-            .clip(RoundedCornerShape(8.dp))
-            .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.15f)),
+            .sectionShadow(),
         verticalArrangement = Arrangement.spacedBy(space = 0.dp, alignment = Alignment.CenterVertically)
     ) {
         icon?.let {
             CardHeadRow(it, title, arrowIcon = arrowIcon)
         }
-
 
         content()
     }
@@ -56,7 +53,7 @@ fun CardHeadRow(icon: DrawableResource, title: String, arrowIcon: Boolean) {
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp))
-            .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.55f))
+            .backgroundVerticalGradient()
             .padding(top = 8.dp, start = 8.dp, end = 8.dp, bottom = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -64,8 +61,8 @@ fun CardHeadRow(icon: DrawableResource, title: String, arrowIcon: Boolean) {
             Icon(
                 imageVector = vectorResource(icon),
                 contentDescription = "icon",
-                modifier = Modifier
-                    .size(20.dp)
+                modifier = Modifier.size(20.dp),
+                tint = MaterialTheme.colorScheme.onPrimary
             )
         }
 
@@ -79,7 +76,7 @@ fun CardHeadRow(icon: DrawableResource, title: String, arrowIcon: Boolean) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                 contentDescription = "Trending Up",
-                tint = MaterialTheme.colorScheme.primary
+                tint = MaterialTheme.colorScheme.onPrimary
             )
         }
     }
@@ -87,9 +84,8 @@ fun CardHeadRow(icon: DrawableResource, title: String, arrowIcon: Boolean) {
 
 @Composable
 fun CardTitle(title: String) {
-    Text(
-        modifier = Modifier,
-        style = MaterialTheme.typography.bodyMedium,
-        text = title
+    BodyText(
+        text = title,
+        color = MaterialTheme.colorScheme.onPrimary
     )
 }

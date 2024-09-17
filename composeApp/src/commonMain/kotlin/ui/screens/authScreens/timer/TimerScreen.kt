@@ -3,10 +3,9 @@ package ui.screens.authScreens.timer
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -14,46 +13,58 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.composable
 import bauchglueck.composeapp.generated.resources.Res
 import bauchglueck.composeapp.generated.resources.ic_add_timer
 import bauchglueck.composeapp.generated.resources.ic_gear
-import ui.components.BackScaffold
-import ui.components.RoundImageButton
 import ui.navigations.Destination
 import org.lighthousegames.logging.logging
+import ui.components.theme.button.IconButton
+import ui.components.theme.ScreenHolder
 import viewModel.TimerScreenViewModel
+
+
+@RequiresApi(Build.VERSION_CODES.O)
+fun NavGraphBuilder.timerComposable(navController: NavHostController) {
+    composable(Destination.Timer.route) {
+        TimerScreen(
+            navController = navController,
+        )
+    }
+}
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun TimerScreen(
     navController: NavController,
-    backNavigationDirection: Destination = Destination.Home,
 ) {
     val viewModel = viewModel<TimerScreenViewModel>()
     val timers by viewModel.allTimers.collectAsStateWithLifecycle(initialValue = emptyList())
 
-    BackScaffold(
+    ScreenHolder(
         title = Destination.Timer.title,
-        navController = navController,
-        backNavigationDirection = backNavigationDirection,
-        topNavigationButtons = {
-            Row {
-                RoundImageButton(
-                    icon = Res.drawable.ic_add_timer,
-                    modifier = Modifier.padding(end = 16.dp),
-                    action = {
-                        navController.navigate(Destination.AddTimer.route)
-                    }
-                )
+        showBackButton = true,
+        onNavigate = {
+            navController.navigate(Destination.Home.route)
+        },
+        optionsRow = {
+            IconButton(
+                resource = Res.drawable.ic_add_timer,
+                tint = MaterialTheme.colorScheme.onPrimary
+            ) {
+                navController.navigate(Destination.AddTimer.route)
             }
 
-            Row {
-                RoundImageButton(
-                    icon = Res.drawable.ic_gear,
-                    modifier = Modifier.padding(end = 16.dp)
-                )
+            IconButton(
+                resource = Res.drawable.ic_gear,
+                tint = MaterialTheme.colorScheme.onPrimary
+            ) {
+                navController.navigate(Destination.Settings.route)
             }
-        }
+        },
+        pageSpacing = 0.dp
     ) {
         timers.forEach { timer ->
             TimerCard(
