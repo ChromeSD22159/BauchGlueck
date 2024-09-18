@@ -9,16 +9,13 @@ import dev.icerock.moko.mvvm.viewmodel.ViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.koin.core.component.KoinComponent
-import org.lighthousegames.logging.logging
 import util.DateRepository
 
-class NodeViewModel(): ViewModel(), KoinComponent {
+class AddNodeViewModel: ViewModel(), KoinComponent {
     private val repository: Repository by inject()
 
     private var _allMoods = MutableStateFlow(Moods.list.toMutableList())

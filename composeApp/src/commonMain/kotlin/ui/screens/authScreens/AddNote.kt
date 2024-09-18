@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -23,7 +23,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import bauchglueck.composeapp.generated.resources.Res
 import bauchglueck.composeapp.generated.resources.ic_gear
-import ui.components.FormScreens.FormControlButtons
 import ui.components.FormScreens.FormTextFieldWithoutIcons
 import ui.components.theme.ScreenHolder
 import ui.components.theme.button.IconButton
@@ -35,8 +34,8 @@ import ui.navigations.Destination
 import ui.navigations.NavigationTransition
 import util.DateRepository
 import util.toDateString
+import viewModel.AddNodeViewModel
 import viewModel.FirebaseAuthViewModel
-import viewModel.NodeViewModel
 
 fun NavGraphBuilder.addNote(
     navController: NavHostController,
@@ -49,7 +48,7 @@ fun NavGraphBuilder.addNote(
         exitTransition = { NavigationTransition.slideOutWithFadeToTopAnimation() }
     ) {
 
-        val viewModel = viewModel<NodeViewModel>()
+        val viewModel = viewModel<AddNodeViewModel>()
         val allNotes by viewModel.allMoods.collectAsStateWithLifecycle()
         val message by viewModel.message.collectAsStateWithLifecycle()
         val currentMoods by viewModel.currentMoods.collectAsStateWithLifecycle()
@@ -100,11 +99,9 @@ fun NavGraphBuilder.addNote(
                     FooterText(text = viewModel.textFieldDisplayLength)
                 }
 
-                FooterText(text = message)
-
                 Spacer(Modifier.height(20.dp))
 
-                Row {
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     TextButton(
                         text = "Abbrechen",
                         onClick = {
@@ -122,9 +119,9 @@ fun NavGraphBuilder.addNote(
 
                 Spacer(Modifier.height(20.dp))
 
-                LazyHorizontalGrid(
+                LazyVerticalGrid(
                     modifier = Modifier.heightIn(max = (allNotes.size * 25).dp),
-                    rows = GridCells.Fixed(2),
+                    columns = GridCells.Fixed(2),
                     horizontalArrangement = Arrangement.spacedBy(16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
@@ -140,13 +137,12 @@ fun NavGraphBuilder.addNote(
                                     color = color,
                                     shape = MaterialTheme.shapes.medium
                                 )
-                                .padding(horizontal = 10.dp),
+                                .padding(10.dp),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.Center
                         ) {
                             BodyText(
-                                modifier = Modifier
-                                    .fillMaxWidth(),
+                                modifier = Modifier.fillMaxWidth(),
                                 text = allNotes[it].display
                             )
                         }

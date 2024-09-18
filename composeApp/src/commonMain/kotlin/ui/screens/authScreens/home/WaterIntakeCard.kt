@@ -4,6 +4,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -11,6 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -25,6 +28,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import bauchglueck.composeapp.generated.resources.Res
 import bauchglueck.composeapp.generated.resources.icon_plus
 import org.jetbrains.compose.resources.vectorResource
+import org.lighthousegames.logging.logging
+import ui.components.FillableGlassWithAnimation
 import ui.components.theme.Section
 import ui.components.theme.clickableWithRipple
 import ui.components.theme.text.FooterText
@@ -32,6 +37,7 @@ import ui.components.theme.text.HeadlineText
 import viewModel.FirebaseAuthViewModel
 import viewModel.WaterIntakeViewModel
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun WaterIntakeCard(
     modifier: Modifier = Modifier,
@@ -41,10 +47,10 @@ fun WaterIntakeCard(
     val waterIntakeViewModel: WaterIntakeViewModel = WaterIntakeViewModel()
     val intakesToday by waterIntakeViewModel.intakesToday.collectAsStateWithLifecycle(initialValue = emptyList())
     val totalIntakeInLiter = intakesToday.sumOf { it.value }
-    val drunkenGlasses = totalIntakeInLiter / glassSize
+    val drunkenGlasses = (totalIntakeInLiter / glassSize).toInt()
 
     val target = firebaseAuthViewModel.userFormState.value.userProfile.value.waterDayIntake
-    val glasses = target / glassSize
+    val glasses = (target / glassSize).toInt()
 
     Section(
         sectionModifier = Modifier.padding(horizontal = 10.dp)
@@ -87,13 +93,18 @@ fun WaterIntakeCard(
                     )
 
                     // Glasses
-                    Row(
+                    FlowRow(
                         modifier = Modifier.fillMaxWidth().padding(vertical = 20.dp),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
+                        horizontalArrangement = Arrangement.spacedBy(10.dp, alignment = Alignment.CenterHorizontally),
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        repeat(glasses.toInt()) {
-                            HeadlineText("G")
+                        repeat(glasses) { index ->
+                            FillableGlassWithAnimation(
+                                bgColor = MaterialTheme.colorScheme.surface,
+                                defaultSize = 40.dp,
+                                isFilled = index < drunkenGlasses,
+                                animationDelay = index * 100L
+                            )
                         }
                     }
 
