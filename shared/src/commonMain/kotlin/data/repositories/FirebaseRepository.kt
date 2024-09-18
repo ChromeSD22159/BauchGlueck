@@ -5,12 +5,15 @@ import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.AuthResult
 import dev.gitlive.firebase.auth.auth
 import dev.gitlive.firebase.firestore.firestore
-import kotlinx.coroutines.flow.Flow
+
+enum class Collection {
+    UserProfile,
+    UserNode
+}
 
 class FirebaseRepository() {
     private val firestore = Firebase.firestore
     private val auth = Firebase.auth
-    private val collectionName :String = "UserProfile"
 
     val user get() = auth.currentUser
 
@@ -43,11 +46,11 @@ class FirebaseRepository() {
 
     suspend fun saveUserProfile(userProfile: UserProfile) {
         if (auth.currentUser == null) return
-        firestore.collection(collectionName).document(auth.currentUser!!.uid).set(userProfile)
+        firestore.collection(Collection.UserProfile.name).document(auth.currentUser!!.uid).set(userProfile)
     }
 
     suspend fun readUserProfileById(userId: String): UserProfile? {
-        val documentSnapshot = firestore.collection(collectionName).document(userId).get()
+        val documentSnapshot = firestore.collection(Collection.UserProfile.name).document(userId).get()
         return if (documentSnapshot.exists) {
             documentSnapshot.data(UserProfile.serializer())
         } else {

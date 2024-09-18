@@ -16,6 +16,7 @@ sealed class Destination(val route: String, val title: String) {
     data object AddWeight : Destination("AddWeight", "Gewicht hinzufügen")
     data object WaterIntake : Destination("WaterIntake", "Wasseraufnahme")
     data object AddWaterIntake: Destination("AddWaterIntake", "Flüssigkeit hinzufügen")
+    data object AddNote: Destination("AddNote", "Notiz hinzufügen")
     data object AddTimer : Destination("AddTimer", "Timer hinzufügen")
     data object EditTimer : Destination("EditTimer", "Timer Bearbeiten")
     data object Recipes : Destination("Recipes", "Rezepte")

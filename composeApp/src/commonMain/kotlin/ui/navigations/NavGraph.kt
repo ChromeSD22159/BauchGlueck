@@ -29,6 +29,7 @@ import org.lighthousegames.logging.logging
 import viewModel.RecipeViewModel
 import viewModel.SyncWorkerViewModel
 import ui.components.RecipeCard
+import ui.screens.authScreens.addNote
 import ui.screens.authScreens.home.home
 import ui.screens.authScreens.mealPlan.mealPlan
 import ui.screens.authScreens.mealPlan.recipesComposable
@@ -110,6 +111,8 @@ fun NavGraphBuilder.authScreens(
 ) {
     home(navController, showContentInDevelopment, firebaseAuthViewModel)
     mealPlan(navController, firebaseAuthViewModel)
+
+    addNote(navController, firebaseAuthViewModel)
 
     weight(navController)
     addWeight(navController)

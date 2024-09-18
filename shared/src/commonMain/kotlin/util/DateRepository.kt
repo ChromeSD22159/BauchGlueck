@@ -62,7 +62,14 @@ object DateRepository {
         return Today(todayStart, todayEnd)
     }
 
+    val dayOfWeekName: String
+        get() =  Weekday.entries[today.dayOfWeek.ordinal].displayName
 
+    val dayOfWeek: Int
+        get() = today.dayOfWeek.ordinal
+
+    val todayDateString: String
+        get() = today.dayOfMonth.toString().padStart(2,'0')
 }
 
 data class Today(
@@ -72,3 +79,24 @@ data class Today(
 
 val LocalDate.dayOfMonth: Int
     get() = this.dayOfMonth
+
+fun LocalDate.toDateString(): String {
+    val day= this.dayOfMonth.toStringAndPadStart(2, '0')
+    val month= this.monthNumber.toStringAndPadStart(2, '0')
+    val year = this.year.toString()
+    return "${day}.${month}.${year}"
+}
+
+fun Int.toStringAndPadStart(length: Int, fillChar: Char): String {
+    return this.toString().padStart(length, fillChar)
+}
+
+enum class Weekday(val displayName: String) {
+    Montag("Montag"),
+    Dienstag("Dienstag"),
+    Mittwoch("Mittwoch"),
+    Donnerstag("Donnerstag"),
+    Freitag("Freitag"),
+    Samstag("Samstag"),
+    Sonntag("Sonntag");
+}

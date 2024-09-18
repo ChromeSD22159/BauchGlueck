@@ -117,7 +117,9 @@ fun NavGraphBuilder.home(
                 ) {
                     TextButton(
                         text = "Notiz eintragen"
-                    )
+                    ) {
+                        navController.navigate(Destination.AddNote.route)
+                    }
                 }
             }
 

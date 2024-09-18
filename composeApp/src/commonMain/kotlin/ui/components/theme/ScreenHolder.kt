@@ -52,12 +52,12 @@ fun ScreenHolder(
             ) {
                 Row(
                     modifier = Modifier.padding(10.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Row(
                         Modifier.weight(3f),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         if (showBackButton) {
                             Icon(
@@ -69,6 +69,7 @@ fun ScreenHolder(
                         }
 
                         HeadlineText(
+                            size = if(showBackButton) MaterialTheme.typography.bodyMedium.fontSize else MaterialTheme.typography.titleMedium.fontSize,
                             text = title,
                             color = foreground
                         )
@@ -76,7 +77,8 @@ fun ScreenHolder(
 
                     Row(
                         Modifier.weight(2f),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.End)
+                        horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.End),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         optionsRow(foreground)
                     }

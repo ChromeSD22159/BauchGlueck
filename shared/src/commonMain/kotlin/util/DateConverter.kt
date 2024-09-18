@@ -1,6 +1,5 @@
 package util
 
-import androidx.room.TypeConverter
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
@@ -9,7 +8,6 @@ import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
-
 
 class DateConverter {
     fun formatTimeToMMSS(s: Long): String {

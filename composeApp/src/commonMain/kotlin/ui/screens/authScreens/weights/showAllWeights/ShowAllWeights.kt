@@ -30,9 +30,9 @@ import data.local.entitiy.Weight
 import ui.components.theme.clickableWithRipple
 import ui.navigations.Destination
 import ui.screens.authScreens.weights.components.DeleteDialogManager
-import kotlinx.datetime.LocalDate
 import ui.components.theme.button.IconButton
 import ui.components.theme.ScreenHolder
+import util.toDateString
 import util.toLocalDate
 import viewModel.WeightScreenViewModel
 
@@ -104,15 +104,4 @@ fun WeightRowItem(
             onDelete(weight)
         }
     }
-}
-
-
-@RequiresApi(Build.VERSION_CODES.O)
-fun LocalDate.toDateString(): String {
-    val date = this
-    val day = date.dayOfMonth.toString().padStart(2, '0')
-    val month = date.month.value.toString().padStart(2, '0')
-    val year = date.year.toString().substring(2..3)
-
-    return "$day.${month}.$year"
 }

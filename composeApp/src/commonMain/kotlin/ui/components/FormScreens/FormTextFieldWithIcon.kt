@@ -147,3 +147,39 @@ fun FormPasswordTextFieldWithIcon(
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
     )
 }
+
+@Composable
+fun FormTextFieldWithoutIcons(
+    modifier: Modifier = Modifier,
+    keyboardOptions: KeyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+    inputValue: String,
+    onValueChange: (String) -> Unit,
+    minLines: Int = 1,
+    maxLines: Int = Int.MAX_VALUE
+) {
+    val colors = TextFieldDefaults.colors(
+        unfocusedTextColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.4f),
+        focusedTextColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 1f),
+
+        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+        focusedContainerColor = MaterialTheme.colorScheme.surface,
+
+        unfocusedIndicatorColor = Color.Transparent,
+        focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+    )
+
+    TextField(
+        modifier = modifier
+            .fillMaxWidth()
+            .sectionShadow()
+            .clip(RoundedCornerShape(12.dp)),
+        value = inputValue,
+        colors = colors,
+        onValueChange = {
+            onValueChange(it)
+        },
+        keyboardOptions = keyboardOptions,
+        minLines = minLines,
+        maxLines = maxLines
+    )
+}
