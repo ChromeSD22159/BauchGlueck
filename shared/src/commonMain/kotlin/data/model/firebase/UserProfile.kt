@@ -1,4 +1,4 @@
-package data.model.Firebase
+package data.model.firebase
 
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDateTime

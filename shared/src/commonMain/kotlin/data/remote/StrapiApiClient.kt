@@ -1,9 +1,9 @@
 package data.remote
 
-import data.model.Firebase.FirebaseCloudMessagingResponse
+import data.model.firebase.FirebaseCloudMessagingResponse
 import data.model.RecipeCategory
-import data.model.Firebase.RemoteNotification
-import data.model.Firebase.ScheduleRemoteNotification
+import data.model.firebase.RemoteNotification
+import data.model.firebase.ScheduleRemoteNotification
 import data.network.BaseApiEndpoint
 import data.network.createHttpClient
 import data.network.replacePlaceholders

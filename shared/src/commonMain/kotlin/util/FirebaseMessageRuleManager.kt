@@ -1,7 +1,7 @@
 package util
 
-import data.model.Firebase.RemoteNotificationData
-import data.model.Firebase.ScheduleRecurringRemoteNotification
+import data.model.firebase.RemoteNotificationData
+import data.model.firebase.ScheduleRecurringRemoteNotification
 import kotlinx.datetime.TimeZone
 
 object FirebaseMessageRuleManager {

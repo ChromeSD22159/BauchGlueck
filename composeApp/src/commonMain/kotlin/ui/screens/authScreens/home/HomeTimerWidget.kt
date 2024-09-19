@@ -13,8 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -32,7 +30,7 @@ import bauchglueck.composeapp.generated.resources.ic_add_timer
 import data.local.entitiy.CountdownTimer
 import data.local.entitiy.TimerState
 import org.jetbrains.compose.resources.vectorResource
-import ui.components.theme.backgroundVerticalGradient
+import ui.components.theme.SliderItemAddCard
 import ui.components.theme.clickableWithRipple
 import ui.components.theme.sectionShadow
 import ui.components.theme.text.FooterText
@@ -81,30 +79,8 @@ fun HomeTimerWidget(
                 HomeCountdownTimerWidgetCard(countDownTimer) { onNavigate(it) }
             }
 
-            Box(
-                modifier = Modifier
-                    .height(80.dp)
-                    .width(100.dp)
-                    .sectionShadow()
-                    .backgroundVerticalGradient()
-                    .clickableWithRipple {
-                        onNavigate(Destination.AddTimer)
-                    }
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight(),
-                    verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ){
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = "icon",
-                        modifier = Modifier.size(75.dp),
-                        tint = MaterialTheme.colorScheme.onPrimary
-                    )
-                }
+            SliderItemAddCard(Destination.AddTimer) {
+                onNavigate(it)
             }
 
             Spacer(Modifier.width(horizontalSpacing - itemSpacing))

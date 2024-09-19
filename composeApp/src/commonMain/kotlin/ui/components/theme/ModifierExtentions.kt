@@ -8,7 +8,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -33,4 +32,12 @@ fun Modifier.sectionShadow(color: Color? = null): Modifier {
         color = color ?: MaterialTheme.colorScheme.surface,
         shape = MaterialTheme.shapes.medium
     )
+}
+
+fun String.truncate(maxLength: Int, suffix: String = "..."): String {
+    return if (this.length > maxLength) {
+        this.take(maxLength) + suffix
+    } else {
+        this
+    }
 }

@@ -6,8 +6,8 @@ import util.Notifications
 import util.Notifications.generate
 import data.Repository
 import data.local.entitiy.CountdownTimer
-import data.model.Firebase.RemoteNotification
-import data.model.Firebase.RemoteNotificationData
+import data.model.firebase.RemoteNotification
+import data.model.firebase.RemoteNotificationData
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow

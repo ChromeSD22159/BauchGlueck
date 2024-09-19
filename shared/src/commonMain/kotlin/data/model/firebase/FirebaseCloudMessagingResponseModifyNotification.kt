@@ -1,4 +1,4 @@
-package data.model.Firebase
+package data.model.firebase
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

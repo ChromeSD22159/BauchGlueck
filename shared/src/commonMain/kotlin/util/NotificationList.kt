@@ -1,7 +1,7 @@
 package util
 
-import data.model.Firebase.RemoteNotificationData
-import data.model.Firebase.ScheduleRemoteNotification
+import data.model.firebase.RemoteNotificationData
+import data.model.firebase.ScheduleRemoteNotification
 import viewModel.toUTC
 
 enum class Notification {
@@ -13,7 +13,7 @@ data object Notifications {
         Notification.FinishedTimer to ScheduleRemoteNotification(
             token = "",
             title = "BauchGlück Notification",
-            body = "Dein {timerName} ist abgelaufen!}",
+            body = "Dein {timerName} ist abgelaufen!",
             data = RemoteNotificationData(
                 key1 = "",
                 key2 = "",

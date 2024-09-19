@@ -2,6 +2,7 @@ package util
 
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
@@ -22,6 +23,12 @@ object DateRepository {
     var getTheNextMonthDays: List<LocalDate>
         get() {
             return (0..30).map { today.plus(it, DateTimeUnit.DAY) }
+        }
+        set(value) {}
+
+    var getTheLastMonthDays: List<LocalDate>
+        get() {
+            return (0..30).map { today.minus(it, DateTimeUnit.DAY) }
         }
         set(value) {}
 
@@ -89,6 +96,12 @@ fun LocalDate.toDateString(): String {
 
 fun Int.toStringAndPadStart(length: Int, fillChar: Char): String {
     return this.toString().padStart(length, fillChar)
+}
+
+fun Long.isTimestampOnDate(date: LocalDate, timeZone: TimeZone = TimeZone.UTC): Boolean {
+    val instant = Instant.fromEpochMilliseconds(this)
+    val localDateFromTimestamp = instant.toLocalDateTime(timeZone).date
+    return localDateFromTimestamp == date
 }
 
 enum class Weekday(val displayName: String) {

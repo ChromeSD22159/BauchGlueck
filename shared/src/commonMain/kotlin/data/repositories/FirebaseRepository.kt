@@ -1,10 +1,10 @@
 package data.repositories
 
 import com.mmk.kmpnotifier.notification.NotifierManager
-import data.model.Firebase.FirebaseCloudMessagingResponse
-import data.model.Firebase.RemoteNotification
-import data.model.Firebase.ScheduleRemoteNotification
-import data.model.Firebase.UserProfile
+import data.model.firebase.FirebaseCloudMessagingResponse
+import data.model.firebase.RemoteNotification
+import data.model.firebase.ScheduleRemoteNotification
+import data.model.firebase.UserProfile
 import data.remote.StrapiApiClient
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.AuthResult
