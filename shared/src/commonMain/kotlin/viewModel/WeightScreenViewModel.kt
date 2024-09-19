@@ -1,27 +1,19 @@
 package viewModel
 
 import data.Repository
-import data.local.entitiy.WaterIntake
 import data.local.entitiy.Weight
 import data.model.DailyAverage
-import data.model.MonthlyAverage
-import data.model.WeeklyAverage
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.forEach
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.lighthousegames.logging.logging
-import util.UUID
 
 class WeightScreenViewModel : ViewModel(), KoinComponent {
     private val repository: Repository by inject()
@@ -71,26 +63,3 @@ class WeightScreenViewModel : ViewModel(), KoinComponent {
     }
 }
 
-class WaterIntakeViewModel: ViewModel(), KoinComponent {
-    private val repository: Repository by inject()
-    private val scope: CoroutineScope = viewModelScope
-
-    val user
-        get() = repository.firebaseRepository.user
-
-    val intakesToday = repository.waterIntakeRepository.getAllIntakesFromToday()
-
-    fun insertIntake(value: Double = 0.25) {
-        if (user == null) return
-
-        scope.launch {
-            val newIntake = WaterIntake(
-                userId = user!!.uid,
-                waterIntakeId = UUID.randomUUID(),
-                value = value,
-                updatedAtOnDevice = Clock.System.now().toEpochMilliseconds()
-            )
-            repository.waterIntakeRepository.insertOrUpdate(newIntake)
-        }
-    }
-}

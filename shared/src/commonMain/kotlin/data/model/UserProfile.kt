@@ -20,8 +20,9 @@ data class UserProfile(
     val betweenMeals: Int = 3,
     var profileImageURL: String? = null,
     var startWeight: Double  = 100.0,
-    val waterIntake: Double = 200.0,
-    val waterDayIntake: Double = 2000.0
+    val waterIntake: Double = 0.25,
+    val waterDayIntake: Double = 2.0,
+    val userNotifierToken: String = ""
 ) {
     var surgeryDate: LocalDateTime
         get() = surgeryDateTimeStamp.toLocalDateTime()

@@ -19,6 +19,8 @@ import androidx.navigation.compose.composable
 import bauchglueck.composeapp.generated.resources.Res
 import bauchglueck.composeapp.generated.resources.ic_add_timer
 import bauchglueck.composeapp.generated.resources.ic_gear
+import data.local.entitiy.TimerState
+import data.model.ScheduleRemoteNotification
 import ui.navigations.Destination
 import org.lighthousegames.logging.logging
 import ui.components.theme.button.IconButton
@@ -83,6 +85,11 @@ fun TimerScreen(
                 logging().debug { it }
 
                 viewModel.updateItemAndSyncRemote(it)
+                if(TimerState.running.value == it.timerState) {
+                    //viewModel.sendNotification(it)
+                    viewModel.sendScheduleRemoteNotification(it)
+                }
+
             }
         }
 

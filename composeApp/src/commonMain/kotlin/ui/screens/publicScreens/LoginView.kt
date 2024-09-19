@@ -86,20 +86,26 @@ fun NavGraphBuilder.login(navController: NavHostController, firebaseAuthViewMode
                     )
                 }
 
-                FormTextFieldWithIcon(
-                    leadingIcon = Res.drawable.ic_mail_fill,
-                    inputValue = state.value.email,
-                    onValueChange = {
-                        firebaseAuthViewModel.onChangeEmail(it)
-                    }
-                )
+                Column {
+                   Row { BodyText(modifier = Modifier.fillMaxWidth(),text = "Deine E-Mail:") }
+                   FormTextFieldWithIcon(
+                       leadingIcon = Res.drawable.ic_mail_fill,
+                       inputValue = state.value.email,
+                       onValueChange = {
+                           firebaseAuthViewModel.onChangeEmail(it)
+                       }
+                   )
+                }
 
-                FormPasswordTextFieldWithIcon(
-                    inputValue = state.value.password,
-                    onValueChange = {
-                        firebaseAuthViewModel.onChangePassword(it)
-                    }
-                )
+                Column {
+                    Row { BodyText(modifier = Modifier.fillMaxWidth(), text = "Deine Passwort:") }
+                    FormPasswordTextFieldWithIcon(
+                        inputValue = state.value.password,
+                        onValueChange = {
+                            firebaseAuthViewModel.onChangePassword(it)
+                        }
+                    )
+                }
 
                 if (state.value.isProcessing) {
                     CircularProgressIndicator()

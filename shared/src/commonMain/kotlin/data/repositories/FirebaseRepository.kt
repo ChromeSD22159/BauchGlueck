@@ -1,11 +1,21 @@
 package data.repositories
 
+import com.mmk.kmpnotifier.notification.NotifierManager
+import data.model.FirebaseCloudMessagingResponse
+import data.model.FirebaseCloudMessagingScheduledTimeResponse
+import data.model.RemoteNotification
+import data.model.ScheduleRemoteNotification
 import data.model.UserProfile
+import data.remote.StrapiApiClient
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.AuthResult
 import dev.gitlive.firebase.auth.auth
 import dev.gitlive.firebase.firestore.firestore
+import dev.gitlive.firebase.messaging.messaging
 
+import de.frederikkohler.bauchglueck.shared.BuildKonfig
+import util.NetworkError
+import util.Result
 enum class Collection {
     UserProfile,
     UserNode
@@ -14,8 +24,12 @@ enum class Collection {
 class FirebaseRepository() {
     private val firestore = Firebase.firestore
     private val auth = Firebase.auth
+    private val messaging = Firebase.messaging
+    private val strapi = StrapiApiClient()
 
     val user get() = auth.currentUser
+
+
 
     suspend fun signIn(email: String, password: String): AuthResult {
         return auth.signInWithEmailAndPassword(email, password)
@@ -23,6 +37,7 @@ class FirebaseRepository() {
 
     suspend fun signOut() {
         auth.signOut()
+        NotifierManager.getPushNotifier().deleteMyToken()
     }
 
     suspend fun createUserWithEmailAndPassword(userProfile: UserProfile, password: String): Error? {
@@ -46,7 +61,8 @@ class FirebaseRepository() {
 
     suspend fun saveUserProfile(userProfile: UserProfile) {
         if (auth.currentUser == null) return
-        firestore.collection(Collection.UserProfile.name).document(auth.currentUser!!.uid).set(userProfile)
+        val userNotifierToken = NotifierManager.getPushNotifier().getToken()
+        firestore.collection(Collection.UserProfile.name).document(auth.currentUser!!.uid).set(userProfile.copy(userNotifierToken = userNotifierToken ?: ""))
     }
 
     suspend fun readUserProfileById(userId: String): UserProfile? {
@@ -56,5 +72,13 @@ class FirebaseRepository() {
         } else {
             null
         }
+    }
+
+    suspend fun sendScheduleRemoteNotification(notification: ScheduleRemoteNotification): Result<FirebaseCloudMessagingScheduledTimeResponse, NetworkError> {
+        return strapi.sendNotification(notification)
+    }
+
+    suspend fun sendRemoteNotification(notification: RemoteNotification): Result<FirebaseCloudMessagingResponse, NetworkError> {
+        return strapi.sendNotification(notification)
     }
 }

@@ -39,7 +39,8 @@ kotlin {
             export(libs.mvvm.core)
             export(libs.mvvm.flow)
 
-            linkerOpts.add("-lsqlite3")   // Required when using NativeSQLiteDriver
+            linkerOpts.add("-lsqlite3")
+            export(libs.kmpnotifier)
         }
     }
 
@@ -83,6 +84,7 @@ kotlin {
 
             implementation(libs.koin.core)
             api(libs.logging)
+            api(libs.kmpnotifier)
         }
         iosMain.dependencies {
             // sharedViewModel

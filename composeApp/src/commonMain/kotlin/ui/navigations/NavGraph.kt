@@ -22,6 +22,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.mmk.kmpnotifier.notification.NotifierManager
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
 import org.koin.compose.KoinContext
@@ -67,8 +68,7 @@ fun NavGraph(
     val isFinishedSyncing by syncWorker.uiState.value.isFinishedSyncing.collectAsState()
     val hasError by syncWorker.uiState.value.hasError.collectAsState()
 
-    val showContentInDevelopment: Boolean = true
-
+    val showContentInDevelopment: Boolean = false
     KoinContext {
 
         LaunchScreenDataSyncController(

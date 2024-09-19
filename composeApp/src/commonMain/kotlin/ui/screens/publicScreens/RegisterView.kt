@@ -104,22 +104,30 @@ fun NavGraphBuilder.signUp(navController: NavHostController, firebaseAuthViewMod
                     BodyText("Erstelle dein Konto!")
                 }
 
-                FormTextFieldWithIcon(
-                    inputValue = state.value.firstName,
-                    leadingIcon = Res.drawable.ic_person_fill_view,
-                    onValueChange = {
-                        firebaseAuthViewModel.onChangeFirstName(it)
-                    }
-                )
+                Column {
+                    Row { BodyText(modifier = Modifier.fillMaxWidth(), text = "Dein Vorname:") }
+                    FormTextFieldWithIcon(
+                        inputValue = state.value.firstName,
+                        leadingIcon = Res.drawable.ic_person_fill_view,
+                        onValueChange = {
+                            firebaseAuthViewModel.onChangeFirstName(it)
+                        }
+                    )
+                }
 
-                FormTextFieldWithIcon(
-                    inputValue = state.value.email,
-                    leadingIcon = Res.drawable.ic_mail_fill,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                    onValueChange = {
-                        firebaseAuthViewModel.onChangeEmail(it)
-                    }
-                )
+
+                Column {
+                    Row { BodyText(modifier = Modifier.fillMaxWidth(),text = "Deine E-Mail:") }
+                    FormTextFieldWithIcon(
+                        inputValue = state.value.email,
+                        leadingIcon = Res.drawable.ic_mail_fill,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                        onValueChange = {
+                            firebaseAuthViewModel.onChangeEmail(it)
+                        }
+                    )
+
+                }
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -138,19 +146,25 @@ fun NavGraphBuilder.signUp(navController: NavHostController, firebaseAuthViewMod
                     TextButton(text = formattedDate) { showDatePicker = true }
                 }
 
-                FormPasswordTextFieldWithIcon(
-                    inputValue = state.value.password,
-                    onValueChange = {
-                        firebaseAuthViewModel.onChangePassword(it)
-                    }
-                )
+                Column {
+                    Row { BodyText(modifier = Modifier.fillMaxWidth(),text = "Deine Passwort:") }
+                    FormPasswordTextFieldWithIcon(
+                        inputValue = state.value.password,
+                        onValueChange = {
+                            firebaseAuthViewModel.onChangePassword(it)
+                        }
+                    )
+                }
 
-                FormPasswordTextFieldWithIcon(
-                    inputValue = state.value.confirmPassword,
-                    onValueChange = {
-                        firebaseAuthViewModel.onChangeConfirmPassword(it)
-                    }
-                )
+                Column {
+                    Row { BodyText(modifier = Modifier.fillMaxWidth(),text = "Passwort wiederholen:") }
+                    FormPasswordTextFieldWithIcon(
+                        inputValue = state.value.confirmPassword,
+                        onValueChange = {
+                            firebaseAuthViewModel.onChangeConfirmPassword(it)
+                        }
+                    )
+                }
 
                 if (state.value.isProcessing) {
                     CircularProgressIndicator()
@@ -166,9 +180,10 @@ fun NavGraphBuilder.signUp(navController: NavHostController, firebaseAuthViewMod
 
                         IconButton(
                             onClick = {
-                                val result = firebaseAuthViewModel.onSignUp()
-                                if (result) {
-                                    navController.navigate(Destination.Home.route)
+                                firebaseAuthViewModel.onSignUp { success ->
+                                    if (success) {
+                                        navController.navigate(Destination.Login.route)
+                                    }
                                 }
                             }
                         )
@@ -202,7 +217,9 @@ fun NavGraphBuilder.signUp(navController: NavHostController, firebaseAuthViewMod
                         )
 
                         TextButton(
-                            modifier = Modifier.padding(8.dp).fillMaxWidth(),
+                            modifier = Modifier
+                                .padding(8.dp)
+                                .fillMaxWidth(),
                             text = "Bestätigen"
                         ) {
                             showDatePicker = false

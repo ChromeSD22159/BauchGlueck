@@ -23,7 +23,7 @@ class WaterIntakeSyncManager(
     private val table: RoomTable = RoomTable.WATER_INTAKE,
     private var user: FirebaseUser? = Firebase.auth.currentUser
 ): BaseSyncManager() {
-    private val apiService: StrapiApiClient = StrapiApiClient(serverHost)
+    private val apiService: StrapiApiClient = StrapiApiClient()
     private var localService: WaterIntakeDao = LocalDataSource(db).waterIntake
     private var syncHistory: SyncHistoryDao = LocalDataSource(db).syncHistory
 

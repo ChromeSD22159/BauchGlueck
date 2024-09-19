@@ -100,9 +100,14 @@ fun WaterIntakeCard(
                     ) {
                         repeat(glasses) { index ->
                             FillableGlassWithAnimation(
+                                modifier = Modifier,
                                 bgColor = MaterialTheme.colorScheme.surface,
                                 defaultSize = 40.dp,
                                 isFilled = index < drunkenGlasses,
+                                isActive = drunkenGlasses == index,
+                                onClick = {
+                                    waterIntakeViewModel.insertIntake()
+                                },
                                 animationDelay = index * 100L
                             )
                         }

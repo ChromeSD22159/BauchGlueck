@@ -13,4 +13,4 @@ import util.Result
 class StrapiRecipeApiClient(
     override val serverHost: String = BuildKonfig.API_HOST,
     override val httpClient: HttpClient = createHttpClient()
-): BaseApiClient(serverHost)
+): BaseApiClient()

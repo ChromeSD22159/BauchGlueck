@@ -1,9 +1,11 @@
 package viewModel
 
+import com.mmk.kmpnotifier.notification.NotifierManager
 import data.Repository
 import data.local.entitiy.CountdownTimer
-import dev.gitlive.firebase.Firebase
-import dev.gitlive.firebase.auth.auth
+import data.model.RemoteNotification
+import data.model.RemoteNotificationData
+import data.model.ScheduleRemoteNotification
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -15,6 +17,7 @@ import kotlinx.datetime.Clock
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.lighthousegames.logging.logging
+import util.toIsoDate
 
 class TimerScreenViewModel: ViewModel(), KoinComponent {
     private val repository: Repository by inject()
@@ -73,6 +76,49 @@ class TimerScreenViewModel: ViewModel(), KoinComponent {
     fun updateTimerWhileRunning(countdownTimer: CountdownTimer) {
         viewModelScope.launch {
             repository.countdownTimerRepository.insertOrUpdate(countdownTimer)
+        }
+    }
+
+    fun sendScheduleRemoteNotification(timer: CountdownTimer) {
+        viewModelScope.launch {
+            val token = NotifierManager.getPushNotifier().getToken() ?: return@launch
+            val endDate = timer.endDate ?: return@launch
+            val now = Clock.System.now().toEpochMilliseconds()
+
+            if (endDate > now) {
+                val notificationDate = endDate - now
+
+                val newNotification = ScheduleRemoteNotification(
+                    token = token,
+                    body = "Timer",
+                    title = "Timer",
+                    data = RemoteNotificationData(
+                        key1 = timer.id.toString(),
+                        key2 = timer.name,
+                    ),
+                    scheduledTime = notificationDate.toIsoDate()
+                )
+
+                repository.firebaseRepository.sendScheduleRemoteNotification(newNotification)
+            }
+        }
+    }
+
+    fun sendNotification(timer: CountdownTimer) {
+        viewModelScope.launch {
+            val token = NotifierManager.getPushNotifier().getToken() ?: return@launch
+
+            val newNotification = RemoteNotification(
+                token = token,
+                body = "Dein \"${timer.name}\" Timer wurde gestartet!",
+                title = "Timer gestartet!",
+                data = RemoteNotificationData(
+                    key1 = timer.id.toString(),
+                    key2 = timer.name,
+                ),
+            )
+
+            repository.firebaseRepository.sendRemoteNotification(newNotification)
         }
     }
 }

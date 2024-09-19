@@ -24,7 +24,7 @@ class MealSyncManager(
     private val table: RoomTable = RoomTable.Meal,
     private var user: FirebaseUser? = Firebase.auth.currentUser
 ): BaseSyncManager() {
-    private val apiService: StrapiApiClient = StrapiApiClient(serverHost)
+    private val apiService: StrapiApiClient = StrapiApiClient()
     private var localService: MealDao = LocalDataSource(db).meals
     private var syncHistory: SyncHistoryDao = LocalDataSource(db).syncHistory
 

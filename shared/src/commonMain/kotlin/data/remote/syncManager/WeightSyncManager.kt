@@ -28,7 +28,7 @@ class WeightSyncManager(
     private val table: RoomTable = RoomTable.WEIGHT,
     private var user: FirebaseUser? = Firebase.auth.currentUser
 ): BaseSyncManager() {
-    private val apiService: StrapiApiClient = StrapiApiClient(serverHost)
+    private val apiService: StrapiApiClient = StrapiApiClient()
     private var localService: WeightDao = LocalDataSource(db).weight
     private var syncHistory: SyncHistoryDao = LocalDataSource(db).syncHistory
 
