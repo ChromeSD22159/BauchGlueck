@@ -11,6 +11,13 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
+import kotlin.time.DurationUnit
+import kotlin.time.toDuration
 
 
 class TimerCardViewModel(
@@ -65,9 +72,10 @@ class TimerCardViewModel(
     }
 
     fun start() {
-        val currentTime = Clock.System.now().toEpochMilliseconds()
-        _startDate.value = currentTime
-        _endDate.value = currentTime + timer.duration * 1000 // Convert duration to milliseconds
+        val startTimeStampUtc = Clock.System.now().toEpochMilliseconds()
+        val endTimeStampUtc = startTimeStampUtc + timer.duration
+        _startDate.value = startTimeStampUtc
+        _endDate.value = endTimeStampUtc + (timer.duration * 1000)
         _remainingTime.value = timer.duration
         _timerState.value = TimerState.running
         startTicking()

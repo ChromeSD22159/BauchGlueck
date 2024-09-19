@@ -68,7 +68,8 @@ fun NavGraph(
     val isFinishedSyncing by syncWorker.uiState.value.isFinishedSyncing.collectAsState()
     val hasError by syncWorker.uiState.value.hasError.collectAsState()
 
-    val showContentInDevelopment: Boolean = false
+    val showContentInDevelopment: Boolean = true
+
     KoinContext {
 
         LaunchScreenDataSyncController(

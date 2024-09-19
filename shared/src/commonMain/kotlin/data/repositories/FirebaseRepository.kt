@@ -1,21 +1,19 @@
 package data.repositories
 
 import com.mmk.kmpnotifier.notification.NotifierManager
-import data.model.FirebaseCloudMessagingResponse
-import data.model.FirebaseCloudMessagingScheduledTimeResponse
-import data.model.RemoteNotification
-import data.model.ScheduleRemoteNotification
-import data.model.UserProfile
+import data.model.Firebase.FirebaseCloudMessagingResponse
+import data.model.Firebase.RemoteNotification
+import data.model.Firebase.ScheduleRemoteNotification
+import data.model.Firebase.UserProfile
 import data.remote.StrapiApiClient
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.AuthResult
 import dev.gitlive.firebase.auth.auth
 import dev.gitlive.firebase.firestore.firestore
 import dev.gitlive.firebase.messaging.messaging
-
-import de.frederikkohler.bauchglueck.shared.BuildKonfig
 import util.NetworkError
 import util.Result
+
 enum class Collection {
     UserProfile,
     UserNode
@@ -28,8 +26,6 @@ class FirebaseRepository() {
     private val strapi = StrapiApiClient()
 
     val user get() = auth.currentUser
-
-
 
     suspend fun signIn(email: String, password: String): AuthResult {
         return auth.signInWithEmailAndPassword(email, password)
@@ -74,8 +70,8 @@ class FirebaseRepository() {
         }
     }
 
-    suspend fun sendScheduleRemoteNotification(notification: ScheduleRemoteNotification): Result<FirebaseCloudMessagingScheduledTimeResponse, NetworkError> {
-        return strapi.sendNotification(notification)
+    suspend fun sendScheduleRemoteNotification(notification: ScheduleRemoteNotification): Result<FirebaseCloudMessagingResponse, NetworkError> {
+        return strapi.sendScheduleRemoteNotification(notification)
     }
 
     suspend fun sendRemoteNotification(notification: RemoteNotification): Result<FirebaseCloudMessagingResponse, NetworkError> {

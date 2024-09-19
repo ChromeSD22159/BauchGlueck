@@ -1,4 +1,4 @@
-package data.model
+package data.model.Firebase
 
 import kotlinx.serialization.Serializable
 
