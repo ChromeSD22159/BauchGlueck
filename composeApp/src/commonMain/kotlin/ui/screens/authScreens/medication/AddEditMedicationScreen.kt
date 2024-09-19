@@ -25,6 +25,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -35,20 +36,25 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.composable
+import bauchglueck.composeapp.generated.resources.Res
+import bauchglueck.composeapp.generated.resources.ic_description
+import bauchglueck.composeapp.generated.resources.icon_sync
 import data.local.entitiy.IntakeTime
 import data.local.entitiy.IntakeTimeWithStatus
 import data.local.entitiy.Medication
 import data.local.entitiy.MedicationWithIntakeDetails
-import org.koin.androidx.compose.koinViewModel
 import ui.components.FormScreens.FormControlButtons
 import ui.components.FormScreens.FormTextFieldRow
 import ui.components.ItemOverLayScaffold
-import ui.components.clickableWithRipple
+import ui.components.theme.clickableWithRipple
 import ui.navigations.Destination
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
@@ -56,8 +62,38 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import ui.components.theme.sectionShadow
+import ui.navigations.NavigationTransition
 import util.UUID
 import viewModel.MedicationViewModel
+
+@RequiresApi(Build.VERSION_CODES.O)
+fun NavGraphBuilder.addMedication(navController: NavHostController){
+    composable(
+        route = Destination.AddMedication.route,
+        enterTransition = { NavigationTransition.slideInWithFadeToTopAnimation() },
+        exitTransition = { NavigationTransition.slideOutWithFadeToTopAnimation() }
+    ) {
+        AddEditMedicationScreen(
+            navController = navController,
+            currentMedication = null
+        )
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+fun NavGraphBuilder.editMedication(navController: NavHostController) {
+    composable(
+        route = Destination.EditMedication.route,
+        exitTransition = { NavigationTransition.slideOutWithFadeToTopAnimation() },
+        enterTransition = { NavigationTransition.slideInWithFadeToTopAnimation() },
+    ) {
+        AddEditMedicationScreen(
+            navController = navController,
+            currentMedication = navController.currentBackStackEntry?.savedStateHandle?.get<String>("medicationId")
+        )
+    }
+}
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -106,18 +142,7 @@ fun AddEditMedicationScreen(
 
     ItemOverLayScaffold(
         title = if(currentMedication == null) "Medikament hinzufügen" else "Medication bearbeiten",
-        topNavigationButtons = {
-        IconButton(onClick = {
-            focusManager.clearFocus()
-
-            navController.navigate(Destination.Medication.route)
-        }) {
-            Icon(
-                imageVector = Icons.Default.Close,
-                contentDescription = "Localized description"
-            )
-        }
-    },
+        topNavigationButtons = {},
     ) {
 
         // NAME TEXT FIELD
@@ -133,6 +158,7 @@ fun AddEditMedicationScreen(
         // DOSAGE TEXT FIELD
         FormTextFieldRow(
             inputValue = medicationDosage.value,
+            leadingIcon = Res.drawable.ic_description,
             onValueChange = {
                 medicationDosage.value = it
                 newOrUpdatedTimer = newOrUpdatedTimer.copy(medication = newOrUpdatedTimer.medication.copy(dosage = it))
@@ -268,10 +294,7 @@ fun FormIntakeTime(
 
             Row(
                 modifier = Modifier
-                    .background(
-                        color = Color.Gray.copy(alpha = 0.2f),
-                        shape = RoundedCornerShape(8.dp)
-                    )
+                    .sectionShadow()
                     .padding(8.dp)
                     .clickableWithRipple {
                         // Add a new IntakeTimeWithStatus and propagate the changes
@@ -297,7 +320,7 @@ fun FormIntakeTime(
                 Icon(
                     imageVector = Icons.Default.Add,
                     contentDescription = "Remove",
-                    tint = Color.Red,
+                    tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier
                 )
 

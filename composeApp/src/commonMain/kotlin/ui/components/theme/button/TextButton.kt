@@ -10,7 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import ui.components.clickableWithRipple
+import ui.components.theme.clickableWithRipple
 import ui.components.theme.text.BodyText
 import ui.theme.AppTheme
 

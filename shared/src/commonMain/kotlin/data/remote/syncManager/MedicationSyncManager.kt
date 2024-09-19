@@ -31,7 +31,7 @@ class MedicationSyncManager(
     private val table: RoomTable = RoomTable.MEDICATION,
     private var user: FirebaseUser? = Firebase.auth.currentUser
 ): BaseSyncManager() {
-    private val apiService: StrapiApiClient = StrapiApiClient(serverHost)
+    private val apiService: StrapiApiClient = StrapiApiClient()
     private var localService: MedicationDao = LocalDataSource(db).medications
     private var syncHistory: SyncHistoryDao = LocalDataSource(db).syncHistory
 

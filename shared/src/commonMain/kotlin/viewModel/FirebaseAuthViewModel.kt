@@ -1,5 +1,6 @@
 package viewModel
 
+import com.mmk.kmpnotifier.notification.NotifierManager
 import data.repositories.FirebaseRepository
 import data.model.UserProfile
 import dev.gitlive.firebase.Firebase
@@ -93,11 +94,13 @@ class FirebaseAuthViewModel : ViewModel() {
         _userFormState.value = UserFormState()
     }
 
-    fun onSignUp(): Boolean {
-        var result = false
+    fun onSignUp(result: (Boolean) -> Unit) {
         viewModelScope.launch {
+            val userNotifierToken = NotifierManager.getPushNotifier().getToken()
+
             _userFormState.value = _userFormState.value.copy(isProcessing = true)
 
+            // Überprüfen der Eingabe und Validierung
             val errorMessage = validateInput(
                 firstName = _userFormState.value.firstName,
                 email = _userFormState.value.email,
@@ -106,36 +109,41 @@ class FirebaseAuthViewModel : ViewModel() {
             )
 
             if (errorMessage != null) {
+                // Fehler anzeigen und Verarbeitung stoppen
                 _userFormState.value = _userFormState.value.copy(error = errorMessage, isProcessing = false)
                 delay(5000)
                 _userFormState.value = _userFormState.value.copy(error = "")
                 return@launch
             }
 
+            // Neues Benutzerprofil erstellen
             val newUserProfile = UserProfile(
                 firstName = _userFormState.value.firstName,
                 email = _userFormState.value.email,
                 surgeryDateTimeStamp = Clock.System.now().toEpochMilliseconds(),
-                mainMeals = 3,
-                betweenMeals = 3,
-                profileImageURL = "",
-                startWeight = 80.0,
-                waterIntake = 200.0,
-                waterDayIntake = 2000.0
+                userNotifierToken = userNotifierToken ?: ""
             )
 
+            // Registrierung mit Firebase durchführen
             val error = firebaseRepository.createUserWithEmailAndPassword(newUserProfile, _userFormState.value.password)
 
             if (error != null) {
+                _userFormState.value = _userFormState.value.copy(
+                    email = "",
+                    password = "",
+                    confirmPassword = "",
+                    isProcessing = false
+                )
                 resetLoginState()
                 onLogout()
-                result = true
+                result(false) // Fehlerfall: Kein Redirect zum Login
             } else {
-                result = false
-                _userFormState.value = _userFormState.value.copy(error = "", isProcessing = false)
+                // Erfolgreich registriert, Benutzer abmelden und zum Login umleiten
+                onLogout() // Benutzer abmelden
+                _userFormState.value = _userFormState.value.copy(isProcessing = false)
+                result(true) // Erfolgsfall: Umleitung zum Login
             }
         }
-        return result
     }
 
     fun onChangeFirstName(firstName: String) {
@@ -208,8 +216,8 @@ class FirebaseAuthViewModel : ViewModel() {
 
 data class UserFormState(
     val firstName: String = "",
-    val email: String = "info@frederikkohler.de",
-    val password: String = "Fr3d3rik@Kohler",
+    val email: String = "",
+    val password: String = "",
     val confirmPassword: String = "",
     val isProcessing: Boolean = false,
     val userProfile: MutableStateFlow<UserProfile> = MutableStateFlow(UserProfile()),

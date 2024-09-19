@@ -3,7 +3,6 @@ package ui.screens.authScreens.weights
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -14,55 +13,56 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import ui.components.BackScaffold
-import ui.components.RoundImageButton
 import ui.navigations.Destination
 import viewModel.WeightScreenViewModel
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.composable
 import bauchglueck.composeapp.generated.resources.Res
 import bauchglueck.composeapp.generated.resources.ic_add_timer
 import bauchglueck.composeapp.generated.resources.ic_gear
-import ui.components.clickableWithRipple
-import org.koin.androidx.compose.koinViewModel
+import ui.components.theme.button.IconButton
+import ui.components.theme.clickableWithRipple
+import ui.components.theme.ScreenHolder
 
 @RequiresApi(Build.VERSION_CODES.O)
-@Composable
-fun WeightScreen(
-    navController: NavController,
-    backNavigationDirection: Destination = Destination.Home
-) {
-    val viewmodel = viewModel<WeightScreenViewModel>()
+fun NavGraphBuilder.weight(navController: NavHostController) {
+    composable(Destination.Weight.route) {
+        val viewmodel = viewModel<WeightScreenViewModel>()
 
-    BackScaffold(
-        title = Destination.Weight.title,
-        backNavigationDirection = backNavigationDirection,
-        topNavigationButtons = {
-            Row {
-                RoundImageButton(
-                    icon = Res.drawable.ic_add_timer,
-                    modifier = Modifier.padding(end = 16.dp),
-                    action = {
-                        navController.navigate(Destination.AddWeight.route)
-                    }
-                )
-            }
+        ScreenHolder(
+            title = Destination.Weight.title,
+            showBackButton = true,
+            onNavigate = {
+                navController.navigate(Destination.Home.route)
+            },
+            optionsRow = {
+                IconButton(
+                    resource = Res.drawable.ic_add_timer,
+                    tint = MaterialTheme.colorScheme.onPrimary
+                ) {
+                    navController.navigate(Destination.AddWeight.route)
+                }
 
-            Row {
-                RoundImageButton(
-                    icon = Res.drawable.ic_gear,
-                    modifier = Modifier.padding(end = 16.dp)
-                )
-            }
-        },
-        navController = navController,
-    ) {
-        AllWeighsButton(
-            navController = navController,
-            text = "Alle Gewichtungseinträge"
-        )
+                IconButton(
+                    resource = Res.drawable.ic_gear,
+                    tint = MaterialTheme.colorScheme.onPrimary
+                ) {
+                    navController.navigate(Destination.Settings.route)
+                }
+            },
+        ) {
+            AllWeighsButton(
+                navController = navController,
+                text = "Alle Gewichtungseinträge"
+            )
+        }
     }
 }
+
+
 
 @Composable
 fun AllWeighsButton(text: String, navController: NavController) {

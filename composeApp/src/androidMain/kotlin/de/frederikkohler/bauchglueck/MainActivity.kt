@@ -4,6 +4,7 @@ import App
 import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Build
+import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -16,10 +17,26 @@ import coil3.annotation.ExperimentalCoilApi
 import coil3.compose.setSingletonImageLoaderFactory
 import coil3.request.crossfade
 import coil3.util.DebugLogger
+import com.mmk.kmpnotifier.notification.NotifierManager
+import com.mmk.kmpnotifier.notification.configuration.NotificationPlatformConfiguration
+import com.mmk.kmpnotifier.permission.permissionUtil
 import di.KoinInject
 import util.ApplicationContextHolder
 
 class MainActivity : ComponentActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        NotifierManager.initialize(
+            configuration = NotificationPlatformConfiguration.Android(
+                notificationIconResId = R.drawable.ic_launcher_bauch_glueck_new,
+                showPushNotification = true,
+            )
+        )
+
+        val permissionUtil by permissionUtil()
+        permissionUtil.askNotificationPermission()
+    }
 
     @OptIn(ExperimentalCoilApi::class)
     @RequiresApi(Build.VERSION_CODES.O)

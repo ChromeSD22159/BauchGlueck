@@ -2,10 +2,17 @@ package ui.screens.authScreens.timer
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -14,10 +21,16 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.composable
 import bauchglueck.composeapp.generated.resources.Res
 import bauchglueck.composeapp.generated.resources.ic_stopwatch
 import data.local.entitiy.CountdownTimer
@@ -27,17 +40,60 @@ import ui.components.ItemOverLayScaffold
 import ui.navigations.Destination
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
-import kotlinx.datetime.Clock
-import org.koin.androidx.compose.koinViewModel
-import org.lighthousegames.logging.logging
+import ui.components.FormScreens.DescriptionText
+import ui.components.FormScreens.PlusMinusButtonForms
+import ui.navigations.NavigationTransition
 import util.UUID
+import util.formatTimeToMMSS
 import viewModel.TimerScreenViewModel
+
+data class TimerSettings(
+    val minDuration: Int = 5,
+    val maxDuration: Int = 90,
+    val steps: Int = 5
+)
+
+
+@RequiresApi(Build.VERSION_CODES.O)
+fun NavGraphBuilder.editTimerComposable(navController: NavHostController) {
+    composable(
+        route = Destination.EditTimer.route,
+        enterTransition = { NavigationTransition.slideInWithFadeToTopAnimation() },
+        exitTransition = { NavigationTransition.slideOutWithFadeToTopAnimation() }
+    ) {
+        AddEditTimerSheet(
+            navController = navController,
+            currentCountdownTimer = navController.currentBackStackEntry?.savedStateHandle?.get<String>("timerId"),
+            onDismiss = {
+                navController.navigate(Destination.Timer.route)
+            }
+        )
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+fun NavGraphBuilder.addTimerComposable(navController: NavHostController) {
+    composable(
+        route = Destination.AddTimer.route,
+        enterTransition = { NavigationTransition.slideInWithFadeToTopAnimation() },
+        exitTransition = { NavigationTransition.slideOutWithFadeToTopAnimation() }
+    ) {
+        AddEditTimerSheet(
+            navController = navController,
+            currentCountdownTimer = null,
+            onDismiss = {
+                navController.navigate(Destination.Timer.route)
+            }
+        )
+    }
+}
 
 @Composable
 @RequiresApi(Build.VERSION_CODES.O)
 fun AddEditTimerSheet(
     navController: NavController,
     currentCountdownTimer: String? = null,
+    timerRange: TimerSettings = TimerSettings(),
     onDismiss: () -> Unit = {},
 ) {
     val viewModel = viewModel<TimerScreenViewModel>()
@@ -77,7 +133,7 @@ fun AddEditTimerSheet(
     val isDurationFocused = remember { mutableStateOf(false) }
 
     ItemOverLayScaffold(
-        title = "Neuen Timer hinzufügen",
+        title = if(currentCountdownTimer == null) "Neuen Timer hinzufügen" else "Timer bearbeiten",
         topNavigationButtons = {
             IconButton(onClick = {
                 focusManager.clearFocus()
@@ -101,15 +157,31 @@ fun AddEditTimerSheet(
             onValueChange = { text.value = it }
         )
 
-        FormTextFieldRow(
-            keyboardType = KeyboardType.Number,
-            leadingIcon = Res.drawable.ic_stopwatch,
-            inputValue = duration.longValue.toString(),
-            displayText = "Timerlaufzeit in Minuten",
-            onValueChange = {
-                duration.longValue = it.toLongOrNull() ?: 0L
-            }
-        )
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.End,
+            verticalArrangement = Arrangement.spacedBy(2.dp)
+        ) {
+            PlusMinusButtonForms(
+                displayColumn = {
+                    Text(duration.longValue.formatTimeToMMSS())
+                },
+                onMinus = {
+                    if (duration.longValue > timerRange.minDuration) {
+                        duration.longValue -= timerRange.steps
+                    }
+                },
+                onPlus = {
+                    if (duration.longValue < timerRange.maxDuration) {
+                        duration.longValue += timerRange.steps
+                    }
+                }
+            )
+
+            DescriptionText("Timerlaufzeit in Minuten")
+        }
+
+        Spacer(Modifier.height(10.dp))
 
         FormControlButtons(
             onSave = {

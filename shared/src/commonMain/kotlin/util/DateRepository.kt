@@ -3,9 +3,12 @@ package util
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.minus
 import kotlinx.datetime.plus
+import kotlinx.datetime.toLocalDateTime
 import kotlinx.datetime.todayIn
 
 object DateRepository {
@@ -49,7 +52,51 @@ object DateRepository {
     fun getCurrentDate(): LocalDate {
         return Clock.System.todayIn(TimeZone.currentSystemDefault())
     }
+
+    fun startEndToday(): Today {
+        val timeZone = TimeZone.currentSystemDefault()
+        val now = Clock.System.now().toLocalDateTime(timeZone)
+        val todayStart = now.date.atStartOfDayIn(timeZone).toEpochMilliseconds()
+        val todayEnd = todayStart + 86_400_000
+
+        return Today(todayStart, todayEnd)
+    }
+
+    val dayOfWeekName: String
+        get() =  Weekday.entries[today.dayOfWeek.ordinal].displayName
+
+    val dayOfWeek: Int
+        get() = today.dayOfWeek.ordinal
+
+    val todayDateString: String
+        get() = today.dayOfMonth.toString().padStart(2,'0')
 }
+
+data class Today(
+    val start: Long,
+    val end: Long
+)
 
 val LocalDate.dayOfMonth: Int
     get() = this.dayOfMonth
+
+fun LocalDate.toDateString(): String {
+    val day= this.dayOfMonth.toStringAndPadStart(2, '0')
+    val month= this.monthNumber.toStringAndPadStart(2, '0')
+    val year = this.year.toString()
+    return "${day}.${month}.${year}"
+}
+
+fun Int.toStringAndPadStart(length: Int, fillChar: Char): String {
+    return this.toString().padStart(length, fillChar)
+}
+
+enum class Weekday(val displayName: String) {
+    Montag("Montag"),
+    Dienstag("Dienstag"),
+    Mittwoch("Mittwoch"),
+    Donnerstag("Donnerstag"),
+    Freitag("Freitag"),
+    Samstag("Samstag"),
+    Sonntag("Sonntag");
+}

@@ -16,7 +16,6 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,9 +32,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.composable
+import bauchglueck.composeapp.generated.resources.Res
+import bauchglueck.composeapp.generated.resources.ic_minus
+import bauchglueck.composeapp.generated.resources.ic_plus
 import data.local.entitiy.Weight
 import ui.components.ItemOverLayScaffold
-import ui.components.clickableWithRipple
+import ui.components.theme.clickableWithRipple
 import ui.navigations.Destination
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
@@ -43,11 +48,31 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.periodUntil
-import org.koin.androidx.compose.koinViewModel
 import org.lighthousegames.logging.logging
+import ui.components.FormScreens.FormControlButtons
+import ui.components.theme.button.IconButton
+import ui.components.theme.text.BodyText
+import ui.components.theme.text.FooterText
+import ui.navigations.NavigationTransition
 import util.UUID
 import viewModel.WeightScreenViewModel
 import kotlin.math.abs
+
+@RequiresApi(Build.VERSION_CODES.O)
+fun NavGraphBuilder.addWeight(navController: NavHostController) {
+    composable(
+        route = Destination.AddWeight.route,
+        enterTransition = { NavigationTransition.slideInWithFadeToTopAnimation() },
+        exitTransition = { NavigationTransition.slideOutWithFadeToTopAnimation() }
+    ) {
+        AddWeightScreen(
+            navController = navController,
+            onDismiss = {
+                navController.navigate(Destination.Weight.route)
+            }
+        )
+    }
+}
 
 @Composable
 @RequiresApi(Build.VERSION_CODES.O)
@@ -129,17 +154,7 @@ fun AddWeightScreen(
 
     ItemOverLayScaffold(
         title = "Neues Gewicht hinzufügen",
-        topNavigationButtons = {
-            IconButton(onClick = {
-                navController.navigate(Destination.Timer.route)
-                onDismiss()
-            }) {
-                Icon(
-                    imageVector = Icons.Default.Close,
-                    contentDescription = "Localized description"
-                )
-            }
-        },
+        topNavigationButtons = {},
     ) {
         Column(
             modifier = Modifier.fillMaxWidth(),
@@ -160,15 +175,11 @@ fun AddWeightScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    Text(
-                        text = weightDifference.displayDifferenceWeight(),
-                        fontStyle = MaterialTheme.typography.headlineLarge.fontStyle,
-                    )
+                    BodyText(weightDifference.displayDifferenceWeight())
 
-                    Text(
+                    FooterText(
                         text = daysSinceLastWeighing.displayDaysSinceWeightString(),
-                        textAlign = TextAlign.Center,
-                        fontSize = 10.sp
+                        textAlign = TextAlign.Center
                     )
                 }
             }
@@ -181,19 +192,16 @@ fun AddWeightScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Button(onClick = { decreaseWeight() }) {
-                Text(text = "-")
-            }
 
-            Text(
-                text = currentWeight.value.value.displayCurrentWeight(),
-                fontStyle = MaterialTheme.typography.headlineLarge.fontStyle,
-                fontWeight = MaterialTheme.typography.headlineLarge.fontWeight
-            )
+            IconButton(
+                resource = Res.drawable.ic_minus
+            ) { decreaseWeight() }
 
-            Button(onClick = { increaseWeight() }) {
-                Text(text = "+")
-            }
+            BodyText(currentWeight.value.value.displayCurrentWeight())
+
+            IconButton(
+                resource = Res.drawable.ic_plus
+            ) { increaseWeight() }
         }
 
 
@@ -204,15 +212,13 @@ fun AddWeightScreen(
                 .horizontalScroll(scrollStateWeightValues)
         ) {
             for (value in weightList) {
-                Text(
+                BodyText(
                     modifier = Modifier
                         .padding(8.dp)
                         .clickableWithRipple {
                             currentWeight.value = currentWeight.value.copy(value = value)
                         },
                     color = MaterialTheme.colorScheme.primary,
-                    fontStyle = MaterialTheme.typography.headlineLarge.fontStyle,
-                    fontWeight = MaterialTheme.typography.headlineLarge.fontWeight,
                     text = "${value.toInt()}kg"
                 )
             }
@@ -220,37 +226,16 @@ fun AddWeightScreen(
 
 
         // SAVE CONTROLS
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Button(
-                    onClick = {
-                        navController.navigate(Destination.Timer.route)
-                        onDismiss()
-                    }
-                ) {
-                    Text("Abbrechen")
-                }
-
-                Button(
-                    onClick = {
-
-                        logging().info { "currentWeight.value: ${currentWeight.value}" }
-
-                        viewModel.addItem(currentWeight.value)
-                        navController.navigate(Destination.Home.route)
-                    }
-                ) {
-                    Text("Speichern")
-                }
+        FormControlButtons(
+            onCancel = {
+                navController.navigate(Destination.Timer.route)
+                onDismiss()
+            },
+            onSave = {
+                viewModel.addItem(currentWeight.value)
+                navController.navigate(Destination.Home.route)
             }
-        }
+        )
     }
 }
 

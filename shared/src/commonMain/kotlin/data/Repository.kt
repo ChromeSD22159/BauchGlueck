@@ -10,6 +10,7 @@ import data.remote.syncManager.AppDataSyncManager
 import data.repositories.FirebaseRepository
 import data.repositories.MealPlanRepository
 import data.repositories.MealRepository
+import data.repositories.NodeRepository
 import io.ktor.client.plugins.onUpload
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.forms.submitFormWithBinaryData
@@ -24,7 +25,8 @@ class Repository(
     val waterIntakeRepository: WaterIntakeRepository,
     val medicationRepository: MedicationRepository,
     val mealRepository: MealRepository,
-    val mealPlanRepository: MealPlanRepository
+    val mealPlanRepository: MealPlanRepository,
+    val nodeRepository: NodeRepository,
 ) {
     val firebaseRepository: FirebaseRepository = FirebaseRepository()
     val recipeRepository: StrapiRecipeApiClient = StrapiRecipeApiClient()

@@ -3,8 +3,6 @@ package viewModel
 import data.Repository
 import data.local.entitiy.Weight
 import data.model.DailyAverage
-import data.model.MonthlyAverage
-import data.model.WeeklyAverage
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -64,3 +62,4 @@ class WeightScreenViewModel : ViewModel(), KoinComponent {
         }
     }
 }
+

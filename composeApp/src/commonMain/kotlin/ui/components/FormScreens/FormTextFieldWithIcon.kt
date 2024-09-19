@@ -28,6 +28,7 @@ import bauchglueck.composeapp.generated.resources.ic_lock_fill
 import bauchglueck.composeapp.generated.resources.ic_pills_fill
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.vectorResource
+import ui.components.theme.sectionShadow
 
 /**
  * A Composable function that displays a text field with a leading icon.
@@ -48,10 +49,12 @@ fun FormTextFieldWithIcon(
     onValueChange: (String) -> Unit,
 ) {
     val colors = TextFieldDefaults.colors(
-        unfocusedTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
-        focusedTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 1f),
-        unfocusedContainerColor = Color.Gray.copy(alpha = 0.1f),
-        focusedContainerColor = Color.Gray.copy(alpha = 0.2f),
+        unfocusedTextColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.4f),
+        focusedTextColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 1f),
+
+        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+        focusedContainerColor = MaterialTheme.colorScheme.surface,
+
         unfocusedIndicatorColor = Color.Transparent,
         focusedIndicatorColor = MaterialTheme.colorScheme.primary,
     )
@@ -60,11 +63,13 @@ fun FormTextFieldWithIcon(
         leadingIcon = {
             Icon(
                 imageVector = vectorResource(resource = leadingIcon),
-                contentDescription = "Localized description"
+                contentDescription = "Localized description",
+                tint = MaterialTheme.colorScheme.onBackground
             )
         },
         modifier = modifier
             .fillMaxWidth()
+            .sectionShadow()
             .clip(RoundedCornerShape(12.dp)),
         value = inputValue,
         colors = colors,
@@ -73,6 +78,8 @@ fun FormTextFieldWithIcon(
         },
         keyboardOptions = keyboardOptions
     )
+
+
 }
 
 
@@ -87,10 +94,12 @@ fun FormPasswordTextFieldWithIcon(
     var showPassword by remember { mutableStateOf(value = false) }
 
     val colors = TextFieldDefaults.colors(
-        unfocusedTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
-        focusedTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 1f),
-        unfocusedContainerColor = Color.Gray.copy(alpha = 0.1f),
-        focusedContainerColor = Color.Gray.copy(alpha = 0.2f),
+        unfocusedTextColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.4f),
+        focusedTextColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 1f),
+
+        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+        focusedContainerColor = MaterialTheme.colorScheme.surface,
+
         unfocusedIndicatorColor = Color.Transparent,
         focusedIndicatorColor = MaterialTheme.colorScheme.primary,
     )
@@ -99,7 +108,8 @@ fun FormPasswordTextFieldWithIcon(
         leadingIcon = {
             Icon(
                 imageVector = vectorResource(resource = Res.drawable.ic_lock_fill),
-                contentDescription = "Localized description"
+                contentDescription = "Localized description",
+                tint = MaterialTheme.colorScheme.onBackground
             )
         },
         trailingIcon = {
@@ -122,6 +132,7 @@ fun FormPasswordTextFieldWithIcon(
         },
         modifier = modifier
             .fillMaxWidth()
+            .sectionShadow()
             .clip(RoundedCornerShape(12.dp)),
         value = inputValue,
         colors = colors,
@@ -134,5 +145,41 @@ fun FormPasswordTextFieldWithIcon(
             PasswordVisualTransformation()
         },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+    )
+}
+
+@Composable
+fun FormTextFieldWithoutIcons(
+    modifier: Modifier = Modifier,
+    keyboardOptions: KeyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+    inputValue: String,
+    onValueChange: (String) -> Unit,
+    minLines: Int = 1,
+    maxLines: Int = Int.MAX_VALUE
+) {
+    val colors = TextFieldDefaults.colors(
+        unfocusedTextColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.4f),
+        focusedTextColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 1f),
+
+        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+        focusedContainerColor = MaterialTheme.colorScheme.surface,
+
+        unfocusedIndicatorColor = Color.Transparent,
+        focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+    )
+
+    TextField(
+        modifier = modifier
+            .fillMaxWidth()
+            .sectionShadow()
+            .clip(RoundedCornerShape(12.dp)),
+        value = inputValue,
+        colors = colors,
+        onValueChange = {
+            onValueChange(it)
+        },
+        keyboardOptions = keyboardOptions,
+        minLines = minLines,
+        maxLines = maxLines
     )
 }

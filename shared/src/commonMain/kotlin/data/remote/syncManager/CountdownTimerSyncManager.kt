@@ -6,17 +6,12 @@ import data.local.RoomTable
 import data.local.dao.CountdownTimerDao
 import data.local.dao.SyncHistoryDao
 import data.local.entitiy.CountdownTimer
-import data.local.entitiy.SyncHistory
-import data.local.entitiy.WaterIntake
 import data.remote.BaseApiClient
 import data.remote.StrapiApiClient
 import data.remote.model.SyncResponse
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.FirebaseUser
 import dev.gitlive.firebase.auth.auth
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
-import kotlinx.coroutines.withContext
 import org.lighthousegames.logging.logging
 import util.onError
 import util.onSuccess
@@ -28,7 +23,7 @@ class CountdownTimerSyncManager(
     private val table: RoomTable = RoomTable.COUNTDOWN_TIMER
 ): BaseSyncManager() {
     var user: FirebaseUser? = Firebase.auth.currentUser
-    private val apiService: StrapiApiClient = StrapiApiClient(serverHost)
+    private val apiService: StrapiApiClient = StrapiApiClient()
     private var localService: CountdownTimerDao = LocalDataSource(db).countdownTimer
     private var syncHistory: SyncHistoryDao = LocalDataSource(db).syncHistory
 

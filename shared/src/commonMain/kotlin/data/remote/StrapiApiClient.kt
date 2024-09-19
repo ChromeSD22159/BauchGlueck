@@ -1,12 +1,17 @@
 package data.remote
 
+import data.model.FirebaseCloudMessagingResponse
+import data.model.FirebaseCloudMessagingScheduledTimeResponse
 import data.model.RecipeCategory
+import data.model.RemoteNotification
+import data.model.ScheduleRemoteNotification
 import data.network.BaseApiEndpoint
 import data.network.createHttpClient
 import data.network.replacePlaceholders
 import data.remote.model.ApiChangeLog
 import data.remote.model.ApiRecipesResponse
 import data.remote.model.ApiAppStatistics
+import de.frederikkohler.bauchglueck.shared.BuildKonfig
 import io.ktor.client.HttpClient
 import io.ktor.client.call.NoTransformationFoundException
 import io.ktor.client.call.body
@@ -28,14 +33,14 @@ import util.NetworkError
 import util.Result
 
 class StrapiApiClient(
-    override val serverHost: String,
     override val httpClient: HttpClient = createHttpClient()
-) : BaseApiClient(serverHost)
+) : BaseApiClient()
 
 open class BaseApiClient(
-    open val serverHost: String,
     open val httpClient: HttpClient = createHttpClient()
 ) {
+    open val serverHost = BuildKonfig.API_HOST
+
     enum class UpdateRemoteEndpoint(override var urlPath: String, override val method: HttpMethod): BaseApiEndpoint {
         WATER_INTAKE("/api/water-intake/updateRemoteData", HttpMethod.Post),
         WEIGHT("/api/weight/updateRemoteData", HttpMethod.Post),
@@ -53,6 +58,11 @@ open class BaseApiClient(
         GenerateRecipe("/api/recipes/generateRecipe?category={RecipeKind}", HttpMethod.Get)
     }
 
+    enum class RemoteNotificationEndpoint(override var urlPath: String, override val method: HttpMethod): BaseApiEndpoint {
+        SEND_NOTIFICATION("/api/send-notification", HttpMethod.Post),
+        SCHEDULE_NOTIFICATION("/api/send-schedule-notification", HttpMethod.Post),
+    }
+
     // TODO check MealPlan Routes AND SyncLogic
     // TODO check ShoppingList Routes AND SyncLogic
 
@@ -62,6 +72,14 @@ open class BaseApiClient(
         STARTUP_MEALS_COUNT("/api/getStartUpMealsCount", HttpMethod.Get),
         ChangeLog("/api/changeLog", HttpMethod.Get),
         AppStatistics("/api/appStatistics", HttpMethod.Get)
+    }
+
+    suspend fun sendNotification(notification: RemoteNotification): Result<FirebaseCloudMessagingResponse, NetworkError> {
+        return sendNotification(RemoteNotificationEndpoint.SEND_NOTIFICATION, notification)
+    }
+
+    suspend fun sendNotification(notification: ScheduleRemoteNotification): Result<FirebaseCloudMessagingScheduledTimeResponse, NetworkError> {
+        return sendNotification(RemoteNotificationEndpoint.SCHEDULE_NOTIFICATION, notification)
     }
 
     suspend fun getRecipesOverview(maxCount: Int?): Result<List<ApiRecipesResponse>, NetworkError> {
@@ -182,6 +200,43 @@ open class BaseApiClient(
                 url("${serverHost}${apiEndpoint.urlPath}")
                 contentType(ContentType.Application.Json)
                 setBody(entities)
+            }
+        } catch (e: UnresolvedAddressException) {
+            return Result.Error(NetworkError.NO_INTERNET)
+        } catch (e: SerializationException) {
+            return Result.Error(NetworkError.SERIALIZATION)
+        } catch (e: Exception) {
+            logging().info { "!!! !!! !!! $apiEndpoint -> ${e.message}" }
+            return Result.Error(NetworkError.REQUEST_TIMEOUT)
+        }
+
+        return when (response.status.value) {
+            in 200..299 -> {
+                try {
+                    Result.Success(response.body<R>())
+                } catch (e: SerializationException) {
+                    Result.Error(NetworkError.SERIALIZATION)
+                }
+            }
+            401 -> Result.Error(NetworkError.UNAUTHORIZED)
+            409 -> Result.Error(NetworkError.CONFLICT)
+            430 -> Result.Error(NetworkError.NOTING_TO_SYNC)
+            408 -> Result.Error(NetworkError.REQUEST_TIMEOUT)
+            413 -> Result.Error(NetworkError.PAYLOAD_TOO_LARGE)
+            in 500..599 -> Result.Error(NetworkError.SERVER_ERROR)
+            else -> Result.Error(NetworkError.UNKNOWN)
+        }
+    }
+
+    suspend inline fun <reified Q, reified R> sendNotification(
+        apiEndpoint: RemoteNotificationEndpoint,
+        notification: Q,
+    ): Result<R, NetworkError> {
+        val response = try {
+            httpClient.post {
+                url("${serverHost}${apiEndpoint.urlPath}")
+                contentType(ContentType.Application.Json)
+                setBody(notification)
             }
         } catch (e: UnresolvedAddressException) {
             return Result.Error(NetworkError.NO_INTERNET)

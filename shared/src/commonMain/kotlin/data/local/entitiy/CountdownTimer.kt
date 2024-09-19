@@ -38,11 +38,11 @@ data class CountdownTimer(
 
 
 
-enum class TimerState(val value: String) {
-    running("running"),
-    paused("paused"),
-    completed("completed"),
-    notRunning("notRunning");
+enum class TimerState(val value: String, var state: Int) {
+    running("running", 1),
+    paused("paused", 2),
+    completed("completed", 0),
+    notRunning("notRunning", 3);
 
     companion object {
         fun fromValue(value: String): TimerState {

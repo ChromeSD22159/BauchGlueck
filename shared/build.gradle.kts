@@ -39,7 +39,8 @@ kotlin {
             export(libs.mvvm.core)
             export(libs.mvvm.flow)
 
-            linkerOpts.add("-lsqlite3")   // Required when using NativeSQLiteDriver
+            linkerOpts.add("-lsqlite3")
+            export(libs.kmpnotifier)
         }
     }
 
@@ -83,6 +84,7 @@ kotlin {
 
             implementation(libs.koin.core)
             api(libs.logging)
+            api(libs.kmpnotifier)
         }
         iosMain.dependencies {
             // sharedViewModel
@@ -108,32 +110,18 @@ android {
     }
 }
 
-
-
 buildkonfig {
     packageName = "de.frederikkohler.bauchglueck.shared"
 
     defaultConfigs {
-        val apiKey: String = gradleLocalProperties(rootDir).getProperty("API_KEY")
-        buildConfigField(com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING, "API_KEY", apiKey)
+        val api: String = gradleLocalProperties(rootDir).getProperty("API")
+        buildConfigField(com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING, "API", api)
 
         val apiHost: String = gradleLocalProperties(rootDir).getProperty("API_HOST") ?: ""
         buildConfigField(com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING, "API_HOST", apiHost)
 
         val isDEV: String = gradleLocalProperties(rootDir).getProperty("DEV") ?: ""
         buildConfigField(com.codingfeline.buildkonfig.compiler.FieldSpec.Type.BOOLEAN, "DEV", isDEV)
-
-        val geminiApiHost: String = gradleLocalProperties(rootDir).getProperty("GEMINI_API_HOST") ?: ""
-        buildConfigField(com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING, "GEMINI_API_HOST", geminiApiHost)
-
-        val geminiApiKey: String = gradleLocalProperties(rootDir).getProperty("GEMINI_API_KEY") ?: ""
-        buildConfigField(com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING, "GEMINI_API_KEY", geminiApiKey)
-
-        val chatGptApiKey: String = gradleLocalProperties(rootDir).getProperty("CHAT_GPT_API_KEY") ?: ""
-        buildConfigField(com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING, "CHAT_GPT_API_KEY", chatGptApiKey)
-
-        val chatGptHost: String = gradleLocalProperties(rootDir).getProperty("CHAT_GPT_HOST") ?: ""
-        buildConfigField(com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING, "CHAT_GPT_HOST", chatGptHost)
     }
 }
 
@@ -143,7 +131,6 @@ dependencies {
     implementation(libs.androidx.ui.text.android)
     implementation(libs.koin.androidx.compose)
     implementation(libs.androidx.core.i18n)
-
     // Room
     add("kspCommonMainMetadata", libs.room.compiler)
 

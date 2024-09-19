@@ -22,19 +22,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import ui.components.BackScaffold
-import ui.screens.LaunchScreen
-import ui.screens.authScreens.meals.CalendarScreen
-import ui.screens.authScreens.home.HomeScreen
-import ui.screens.authScreens.medication.AddEditMedicationScreen
-import ui.screens.authScreens.medication.MedicationScreen
-import ui.screens.authScreens.timer.AddEditTimerSheet
-import ui.screens.authScreens.timer.TimerScreen
-import ui.screens.authScreens.weights.addWeight.AddWeightScreen
-import ui.screens.authScreens.weights.showAllWeights.ShowAllWeights
-import ui.screens.authScreens.weights.WeightScreen
-import ui.screens.publicScreens.LoginView
-import ui.screens.publicScreens.RegisterView
+import com.mmk.kmpnotifier.notification.NotifierManager
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
 import org.koin.compose.KoinContext
@@ -42,8 +30,25 @@ import org.lighthousegames.logging.logging
 import viewModel.RecipeViewModel
 import viewModel.SyncWorkerViewModel
 import ui.components.RecipeCard
-import ui.screens.authScreens.settings.SettingScreen
-import ui.screens.publicScreens.ForgotPasswordScreen
+import ui.screens.authScreens.addNote
+import ui.screens.authScreens.home.home
+import ui.screens.authScreens.mealPlan.mealPlan
+import ui.screens.authScreens.mealPlan.recipesComposable
+import ui.screens.authScreens.medication.addMedication
+import ui.screens.authScreens.medication.editMedication
+import ui.screens.authScreens.medication.medication
+import ui.screens.authScreens.settings.settingsComposable
+import ui.screens.authScreens.timer.addTimerComposable
+import ui.screens.authScreens.timer.editTimerComposable
+import ui.screens.authScreens.timer.timerComposable
+import ui.screens.authScreens.waterIntake.waterIntake
+import ui.screens.authScreens.weights.addWeight.addWeight
+import ui.screens.authScreens.weights.showAllWeights.showAllWeights
+import ui.screens.authScreens.weights.weight
+import ui.screens.launchScreen
+import ui.screens.publicScreens.forgotPassword
+import ui.screens.publicScreens.login
+import ui.screens.publicScreens.signUp
 import viewModel.FirebaseAuthViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -63,6 +68,7 @@ fun NavGraph(
     val isFinishedSyncing by syncWorker.uiState.value.isFinishedSyncing.collectAsState()
     val hasError by syncWorker.uiState.value.hasError.collectAsState()
 
+    val showContentInDevelopment: Boolean = false
     KoinContext {
 
         LaunchScreenDataSyncController(
@@ -76,260 +82,53 @@ fun NavGraph(
         }
 
         NavHost(navController = navController, startDestination = Destination.Launch.route) {
-            launchScreen()
-
-            login(navController, firebaseAuthViewModel)
-            forgotPassword(navController, firebaseAuthViewModel)
-            signUp(navController, firebaseAuthViewModel)
-            home(navController)
-            calendar(navController, firebaseAuthViewModel)
-
-            // WEIGHT
-            weight(navController)
-            addWeight(navController)
-            showAllWeights(navController)
-
-            // WATERINTAKE
-            waterIntake(navController)
-            // Medication
-            medication(navController)
-            addMedication(navController)
-            editMedication(navController)
-
-            // TIMER
-            timerComposable(navController)
-            addTimerComposable(navController)
-            editTimerComposable(navController)
-
-            recipesComposable(navController)
-
-            settingsComposable(navController, firebaseAuthViewModel)
+            publicScreens(navController, firebaseAuthViewModel, showContentInDevelopment)
+            authScreens(navController, firebaseAuthViewModel, showContentInDevelopment)
         }
     }
 }
 
-fun NavGraphBuilder.launchScreen() {
-    composable(Destination.Launch.route) {
-        LaunchScreen()
-    }
-}
 
-@RequiresApi(Build.VERSION_CODES.O)
-fun NavGraphBuilder.calendar(
+
+
+
+fun NavGraphBuilder.publicScreens(
     navController: NavHostController,
-    firebaseAuthViewModel: FirebaseAuthViewModel
+    firebaseAuthViewModel: FirebaseAuthViewModel,
+    showContentInDevelopment: Boolean
 ) {
-    composable(Destination.Calendar.route) {
-        CalendarScreen(
-            navController = navController,
-            backNavigationDirection = Destination.Home,
-            firebaseAuthViewModel = firebaseAuthViewModel
-        )
-    }
-}
-
-fun NavGraphBuilder.login(navController: NavHostController, firebaseAuthViewModel: FirebaseAuthViewModel) {
-    composable(Destination.Login.route) {
-        LoginView(navController, firebaseAuthViewModel)
-    }
-}
-
-fun NavGraphBuilder.forgotPassword(navController: NavHostController, firebaseAuthViewModel: FirebaseAuthViewModel) {
-    composable(Destination.ForgotPassword.route) {
-        ForgotPasswordScreen(
-            firebaseViewModel = firebaseAuthViewModel,
-            onNavigate = { navController.navigate(it.route) }
-        )
-    }
+    launchScreen()
+    login(navController, firebaseAuthViewModel)
+    forgotPassword(navController, firebaseAuthViewModel)
+    signUp(navController, firebaseAuthViewModel)
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-fun NavGraphBuilder.home(navController: NavHostController) {
-    composable(Destination.Home.route) {
-        HomeScreen(
-            navController = navController
-        )
-    }
+fun NavGraphBuilder.authScreens(
+    navController: NavHostController,
+    firebaseAuthViewModel: FirebaseAuthViewModel,
+    showContentInDevelopment: Boolean
+) {
+    home(navController, showContentInDevelopment, firebaseAuthViewModel)
+    mealPlan(navController, firebaseAuthViewModel)
+
+    addNote(navController, firebaseAuthViewModel)
+
+    weight(navController)
+    addWeight(navController)
+    showAllWeights(navController)
+
+    waterIntake(navController)
+
+    medication(navController)
+    addMedication(navController)
+    editMedication(navController)
+
+    timerComposable(navController)
+    addTimerComposable(navController)
+    editTimerComposable(navController)
+
+    recipesComposable(navController)
+
+    settingsComposable(navController, firebaseAuthViewModel)
 }
-
-fun NavGraphBuilder.signUp(navController: NavHostController, firebaseAuthViewModel: FirebaseAuthViewModel) {
-    composable(Destination.SignUp.route) {
-        RegisterView(firebaseAuthViewModel) { navController.navigate(it.route) }
-    }
-}
-
-@RequiresApi(Build.VERSION_CODES.O)
-fun NavGraphBuilder.weight(navController: NavHostController) {
-    composable(Destination.Weight.route) {
-        WeightScreen(
-            navController = navController,
-            backNavigationDirection = Destination.Home
-        )
-    }
-}
-
-@RequiresApi(Build.VERSION_CODES.O)
-fun NavGraphBuilder.addWeight(navController: NavHostController) {
-    composable(
-        route = Destination.AddWeight.route,
-        enterTransition = { NavigationTransition.slideInWithFadeToTopAnimation() },
-        exitTransition = { NavigationTransition.slideOutWithFadeToTopAnimation() }
-    ) {
-        AddWeightScreen(
-            navController = navController,
-            onDismiss = {
-                navController.navigate(Destination.Weight.route)
-            }
-        )
-    }
-}
-
-@RequiresApi(Build.VERSION_CODES.O)
-fun NavGraphBuilder.showAllWeights(navController: NavHostController) {
-    composable(Destination.ShowAllWeights.route) {
-        ShowAllWeights(
-            navController = navController
-        )
-    }
-}
-
-@RequiresApi(Build.VERSION_CODES.O)
-fun NavGraphBuilder.waterIntake(navController: NavHostController) {
-    composable(Destination.WaterIntake.route) {
-        BackScaffold(
-            title = Destination.WaterIntake.title,
-            navController = navController
-        )
-    }
-}
-
-@RequiresApi(Build.VERSION_CODES.O)
-fun NavGraphBuilder.medication(navController: NavHostController){
-    composable(Destination.Medication.route) {
-        MedicationScreen(
-            navController = navController
-        )
-    }
-}
-
-@RequiresApi(Build.VERSION_CODES.O)
-fun NavGraphBuilder.addMedication(navController: NavHostController){
-    composable(
-        route = Destination.AddMedication.route,
-        enterTransition = { NavigationTransition.slideInWithFadeToTopAnimation() },
-        exitTransition = { NavigationTransition.slideOutWithFadeToTopAnimation() }
-    ) {
-        AddEditMedicationScreen(
-            navController = navController,
-            currentMedication = null
-        )
-    }
-}
-
-@RequiresApi(Build.VERSION_CODES.O)
-fun NavGraphBuilder.editMedication(navController: NavHostController) {
-    composable(
-        route = Destination.EditMedication.route,
-        exitTransition = { NavigationTransition.slideOutWithFadeToTopAnimation() },
-        enterTransition = { NavigationTransition.slideInWithFadeToTopAnimation() },
-    ) {
-        AddEditMedicationScreen(
-            navController = navController,
-            currentMedication = navController.currentBackStackEntry?.savedStateHandle?.get<String>("medicationId")
-        )
-    }
-}
-
-fun NavGraphBuilder.recipesComposable(navController: NavHostController) {
-    composable(Destination.Recipes.route) {
-        val recipeViewModel = viewModel<RecipeViewModel>()
-
-        val localMealsCount by recipeViewModel.localMealCount.collectAsStateWithLifecycle(initialValue = 0)
-        val localMealsState by recipeViewModel.localMeals.collectAsStateWithLifecycle(initialValue = emptyList())
-
-        LaunchedEffect(localMealsCount) {
-            logging().info { "localMealsState: $localMealsCount" }
-        }
-
-        Column(
-            modifier = Modifier.padding(top = 55.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            Text(
-                modifier = Modifier.padding(horizontal = 10.dp),
-                text = "Rezepte"
-            )
-
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize(),
-                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 0.dp),
-                verticalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
-                items(localMealsState) { meal ->
-                    RecipeCard(meal)
-                }
-            }
-        }
-    }
-}
-
-@RequiresApi(Build.VERSION_CODES.O)
-fun NavGraphBuilder.editTimerComposable(navController: NavHostController) {
-    composable(
-        route = Destination.EditTimer.route,
-        enterTransition = { NavigationTransition.slideInWithFadeToTopAnimation() },
-        exitTransition = { NavigationTransition.slideOutWithFadeToTopAnimation() }
-    ) {
-        AddEditTimerSheet(
-            navController = navController,
-            currentCountdownTimer = navController.currentBackStackEntry?.savedStateHandle?.get<String>("timerId"),
-            onDismiss = {
-                navController.navigate(Destination.Timer.route)
-            }
-        )
-    }
-}
-
-@RequiresApi(Build.VERSION_CODES.O)
-fun NavGraphBuilder.addTimerComposable(navController: NavHostController) {
-    composable(
-        route = Destination.AddTimer.route,
-        enterTransition = { NavigationTransition.slideInWithFadeToTopAnimation() },
-        exitTransition = { NavigationTransition.slideOutWithFadeToTopAnimation() }
-    ) {
-        AddEditTimerSheet(
-            navController = navController,
-            currentCountdownTimer = null,
-            onDismiss = {
-                navController.navigate(Destination.Timer.route)
-            }
-        )
-    }
-}
-
-@RequiresApi(Build.VERSION_CODES.O)
-fun NavGraphBuilder.timerComposable(navController: NavHostController) {
-    composable(Destination.Timer.route) {
-        TimerScreen(
-            navController = navController,
-        )
-    }
-}
-
-@RequiresApi(Build.VERSION_CODES.O)
-fun NavGraphBuilder.settingsComposable(navController: NavHostController, firebaseAuthViewModel: FirebaseAuthViewModel) {
-    composable(Destination.Settings.route) {
-        BackScaffold(
-            title = Destination.Settings.title,
-            navController = navController,
-        ) {
-            SettingScreen(
-                navController,
-                firebaseAuthViewModel = firebaseAuthViewModel
-            )
-        }
-    }
-}
-
-

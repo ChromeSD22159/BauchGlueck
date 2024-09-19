@@ -8,7 +8,7 @@ import util.NetworkError
 import util.Result
 
 class AppDataSyncManager(): BaseSyncManager() {
-    private val apiService: StrapiApiClient = StrapiApiClient(serverHost)
+    private val apiService: StrapiApiClient = StrapiApiClient()
 
     suspend fun fetchChangeLog(): Result<List<ApiChangeLog>, NetworkError> {
         return apiService.fetchChangeLog()

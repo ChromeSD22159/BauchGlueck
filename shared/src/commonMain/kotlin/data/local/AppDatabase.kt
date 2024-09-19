@@ -7,6 +7,7 @@ import data.local.dao.CountdownTimerDao
 import data.local.dao.MealDao
 import data.local.dao.MealPlanDao
 import data.local.dao.MedicationDao
+import data.local.dao.NodeDao
 import data.local.dao.ShoppingListDao
 import data.local.dao.SyncHistoryDao
 import data.local.dao.WaterIntakeDao
@@ -24,6 +25,7 @@ import data.local.entitiy.MealPlanDay
 import data.local.entitiy.MealPlanSpot
 import data.local.entitiy.MealCategory
 import data.local.entitiy.MealCategoryCrossRef
+import data.local.entitiy.Node
 import data.local.entitiy.ShoppingList
 
 @Database(
@@ -41,9 +43,10 @@ import data.local.entitiy.ShoppingList
         MealPlanDay::class,
         MealPlanSpot::class,
         ShoppingList::class,
-        ChangeLog::class
+        ChangeLog::class,
+        Node::class
    ],
-    version = 10,
+    version = 11,
     exportSchema = false
 )
 abstract class LocalDatabase: RoomDatabase(), DB {
@@ -56,6 +59,7 @@ abstract class LocalDatabase: RoomDatabase(), DB {
     abstract val mealPlanDao: MealPlanDao
     abstract val shoppingListDao: ShoppingListDao
     abstract val changeLogDao: ChangeLogDao
+    abstract val nodeDao: NodeDao
 
      override fun clearAllTables() {
          super.clearAllTables()

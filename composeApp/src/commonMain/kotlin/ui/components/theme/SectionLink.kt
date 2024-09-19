@@ -1,4 +1,4 @@
-package ui.components
+package ui.components.theme
 
 import android.content.Intent
 import android.net.Uri

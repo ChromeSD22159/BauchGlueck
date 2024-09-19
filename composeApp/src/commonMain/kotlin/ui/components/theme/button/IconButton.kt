@@ -15,7 +15,7 @@ import bauchglueck.composeapp.generated.resources.Res
 import bauchglueck.composeapp.generated.resources.ic_arrow_right
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.vectorResource
-import ui.components.clickableWithRipple
+import ui.components.theme.clickableWithRipple
 import ui.theme.AppTheme
 
 @Composable

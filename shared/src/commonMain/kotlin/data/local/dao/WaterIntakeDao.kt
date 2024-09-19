@@ -8,13 +8,19 @@ import androidx.room.Update
 import androidx.room.Upsert
 import data.local.entitiy.Medication
 import data.local.entitiy.WaterIntake
+import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.Clock
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.toLocalDateTime
 
 @Dao
 interface WaterIntakeDao {
     // GET
     @Query("SELECT * FROM water_intake WHERE userId = :userId AND isDeleted = false")
     suspend fun getAll(userId: String): List<WaterIntake>
+
+    @Query("SELECT * FROM water_intake WHERE userId = :userId AND updatedAtOnDevice > :startDate AND updatedAtOnDevice < :endDate")
+    fun getAllByDateRange(userId: String, startDate: Long, endDate: Long): Flow<List<WaterIntake>>
 
     @Query("SELECT * FROM water_intake WHERE waterIntakeId = :waterIntakeId AND isDeleted = false")
     suspend fun getById(waterIntakeId: String): WaterIntake?

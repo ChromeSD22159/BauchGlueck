@@ -5,4 +5,12 @@
             <certificates src="system" />
         </trust-anchors>
     </base-config>
+
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">bauchglueck.appsbyfrederikkohler.de</domain>
+    </domain-config>
+
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="TODO">192.168.0.73</domain>
+    </domain-config>
 </network-security-config>

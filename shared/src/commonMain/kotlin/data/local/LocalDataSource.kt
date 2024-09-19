@@ -10,4 +10,5 @@ class LocalDataSource(
     val medications = db.medicationDao
     val meals = db.mealDao
     val mealPlan = db.mealPlanDao
+    val nodes = db.nodeDao
 }
