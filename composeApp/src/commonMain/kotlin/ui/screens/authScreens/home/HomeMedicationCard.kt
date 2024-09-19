@@ -12,6 +12,8 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,14 +33,12 @@ import viewModel.MedicationViewModel
 
 @Composable
 fun HomeMedicationCard(
-    title: String = "Medikation",
     horizontalSpacing: Dp = 10.dp,
-    onNavigate: (Destination) -> Unit
+    onNavigate: (Destination) -> Unit,
+    height: Dp = 80.dp,
+    medicationViewModel: MedicationViewModel
 ) {
-    val medicationViewModel: MedicationViewModel = viewModel()
-
     val medications by medicationViewModel.medicationsWithIntakeDetailsForToday.collectAsStateWithLifecycle(initialValue = emptyList())
-    val height = 80.dp
 
     LazyHorizontalGrid(
         modifier = Modifier.height(height + 10.dp),
@@ -65,7 +65,11 @@ fun MedCard(
     height: Dp = 80.dp,
     onNavigate: (Destination) -> Unit
 ) {
-    val intakes = medication.intakeTimesWithStatus.size
+    val intakesTimes = medication.intakeTimesWithStatus.size
+
+    val intakes = medication.intakeTimesWithStatus.flatMap { status ->
+        status.intakeStatuses.filter { it.isTaken }
+    }.size
 
     Box(
         modifier = Modifier
@@ -73,7 +77,7 @@ fun MedCard(
             .width(100.dp)
             .sectionShadow()
             .clickableWithRipple {
-                onNavigate(Destination.Timer)
+                onNavigate(Destination.Medication)
             }
     ) {
         Column(
@@ -89,7 +93,7 @@ fun MedCard(
                 color = MaterialTheme.colorScheme.onBackground
             )
             FooterText(
-                text = "${intakes}x pro Tag",
+                text = "${intakes}/${intakesTimes} eingenommen.",
                 color = MaterialTheme.colorScheme.onBackground
             )
         }

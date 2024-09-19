@@ -14,7 +14,8 @@ import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
@@ -24,11 +25,9 @@ import bauchglueck.composeapp.generated.resources.Res
 import bauchglueck.composeapp.generated.resources.ic_seal_xmark
 import data.Repository
 import data.local.entitiy.Node
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.vectorResource
 import org.koin.java.KoinJavaComponent.inject
-import org.lighthousegames.logging.logging
 import ui.components.theme.SliderItemAddCard
 import ui.components.theme.clickableWithRipple
 import ui.components.theme.sectionShadow
@@ -45,13 +44,7 @@ fun LastNotesCalendar(
     onNavigate: (Destination) -> Unit
 ) {
     val repository: Repository by inject(Repository::class.java)
-    var nodeList : List<Node> = emptyList()
-
-    LaunchedEffect(Unit) {
-        repository.nodeRepository.getAllNodes().collectLatest { nodes ->
-            nodeList = nodes
-        }
-    }
+    val nodeList by repository.nodeRepository.getAllNodes().collectAsState(initial = emptyList())
 
     val dates = DateRepository.getTheLastMonthDays
     val height = 80.dp
@@ -65,11 +58,11 @@ fun LastNotesCalendar(
     ) {
         items(dates.size, key = { it }) { it ->
             val date = dates[it]
-            val x = nodeList.firstOrNull { it.date.isTimestampOnDate(date) }
+            val notes = nodeList.firstOrNull {
+                it.date.isTimestampOnDate(date)
+            }
 
-            logging().info { "Date: $date" }
-            logging().info { "Node: $x" }
-            CalendarItem(date, height, x) {
+            CalendarItem(date, height, notes) {
                 onNavigate(Destination.AddNote)
             }
         }

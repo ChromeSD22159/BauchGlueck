@@ -43,7 +43,7 @@ fun SliderItemAddCard(
             Icon(
                 imageVector = Icons.Default.Add,
                 contentDescription = "icon",
-                modifier = Modifier.size(75.dp),
+                modifier = Modifier.size(50.dp),
                 tint = MaterialTheme.colorScheme.onPrimary
             )
         }

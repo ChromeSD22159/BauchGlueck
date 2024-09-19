@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -40,7 +41,7 @@ fun TimerScreen(
     navController: NavController,
 ) {
     val viewModel = viewModel<TimerScreenViewModel>()
-    val timers by viewModel.allTimers.collectAsStateWithLifecycle(initialValue = emptyList())
+    val timers by viewModel.allTimers.collectAsState()
 
     ScreenHolder(
         title = Destination.Timer.title,

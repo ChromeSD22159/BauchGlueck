@@ -11,6 +11,7 @@ import kotlinx.datetime.minus
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.datetime.todayIn
+import org.lighthousegames.logging.logging
 
 object DateRepository {
     val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
@@ -97,7 +98,7 @@ fun LocalDate.toDateString(): String {
 fun Int.toStringAndPadStart(length: Int, fillChar: Char): String {
     return this.toString().padStart(length, fillChar)
 }
-
+// -> 2024-09-19 12:22   -> 2024-09-19
 fun Long.isTimestampOnDate(date: LocalDate, timeZone: TimeZone = TimeZone.UTC): Boolean {
     val instant = Instant.fromEpochMilliseconds(this)
     val localDateFromTimestamp = instant.toLocalDateTime(timeZone).date

@@ -12,8 +12,10 @@ import dev.icerock.moko.mvvm.viewmodel.ViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -30,14 +32,30 @@ class TimerScreenViewModel: ViewModel(), KoinComponent {
     private val repository: Repository by inject()
     private val scope: CoroutineScope = viewModelScope
 
-    var allTimers: Flow<List<CountdownTimer>> = repository.countdownTimerRepository.getAll()
+    private var _allTimers: MutableStateFlow<List<CountdownTimer>> = MutableStateFlow(emptyList())
+    val x: StateFlow<List<CountdownTimer>> = _allTimers.asStateFlow()
 
     private val _selectedTimer: MutableStateFlow<CountdownTimer?> = MutableStateFlow(null)
     val selectedTimer: StateFlow<CountdownTimer?> = _selectedTimer.asStateFlow()
 
+    val allTimers = repository.countdownTimerRepository.getAll()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(1000), emptyList())
+
+    init {
+        loadAllTimers()
+    }
+
     override fun onCleared() {
         super.onCleared()
         logging().info { "TimerViewModel onCleared" }
+    }
+
+    fun loadAllTimers() {
+        scope.launch {
+            repository.countdownTimerRepository.getAll().collect {
+                _allTimers.value = it
+            }
+        }
     }
 
     fun addItem(item: CountdownTimer) {
