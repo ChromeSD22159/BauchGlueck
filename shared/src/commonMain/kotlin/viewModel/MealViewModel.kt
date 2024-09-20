@@ -6,10 +6,7 @@ import dev.icerock.moko.mvvm.viewmodel.ViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
-import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import util.DateRepository
@@ -19,7 +16,7 @@ class MealViewModel: ViewModel(), KoinComponent {
     private val localMeals: Flow<List<MealWithCategories>> = repository.mealRepository.getAllMealsMeals()
     private val dateRepository = DateRepository
 
-    val days = dateRepository.getTheNextMonthDays
+    val days = dateRepository.getTheNextMonthDaysUTC
 
     val localMealCount: Flow<Int>
         get() = localMeals.map { it.size }

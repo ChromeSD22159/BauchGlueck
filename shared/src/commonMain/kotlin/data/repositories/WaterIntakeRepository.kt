@@ -11,10 +11,7 @@ import dev.gitlive.firebase.auth.auth
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.datetime.Clock
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.atStartOfDayIn
 import util.DateRepository
-import kotlinx.datetime.TimeZone
 
 class WaterIntakeRepository(
     db: LocalDatabase,
@@ -33,7 +30,7 @@ class WaterIntakeRepository(
 
     fun getAllIntakesFromToday(): Flow<List<WaterIntake>> {
         if(userId == null) return emptyFlow()
-        val today = DateRepository.startEndToday()
+        val today = DateRepository.startEndTodayCurrentTimeZone()
         return localService.getAllByDateRange(userId!!, today.start,today.end)
     }
 

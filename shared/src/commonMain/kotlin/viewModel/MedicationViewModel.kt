@@ -11,14 +11,13 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import org.lighthousegames.logging.logging
 import util.DateRepository
 
 class MedicationViewModel: ViewModel(), KoinComponent {
     private val repository: Repository by inject()
     private val medicationRepository = repository.medicationRepository
     private var scope = viewModelScope
-    private val today = DateRepository.startEndToday()
+    private val today = DateRepository.startEndTodayCurrentTimeZone()
 
     private val _medicationsWithIntakeDetailsForToday = MutableStateFlow<List<MedicationWithIntakeDetailsForToday>>(emptyList())
     val medicationsWithIntakeDetailsForToday: StateFlow<List<MedicationWithIntakeDetailsForToday>> = _medicationsWithIntakeDetailsForToday

@@ -26,6 +26,9 @@ import bauchglueck.composeapp.generated.resources.ic_seal_xmark
 import data.Repository
 import data.local.entitiy.Node
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.atStartOfDayIn
+import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.vectorResource
 import org.koin.java.KoinJavaComponent.inject
 import ui.components.theme.SliderItemAddCard
@@ -36,6 +39,8 @@ import ui.components.theme.truncate
 import ui.navigations.Destination
 import util.DateRepository
 import util.isTimestampOnDate
+import util.toCurrentLocalDateFromUTC
+import util.toCurrentTimeZone
 
 @Composable
 fun LastNotesCalendar(
@@ -46,7 +51,7 @@ fun LastNotesCalendar(
     val repository: Repository by inject(Repository::class.java)
     val nodeList by repository.nodeRepository.getAllNodes().collectAsState(initial = emptyList())
 
-    val dates = DateRepository.getTheLastMonthDays
+    val dates = DateRepository.getTheLastMonthDaysUTC
     val height = 80.dp
 
     LazyHorizontalGrid(
@@ -59,7 +64,7 @@ fun LastNotesCalendar(
         items(dates.size, key = { it }) { it ->
             val date = dates[it]
             val notes = nodeList.firstOrNull {
-                it.date.isTimestampOnDate(date)
+                it.date.isTimestampOnDate(date, TimeZone.UTC)
             }
 
             CalendarItem(date, height, notes) {
@@ -76,6 +81,7 @@ fun LastNotesCalendar(
 }
 
 
+
 @Composable
 fun CalendarItem(
     localDate: LocalDate,
@@ -84,8 +90,10 @@ fun CalendarItem(
     onNavigate: (Destination) -> Unit
 ) {
 
-    val day = localDate.dayOfMonth.toString().padStart(2, '0')
-    val month = localDate.monthNumber.toString().padStart(2, '0')
+    val date = localDate.toCurrentLocalDateFromUTC
+
+    val day = date.dayOfMonth.toString().padStart(2, '0')
+    val month = date.monthNumber.toString().padStart(2, '0')
 
     Box(
         modifier = Modifier

@@ -104,6 +104,11 @@ fun NavGraphBuilder.publicScreens(
     signUp(navController, firebaseAuthViewModel)
 }
 
+
+
+
+
+
 @RequiresApi(Build.VERSION_CODES.O)
 fun NavGraphBuilder.authScreens(
     navController: NavHostController,
