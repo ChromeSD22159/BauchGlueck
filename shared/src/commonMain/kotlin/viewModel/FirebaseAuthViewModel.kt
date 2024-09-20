@@ -2,7 +2,7 @@ package viewModel
 
 import com.mmk.kmpnotifier.notification.NotifierManager
 import data.repositories.FirebaseRepository
-import data.model.UserProfile
+import data.model.firebase.UserProfile
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.AuthResult
 import dev.gitlive.firebase.auth.FirebaseUser

@@ -11,12 +11,8 @@ import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import coil3.ImageLoader
-import coil3.PlatformContext
 import coil3.annotation.ExperimentalCoilApi
 import coil3.compose.setSingletonImageLoaderFactory
-import coil3.request.crossfade
-import coil3.util.DebugLogger
 import com.mmk.kmpnotifier.notification.NotifierManager
 import com.mmk.kmpnotifier.notification.configuration.NotificationPlatformConfiguration
 import com.mmk.kmpnotifier.permission.permissionUtil
@@ -27,6 +23,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         NotifierManager.initialize(
             configuration = NotificationPlatformConfiguration.Android(
                 notificationIconResId = R.drawable.ic_launcher_bauch_glueck_new,
@@ -40,8 +37,8 @@ class MainActivity : ComponentActivity() {
 
     @OptIn(ExperimentalCoilApi::class)
     @RequiresApi(Build.VERSION_CODES.O)
-    override fun onStart( ) {
-        super.onStart( )
+    override fun onStart() {
+        super.onStart()
 
         KoinInject(applicationContext).init()
 
@@ -91,7 +88,3 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
-fun getAsyncImageLoader(context: PlatformContext) = ImageLoader.Builder(context).crossfade(true).logger(
-    DebugLogger()
-).build()

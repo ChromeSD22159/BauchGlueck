@@ -1,10 +1,9 @@
 package data.remote
 
-import data.model.FirebaseCloudMessagingResponse
-import data.model.FirebaseCloudMessagingScheduledTimeResponse
+import data.model.firebase.FirebaseCloudMessagingResponse
 import data.model.RecipeCategory
-import data.model.RemoteNotification
-import data.model.ScheduleRemoteNotification
+import data.model.firebase.RemoteNotification
+import data.model.firebase.ScheduleRemoteNotification
 import data.network.BaseApiEndpoint
 import data.network.createHttpClient
 import data.network.replacePlaceholders
@@ -78,8 +77,10 @@ open class BaseApiClient(
         return sendNotification(RemoteNotificationEndpoint.SEND_NOTIFICATION, notification)
     }
 
-    suspend fun sendNotification(notification: ScheduleRemoteNotification): Result<FirebaseCloudMessagingScheduledTimeResponse, NetworkError> {
-        return sendNotification(RemoteNotificationEndpoint.SCHEDULE_NOTIFICATION, notification)
+    suspend fun sendScheduleRemoteNotification(notification: ScheduleRemoteNotification): Result<FirebaseCloudMessagingResponse, NetworkError> {
+        logging().info { "sendScheduleRemoteNotification" }
+        logging().info { notification }
+        return sendNotification<ScheduleRemoteNotification, FirebaseCloudMessagingResponse>(RemoteNotificationEndpoint.SCHEDULE_NOTIFICATION, notification)
     }
 
     suspend fun getRecipesOverview(maxCount: Int?): Result<List<ApiRecipesResponse>, NetworkError> {
@@ -246,6 +247,8 @@ open class BaseApiClient(
             logging().info { "!!! !!! !!! $apiEndpoint -> ${e.message}" }
             return Result.Error(NetworkError.REQUEST_TIMEOUT)
         }
+
+        logging().info { "$apiEndpoint -> ${response}" }
 
         return when (response.status.value) {
             in 200..299 -> {

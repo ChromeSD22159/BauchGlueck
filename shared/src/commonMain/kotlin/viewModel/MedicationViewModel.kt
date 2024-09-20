@@ -5,45 +5,47 @@ import data.local.entitiy.MedicationWithIntakeDetails
 import data.local.entitiy.MedicationWithIntakeDetailsForToday
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.atStartOfDayIn
-import kotlinx.datetime.toLocalDateTime
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import org.lighthousegames.logging.logging
+import util.DateRepository
 
 class MedicationViewModel: ViewModel(), KoinComponent {
     private val repository: Repository by inject()
     private val medicationRepository = repository.medicationRepository
     private var scope = viewModelScope
-    private val todayStart: Long
-    private val todayEnd: Long
+    private val today = DateRepository.startEndTodayCurrentTimeZone()
+
+    private val _medicationsWithIntakeDetailsForToday = MutableStateFlow<List<MedicationWithIntakeDetailsForToday>>(emptyList())
+    val medicationsWithIntakeDetailsForToday: StateFlow<List<MedicationWithIntakeDetailsForToday>> = _medicationsWithIntakeDetailsForToday
 
     init {
-        val timeZone = TimeZone.currentSystemDefault()
-        val now = Clock.System.now().toLocalDateTime(timeZone)
-        todayStart = now.date.atStartOfDayIn(timeZone).toEpochMilliseconds()
-        todayEnd = todayStart + 86_400_000
+        loadMedicationsWithIntakeDetailsForToday()
     }
 
-    val medicationsWithIntakeDetailsForToday: Flow<List<MedicationWithIntakeDetailsForToday>> = medicationRepository.getMedicationsWithIntakeTimesForToday()
-        .map { medications ->
-
-            logging().info { "Medications: $medications" }
-
-            medications.map { medicationWithIntake ->
-                val intakeTimesWithTodayStatus = medicationWithIntake.intakeTimesWithStatus.map { intakeTimeWithStatus ->
-                    val todayStatuses = intakeTimeWithStatus.intakeStatuses.filter { status ->
-                        status.date in todayStart..todayEnd
+    fun loadMedicationsWithIntakeDetailsForToday() {
+        viewModelScope.launch {
+            medicationRepository.getMedicationsWithIntakeTimesForToday()
+                .map { medications ->
+                    medications.map { medicationWithIntake ->
+                        val intakeTimesWithTodayStatus = medicationWithIntake.intakeTimesWithStatus.map { intakeTimeWithStatus ->
+                            val todayStatuses = intakeTimeWithStatus.intakeStatuses.filter { status ->
+                                status.date in today.start..today.end
+                            }
+                            intakeTimeWithStatus.copy(intakeStatuses = todayStatuses)
+                        }
+                        medicationWithIntake.copy(intakeTimesWithStatus = intakeTimesWithTodayStatus)
                     }
-                    intakeTimeWithStatus.copy(intakeStatuses = todayStatuses)
                 }
-                medicationWithIntake.copy(intakeTimesWithStatus = intakeTimesWithTodayStatus)
-            }
+                .collect {
+                    _medicationsWithIntakeDetailsForToday.value = it
+                }
         }
+    }
+
 
     fun insertMedicationWithIntakeDetails(medicationWithIntakeDetails: MedicationWithIntakeDetails) {
         scope.launch {

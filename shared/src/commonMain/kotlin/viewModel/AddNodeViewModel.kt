@@ -6,14 +6,18 @@ import data.model.Mood
 import data.local.entitiy.Node
 import org.koin.core.component.inject
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.koin.core.component.KoinComponent
 import util.DateRepository
+import util.utcMillis
 
 class AddNodeViewModel: ViewModel(), KoinComponent {
     private val repository: Repository by inject()
@@ -38,11 +42,7 @@ class AddNodeViewModel: ViewModel(), KoinComponent {
     private val maxCharacters = 512
 
     init {
-        viewModelScope.launch {
-            val today = DateRepository.startEndToday()
-            val x = repository.nodeRepository.getAllByDateRange(today.start, today.end)
-            val y = repository.nodeRepository.getAllNodes()
-
+        viewModelScope.launch(Dispatchers.IO) {
             _allMoods.emit(Moods.list.toMutableList())
         }
     }
@@ -65,6 +65,7 @@ class AddNodeViewModel: ViewModel(), KoinComponent {
                 Node(
                     text = node.value,
                     moodsRawValue = Json.encodeToString(currentMoods.value),
+                    date = Clock.System.utcMillis
                 )
             )
 

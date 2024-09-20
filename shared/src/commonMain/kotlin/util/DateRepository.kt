@@ -2,12 +2,14 @@ package util
 
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.minus
 import kotlinx.datetime.plus
+import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.datetime.todayIn
 
@@ -15,15 +17,22 @@ object DateRepository {
     val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
     val tomorrow = today.plus(1, DateTimeUnit.DAY)
 
+    val todayUTC = Clock.System.todayIn(TimeZone.UTC)
+    val tomorrowUTC = todayUTC.plus(1, DateTimeUnit.DAY)
+
     fun getNextSevenDays(): List<LocalDate> {
         return (0..7).map { today.plus(it, DateTimeUnit.DAY) }
     }
 
-    var getTheNextMonthDays: List<LocalDate>
+    val getTheNextMonthDaysUTC: List<LocalDate>
         get() {
-            return (0..30).map { today.plus(it, DateTimeUnit.DAY) }
+            return (0..30).map { todayUTC.plus(it, DateTimeUnit.DAY) }
         }
-        set(value) {}
+
+    val getTheLastMonthDaysUTC: List<LocalDate>
+        get() {
+            return (0..30).map { todayUTC.minus(it, DateTimeUnit.DAY) }
+        }
 
     fun getFirstAndLastDayOfSevenPreviousWeeks(): List<Pair<LocalDate, LocalDate>> {
         val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
@@ -53,13 +62,20 @@ object DateRepository {
         return Clock.System.todayIn(TimeZone.currentSystemDefault())
     }
 
-    fun startEndToday(): Today {
-        val timeZone = TimeZone.currentSystemDefault()
-        val now = Clock.System.now().toLocalDateTime(timeZone)
-        val todayStart = now.date.atStartOfDayIn(timeZone).toEpochMilliseconds()
+    fun startEndTodayCurrentTimeZone(): Today {
+        val now = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+        val todayStart = now.date.atStartOfDayIn(TimeZone.currentSystemDefault()).toEpochMilliseconds()
         val todayEnd = todayStart + 86_400_000
 
         return Today(todayStart, todayEnd)
+    }
+
+    fun startEndTodayInUTC(timeZone: TimeZone = TimeZone.currentSystemDefault()): Today {
+        val now = Clock.System.now().toLocalDateTime(TimeZone.UTC)
+        val todayStartLocal = now.date.atStartOfDayIn(timeZone).toEpochMilliseconds()
+        val todayEndLocal = todayStartLocal + 86_400_000
+
+        return Today(todayStartLocal, todayEndLocal)
     }
 
     val dayOfWeekName: String
@@ -70,6 +86,28 @@ object DateRepository {
 
     val todayDateString: String
         get() = today.dayOfMonth.toString().padStart(2,'0')
+}
+
+val Clock.System.utcMillis: Long
+    get() = this.now().toEpochMilliseconds()
+
+val Long.toCurrentTimeZone: LocalDateTime
+    get() {
+        val instant = Instant.fromEpochMilliseconds(this)
+        return instant.toLocalDateTime(TimeZone.currentSystemDefault())
+    }
+
+val LocalDate.toCurrentLocalDateFromUTC: LocalDate
+    get()  {
+        val startOfDayInUtc = this.atStartOfDayIn(TimeZone.UTC)
+        val localDateTime = startOfDayInUtc.toLocalDateTime(TimeZone.currentSystemDefault())
+        return localDateTime.date
+    }
+
+fun Long.toLocalTimeStamp(timeZone: TimeZone = TimeZone.currentSystemDefault()): Long {
+    val utcInstant = Instant.fromEpochMilliseconds(this)
+    val localDateTime = utcInstant.toLocalDateTime(timeZone)
+    return localDateTime.toInstant(timeZone).toEpochMilliseconds()
 }
 
 data class Today(
@@ -89,6 +127,12 @@ fun LocalDate.toDateString(): String {
 
 fun Int.toStringAndPadStart(length: Int, fillChar: Char): String {
     return this.toString().padStart(length, fillChar)
+}
+// -> 2024-09-19 12:22   -> 2024-09-19
+fun Long.isTimestampOnDate(date: LocalDate, timeZone: TimeZone = TimeZone.UTC): Boolean {
+    val instant = Instant.fromEpochMilliseconds(this)
+    val localDateFromTimestamp = instant.toLocalDateTime(timeZone).date
+    return localDateFromTimestamp == date
 }
 
 enum class Weekday(val displayName: String) {

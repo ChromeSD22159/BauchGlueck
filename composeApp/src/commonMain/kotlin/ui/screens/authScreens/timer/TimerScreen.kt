@@ -1,12 +1,12 @@
 package ui.screens.authScreens.timer
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -20,9 +20,7 @@ import bauchglueck.composeapp.generated.resources.Res
 import bauchglueck.composeapp.generated.resources.ic_add_timer
 import bauchglueck.composeapp.generated.resources.ic_gear
 import data.local.entitiy.TimerState
-import data.model.ScheduleRemoteNotification
 import ui.navigations.Destination
-import org.lighthousegames.logging.logging
 import ui.components.theme.button.IconButton
 import ui.components.theme.ScreenHolder
 import viewModel.TimerScreenViewModel
@@ -43,7 +41,7 @@ fun TimerScreen(
     navController: NavController,
 ) {
     val viewModel = viewModel<TimerScreenViewModel>()
-    val timers by viewModel.allTimers.collectAsStateWithLifecycle(initialValue = emptyList())
+    val timers by viewModel.allTimers.collectAsState()
 
     ScreenHolder(
         title = Destination.Timer.title,
@@ -76,17 +74,12 @@ fun TimerScreen(
                     navController.currentBackStackEntry?.savedStateHandle?.set("timerId", timer.timerId)
                 },
                 onDelete = {
-                    Log.i("TimerCard Update", "isDeleted: ${it.isDeleted} - ${it.name}\n")
                     viewModel.softDelete(it)
-                    Log.i("TimerCard Update", "isDeleted: ${it.isDeleted} - ${it.name}\n")
                 }
             ) {
-                logging().debug { "TIMER update ${it.name}" }
-                logging().debug { it }
 
                 viewModel.updateItemAndSyncRemote(it)
                 if(TimerState.running.value == it.timerState) {
-                    //viewModel.sendNotification(it)
                     viewModel.sendScheduleRemoteNotification(it)
                 }
 
