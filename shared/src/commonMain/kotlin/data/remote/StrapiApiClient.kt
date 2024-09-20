@@ -1,9 +1,6 @@
 package data.remote
 
-import data.model.firebase.FirebaseCloudMessagingResponse
 import data.model.RecipeCategory
-import data.model.firebase.RemoteNotification
-import data.model.firebase.ScheduleRemoteNotification
 import data.network.BaseApiEndpoint
 import data.network.createHttpClient
 import data.network.replacePlaceholders
@@ -28,7 +25,10 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import org.lighthousegames.logging.logging
+import util.FirebaseCloudMessagingResponse
 import util.NetworkError
+import util.NotificationCronJobRequest
+import util.NotificationDetails
 import util.Result
 
 class StrapiApiClient(
@@ -73,14 +73,25 @@ open class BaseApiClient(
         AppStatistics("/api/appStatistics", HttpMethod.Get)
     }
 
-    suspend fun sendNotification(notification: RemoteNotification): Result<FirebaseCloudMessagingResponse, NetworkError> {
-        return sendNotification(RemoteNotificationEndpoint.SEND_NOTIFICATION, notification)
-    }
-
-    suspend fun sendScheduleRemoteNotification(notification: ScheduleRemoteNotification): Result<FirebaseCloudMessagingResponse, NetworkError> {
+    suspend fun sendScheduleRemoteNotification(notification: NotificationCronJobRequest): Result<FirebaseCloudMessagingResponse, NetworkError> {
         logging().info { "sendScheduleRemoteNotification" }
         logging().info { notification }
-        return sendNotification<ScheduleRemoteNotification, FirebaseCloudMessagingResponse>(RemoteNotificationEndpoint.SCHEDULE_NOTIFICATION, notification)
+        return sendNotification(RemoteNotificationEndpoint.SCHEDULE_NOTIFICATION, notification)
+    }
+
+    // TODO add route
+    suspend fun createRecurringNotification(notification: NotificationCronJobRequest): Result<FirebaseCloudMessagingResponse, NetworkError> {
+        return sendNotification(RemoteNotificationEndpoint.SCHEDULE_NOTIFICATION, notification)
+    }
+
+    // TODO add route
+    suspend fun updateRecurringNotification(notification: NotificationCronJobRequest): Result<FirebaseCloudMessagingResponse, NetworkError> {
+        return sendNotification(RemoteNotificationEndpoint.SCHEDULE_NOTIFICATION, notification)
+    }
+
+    // TODO add route
+    suspend fun deleteRecurringNotification(notification: NotificationCronJobRequest): Result<FirebaseCloudMessagingResponse, NetworkError> {
+        return sendNotification(RemoteNotificationEndpoint.SCHEDULE_NOTIFICATION, notification)
     }
 
     suspend fun getRecipesOverview(maxCount: Int?): Result<List<ApiRecipesResponse>, NetworkError> {

@@ -1,9 +1,6 @@
 package data.repositories
 
 import com.mmk.kmpnotifier.notification.NotifierManager
-import data.model.firebase.FirebaseCloudMessagingResponse
-import data.model.firebase.RemoteNotification
-import data.model.firebase.ScheduleRemoteNotification
 import data.model.firebase.UserProfile
 import data.remote.StrapiApiClient
 import dev.gitlive.firebase.Firebase
@@ -11,7 +8,9 @@ import dev.gitlive.firebase.auth.AuthResult
 import dev.gitlive.firebase.auth.auth
 import dev.gitlive.firebase.firestore.firestore
 import dev.gitlive.firebase.messaging.messaging
+import util.FirebaseCloudMessagingResponse
 import util.NetworkError
+import util.NotificationCronJobRequest
 import util.Result
 
 enum class Collection {
@@ -70,11 +69,7 @@ class FirebaseRepository() {
         }
     }
 
-    suspend fun sendScheduleRemoteNotification(notification: ScheduleRemoteNotification): Result<FirebaseCloudMessagingResponse, NetworkError> {
+    suspend fun sendScheduleRemoteNotification(notification: NotificationCronJobRequest): Result<FirebaseCloudMessagingResponse, NetworkError> {
         return strapi.sendScheduleRemoteNotification(notification)
-    }
-
-    suspend fun sendRemoteNotification(notification: RemoteNotification): Result<FirebaseCloudMessagingResponse, NetworkError> {
-        return strapi.sendNotification(notification)
     }
 }

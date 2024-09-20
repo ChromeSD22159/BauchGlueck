@@ -1,16 +1,10 @@
 package viewModel
 
 import com.mmk.kmpnotifier.notification.NotifierManager
-import util.Notification
-import util.Notifications
-import util.Notifications.generate
 import data.Repository
 import data.local.entitiy.CountdownTimer
-import data.model.firebase.RemoteNotification
-import data.model.firebase.RemoteNotificationData
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -18,15 +12,15 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
-import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toInstant
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.lighthousegames.logging.logging
+import util.FirebaseFunctionsCronJobManager
+import util.NotificationCronJobRequest
+import util.NotificationDetails
 import util.onError
 import util.onSuccess
+import util.toUTC
 
 class TimerScreenViewModel: ViewModel(), KoinComponent {
     private val repository: Repository by inject()
@@ -110,16 +104,26 @@ class TimerScreenViewModel: ViewModel(), KoinComponent {
             val endDate = timer.endDate ?: return@launch
             val now = Clock.System.now().toEpochMilliseconds()
 
-            val newNotification = Notifications.getScheduleRemoteNotification(Notification.FinishedTimer)
 
-            if (endDate > now && newNotification != null) {
-                val res = repository.firebaseRepository.sendScheduleRemoteNotification(
-                    newNotification.generate(
-                        token = token, 
-                        timerName = timer.name,
-                        trigger = endDate
-                    )
+
+            if (endDate > now) {
+                val newNotification = NotificationDetails(
+                    token = token,
+                    title = "BauchGlück Notification",
+                    body = "Dein ${timer.name} ist abgelaufen!"
                 )
+
+                val job = FirebaseFunctionsCronJobManager.generateCronJob(
+                    identifier = timer.timerId,
+                    oneTimeSchedule = endDate.toUTC()
+                )
+
+                val request = NotificationCronJobRequest(
+                    notification = newNotification,
+                    cronJob = job,
+                )
+
+                val res = repository.firebaseRepository.sendScheduleRemoteNotification(request)
 
                 res.onSuccess {
                     logging().info { "Notification sent: $it" }
@@ -129,36 +133,4 @@ class TimerScreenViewModel: ViewModel(), KoinComponent {
             }
         }
     }
-
-    fun sendNotification(timer: CountdownTimer) {
-        viewModelScope.launch {
-            val token = NotifierManager.getPushNotifier().getToken() ?: return@launch
-
-            val newNotification = RemoteNotification(
-                token = token,
-                body = "Dein \"${timer.name}\" Timer wurde gestartet!",
-                title = "Timer gestartet!",
-                data = RemoteNotificationData(
-                    key1 = timer.id.toString(),
-                    key2 = timer.name,
-                ),
-            )
-
-            repository.firebaseRepository.sendRemoteNotification(newNotification)
-        }
-    }
-}
-
-fun Long.toUTC(): String {
-    val instant = Instant.fromEpochMilliseconds(this)
-    return instant.toString() // Gibt das ISO 8601-Format in UTC zurück
-}
-
-
-
-fun LocalDateTime.toEpochMillis(timeZone: TimeZone = TimeZone.UTC): Long {
-    // Konvertiere LocalDateTime in Instant unter Verwendung der angegebenen Zeitzone
-    val instant = this.toInstant(timeZone)
-    // Konvertiere Instant in Millisekunden
-    return instant.toEpochMilliseconds()
 }

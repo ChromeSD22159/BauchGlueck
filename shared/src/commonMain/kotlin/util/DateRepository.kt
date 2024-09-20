@@ -128,11 +128,21 @@ fun LocalDate.toDateString(): String {
 fun Int.toStringAndPadStart(length: Int, fillChar: Char): String {
     return this.toString().padStart(length, fillChar)
 }
-// -> 2024-09-19 12:22   -> 2024-09-19
+
 fun Long.isTimestampOnDate(date: LocalDate, timeZone: TimeZone = TimeZone.UTC): Boolean {
     val instant = Instant.fromEpochMilliseconds(this)
     val localDateFromTimestamp = instant.toLocalDateTime(timeZone).date
     return localDateFromTimestamp == date
+}
+
+fun Long.toUTC(): String {
+    val instant = Instant.fromEpochMilliseconds(this)
+    return instant.toString() // Gibt das ISO 8601-Format in UTC zurück
+}
+
+fun LocalDateTime.toEpochMillis(timeZone: TimeZone = TimeZone.UTC): Long {
+    val instant = this.toInstant(timeZone)
+    return instant.toEpochMilliseconds()
 }
 
 enum class Weekday(val displayName: String) {
