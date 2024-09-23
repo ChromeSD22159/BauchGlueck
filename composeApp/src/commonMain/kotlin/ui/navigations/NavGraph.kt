@@ -2,41 +2,26 @@ package ui.navigations
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import com.mmk.kmpnotifier.notification.NotifierManager
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
 import org.koin.compose.KoinContext
 import org.lighthousegames.logging.logging
-import viewModel.RecipeViewModel
 import viewModel.SyncWorkerViewModel
-import ui.components.RecipeCard
 import ui.screens.authScreens.addNote
 import ui.screens.authScreens.home.home
 import ui.screens.authScreens.mealPlan.mealPlan
-import ui.screens.authScreens.mealPlan.recipesComposable
 import ui.screens.authScreens.medication.addMedication
 import ui.screens.authScreens.medication.editMedication
 import ui.screens.authScreens.medication.medication
+import ui.screens.authScreens.recipeDetail.recipeDetails
+import ui.screens.authScreens.searchRecipes.searchRecipes
 import ui.screens.authScreens.settings.settingsComposable
 import ui.screens.authScreens.timer.addTimerComposable
 import ui.screens.authScreens.timer.editTimerComposable
@@ -50,6 +35,7 @@ import ui.screens.publicScreens.forgotPassword
 import ui.screens.publicScreens.login
 import ui.screens.publicScreens.signUp
 import viewModel.FirebaseAuthViewModel
+import viewModel.RecipeViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -63,6 +49,7 @@ fun NavGraph(
 
     val syncWorker = viewModel<SyncWorkerViewModel>()
     val firebaseAuthViewModel = viewModel<FirebaseAuthViewModel>()
+    val recipeViewModel = viewModel<RecipeViewModel>()
 
     val minimumDelay by syncWorker.uiState.value.minimumDelay.collectAsState()
     val isFinishedSyncing by syncWorker.uiState.value.isFinishedSyncing.collectAsState()
@@ -84,7 +71,7 @@ fun NavGraph(
 
         NavHost(navController = navController, startDestination = Destination.Launch.route) {
             publicScreens(navController, firebaseAuthViewModel, showContentInDevelopment)
-            authScreens(navController, firebaseAuthViewModel, showContentInDevelopment)
+            authScreens(navController, firebaseAuthViewModel, recipeViewModel, showContentInDevelopment)
         }
     }
 }
@@ -105,18 +92,18 @@ fun NavGraphBuilder.publicScreens(
 }
 
 
-
-
-
-
 @RequiresApi(Build.VERSION_CODES.O)
 fun NavGraphBuilder.authScreens(
     navController: NavHostController,
     firebaseAuthViewModel: FirebaseAuthViewModel,
+    recipeViewModel: RecipeViewModel,
     showContentInDevelopment: Boolean
 ) {
     home(navController, showContentInDevelopment, firebaseAuthViewModel)
+
     mealPlan(navController, firebaseAuthViewModel)
+    searchRecipes(navController, recipeViewModel)
+    recipeDetails(navController, recipeViewModel)
 
     addNote(navController, firebaseAuthViewModel)
 
@@ -134,7 +121,7 @@ fun NavGraphBuilder.authScreens(
     addTimerComposable(navController)
     editTimerComposable(navController)
 
-    recipesComposable(navController)
+    //recipesComposable(navController)
 
     settingsComposable(navController, firebaseAuthViewModel)
 }

@@ -2,7 +2,10 @@ package data.repositories
 
 import com.mmk.kmpnotifier.notification.NotifierManager
 import data.model.firebase.UserProfile
+import data.remote.BaseApiClient
 import data.remote.StrapiApiClient
+import data.remote.model.ApiDeviceToken
+import data.remote.model.SyncResponse
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.AuthResult
 import dev.gitlive.firebase.auth.auth
@@ -33,6 +36,26 @@ class FirebaseRepository() {
     suspend fun signOut() {
         auth.signOut()
         NotifierManager.getPushNotifier().deleteMyToken()
+    }
+
+    suspend fun deleteDeviceToken(userID: String, token: String): Result<SyncResponse, NetworkError> {
+        return strapi.sendData<ApiDeviceToken, SyncResponse>(
+            BaseApiClient.ApiEndpoint.DeleteDeviceToken,
+            ApiDeviceToken(
+                userID,
+                token
+            )
+        )
+    }
+
+    suspend fun saveDeviceToken(userID: String, token: String): Result<SyncResponse, NetworkError> {
+        return strapi.sendData<ApiDeviceToken, SyncResponse>(
+            BaseApiClient.ApiEndpoint.SaveDeviceToken,
+            ApiDeviceToken(
+                userID,
+                token
+            )
+        )
     }
 
     suspend fun createUserWithEmailAndPassword(userProfile: UserProfile, password: String): Error? {

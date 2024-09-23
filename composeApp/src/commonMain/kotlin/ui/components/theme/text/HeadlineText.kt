@@ -19,6 +19,7 @@ fun HeadlineText(
     color: Color = MaterialTheme.colorScheme.onBackground,
     weight: FontWeight = FontWeight.Normal,
     size: TextUnit = 24.sp,
+    maxLines: Int = Int.MAX_VALUE,
     textDecoration: TextDecoration = TextDecoration.None
 ) {
     Text(
@@ -29,6 +30,7 @@ fun HeadlineText(
         fontFamily = MaterialTheme.typography.headlineMedium.fontFamily,
         fontSize = size,
         fontWeight = weight,
+        maxLines = maxLines,
         textDecoration = textDecoration
     )
 }

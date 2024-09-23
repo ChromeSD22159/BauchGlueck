@@ -28,8 +28,8 @@ import org.lighthousegames.logging.logging
 import util.FirebaseCloudMessagingResponse
 import util.NetworkError
 import util.NotificationCronJobRequest
-import util.NotificationDetails
 import util.Result
+import util.debugJsonHelper
 
 class StrapiApiClient(
     override val httpClient: HttpClient = createHttpClient()
@@ -67,10 +67,13 @@ open class BaseApiClient(
 
     enum class ApiEndpoint(override var urlPath: String, override val method: HttpMethod): BaseApiEndpoint {
         RECIPES_OVERVIEW_REMOTE_DATA("/api/recipes/overview?count={count}", HttpMethod.Get),
+        SEARCH_RECIPES("/api/recipes/searchRecipes?userId={userID}", HttpMethod.Get),
         STARTUP_MEALS("/api/getStartUpMeals", HttpMethod.Get),
         STARTUP_MEALS_COUNT("/api/getStartUpMealsCount", HttpMethod.Get),
         ChangeLog("/api/changeLog", HttpMethod.Get),
-        AppStatistics("/api/appStatistics", HttpMethod.Get)
+        AppStatistics("/api/appStatistics", HttpMethod.Get),
+        SaveDeviceToken("/api/saveDeviceToken", HttpMethod.Post),
+        DeleteDeviceToken("/api/deleteDeviceToken", HttpMethod.Post)
     }
 
     suspend fun sendScheduleRemoteNotification(notification: NotificationCronJobRequest): Result<FirebaseCloudMessagingResponse, NetworkError> {
@@ -101,6 +104,37 @@ open class BaseApiClient(
         return apiCall(endpoint.generateRequestURL(serverHost) , httpClient)
     }
 
+    suspend fun searchRecipes(query: String, userID: String): Result<List<ApiRecipesResponse>, NetworkError> {
+        val endpoint = ApiEndpoint.SEARCH_RECIPES
+        endpoint.replacePlaceholders("{userID}", userID)
+
+        val url = endpoint.generateRequestURL(serverHost)+"&searchQuery=" + query
+
+        logging().info { "searchRecipes: ${url}" }
+
+        return try {
+            val response = httpClient.get(url)
+            Result.Success(response.body())
+        } catch (e: Exception) {
+            println("Fehler bei der Deserialisierung: $e")
+            Result.Error(NetworkError.SERIALIZATION)
+        }
+    }
+
+    suspend fun generateRecipe(category: RecipeCategory): Result<GeneratedRecipeResponse, NetworkError> {
+        val endpoint = FetchAfterTimestampEndpoint.GenerateRecipe
+        endpoint.replacePlaceholders("{RecipeKind}", category.name)
+
+        return try {
+            val response = httpClient.get(endpoint.generateRequestURL(serverHost))
+            val generatedRecipe: GeneratedRecipeResponse = Json.decodeFromString(response.body())
+            Result.Success(generatedRecipe)
+        } catch (e: Exception) {
+            println("Fehler bei der Deserialisierung: $e")
+            Result.Error(NetworkError.SERIALIZATION)
+        }
+    }
+
     suspend fun fetchStartUpMeals(): Result<List<ApiRecipesResponse>, NetworkError> {
         return apiCall(ApiEndpoint.STARTUP_MEALS.generateRequestURL(serverHost) , httpClient)
     }
@@ -119,19 +153,6 @@ open class BaseApiClient(
         return apiCall(endpoint, httpClient)
     }
 
-    suspend fun createRecipe(category: RecipeCategory): Result<GeneratedRecipeResponse, NetworkError> {
-        val endpoint = FetchAfterTimestampEndpoint.GenerateRecipe
-        endpoint.replacePlaceholders("{RecipeKind}", category.name)
-
-        return try {
-            val response = httpClient.get(endpoint.generateRequestURL(serverHost))
-            val generatedRecipe: GeneratedRecipeResponse = Json.decodeFromString(response.body())
-            Result.Success(generatedRecipe)
-        } catch (e: Exception) {
-            println("Fehler bei der Deserialisierung: $e")
-            Result.Error(NetworkError.SERIALIZATION)
-        }
-    }
 
 
     /**
@@ -249,6 +270,46 @@ open class BaseApiClient(
                 url("${serverHost}${apiEndpoint.urlPath}")
                 contentType(ContentType.Application.Json)
                 setBody(notification)
+            }
+        } catch (e: UnresolvedAddressException) {
+            return Result.Error(NetworkError.NO_INTERNET)
+        } catch (e: SerializationException) {
+            return Result.Error(NetworkError.SERIALIZATION)
+        } catch (e: Exception) {
+            logging().info { "!!! !!! !!! $apiEndpoint -> ${e.message}" }
+            return Result.Error(NetworkError.REQUEST_TIMEOUT)
+        }
+
+        logging().info { "$apiEndpoint -> ${response}" }
+
+        return when (response.status.value) {
+            in 200..299 -> {
+                try {
+                    Result.Success(response.body<R>())
+                } catch (e: SerializationException) {
+                    Result.Error(NetworkError.SERIALIZATION)
+                }
+            }
+            401 -> Result.Error(NetworkError.UNAUTHORIZED)
+            409 -> Result.Error(NetworkError.CONFLICT)
+            430 -> Result.Error(NetworkError.NOTING_TO_SYNC)
+            408 -> Result.Error(NetworkError.REQUEST_TIMEOUT)
+            413 -> Result.Error(NetworkError.PAYLOAD_TOO_LARGE)
+            in 500..599 -> Result.Error(NetworkError.SERVER_ERROR)
+            else -> Result.Error(NetworkError.UNKNOWN)
+        }
+    }
+
+    suspend inline fun <reified Q, reified R> sendData(
+        apiEndpoint: ApiEndpoint,
+        entities: Q,
+    ): Result<R, NetworkError> {
+        logging().info { "sendData: ${serverHost}${apiEndpoint.urlPath}" }
+        val response = try {
+            httpClient.post {
+                url("${serverHost}${apiEndpoint.urlPath}")
+                contentType(ContentType.Application.Json)
+                setBody(entities)
             }
         } catch (e: UnresolvedAddressException) {
             return Result.Error(NetworkError.NO_INTERNET)

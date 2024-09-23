@@ -3,11 +3,14 @@ package viewModel
 import com.mmk.kmpnotifier.notification.NotifierManager
 import data.repositories.FirebaseRepository
 import data.model.firebase.UserProfile
+import data.remote.StrapiApiClient
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.AuthResult
 import dev.gitlive.firebase.auth.FirebaseUser
 import dev.gitlive.firebase.auth.auth
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,10 +18,13 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import org.lighthousegames.logging.logging
+import util.onError
+import util.onSuccess
 
 class FirebaseAuthViewModel : ViewModel() {
 
     private val firebaseRepository = FirebaseRepository()
+    private var apiService = StrapiApiClient()
 
     private val _userFormState = MutableStateFlow(UserFormState())
     val userFormState = _userFormState.asStateFlow()
@@ -69,6 +75,14 @@ class FirebaseAuthViewModel : ViewModel() {
                 )
 
                 if(authResult.user != null) {
+
+                    val res = firebaseRepository.saveDeviceToken(firebaseRepository.user?.uid ?: "", NotifierManager.getPushNotifier().getToken() ?: "")
+
+                    res.onSuccess {
+                        logging().info { "i deviceToken: $it" }
+                    }.onError {
+                        logging().error { "e deviceToken: $it" }
+                    }
                     resetLoginState()
                     result(authResult)
                 } else {
@@ -85,7 +99,16 @@ class FirebaseAuthViewModel : ViewModel() {
     }
 
     fun onLogout() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
+            logging().info { "onLogout: ${firebaseRepository.user?.uid} ${NotifierManager.getPushNotifier().getToken() ?: ""}"}
+            val res = firebaseRepository.deleteDeviceToken(firebaseRepository.user?.uid ?: "", NotifierManager.getPushNotifier().getToken() ?: "")
+
+            res.onSuccess {
+                logging().info { "i deviceToken: $it" }
+            }.onError {
+                logging().error { "e deviceToken: $it" }
+            }
+
             firebaseRepository.signOut()
         }
     }
@@ -200,7 +223,7 @@ class FirebaseAuthViewModel : ViewModel() {
         }
     }
 
-    private fun resetLoginState() {
+    fun resetLoginState() {
         _userFormState.update {
             it.copy(
                 isProcessing = false,

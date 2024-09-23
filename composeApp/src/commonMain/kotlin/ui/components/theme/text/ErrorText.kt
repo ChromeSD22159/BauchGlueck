@@ -19,6 +19,7 @@ fun ErrorText(
     textAlign: TextAlign = TextAlign.Start,
     weight: FontWeight = FontWeight.Normal,
     size: TextUnit = 11.sp,
+    maxLines: Int = Int.MAX_VALUE,
     textDecoration: TextDecoration = TextDecoration.None
 ) {
     Text(
@@ -29,6 +30,7 @@ fun ErrorText(
         fontFamily = MaterialTheme.typography.bodyMedium.fontFamily,
         fontSize = size,
         fontWeight = weight,
+        maxLines = maxLines,
         textDecoration = textDecoration
     )
 }

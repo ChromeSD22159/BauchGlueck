@@ -21,6 +21,7 @@ sealed class Destination(val route: String, val title: String) {
     data object EditTimer : Destination("EditTimer", "Timer Bearbeiten")
     data object Recipes : Destination("Recipes", "Rezepte")
     data object SearchRecipe: Destination("SearchRecipe", "Rezept suchen")
+    data object RecipeDetailScreen: Destination("RecipeDetailScreen", "Rezept Detail")
     data object RecipeOverview: Destination("RecipeOverview", "Rezept übersicht")
     data object AddRecipe: Destination("AddRecipe", "Rezept hinzufügen")
     data object EditRecipe: Destination("EditRecipe", "Rezept Bearbeiten")

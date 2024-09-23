@@ -1,6 +1,8 @@
 package ui.screens.publicScreens
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.gestures.ScrollableState
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -15,7 +17,10 @@ import androidx.compose.foundation.layout.navigationBarsIgnoringVisibility
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
@@ -30,8 +35,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraphBuilder
@@ -48,6 +58,7 @@ import ui.components.theme.AppBackground
 import ui.components.theme.background.AppBackgroundWithImage
 import ui.components.theme.button.IconButton
 import ui.components.theme.button.TextButton
+import ui.components.theme.clickableWithRipple
 import ui.components.theme.text.BodyText
 import ui.components.theme.text.ErrorText
 import ui.components.theme.text.HeadlineText
@@ -66,11 +77,18 @@ fun NavGraphBuilder.signUp(navController: NavHostController, firebaseAuthViewMod
         val datePickerState = rememberDatePickerState()
         var showDatePicker by remember { mutableStateOf(false) }
 
+        val nameRequester = remember { FocusRequester() }
+        val emailFocusRequester = remember { FocusRequester() }
+        val passwordFocusRequester = remember { FocusRequester() }
+        val confirmPasswordFocusRequester = remember { FocusRequester() }
+        val focusManager = LocalFocusManager.current
+
         AppBackground {
             AppBackgroundWithImage()
 
             Column(
                 modifier = Modifier
+                    .verticalScroll(rememberScrollState())
                     .fillMaxSize()
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(
@@ -107,11 +125,20 @@ fun NavGraphBuilder.signUp(navController: NavHostController, firebaseAuthViewMod
                 Column {
                     Row { BodyText(modifier = Modifier.fillMaxWidth(), text = "Dein Vorname:") }
                     FormTextFieldWithIcon(
+                        modifier = Modifier
+                            .focusRequester(nameRequester)
+                            .clickableWithRipple { nameRequester.requestFocus() },
                         inputValue = state.value.firstName,
                         leadingIcon = Res.drawable.ic_person_fill_view,
                         onValueChange = {
                             firebaseAuthViewModel.onChangeFirstName(it)
-                        }
+                        },
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            imeAction = ImeAction.Next
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onNext = { emailFocusRequester.requestFocus() }
+                        ),
                     )
                 }
 
@@ -119,14 +146,22 @@ fun NavGraphBuilder.signUp(navController: NavHostController, firebaseAuthViewMod
                 Column {
                     Row { BodyText(modifier = Modifier.fillMaxWidth(),text = "Deine E-Mail:") }
                     FormTextFieldWithIcon(
+                        modifier = Modifier
+                            .focusRequester(emailFocusRequester)
+                            .clickableWithRipple { emailFocusRequester.requestFocus() },
                         inputValue = state.value.email,
                         leadingIcon = Res.drawable.ic_mail_fill,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                         onValueChange = {
                             firebaseAuthViewModel.onChangeEmail(it)
-                        }
+                        },
+                        keyboardOptions = KeyboardOptions(
+                            imeAction = ImeAction.Next,
+                            keyboardType = KeyboardType.Email
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onNext = { passwordFocusRequester.requestFocus() }
+                        ),
                     )
-
                 }
 
                 Row(
@@ -135,7 +170,7 @@ fun NavGraphBuilder.signUp(navController: NavHostController, firebaseAuthViewMod
                     verticalAlignment = Alignment.CenterVertically
                 ) {
 
-                    BodyText("Operationsdatum:")
+                    BodyText("Operations datum:")
 
                     val selectedDate = datePickerState.selectedDateMillis ?: System.currentTimeMillis()
                     val datePattern = "dd. MM. yyyy"
@@ -149,20 +184,38 @@ fun NavGraphBuilder.signUp(navController: NavHostController, firebaseAuthViewMod
                 Column {
                     Row { BodyText(modifier = Modifier.fillMaxWidth(),text = "Deine Passwort:") }
                     FormPasswordTextFieldWithIcon(
+                        modifier =Modifier
+                            .focusRequester(passwordFocusRequester)
+                            .clickableWithRipple { passwordFocusRequester.requestFocus() },
                         inputValue = state.value.password,
                         onValueChange = {
                             firebaseAuthViewModel.onChangePassword(it)
-                        }
+                        },
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            imeAction = ImeAction.Next
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onNext = { confirmPasswordFocusRequester.requestFocus() }
+                        ),
                     )
                 }
 
                 Column {
                     Row { BodyText(modifier = Modifier.fillMaxWidth(),text = "Passwort wiederholen:") }
                     FormPasswordTextFieldWithIcon(
+                        modifier =Modifier
+                            .focusRequester(confirmPasswordFocusRequester)
+                            .clickableWithRipple { confirmPasswordFocusRequester.requestFocus() },
                         inputValue = state.value.confirmPassword,
                         onValueChange = {
                             firebaseAuthViewModel.onChangeConfirmPassword(it)
-                        }
+                        },
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            imeAction = ImeAction.Done
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onDone = { focusManager.clearFocus() }
+                        ),
                     )
                 }
 
@@ -175,6 +228,7 @@ fun NavGraphBuilder.signUp(navController: NavHostController, firebaseAuthViewMod
                     ) {
 
                         TextButton("Zur Anmeldung") {
+                            firebaseAuthViewModel.resetLoginState()
                             navController.navigate(Destination.Login.route)
                         }
 

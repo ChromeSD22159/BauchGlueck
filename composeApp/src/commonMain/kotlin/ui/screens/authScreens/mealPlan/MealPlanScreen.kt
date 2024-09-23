@@ -65,7 +65,7 @@ fun NavGraphBuilder.mealPlan(
                     resource = Res.drawable.ic_search,
                     tint = MaterialTheme.colorScheme.onPrimary
                 ) {
-                    navController.navigate(Destination.AddWeight.route)
+                    navController.navigate(Destination.SearchRecipe.route)
                 }
 
                 IconButton(
@@ -77,11 +77,12 @@ fun NavGraphBuilder.mealPlan(
             },
         ) {
 
+            Text(text = "${selectedDate.dayOfMonth.toDigits()}.${selectedDate.monthNumber.toDigits()}.${selectedDate.year}")
 
             Calendar(days = viewModel.days, selectedDate) { viewModel.setSelectedDate(it) }
 
             userFormState?.userProfile?.value?.totalMeals?.let {
-                DateCard(date = selectedDate)
+
 
                 for (i in 1..it) {
                     MealCard(count = i)
