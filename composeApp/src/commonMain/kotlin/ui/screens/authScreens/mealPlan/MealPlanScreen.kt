@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
@@ -19,8 +18,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -31,15 +32,18 @@ import androidx.navigation.compose.composable
 import bauchglueck.composeapp.generated.resources.Res
 import bauchglueck.composeapp.generated.resources.ic_gear
 import bauchglueck.composeapp.generated.resources.ic_plus
+import bauchglueck.composeapp.generated.resources.ic_seal_check
 import bauchglueck.composeapp.generated.resources.ic_seal_xmark
 import bauchglueck.composeapp.generated.resources.ic_search
+import data.remote.model.Meal
 import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.vectorResource
 import ui.components.theme.ScreenHolder
-import ui.components.theme.button.IconButton
+import ui.components.theme.Section
 import ui.components.theme.clickableWithRipple
 import ui.components.theme.sectionShadow
 import ui.components.theme.text.BodyText
+import ui.components.theme.toDigits
 import ui.navigations.Destination
 import util.DateRepository
 import viewModel.FirebaseAuthViewModel
@@ -65,19 +69,25 @@ fun NavGraphBuilder.mealPlan(
                 Icon(
                     imageVector = vectorResource(resource = Res.drawable.ic_plus),
                     contentDescription = "",
-                    modifier = Modifier.size(24.dp).clickableWithRipple { navController.navigate(Destination.AddRecipe.route) },
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clickableWithRipple { navController.navigate(Destination.AddRecipe.route) },
                 )
 
                 Icon(
                     imageVector = vectorResource(resource = Res.drawable.ic_search),
                     contentDescription = "",
-                    modifier = Modifier.size(24.dp).clickableWithRipple { navController.navigate(Destination.SearchRecipe.route) },
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clickableWithRipple { navController.navigate(Destination.SearchRecipe.route) },
                 )
 
                 Icon(
                     imageVector = vectorResource(resource = Res.drawable.ic_gear),
                     contentDescription = "",
-                    modifier = Modifier.size(24.dp).clickableWithRipple { navController.navigate(Destination.Settings.route) },
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clickableWithRipple { navController.navigate(Destination.Settings.route) },
                 )
             },
         ) {
@@ -87,10 +97,8 @@ fun NavGraphBuilder.mealPlan(
             Calendar(days = viewModel.days, selectedDate) { viewModel.setSelectedDate(it) }
 
             userFormState?.userProfile?.value?.totalMeals?.let {
-
-
                 for (i in 1..it) {
-                    MealCard(count = i)
+                    MealCard(index = i)
                 }
             }
         }
@@ -152,6 +160,7 @@ fun CalendarDayCard(
     isToday: Boolean,
     selectedBrush: Brush,
     notSelectedBrush: Brush,
+    isDayisTotalyPlaned: Boolean = false,
     onClick: (LocalDate) -> Unit = {}
 ) {
     Column(
@@ -173,53 +182,49 @@ fun CalendarDayCard(
         BodyText(
             modifier = Modifier.fillMaxWidth(),
             textAlign = TextAlign.Center,
-            text = date.dayOfMonth.toDigits()
+            text = date.dayOfMonth.toDigits(),
+            weight = if (isToday) FontWeight.Bold else FontWeight.Normal
         )
         Icon(
-            imageVector = vectorResource(resource = Res.drawable.ic_seal_xmark),
+            imageVector = vectorResource(resource = if (isDayisTotalyPlaned) Res.drawable.ic_seal_check else Res.drawable.ic_seal_xmark),
             contentDescription = "",
-            modifier = Modifier.size(20.dp),
-            tint = Color.Red
+            modifier = Modifier.size(20.dp).alpha(if (isDayisTotalyPlaned) 1f else 0.5f),
+            tint = if (isDayisTotalyPlaned) MaterialTheme.colorScheme.primary else Color.Gray
         )
     }
-
 }
 
 
 @Composable
 fun MealCard(
-    count: Int = 1
+    index: Int = 1,
+    meal: Meal? = null
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(50.dp)
-            .sectionShadow()
-            .padding(horizontal = 10.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(text = "${count}. Slot")
+    Section{
+        if(meal != null) {
+
+        } else {
+            NoMeal(index)
+        }
     }
 }
 
 @Composable
-fun DateCard(
-    date: LocalDate,
-) {
+fun NoMeal(
+    index: Int,
+){
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(50.dp)
-            .sectionShadow()
-            .padding(horizontal = 10.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = "${date.dayOfMonth.toDigits()}.${date.monthNumber.toDigits()}.${date.year}")
-    }
-}
+        BodyText(
+            modifier = Modifier,
+            text = "${index}."
+        )
 
-fun Int.toDigits(): String {
-    return this.toString().padStart(2, '0')
+        BodyText(
+            modifier = Modifier.weight(1f),
+            text = "Keine Mahlzeit zugewiesen"
+        )
+    }
 }

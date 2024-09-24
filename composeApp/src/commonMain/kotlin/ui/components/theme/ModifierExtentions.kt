@@ -45,3 +45,7 @@ fun String.truncate(maxLength: Int, suffix: String = "..."): String {
 fun Double.decimal(int: Int = 1): String {
     return "%.${int}f".format(this)
 }
+
+fun Int.toDigits(): String {
+    return this.toString().padStart(2, '0')
+}
