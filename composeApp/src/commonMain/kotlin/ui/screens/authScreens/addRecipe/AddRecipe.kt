@@ -234,7 +234,9 @@ fun NavGraphBuilder.addRecipe(
                     Spacer(modifier = Modifier.weight(1f))
                 } else {
                     FormControlButtons(
-                        onCancel = { /*TODO*/ },
+                        onCancel = {
+                            navController.navigate(Destination.MealPlanCalendar.route)
+                        },
                         onSave = {
 
                             val recipe = RecipeUpload(
@@ -262,13 +264,25 @@ fun NavGraphBuilder.addRecipe(
                                 updatedAtOnDevice = Clock.System.now().toEpochMilliseconds(),
                             )
 
-                            viewModel.uploadImage {
-                                val mainImage = it
+                            if(
+                                recipe.name.length > 3 &&
+                                recipe.description.length > 3 &&
+                                recipe.preparation.length > 3 &&
+                                recipe.preparationTimeInMinutes.isNotEmpty() &&
+                                recipe.mainImage.id != 0
+                            ) {
+                                viewModel.uploadImage {
+                                    val mainImage = it
 
-                                mainImage?.let {
-                                    viewModel.uploadRecipe(recipe.copy(mainImage = MainImageUpload(mainImage.id.toInt())))
+                                    mainImage?.let {
+                                        viewModel.uploadRecipe(recipe.copy(mainImage = MainImageUpload(mainImage.id.toInt())))
+
+                                        navController.navigate(Destination.MealPlanCalendar.route)
+                                    }
                                 }
                             }
+
+
                         }
                     )
                 }

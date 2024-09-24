@@ -62,26 +62,23 @@ fun NavGraphBuilder.mealPlan(
                 navController.navigate(Destination.Home.route)
             },
             optionsRow = {
-                IconButton(
-                    resource = Res.drawable.ic_plus,
-                    tint = MaterialTheme.colorScheme.onPrimary
-                ) {
-                    navController.navigate(Destination.AddRecipe.route)
-                }
+                Icon(
+                    imageVector = vectorResource(resource = Res.drawable.ic_plus),
+                    contentDescription = "",
+                    modifier = Modifier.size(24.dp).clickableWithRipple { navController.navigate(Destination.AddRecipe.route) },
+                )
 
-                IconButton(
-                    resource = Res.drawable.ic_search,
-                    tint = MaterialTheme.colorScheme.onPrimary
-                ) {
-                    navController.navigate(Destination.SearchRecipe.route)
-                }
+                Icon(
+                    imageVector = vectorResource(resource = Res.drawable.ic_search),
+                    contentDescription = "",
+                    modifier = Modifier.size(24.dp).clickableWithRipple { navController.navigate(Destination.SearchRecipe.route) },
+                )
 
-                IconButton(
-                    resource = Res.drawable.ic_gear,
-                    tint = MaterialTheme.colorScheme.onPrimary
-                ) {
-                    navController.navigate(Destination.Settings.route)
-                }
+                Icon(
+                    imageVector = vectorResource(resource = Res.drawable.ic_gear),
+                    contentDescription = "",
+                    modifier = Modifier.size(24.dp).clickableWithRipple { navController.navigate(Destination.Settings.route) },
+                )
             },
         ) {
 

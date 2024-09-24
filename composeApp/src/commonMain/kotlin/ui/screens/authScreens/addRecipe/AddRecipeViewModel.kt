@@ -39,8 +39,10 @@ class AddRecipeViewModel : ViewModel() {
         mainImage: (ApiUploadImageResponse?) -> Unit
     ) {
         viewModelScope.launch {
-            _isUploading.value = true
-            if(selectedImage.value != null) {
+            if(
+                selectedImage.value != null
+            ) {
+                _isUploading.value = true
                 selectedImage.value?.let { bitmap ->
                     val byteArray = ByteArrayOutputStream().use { out ->
                         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out)
@@ -61,9 +63,7 @@ class AddRecipeViewModel : ViewModel() {
                         }
                 }
             } else {
-                _error.value = "Bitte wählen Sie ein Bild aus"
-                delay(3000)
-                _error.value = null
+                printError("Bitte wählen Sie ein Bild aus")
             }
         }
     }
@@ -93,10 +93,16 @@ class AddRecipeViewModel : ViewModel() {
                     // save to local db
                 }
             } else {
-                _error.value = "Bitte füllen Sie alle Felder aus"
-                delay(3000)
-                _error.value = null
+                printError("Bitte füllen Sie alle Felder aus")
             }
+        }
+    }
+
+    private fun printError(msg: String) {
+        viewModelScope.launch {
+            _error.value = msg
+            delay(3000)
+            _error.value = null
         }
     }
 }
