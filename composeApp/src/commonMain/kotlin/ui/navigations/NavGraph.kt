@@ -15,6 +15,7 @@ import org.koin.compose.KoinContext
 import org.lighthousegames.logging.logging
 import viewModel.SyncWorkerViewModel
 import ui.screens.authScreens.addNote
+import ui.screens.authScreens.addRecipe.addRecipe
 import ui.screens.authScreens.home.home
 import ui.screens.authScreens.mealPlan.mealPlan
 import ui.screens.authScreens.medication.addMedication
@@ -104,6 +105,7 @@ fun NavGraphBuilder.authScreens(
     mealPlan(navController, firebaseAuthViewModel)
     searchRecipes(navController, recipeViewModel)
     recipeDetails(navController, recipeViewModel)
+    addRecipe(navController)
 
     addNote(navController, firebaseAuthViewModel)
 

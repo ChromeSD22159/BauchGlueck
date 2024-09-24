@@ -292,46 +292,58 @@ fun FormIntakeTime(
                 )
             }
 
-            Row(
-                modifier = Modifier
-                    .sectionShadow()
-                    .padding(8.dp)
-                    .clickableWithRipple {
-                        // Add a new IntakeTimeWithStatus and propagate the changes
-                        val timeZone = TimeZone.currentSystemDefault()
-                        val time = Clock.System.now().toLocalDateTime(timeZone)
-                        val hour = time.hour.toString().padStart(2, '0')
-                        val minute = time.minute.toString().padStart(2, '0')
-                        val newIntakeTimeWithStatus = IntakeTimeWithStatus(
-                            intakeTime = IntakeTime(
-                                intakeTime =  "${hour}:${minute}",
-                                medicationId = medicationId
-                            ),
-                            intakeStatuses = emptyList()
-                        )
-                        val updatedList = intakeTimeWithStatuses.toMutableList().apply {
-                            add(newIntakeTimeWithStatus)
-                        }
-                        intakeTimeWithStatuses = updatedList // Trigger recomposition
-                        onValueChange(updatedList) // Notify parent about the change
-                    },
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "Remove",
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier
-                )
-
-                Text(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp)
-                        .clip(RoundedCornerShape(8.dp)),
-                    text = "Hinzufügen",
-                )
-            }
+            AddButton(
+                onClick = {
+                    // Add a new IntakeTimeWithStatus and propagate the changes
+                    val timeZone = TimeZone.currentSystemDefault()
+                    val time = Clock.System.now().toLocalDateTime(timeZone)
+                    val hour = time.hour.toString().padStart(2, '0')
+                    val minute = time.minute.toString().padStart(2, '0')
+                    val newIntakeTimeWithStatus = IntakeTimeWithStatus(
+                        intakeTime = IntakeTime(
+                            intakeTime =  "${hour}:${minute}",
+                            medicationId = medicationId
+                        ),
+                        intakeStatuses = emptyList()
+                    )
+                    val updatedList = intakeTimeWithStatuses.toMutableList().apply {
+                        add(newIntakeTimeWithStatus)
+                    }
+                    intakeTimeWithStatuses = updatedList // Trigger recomposition
+                    onValueChange(updatedList)
+                }
+            )
         }
+    }
+}
+
+@Composable
+fun AddButton(
+    text: String = "Hinzufügen",
+    onClick: () -> Unit = {}
+) {
+    Row(
+        modifier = Modifier
+            .sectionShadow()
+            .padding(8.dp)
+            .clickableWithRipple {
+                onClick()
+            },
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = Icons.Default.Add,
+            contentDescription = "Remove",
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier
+        )
+
+        Text(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+                .clip(RoundedCornerShape(8.dp)),
+            text = text,
+        )
     }
 }

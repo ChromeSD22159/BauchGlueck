@@ -15,8 +15,8 @@ enum class RecipeCategory(val categoryId: String, val displayName: String) {
 
     companion object {
         // Methode zur Suche einer Kategorie anhand der categoryId
-        fun fromCategoryId(categoryId: String): RecipeCategory? {
-            return values().find { it.categoryId.equals(categoryId, ignoreCase = true) }
+        fun fromStrong(displayName: String): RecipeCategory? {
+            return entries.find { it.displayName.equals(displayName, ignoreCase = true) }
         }
     }
 }

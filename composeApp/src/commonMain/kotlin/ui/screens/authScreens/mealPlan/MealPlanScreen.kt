@@ -30,6 +30,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import bauchglueck.composeapp.generated.resources.Res
 import bauchglueck.composeapp.generated.resources.ic_gear
+import bauchglueck.composeapp.generated.resources.ic_plus
 import bauchglueck.composeapp.generated.resources.ic_seal_xmark
 import bauchglueck.composeapp.generated.resources.ic_search
 import kotlinx.datetime.LocalDate
@@ -61,6 +62,13 @@ fun NavGraphBuilder.mealPlan(
                 navController.navigate(Destination.Home.route)
             },
             optionsRow = {
+                IconButton(
+                    resource = Res.drawable.ic_plus,
+                    tint = MaterialTheme.colorScheme.onPrimary
+                ) {
+                    navController.navigate(Destination.AddRecipe.route)
+                }
+
                 IconButton(
                     resource = Res.drawable.ic_search,
                     tint = MaterialTheme.colorScheme.onPrimary

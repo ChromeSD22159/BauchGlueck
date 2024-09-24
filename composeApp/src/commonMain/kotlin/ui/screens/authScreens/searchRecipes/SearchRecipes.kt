@@ -12,11 +12,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -55,7 +53,6 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.imageResource
 import org.jetbrains.compose.resources.painterResource
-import org.lighthousegames.logging.logging
 import ui.components.FormScreens.FormTextFieldWithIconAndDeleteButton
 import ui.components.IconListWithText
 import ui.components.theme.ScreenHolder
@@ -66,7 +63,7 @@ import ui.navigations.Destination
 import viewModel.RecipeViewModel
 import kotlin.math.ceil
 
-@OptIn(FlowPreview::class, ExperimentalMaterial3Api::class)
+@OptIn(FlowPreview::class)
 fun NavGraphBuilder.searchRecipes(
     navController: NavHostController,
     recipeViewModel: RecipeViewModel

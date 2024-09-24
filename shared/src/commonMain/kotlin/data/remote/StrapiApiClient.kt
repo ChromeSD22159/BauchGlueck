@@ -7,16 +7,24 @@ import data.network.replacePlaceholders
 import data.remote.model.ApiChangeLog
 import data.remote.model.ApiRecipesResponse
 import data.remote.model.ApiAppStatistics
+import data.remote.model.ApiUploadImageResponse
+import data.remote.model.MainImage
+import data.remote.model.RecipeUpload
 import de.frederikkohler.bauchglueck.shared.BuildKonfig
 import io.ktor.client.HttpClient
 import io.ktor.client.call.NoTransformationFoundException
 import io.ktor.client.call.body
+import io.ktor.client.request.forms.MultiPartFormDataContent
+import io.ktor.client.request.forms.formData
+import io.ktor.client.request.forms.submitFormWithBinaryData
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.request.url
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
+import io.ktor.http.Headers
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.contentType
 import io.ktor.util.network.UnresolvedAddressException
@@ -29,6 +37,7 @@ import util.FirebaseCloudMessagingResponse
 import util.NetworkError
 import util.NotificationCronJobRequest
 import util.Result
+import util.UUID
 import util.debugJsonHelper
 
 class StrapiApiClient(
@@ -60,6 +69,8 @@ open class BaseApiClient(
     enum class RemoteNotificationEndpoint(override var urlPath: String, override val method: HttpMethod): BaseApiEndpoint {
         SEND_NOTIFICATION("/api/send-notification", HttpMethod.Post),
         SCHEDULE_NOTIFICATION("/api/send-schedule-notification", HttpMethod.Post),
+        UPLOAD_IMAGE("/api/upload/", HttpMethod.Post),
+        UPLOAD_RECIPE("recipes/createRecipe", HttpMethod.Post)
     }
 
     // TODO check MealPlan Routes AND SyncLogic
@@ -73,27 +84,13 @@ open class BaseApiClient(
         ChangeLog("/api/changeLog", HttpMethod.Get),
         AppStatistics("/api/appStatistics", HttpMethod.Get),
         SaveDeviceToken("/api/saveDeviceToken", HttpMethod.Post),
-        DeleteDeviceToken("/api/deleteDeviceToken", HttpMethod.Post)
+        DeleteDeviceToken("/api/deleteDeviceToken", HttpMethod.Post),
+        UPLOAD_RECIPE("/api/recipes/createRecipe", HttpMethod.Post)
     }
 
     suspend fun sendScheduleRemoteNotification(notification: NotificationCronJobRequest): Result<FirebaseCloudMessagingResponse, NetworkError> {
         logging().info { "sendScheduleRemoteNotification" }
         logging().info { notification }
-        return sendNotification(RemoteNotificationEndpoint.SCHEDULE_NOTIFICATION, notification)
-    }
-
-    // TODO add route
-    suspend fun createRecurringNotification(notification: NotificationCronJobRequest): Result<FirebaseCloudMessagingResponse, NetworkError> {
-        return sendNotification(RemoteNotificationEndpoint.SCHEDULE_NOTIFICATION, notification)
-    }
-
-    // TODO add route
-    suspend fun updateRecurringNotification(notification: NotificationCronJobRequest): Result<FirebaseCloudMessagingResponse, NetworkError> {
-        return sendNotification(RemoteNotificationEndpoint.SCHEDULE_NOTIFICATION, notification)
-    }
-
-    // TODO add route
-    suspend fun deleteRecurringNotification(notification: NotificationCronJobRequest): Result<FirebaseCloudMessagingResponse, NetworkError> {
         return sendNotification(RemoteNotificationEndpoint.SCHEDULE_NOTIFICATION, notification)
     }
 
@@ -153,6 +150,41 @@ open class BaseApiClient(
         return apiCall(endpoint, httpClient)
     }
 
+    suspend fun uploadImage(text: String, image: ByteArray): Result<List<ApiUploadImageResponse>, NetworkError> {
+        val endpoint = RemoteNotificationEndpoint.UPLOAD_IMAGE.urlPath
+        val imageName = UUID.randomUUID().toString()
+        val response = try {
+            httpClient.submitFormWithBinaryData(
+                url = serverHost + endpoint,
+                formData = formData {
+                    // Example of sending other parameters in the same request
+                    append("text", text)
+
+                    // Properly set the content headers for the image file
+                    append("files", image, Headers.build {
+                        append(HttpHeaders.ContentType, "image/jpeg")
+                        append(HttpHeaders.ContentDisposition, "form-data; name=\"files\"; filename=\"$imageName.jpg\"")
+                    })
+                }
+            )
+        } catch (e: UnresolvedAddressException) {
+            return Result.Error(NetworkError.NO_INTERNET)
+        } catch (e: SerializationException) {
+            return Result.Error(NetworkError.SERIALIZATION)
+        } catch (e: Exception) {
+            logging().info { "!!! !!! !!! $endpoint -> ${e.message}" }
+            return Result.Error(NetworkError.REQUEST_TIMEOUT)
+        }
+
+        return handleResult(response)
+    }
+
+    suspend fun uploadRecipe(recipe: RecipeUpload): Result<ApiRecipesResponse, NetworkError> {
+        return sendData<RecipeUpload, ApiRecipesResponse>(
+            apiEndpoint = ApiEndpoint.UPLOAD_RECIPE,
+            entities = recipe
+        )
+    }
 
 
     /**
