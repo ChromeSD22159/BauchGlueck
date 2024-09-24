@@ -139,12 +139,12 @@ fun TimerCard(
                    modifier = Modifier,
                    dropDownOptions = listOf(
                        DropdownMenuRow(
-                           text = "Edit",
+                           text = "Bearbeiten",
                            onClick = {  onClickEdit(timer)  },
                            leadingIcon = Icons.Outlined.Edit
                        ),
                        DropdownMenuRow(
-                           text ="Delete",
+                           text ="Löschen",
                            onClick = { onDelete(timer) },
                            leadingIcon = Icons.Outlined.Delete
                        )

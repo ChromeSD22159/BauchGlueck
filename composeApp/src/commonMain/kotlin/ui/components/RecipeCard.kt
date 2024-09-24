@@ -22,15 +22,14 @@ import bauchglueck.composeapp.generated.resources.ic_fat
 import bauchglueck.composeapp.generated.resources.ic_grid_2_2
 import bauchglueck.composeapp.generated.resources.ic_kcal
 import bauchglueck.composeapp.generated.resources.ic_stopwatch
-import bauchglueck.composeapp.generated.resources.icon_plus
 import bauchglueck.composeapp.generated.resources.placeholder_image
 import bauchglueck.composeapp.generated.resources.ic_protein
 import bauchglueck.composeapp.generated.resources.ic_sugar
 import coil3.compose.AsyncImage
 import data.local.entitiy.MealWithCategories
-import de.frederikkohler.bauchglueck.R
 import di.serverHost
 import org.jetbrains.compose.resources.painterResource
+import ui.components.theme.decimal
 
 @Composable
 fun RecipeCard(
@@ -134,8 +133,4 @@ fun RecipeCard(
             }
         }
     }
-}
-
-fun Double.decimal(int: Int = 1): String {
-    return "%.${int}f".format(this)
 }

@@ -1,9 +1,13 @@
 package ui.components.FormScreens
 
+import android.service.autofill.OnClickAction
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -17,6 +21,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -45,6 +50,7 @@ fun FormTextFieldWithIcon(
     modifier: Modifier = Modifier,
     leadingIcon: DrawableResource = Res.drawable.ic_pills_fill,
     keyboardOptions: KeyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+    keyboardActions: KeyboardActions = KeyboardActions(),
     inputValue: String,
     onValueChange: (String) -> Unit,
 ) {
@@ -76,7 +82,8 @@ fun FormTextFieldWithIcon(
         onValueChange = {
             onValueChange(it)
         },
-        keyboardOptions = keyboardOptions
+        keyboardOptions = keyboardOptions,
+        keyboardActions = keyboardActions
     )
 
 
@@ -89,6 +96,8 @@ fun FormPasswordTextFieldWithIcon(
     leadingIcon: DrawableResource = Res.drawable.ic_pills_fill,
     visualTransformation: PasswordVisualTransformation =  PasswordVisualTransformation(),
     inputValue: String,
+    keyboardActions: KeyboardActions = KeyboardActions(),
+    keyboardOptions: KeyboardOptions = KeyboardOptions(),
     onValueChange: (String) -> Unit,
 ) {
     var showPassword by remember { mutableStateOf(value = false) }
@@ -117,7 +126,8 @@ fun FormPasswordTextFieldWithIcon(
                 IconButton(onClick = { showPassword = false }) {
                     Icon(
                         imageVector = vectorResource(Res.drawable.ic_eye),
-                        contentDescription = "hide_password"
+                        contentDescription = "hide_password",
+                        tint = MaterialTheme.colorScheme.onBackground
                     )
                 }
             } else {
@@ -125,7 +135,8 @@ fun FormPasswordTextFieldWithIcon(
                     onClick = { showPassword = true }) {
                     Icon(
                         imageVector = vectorResource(Res.drawable.ic_eye_slash),
-                        contentDescription = "hide_password"
+                        contentDescription = "hide_password",
+                        tint = MaterialTheme.colorScheme.onBackground
                     )
                 }
             }
@@ -144,7 +155,10 @@ fun FormPasswordTextFieldWithIcon(
         } else {
             PasswordVisualTransformation()
         },
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+        keyboardOptions = keyboardOptions.copy(
+            keyboardType = KeyboardType.Password
+        ),
+        keyboardActions = keyboardActions
     )
 }
 
@@ -152,6 +166,7 @@ fun FormPasswordTextFieldWithIcon(
 fun FormTextFieldWithoutIcons(
     modifier: Modifier = Modifier,
     keyboardOptions: KeyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+    keyboardActions: KeyboardActions = KeyboardActions(),
     inputValue: String,
     onValueChange: (String) -> Unit,
     minLines: Int = 1,
@@ -179,7 +194,63 @@ fun FormTextFieldWithoutIcons(
             onValueChange(it)
         },
         keyboardOptions = keyboardOptions,
+        keyboardActions = keyboardActions,
         minLines = minLines,
         maxLines = maxLines
+    )
+}
+
+@Composable
+fun FormTextFieldWithIconAndDeleteButton(
+    modifier: Modifier = Modifier,
+    inputValue: String,
+    icon: DrawableResource = Res.drawable.ic_lock_fill,
+    onValueChange: (String) -> Unit,
+    onClickAction: (String) -> Unit = {},
+) {
+    val colors = TextFieldDefaults.colors(
+        unfocusedTextColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.4f),
+        focusedTextColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 1f),
+
+        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+        focusedContainerColor = MaterialTheme.colorScheme.surface,
+
+        unfocusedIndicatorColor = Color.Transparent,
+        focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+    )
+
+    TextField(
+        leadingIcon = {
+            Icon(
+                modifier = Modifier.size(18.dp),
+                imageVector = vectorResource(resource = icon),
+                contentDescription = "Localized description",
+                tint = MaterialTheme.colorScheme.onBackground
+            )
+        },
+        trailingIcon = {
+            if (inputValue.isNotEmpty()) {
+                IconButton(
+                    modifier = Modifier,
+                    onClick = { onClickAction("") }) {
+                    Icon(
+                        modifier = Modifier.size(18.dp),
+                        imageVector = Icons.Default.Clear,
+                        tint = MaterialTheme.colorScheme.onBackground,
+                        contentDescription = "Reset"
+                    )
+                }
+            }
+        },
+        modifier = modifier
+            .fillMaxWidth()
+            .sectionShadow()
+            .clip(RoundedCornerShape(12.dp)),
+        value = inputValue,
+        colors = colors,
+        onValueChange = {
+            onValueChange(it)
+        },
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
     )
 }

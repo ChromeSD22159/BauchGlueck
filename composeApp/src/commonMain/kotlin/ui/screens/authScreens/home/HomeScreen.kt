@@ -60,7 +60,8 @@ fun NavGraphBuilder.home(
                     navController.navigate(Destination.Settings.route)
                 }
             },
-            pageSpacing = 0.dp
+            pageSpacing = 0.dp,
+            itemSpacing = 24.dp
         ) {
 
             if(showContentInDevelopment) {

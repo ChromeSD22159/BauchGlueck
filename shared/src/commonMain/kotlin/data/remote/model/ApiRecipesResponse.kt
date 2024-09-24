@@ -18,8 +18,8 @@ data class ApiRecipesResponse(
     @SerialName("isDeleted") val isDeleted: Boolean,
     @SerialName("preparation") val preparation: String,
     @SerialName("preparationTimeInMinutes") val preparationTimeInMinutes: Int,
-    @SerialName("ingredients") var ingredients: List<Ingredient>,
-    @SerialName("mainImage") val mainImage: MainImage,
+    @SerialName("ingredients") var ingredients: List<Ingredient> = emptyList(),
+    @SerialName("mainImage") val mainImage: MainImage? = null,
     @SerialName("category") val category: Category,
     @SerialName("protein") val protein: Double = 0.0,
     @SerialName("fat") val fat: Double = 0.0,
@@ -67,7 +67,7 @@ data class Ingredient(
     @SerialName("id") val id: Int,
     @SerialName("name") val name: String,
     @SerialName("amount") val amount: String,
-    @SerialName("unit") val unit: String
+    @SerialName("unit") var unit: String
 )
 
 @Serializable
@@ -96,7 +96,7 @@ data class Formats(
     @SerialName("xsmall") val xsmall: ImageFormat,
     @SerialName("small") val small: ImageFormat,
     @SerialName("medium") val medium: ImageFormat,
-    @SerialName("large") val large: ImageFormat
+    @SerialName("large") val large: ImageFormat? = null,
 )
 
 @Serializable

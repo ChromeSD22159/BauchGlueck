@@ -1,17 +1,19 @@
 package data.repositories
 
 import com.mmk.kmpnotifier.notification.NotifierManager
-import data.model.firebase.FirebaseCloudMessagingResponse
-import data.model.firebase.RemoteNotification
-import data.model.firebase.ScheduleRemoteNotification
 import data.model.firebase.UserProfile
+import data.remote.BaseApiClient
 import data.remote.StrapiApiClient
+import data.remote.model.ApiDeviceToken
+import data.remote.model.SyncResponse
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.AuthResult
 import dev.gitlive.firebase.auth.auth
 import dev.gitlive.firebase.firestore.firestore
 import dev.gitlive.firebase.messaging.messaging
+import util.FirebaseCloudMessagingResponse
 import util.NetworkError
+import util.NotificationCronJobRequest
 import util.Result
 
 enum class Collection {
@@ -34,6 +36,26 @@ class FirebaseRepository() {
     suspend fun signOut() {
         auth.signOut()
         NotifierManager.getPushNotifier().deleteMyToken()
+    }
+
+    suspend fun deleteDeviceToken(userID: String, token: String): Result<SyncResponse, NetworkError> {
+        return strapi.sendData<ApiDeviceToken, SyncResponse>(
+            BaseApiClient.ApiEndpoint.DeleteDeviceToken,
+            ApiDeviceToken(
+                userID,
+                token
+            )
+        )
+    }
+
+    suspend fun saveDeviceToken(userID: String, token: String): Result<SyncResponse, NetworkError> {
+        return strapi.sendData<ApiDeviceToken, SyncResponse>(
+            BaseApiClient.ApiEndpoint.SaveDeviceToken,
+            ApiDeviceToken(
+                userID,
+                token
+            )
+        )
     }
 
     suspend fun createUserWithEmailAndPassword(userProfile: UserProfile, password: String): Error? {
@@ -70,11 +92,7 @@ class FirebaseRepository() {
         }
     }
 
-    suspend fun sendScheduleRemoteNotification(notification: ScheduleRemoteNotification): Result<FirebaseCloudMessagingResponse, NetworkError> {
+    suspend fun sendScheduleRemoteNotification(notification: NotificationCronJobRequest): Result<FirebaseCloudMessagingResponse, NetworkError> {
         return strapi.sendScheduleRemoteNotification(notification)
-    }
-
-    suspend fun sendRemoteNotification(notification: RemoteNotification): Result<FirebaseCloudMessagingResponse, NetworkError> {
-        return strapi.sendNotification(notification)
     }
 }

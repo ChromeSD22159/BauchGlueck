@@ -30,7 +30,7 @@ fun IconCard(
     modifier: Modifier = Modifier,
     horizontalSpacing: Dp = 10.dp,
     iconLeft: String = "\uD83E\uDD2A",
-    iconRight: String = "\uD83D\uDC7B",
+    iconRight: String = "\uD83E\uDD73",
     headline: String  = "Wie war dein Tag?",
     description: String = "Erfasse Notizen, Gefühle\noder Gedanken.",
     height: Dp = 100.dp,

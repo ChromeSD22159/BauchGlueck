@@ -10,12 +10,18 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraphBuilder
@@ -39,9 +45,16 @@ import ui.components.theme.text.HeadlineText
 import ui.navigations.Destination
 import viewModel.FirebaseAuthViewModel
 
-fun NavGraphBuilder.login(navController: NavHostController, firebaseAuthViewModel: FirebaseAuthViewModel) {
+fun NavGraphBuilder.login(
+    navController: NavHostController,
+    firebaseAuthViewModel: FirebaseAuthViewModel
+) {
     composable(Destination.Login.route) {
         val state = firebaseAuthViewModel.userFormState.collectAsStateWithLifecycle()
+
+        val emailFocusRequester = remember { FocusRequester() }
+        val passwordFocusRequester = remember { FocusRequester() }
+        val focusManager = LocalFocusManager.current
 
         AppBackground  {
             AppBackgroundWithImage()
@@ -89,8 +102,17 @@ fun NavGraphBuilder.login(navController: NavHostController, firebaseAuthViewMode
                 Column {
                    Row { BodyText(modifier = Modifier.fillMaxWidth(),text = "Deine E-Mail:") }
                    FormTextFieldWithIcon(
+                       modifier = Modifier
+                           .focusRequester(emailFocusRequester)
+                           .clickableWithRipple { emailFocusRequester.requestFocus() },
                        leadingIcon = Res.drawable.ic_mail_fill,
                        inputValue = state.value.email,
+                       keyboardOptions = KeyboardOptions.Default.copy(
+                           imeAction = ImeAction.Next
+                       ),
+                       keyboardActions = KeyboardActions(
+                           onNext = { passwordFocusRequester.requestFocus() }
+                       ),
                        onValueChange = {
                            firebaseAuthViewModel.onChangeEmail(it)
                        }
@@ -100,7 +122,16 @@ fun NavGraphBuilder.login(navController: NavHostController, firebaseAuthViewMode
                 Column {
                     Row { BodyText(modifier = Modifier.fillMaxWidth(), text = "Deine Passwort:") }
                     FormPasswordTextFieldWithIcon(
+                        modifier = Modifier
+                            .focusRequester(passwordFocusRequester)
+                            .clickableWithRipple { passwordFocusRequester.requestFocus() },
                         inputValue = state.value.password,
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            imeAction = ImeAction.Done
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onDone = { focusManager.clearFocus() },
+                        ),
                         onValueChange = {
                             firebaseAuthViewModel.onChangePassword(it)
                         }
@@ -115,6 +146,7 @@ fun NavGraphBuilder.login(navController: NavHostController, firebaseAuthViewMode
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         TextButton("Zur Registrierung") {
+                            firebaseAuthViewModel.resetLoginState()
                             navController.navigate(Destination.SignUp.route)
                         }
 

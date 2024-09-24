@@ -7,7 +7,9 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.material3.MaterialTheme
@@ -17,6 +19,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -47,8 +50,17 @@ fun HomeMedicationCard(
         verticalArrangement = Arrangement.spacedBy(horizontalSpacing),
         contentPadding = PaddingValues(horizontal = 20.dp)
     ) {
-        items(medications.size, key = { it }) {
-            MedCard(medications[it], height = height) { onNavigate(Destination.Medication) }
+
+        if(medications.isEmpty()) {
+            item {
+                NoMedCard {
+                    onNavigate(it)
+                }
+            }
+        } else {
+            items(medications.size, key = { it }) {index ->
+                MedCard(medications[index], height = height) { onNavigate(it) }
+            }
         }
 
         item {
@@ -94,6 +106,45 @@ fun MedCard(
             )
             FooterText(
                 text = "${intakes}/${intakesTimes} eingenommen.",
+                color = MaterialTheme.colorScheme.onBackground
+            )
+        }
+    }
+}
+
+@Composable
+fun NoMedCard(
+    height: Dp = 80.dp,
+    onNavigate: (Destination) -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .height(height)
+            .wrapContentWidth()
+            .sectionShadow()
+            .clickableWithRipple {
+                onNavigate(Destination.AddMedication)
+            }
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight()
+                .padding(horizontal = 10.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ){
+            HeadlineText(
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Start,
+                text = "Noch kein Medikament",
+                size = 16.sp,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+            FooterText(
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Start,
+                text = "trage dein erstes Medikament ein",
                 color = MaterialTheme.colorScheme.onBackground
             )
         }
