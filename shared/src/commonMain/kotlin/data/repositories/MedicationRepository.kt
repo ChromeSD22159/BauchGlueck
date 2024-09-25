@@ -35,6 +35,10 @@ class MedicationRepository(
         return localService.getMedicationsWithIntakeTimesForToday()
     }
 
+    suspend fun getMedicationsWithIntakeTimes(): List<MedicationWithIntakeDetailsForToday> {
+       return localService.getMedicationsWithIntakeTimes()
+    }
+
     fun getMedicationsWithIntakeTimesForTodayByMedicationID(medicationId: String): Flow<MedicationWithIntakeDetailsForToday> {
         return localService.getMedicationsWithIntakeTimesForTodayByMedicationID(medicationId)
     }

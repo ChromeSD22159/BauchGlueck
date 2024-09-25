@@ -49,6 +49,17 @@ interface MedicationDao {
     @Transaction
     @Query("""
         SELECT * FROM Medication
+        WHERE EXISTS (
+            SELECT * FROM IntakeTime
+            WHERE Medication.medicationId = IntakeTime.medicationId
+        )
+        ORDER BY Medication.name ASC
+    """)
+    suspend fun getMedicationsWithIntakeTimes(): List<MedicationWithIntakeDetailsForToday>
+
+    @Transaction
+    @Query("""
+        SELECT * FROM Medication
         WHERE medicationId = :medicationId
         ORDER BY Medication.name ASC
     """)

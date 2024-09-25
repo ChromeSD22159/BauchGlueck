@@ -29,6 +29,7 @@ import ui.components.theme.button.IconButton
 import ui.components.theme.button.TextButton
 import ui.components.theme.ScreenHolder
 import viewModel.FirebaseAuthViewModel
+import viewModel.HomeViewModel
 import viewModel.MedicationViewModel
 import viewModel.TimerScreenViewModel
 import viewModel.WeightScreenViewModel
@@ -40,7 +41,9 @@ fun NavGraphBuilder.home(
     firebaseAuthViewModel: FirebaseAuthViewModel
 ) {
     composable(Destination.Home.route) {
-        val medicationViewModel = viewModel<MedicationViewModel>()
+        val viewModel = viewModel<HomeViewModel>()
+        val medications by viewModel.medicationsWithIntakeDetailsForToday.collectAsStateWithLifecycle()
+
         val timerScreenViewModel = viewModel<TimerScreenViewModel>()
         val weightScreenViewModel = viewModel<WeightScreenViewModel>()
 
@@ -118,7 +121,7 @@ fun NavGraphBuilder.home(
                         navController.navigate(it.route)
                     }
                 },
-                medicationViewModel = medicationViewModel
+                medications = medications
             )
 
             Spacer(Modifier.height(20.dp))
