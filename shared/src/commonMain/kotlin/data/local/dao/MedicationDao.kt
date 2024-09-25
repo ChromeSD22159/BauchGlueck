@@ -41,10 +41,11 @@ interface MedicationDao {
         WHERE EXISTS (
             SELECT * FROM IntakeTime
             WHERE Medication.medicationId = IntakeTime.medicationId
+            AND userId = :userId
         )
         ORDER BY Medication.name ASC
     """)
-    fun getMedicationsWithIntakeTimesForToday(): Flow<List<MedicationWithIntakeDetailsForToday>>
+    fun getMedicationsWithIntakeTimesForToday(userId: String): Flow<List<MedicationWithIntakeDetailsForToday>>
 
     @Transaction
     @Query("""
@@ -52,18 +53,20 @@ interface MedicationDao {
         WHERE EXISTS (
             SELECT * FROM IntakeTime
             WHERE Medication.medicationId = IntakeTime.medicationId
+            AND userId = :userId
         )
         ORDER BY Medication.name ASC
     """)
-    suspend fun getMedicationsWithIntakeTimes(): List<MedicationWithIntakeDetailsForToday>
+    suspend fun getMedicationsWithIntakeTimes(userId: String): List<MedicationWithIntakeDetailsForToday>
 
     @Transaction
     @Query("""
         SELECT * FROM Medication
         WHERE medicationId = :medicationId
+        AND userId = :userId
         ORDER BY Medication.name ASC
     """)
-    fun getMedicationsWithIntakeTimesForTodayByMedicationID(medicationId: String): Flow<MedicationWithIntakeDetailsForToday>
+    fun getMedicationsWithIntakeTimesForTodayByMedicationID(medicationId: String, userId: String): Flow<MedicationWithIntakeDetailsForToday>
 
     @Transaction
     @Query("""

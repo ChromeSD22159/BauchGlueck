@@ -47,8 +47,6 @@ interface WeightDao {
     """)
     suspend fun getAverageWeightLastDays(days: Int, startDate: Long, userId: String): List<DailyAverage>
 
-
-
     // POST
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(weight: Weight): Long

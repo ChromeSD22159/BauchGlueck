@@ -1,17 +1,22 @@
 package viewModel
 
 import data.Repository
+import data.local.entitiy.CountdownTimer
 import data.local.entitiy.MedicationWithIntakeDetailsForToday
+import data.model.WeeklyAverage
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.forEach
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.lighthousegames.logging.logging
 import util.DateRepository
+import util.debugJsonHelper
 
 class HomeViewModel: ViewModel(), KoinComponent {
     private val repository: Repository by inject()
@@ -23,9 +28,16 @@ class HomeViewModel: ViewModel(), KoinComponent {
     private val _medicationListNotTakenToday = MutableStateFlow<List<MedicationWithIntakeDetailsForToday>>(emptyList())
     val medicationListNotTakenToday: StateFlow<List<MedicationWithIntakeDetailsForToday>> = _medicationListNotTakenToday.asStateFlow()
 
+    private val _weeklyAverage = MutableStateFlow<List<WeeklyAverage>>(emptyList())
+    val weeklyAverage: StateFlow<List<WeeklyAverage>> = _weeklyAverage.asStateFlow()
+
+    private val _timers = repository.countdownTimerRepository.getAllAsFlow()
+    val allTimers: StateFlow<List<CountdownTimer>> = _timers.stateIn(viewModelScope, SharingStarted.WhileSubscribed(1000), emptyList())
+
     init {
         loadMedicationsWithIntakeDetailsForToday()
         loadMedicationListNotTakenToday()
+        getAverageWeightWeeks(49)
     }
 
     // find List of next medication to take orderd by time
@@ -113,6 +125,22 @@ class HomeViewModel: ViewModel(), KoinComponent {
 
             // Setze die neue gefilterte Liste
             _medicationsWithIntakeDetailsForToday.value = newList
+        }
+    }
+
+    private fun getAverageWeightWeeks(days: Int = 49) {
+        viewModelScope.launch {
+            val list = repository.weightRepository.getAverageWeightLastDays(days = days)
+
+            val chunkedList = list.chunked(7)
+
+            _weeklyAverage.value = chunkedList.map { dayList ->
+                val weightList = dayList.filter { it.avgValue  > 0.0}
+                WeeklyAverage(
+                    week = dayList.first().date,
+                    avgValue = if(weightList.isEmpty()) 0.0 else  weightList.sumOf { it.avgValue } / weightList.size
+                )
+            }
         }
     }
 }

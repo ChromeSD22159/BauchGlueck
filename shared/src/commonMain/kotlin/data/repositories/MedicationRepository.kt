@@ -13,6 +13,7 @@ import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.FirebaseUser
 import dev.gitlive.firebase.auth.auth
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.datetime.Clock
 
 class MedicationRepository(
@@ -32,15 +33,18 @@ class MedicationRepository(
     }
 
     fun getMedicationsWithIntakeTimesForToday(): Flow<List<MedicationWithIntakeDetailsForToday>> {
-        return localService.getMedicationsWithIntakeTimesForToday()
+        val currentUserId = userId ?: return emptyFlow()
+        return localService.getMedicationsWithIntakeTimesForToday(currentUserId)
     }
 
     suspend fun getMedicationsWithIntakeTimes(): List<MedicationWithIntakeDetailsForToday> {
-       return localService.getMedicationsWithIntakeTimes()
+        val currentUserId = userId ?: return emptyList()
+       return localService.getMedicationsWithIntakeTimes(currentUserId)
     }
 
     fun getMedicationsWithIntakeTimesForTodayByMedicationID(medicationId: String): Flow<MedicationWithIntakeDetailsForToday> {
-        return localService.getMedicationsWithIntakeTimesForTodayByMedicationID(medicationId)
+        val currentUserId = userId ?: return emptyFlow()
+        return localService.getMedicationsWithIntakeTimesForTodayByMedicationID(medicationId, currentUserId)
     }
 
     suspend fun syncDataWithRemote() {

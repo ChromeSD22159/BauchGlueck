@@ -7,9 +7,9 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
-import androidx.room.Upsert
 import data.local.entitiy.CountdownTimer
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.datetime.Clock
 import org.lighthousegames.logging.logging
 
@@ -17,7 +17,7 @@ import org.lighthousegames.logging.logging
 interface CountdownTimerDao{
 
     @Query("SELECT * FROM CountdownTimer WHERE userId = :userId AND isDeleted = false")
-    fun getAll(userId: String): Flow<List<CountdownTimer>>
+    fun getAllAsFlow(userId: String): Flow<List<CountdownTimer>>
 
     @Query("SELECT * FROM CountdownTimer WHERE timerId = :timerId AND isDeleted = false")
     suspend fun getById(timerId: String): CountdownTimer?

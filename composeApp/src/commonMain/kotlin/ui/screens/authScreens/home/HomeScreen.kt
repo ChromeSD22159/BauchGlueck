@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -40,17 +41,13 @@ fun NavGraphBuilder.home(
     firebaseAuthViewModel: FirebaseAuthViewModel
 ) {
     composable(Destination.Home.route) {
+
+        val scope = rememberCoroutineScope()
         val viewModel = viewModel<HomeViewModel>()
         val medications by viewModel.medicationsWithIntakeDetailsForToday.collectAsStateWithLifecycle()
         val medicationListNotTakenToday by viewModel.medicationListNotTakenToday.collectAsStateWithLifecycle()
-
-        val timerScreenViewModel = viewModel<TimerScreenViewModel>()
-        val weightScreenViewModel = viewModel<WeightScreenViewModel>()
-
-        val scope = rememberCoroutineScope()
-
-        val dailyAverage by weightScreenViewModel.dailyAverage.collectAsState(initial = emptyList())
-        val timers by timerScreenViewModel.allTimers.collectAsState()
+        val weeklyAverage by viewModel.weeklyAverage.collectAsStateWithLifecycle()
+        val timers by viewModel.allTimers.collectAsStateWithLifecycle()
 
         ScreenHolder(
             title = Destination.Home.title,
@@ -75,10 +72,7 @@ fun NavGraphBuilder.home(
                 }
             }
 
-
-            HomeWeightCard(
-                dailyAverage,
-            ) {
+            HomeWeightCard(weeklyAverage) {
                 scope.launch {
                     navController.navigate(Destination.Weight.route)
                 }
