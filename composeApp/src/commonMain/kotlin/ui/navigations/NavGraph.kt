@@ -32,9 +32,9 @@ import ui.screens.authScreens.weights.addWeight.addWeight
 import ui.screens.authScreens.weights.showAllWeights.showAllWeights
 import ui.screens.authScreens.weights.weight
 import ui.screens.launchScreen
-import ui.screens.publicScreens.forgotPassword
-import ui.screens.publicScreens.login
-import ui.screens.publicScreens.signUp
+import ui.screens.publicScreens.screens.forgotPassword
+import ui.screens.publicScreens.screens.login
+import ui.screens.publicScreens.screens.signUp
 import viewModel.FirebaseAuthViewModel
 import viewModel.RecipeViewModel
 

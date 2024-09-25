@@ -1,4 +1,4 @@
-package ui.screens.publicScreens
+package ui.screens.publicScreens.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -43,6 +43,7 @@ import ui.components.theme.text.BodyText
 import ui.components.theme.text.ErrorText
 import ui.components.theme.text.HeadlineText
 import ui.navigations.Destination
+import ui.screens.publicScreens.components.LoginProviderRow
 import viewModel.FirebaseAuthViewModel
 
 fun NavGraphBuilder.login(
@@ -173,10 +174,14 @@ fun NavGraphBuilder.login(
                     text = "Passwort vergessen?",
                 )
 
+                LoginProviderRow(
+                    onContinueWithGoogle = {},
+                    onContinueWithApple = {}
+                )
+
                 Spacer(modifier = Modifier)
             }
         }
     }
 }
-
 

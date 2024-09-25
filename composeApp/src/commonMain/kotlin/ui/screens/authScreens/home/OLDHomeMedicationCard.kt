@@ -35,7 +35,7 @@ import ui.navigations.Destination
 import viewModel.MedicationViewModel
 
 @Composable
-fun HomeMedicationCard(
+fun OLDHomeMedicationCard(
     horizontalSpacing: Dp = 10.dp,
     onNavigate: (Destination) -> Unit,
     height: Dp = 80.dp,

@@ -1,8 +1,6 @@
-package ui.screens.publicScreens
+package ui.screens.publicScreens.screens
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.gestures.ScrollableState
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -41,7 +39,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraphBuilder
@@ -63,6 +60,7 @@ import ui.components.theme.text.BodyText
 import ui.components.theme.text.ErrorText
 import ui.components.theme.text.HeadlineText
 import ui.navigations.Destination
+import ui.screens.publicScreens.components.LoginProviderRow
 import viewModel.FirebaseAuthViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -281,7 +279,12 @@ fun NavGraphBuilder.signUp(navController: NavHostController, firebaseAuthViewMod
                     }
                 }
 
-                Spacer(modifier = Modifier)
+                LoginProviderRow(
+                    onContinueWithGoogle = {},
+                    onContinueWithApple = {}
+                )
+
+                Spacer(modifier = Modifier.height(48.dp))
             }
         }
     }
