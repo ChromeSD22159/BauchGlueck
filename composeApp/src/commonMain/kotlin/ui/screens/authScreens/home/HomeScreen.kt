@@ -30,7 +30,6 @@ import ui.components.theme.button.TextButton
 import ui.components.theme.ScreenHolder
 import viewModel.FirebaseAuthViewModel
 import viewModel.HomeViewModel
-import viewModel.MedicationViewModel
 import viewModel.TimerScreenViewModel
 import viewModel.WeightScreenViewModel
 
@@ -43,6 +42,7 @@ fun NavGraphBuilder.home(
     composable(Destination.Home.route) {
         val viewModel = viewModel<HomeViewModel>()
         val medications by viewModel.medicationsWithIntakeDetailsForToday.collectAsStateWithLifecycle()
+        val medicationListNotTakenToday by viewModel.medicationListNotTakenToday.collectAsStateWithLifecycle()
 
         val timerScreenViewModel = viewModel<TimerScreenViewModel>()
         val weightScreenViewModel = viewModel<WeightScreenViewModel>()
@@ -115,17 +115,13 @@ fun NavGraphBuilder.home(
 
             WaterIntakeCard(firebaseAuthViewModel = firebaseAuthViewModel)
 
-            HomeMedicationCard(
-                onNavigate = {
-                    scope.launch {
-                        navController.navigate(it.route)
-                    }
-                },
-                medications = medications
+            NextMedicationCard(
+                navController = navController,
+                medications = medications,
+                medicationListNotTakenToday = medicationListNotTakenToday
             )
 
             Spacer(Modifier.height(20.dp))
         }
     }
 }
-
