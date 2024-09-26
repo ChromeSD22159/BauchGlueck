@@ -29,6 +29,11 @@ object DateRepository {
             return (0..30).map { todayUTC.plus(it, DateTimeUnit.DAY) }
         }
 
+    val getTheNextMonthDaysLocalDate: List<LocalDate>
+        get() {
+            return (0..30).map { today.plus(it, DateTimeUnit.DAY) }
+        }
+
     val getTheLastMonthDaysUTC: List<LocalDate>
         get() {
             return (0..30).map { todayUTC.minus(it, DateTimeUnit.DAY) }

@@ -1,4 +1,4 @@
-package ui.screens.publicScreens
+package ui.screens.publicScreens.screens
 
 import android.util.Patterns
 import androidx.compose.foundation.Image

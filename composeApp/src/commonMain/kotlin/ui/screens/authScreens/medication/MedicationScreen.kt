@@ -2,10 +2,16 @@ package ui.screens.authScreens.medication
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraphBuilder
@@ -14,11 +20,15 @@ import androidx.navigation.compose.composable
 import bauchglueck.composeapp.generated.resources.Res
 import bauchglueck.composeapp.generated.resources.ic_gear
 import bauchglueck.composeapp.generated.resources.ic_pills_fill
+import bauchglueck.composeapp.generated.resources.ic_plus
 import data.local.entitiy.MedicationWithIntakeDetails
+import data.local.entitiy.MedicationWithIntakeDetailsForToday
+import org.jetbrains.compose.resources.vectorResource
 import ui.navigations.Destination
 import org.lighthousegames.logging.logging
 import ui.components.theme.button.IconButton
 import ui.components.theme.ScreenHolder
+import ui.components.theme.clickableWithRipple
 import viewModel.MedicationViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -27,12 +37,6 @@ fun NavGraphBuilder.medication(navController: NavHostController){
         val viewModel: MedicationViewModel = viewModel<MedicationViewModel>()
         val allMedications by viewModel.medicationsWithIntakeDetailsForToday.collectAsStateWithLifecycle(initialValue = emptyList())
 
-        LaunchedEffect(allMedications) {
-            if(allMedications.isNotEmpty()) {
-                logging().info { "UI: Fetched ${allMedications.size} medications in UI without Lifecycle." }
-            }
-        }
-
         ScreenHolder(
             title = Destination.Medication.title,
             showBackButton = true,
@@ -40,19 +44,21 @@ fun NavGraphBuilder.medication(navController: NavHostController){
                 navController.navigate(Destination.Home.route)
             },
             optionsRow = {
-                IconButton(
-                    resource = Res.drawable.ic_pills_fill,
-                    tint = MaterialTheme.colorScheme.onPrimary
-                ) {
-                    navController.navigate(Destination.AddMedication.route)
-                }
+                Icon(
+                    imageVector = vectorResource(resource = Res.drawable.ic_pills_fill),
+                    contentDescription = "",
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clickableWithRipple { navController.navigate(Destination.AddMedication.route) },
+                )
 
-                IconButton(
-                    resource = Res.drawable.ic_gear,
-                    tint = MaterialTheme.colorScheme.onPrimary
-                ) {
-                    navController.navigate(Destination.Settings.route)
-                }
+                Icon(
+                    imageVector = vectorResource(resource = Res.drawable.ic_gear),
+                    contentDescription = "",
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clickableWithRipple { navController.navigate(Destination.Settings.route) },
+                )
             },
         ) {
             allMedications.forEach { medication ->

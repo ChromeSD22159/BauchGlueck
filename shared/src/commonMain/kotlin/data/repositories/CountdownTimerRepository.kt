@@ -5,9 +5,6 @@ import data.local.LocalDatabase
 import data.local.dao.CountdownTimerDao
 import data.local.entitiy.CountdownTimer
 import data.remote.syncManager.CountdownTimerSyncManager
-import dev.gitlive.firebase.Firebase
-import dev.gitlive.firebase.auth.FirebaseUser
-import dev.gitlive.firebase.auth.auth
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.map
@@ -22,10 +19,10 @@ class CountdownTimerRepository(
     private var localService: CountdownTimerDao = LocalDataSource(db).countdownTimer
     private var syncManager: CountdownTimerSyncManager = CountdownTimerSyncManager(db, serverHost, deviceID)
 
-    fun getAll(): Flow<List<CountdownTimer>> {
+    fun getAllAsFlow(): Flow<List<CountdownTimer>> {
         val currentUserId = userId ?: return emptyFlow()
         logging().info { "CountdownTimerRepository getAll $currentUserId" }
-         val timer = localService.getAll(currentUserId).map { items ->
+         val timer = localService.getAllAsFlow(currentUserId).map { items ->
              items.filter { !it.isDeleted }
          }
 

@@ -290,8 +290,6 @@ fun Recipe(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.End)
                 ) {
-                    Text(scrollState.value.toString())
-
                     Icon(
                         modifier = Modifier.clickableWithRipple {
                             onAddToMealPlan()

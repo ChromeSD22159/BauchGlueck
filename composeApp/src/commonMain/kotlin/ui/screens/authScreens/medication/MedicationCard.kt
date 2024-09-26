@@ -3,6 +3,7 @@ package ui.screens.authScreens.medication
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -26,15 +28,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import bauchglueck.composeapp.generated.resources.Res
 import bauchglueck.composeapp.generated.resources.ic_pills_fill
 import data.local.entitiy.IntakeStatus
 import data.local.entitiy.MedicationWithIntakeDetailsForToday
 import ui.components.theme.clickableWithRipple
-import ui.theme.AppTheme
 import kotlinx.datetime.Clock
 import org.jetbrains.compose.resources.vectorResource
 import util.UUID
@@ -91,38 +93,46 @@ fun MedicationCard(
 
             // CHECKFIELD
             Column(
-                modifier = Modifier
-                    .padding(start = 12.dp)
-                    .clickableWithRipple {
-                        if (thisStatus == null) {
-                            // If there's no status, create a new one and mark it as taken
-                            val newList = intakeTimeWithStatus.intakeStatuses + IntakeStatus(
-                                intakeStatusId = UUID.randomUUID(),
-                                intakeTimeId = intakeTime.intakeTimeId,
-                                isTaken = true,
-                                updatedAtOnDevice = Clock.System.now().toEpochMilliseconds()
-                            )
-                            intakeTimeWithStatus.intakeStatuses = newList
-                            isTaken = true
-                        } else {
-                            if(isTaken) {
-                                thisStatus.isTaken = !thisStatus.isTaken
-                                thisStatus.updatedAtOnDevice = Clock.System.now().toEpochMilliseconds()
-                                isTaken = thisStatus.isTaken
-                            } else {
-                                thisStatus.isTaken = !thisStatus.isTaken
-                                thisStatus.updatedAtOnDevice = Clock.System.now().toEpochMilliseconds()
-                                isTaken = thisStatus.isTaken
-                            }
-
-                        }
-                        onUpdateTakenState(medication)
-                    },
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
 
-                ColoredCheckbox(isTaken)
+                //ColoredCheckbox(isTaken)
+                CHECK(
+                    modifier = Modifier
+                        .clickableWithRipple {
+                            if (thisStatus == null) {
+                                // If there's no status, create a new one and mark it as taken
+                                val newList = intakeTimeWithStatus.intakeStatuses + IntakeStatus(
+                                    intakeStatusId = UUID.randomUUID(),
+                                    intakeTimeId = intakeTime.intakeTimeId,
+                                    isTaken = true,
+                                    updatedAtOnDevice = Clock.System
+                                        .now()
+                                        .toEpochMilliseconds()
+                                )
+                                intakeTimeWithStatus.intakeStatuses = newList
+                                isTaken = true
+                            } else {
+                                if (isTaken) {
+                                    thisStatus.isTaken = !thisStatus.isTaken
+                                    thisStatus.updatedAtOnDevice = Clock.System
+                                        .now()
+                                        .toEpochMilliseconds()
+                                    isTaken = thisStatus.isTaken
+                                } else {
+                                    thisStatus.isTaken = !thisStatus.isTaken
+                                    thisStatus.updatedAtOnDevice = Clock.System
+                                        .now()
+                                        .toEpochMilliseconds()
+                                    isTaken = thisStatus.isTaken
+                                }
+
+                            }
+                            onUpdateTakenState(medication)
+                        },
+                    isTaken = isTaken
+                )
 
                 // DATETIME
                 Text(
@@ -135,11 +145,38 @@ fun MedicationCard(
     }
 }
 
-@Preview(showBackground = true)
 @Composable
-fun MedicationCardPreview() {
-    AppTheme {
-        ColoredCheckbox()
+fun CHECK(
+    modifier: Modifier = Modifier,
+    isTaken: Boolean
+) {
+    val col = MaterialTheme.colorScheme.primary
+    val brush = Brush.linearGradient(
+        listOf(
+            if(isTaken) col.copy(alpha = 1.0f) else col.copy(alpha = 0.5f),
+            if(isTaken) col.copy(alpha = 0.8f) else col.copy(alpha = 0.3f),
+        ),
+        start = Offset(100f, 0f),
+        end = Offset(0f, 100f)
+    )
+    Box(
+        modifier = modifier
+            .padding(10.dp)
+            .border(
+                width = 3.dp,
+                brush = brush,
+                shape = CircleShape
+            )
+    ){
+        Box( // 52
+            modifier = Modifier
+                .size(40.dp)
+                .padding(6.dp)
+                .background(
+                    brush = brush,
+                    shape = CircleShape
+                )
+        )
     }
 }
 
@@ -171,4 +208,7 @@ fun ColoredCheckbox(
             }
     )
 }
+
+
+
 

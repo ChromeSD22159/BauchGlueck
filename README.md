@@ -18,6 +18,8 @@ SharedViewModel: [Github Shared MVVM](https://github.com/sunildhiman90/KMPAppSha
 SharedDateTime: [Shared util.DateTime](https://raed-o-ghazal.medium.com/kotlinx-localdatetime-manipulation-for-kmm-eacfede93aba)
 KMP Shared ROOM: [ROOM]("https://github.com/android/kotlin-multiplatform-samples/tree/main/Fruitties")
 KMNotifier: [Tut](https://proandroiddev.com/how-to-implement-push-notification-in-kotlin-multiplatform-5006ff20f76c)
+KMAuth: [Tut](https://github.com/mirzemehdi/KMPAuth)
+KMAuth: [Vid](https://www.youtube.com/watch?v=mLfqCyO8-Bc)
 ``` kotlin
 1. -> ./gradlew :shared:build -> generates the server-<version>.jar for the server
 ```

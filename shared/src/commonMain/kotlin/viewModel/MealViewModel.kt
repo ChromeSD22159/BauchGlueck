@@ -16,7 +16,7 @@ class MealViewModel: ViewModel(), KoinComponent {
     private val localMeals: Flow<List<MealWithCategories>> = repository.mealRepository.getAllMealsMeals()
     private val dateRepository = DateRepository
 
-    val days = dateRepository.getTheNextMonthDaysUTC
+    val days = dateRepository.getTheNextMonthDaysLocalDate
 
     val localMealCount: Flow<Int>
         get() = localMeals.map { it.size }
@@ -27,5 +27,4 @@ class MealViewModel: ViewModel(), KoinComponent {
     fun setSelectedDate(date: LocalDate) {
         _selectedDate.value = date
     }
-
 }

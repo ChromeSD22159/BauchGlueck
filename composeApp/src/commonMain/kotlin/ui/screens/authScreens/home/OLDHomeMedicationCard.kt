@@ -35,14 +35,12 @@ import ui.navigations.Destination
 import viewModel.MedicationViewModel
 
 @Composable
-fun HomeMedicationCard(
+fun OLDHomeMedicationCard(
     horizontalSpacing: Dp = 10.dp,
     onNavigate: (Destination) -> Unit,
     height: Dp = 80.dp,
-    medicationViewModel: MedicationViewModel
+    medications: List<MedicationWithIntakeDetailsForToday> = emptyList(),
 ) {
-    val medications by medicationViewModel.medicationsWithIntakeDetailsForToday.collectAsStateWithLifecycle(initialValue = emptyList())
-
     LazyHorizontalGrid(
         modifier = Modifier.height(height + 10.dp),
         rows = GridCells.Fixed(1),

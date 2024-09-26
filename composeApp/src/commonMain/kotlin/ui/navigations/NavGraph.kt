@@ -16,6 +16,7 @@ import org.lighthousegames.logging.logging
 import viewModel.SyncWorkerViewModel
 import ui.screens.authScreens.addNote
 import ui.screens.authScreens.addRecipe.addRecipe
+import ui.screens.authScreens.admin.adminPanelComposable
 import ui.screens.authScreens.home.home
 import ui.screens.authScreens.mealPlan.mealPlan
 import ui.screens.authScreens.medication.addMedication
@@ -32,9 +33,9 @@ import ui.screens.authScreens.weights.addWeight.addWeight
 import ui.screens.authScreens.weights.showAllWeights.showAllWeights
 import ui.screens.authScreens.weights.weight
 import ui.screens.launchScreen
-import ui.screens.publicScreens.forgotPassword
-import ui.screens.publicScreens.login
-import ui.screens.publicScreens.signUp
+import ui.screens.publicScreens.screens.forgotPassword
+import ui.screens.publicScreens.screens.login
+import ui.screens.publicScreens.screens.signUp
 import viewModel.FirebaseAuthViewModel
 import viewModel.RecipeViewModel
 
@@ -126,4 +127,5 @@ fun NavGraphBuilder.authScreens(
     //recipesComposable(navController)
 
     settingsComposable(navController, firebaseAuthViewModel)
+    adminPanelComposable(navController)
 }

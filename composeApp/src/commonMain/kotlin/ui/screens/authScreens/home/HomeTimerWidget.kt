@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -20,8 +21,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
@@ -74,9 +77,14 @@ fun HomeTimerWidget(
             Spacer(Modifier.width(horizontalSpacing - itemSpacing))
 
             val sorted = timers.sortedBy { TimerState.fromValue(it.timerState).state  }
-
             sorted.forEach { countDownTimer ->
                 HomeCountdownTimerWidgetCard(countDownTimer) { onNavigate(it) }
+            }
+
+            if(sorted.isEmpty()) {
+                NoTimerCard {
+                    onNavigate(it)
+                }
             }
 
             SliderItemAddCard(Destination.AddTimer) {
@@ -126,6 +134,45 @@ fun HomeCountdownTimerWidgetCard(
             )
             FooterText(
                 text = timer.name,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+        }
+    }
+}
+
+@Composable
+fun NoTimerCard(
+    height: Dp = 80.dp,
+    onNavigate: (Destination) -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .height(height)
+            .wrapContentWidth()
+            .sectionShadow()
+            .clickableWithRipple {
+                onNavigate(Destination.AddTimer)
+            }
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight()
+                .padding(horizontal = 10.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ){
+            HeadlineText(
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Start,
+                text = "Noch keinen Timer",
+                size = 16.sp,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+            FooterText(
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Start,
+                text = "trage dein ersten Timer ein",
                 color = MaterialTheme.colorScheme.onBackground
             )
         }

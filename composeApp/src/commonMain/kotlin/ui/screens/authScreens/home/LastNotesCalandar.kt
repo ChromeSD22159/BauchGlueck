@@ -18,10 +18,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import bauchglueck.composeapp.generated.resources.Res
+import bauchglueck.composeapp.generated.resources.ic_seal_check
 import bauchglueck.composeapp.generated.resources.ic_seal_xmark
 import data.Repository
 import data.local.entitiy.Node
@@ -129,8 +132,8 @@ fun CalendarItem(
                 Icon(
                     imageVector = vectorResource(resource = Res.drawable.ic_seal_xmark),
                     contentDescription = "icon",
-                    modifier = Modifier.size(75.dp),
-                    tint = MaterialTheme.colorScheme.onBackground
+                    modifier = Modifier.size(20.dp).alpha(0.5f),
+                    tint = Color.Gray
                 )
             }
 

@@ -32,7 +32,7 @@ class TimerScreenViewModel: ViewModel(), KoinComponent {
     private val _selectedTimer: MutableStateFlow<CountdownTimer?> = MutableStateFlow(null)
     val selectedTimer: StateFlow<CountdownTimer?> = _selectedTimer.asStateFlow()
 
-    val allTimers = repository.countdownTimerRepository.getAll()
+    val allTimers = repository.countdownTimerRepository.getAllAsFlow()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(1000), emptyList())
 
     init {
@@ -46,7 +46,7 @@ class TimerScreenViewModel: ViewModel(), KoinComponent {
 
     fun loadAllTimers() {
         scope.launch {
-            repository.countdownTimerRepository.getAll().collect {
+            repository.countdownTimerRepository.getAllAsFlow().collect {
                 _allTimers.value = it
             }
         }

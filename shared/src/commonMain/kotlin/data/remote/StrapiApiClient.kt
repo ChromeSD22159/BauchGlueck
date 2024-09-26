@@ -7,6 +7,7 @@ import data.network.replacePlaceholders
 import data.remote.model.ApiChangeLog
 import data.remote.model.ApiRecipesResponse
 import data.remote.model.ApiAppStatistics
+import data.remote.model.ApiBackendStatistic
 import data.remote.model.ApiUploadImageResponse
 import data.remote.model.MainImage
 import data.remote.model.RecipeUpload
@@ -70,7 +71,7 @@ open class BaseApiClient(
         SEND_NOTIFICATION("/api/send-notification", HttpMethod.Post),
         SCHEDULE_NOTIFICATION("/api/send-schedule-notification", HttpMethod.Post),
         UPLOAD_IMAGE("/api/upload/", HttpMethod.Post),
-        UPLOAD_RECIPE("recipes/createRecipe", HttpMethod.Post)
+        APP_Statistic("/api/appStatistics", HttpMethod.Get)
     }
 
     // TODO check MealPlan Routes AND SyncLogic
@@ -86,6 +87,11 @@ open class BaseApiClient(
         SaveDeviceToken("/api/saveDeviceToken", HttpMethod.Post),
         DeleteDeviceToken("/api/deleteDeviceToken", HttpMethod.Post),
         UPLOAD_RECIPE("/api/recipes/createRecipe", HttpMethod.Post)
+    }
+
+    suspend fun getBackendStatistics(): Result<ApiBackendStatistic, NetworkError> {
+        val endpoint = RemoteNotificationEndpoint.APP_Statistic.generateRequestURL(serverHost)
+        return apiCall(endpoint, httpClient)
     }
 
     suspend fun sendScheduleRemoteNotification(notification: NotificationCronJobRequest): Result<FirebaseCloudMessagingResponse, NetworkError> {

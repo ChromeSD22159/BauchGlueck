@@ -32,7 +32,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.vectorResource
 import ui.components.theme.clickableWithRipple
-import kotlin.random.Random
+import util.BubbleService
 
 @Composable
 fun FillableGlassWithAnimation(
@@ -44,7 +44,7 @@ fun FillableGlassWithAnimation(
     onClick: () -> Unit,
     animationDelay: Long = 0L
 ) {
-    var bubbles by remember { mutableStateOf(emptyList<Bubble>()) }
+    var bubbles by remember { mutableStateOf(emptyList<BubbleService.Bubble>()) }
     val fillLevel = remember { Animatable(0.1f) }
     var animationState by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
@@ -91,14 +91,14 @@ fun FillableGlassWithAnimation(
     LaunchedEffect(isFilled) {
         if (isFilled) {
             delay(animationDelay) // Verzögerung, bevor die Animation startet
-            bubbles = generateBubbles(100f, 100f, 10)
+            bubbles = BubbleService.generateBubbles(100f, 100f, 10)
             startAnimation() // Start der Animation
         }
     }
 
     LaunchedEffect(Unit) {
         while (true) {
-            bubbles = updateBubbles(16L, bubbles, 100f) // Update every 16ms (approx 60fps)
+            bubbles = BubbleService.updateBubbles(16L, bubbles, 100f) // Update every 16ms (approx 60fps)
             delay(16L) // Control the update rate to approx 60fps
         }
     }
@@ -259,40 +259,3 @@ fun FillableGlassWithAnimation(
         }
     }
 }
-
-
-
-fun updateBubbles(deltaTime: Long, bubbles: List<Bubble>, glassHeight: Float): List<Bubble> {
-    val bubbleSpeed = 20f // Geschwindigkeit, mit der sich die Blasen nach oben bewegen (fester Wert)
-    val updatedBubbles = bubbles.map { bubble ->
-        var newY = bubble.y - deltaTime.toFloat() / 1000f * bubbleSpeed // Bewegt die Blasen nach oben
-
-        // Überprüfe, ob die Blase das obere Ende erreicht hat und setze sie zurück
-        if (newY + bubble.radius < 0) {
-            newY = glassHeight // Setze die Blase nach unten zurück
-        }
-
-        // Gib die aktualisierte Blase zurück
-        bubble.copy(y = newY)
-    }
-
-    return updatedBubbles
-}
-
-fun generateBubbles(glassWidth: Float, glassHeight: Float, numBubbles: Int): List<Bubble> {
-    val newBubbles = mutableListOf<Bubble>()
-    for (i in 0 until numBubbles) {
-        val x = Random.nextFloat() * (glassWidth - 20f) + 10f // Vermeide Kollision mit dem Rand
-        val y = Random.nextFloat() * (glassHeight - 40f) + 20f // Vermeide Kollision oben und unten
-        val radius = Random.nextFloat() * 5f + 2f // Zufällige Größe der Blasen
-        newBubbles.add(Bubble(x, y, radius))
-    }
-    return newBubbles
-}
-
-
-data class Bubble(
-    var x: Float, // X-coordinate of the bubble center
-    var y: Float, // Y-coordinate of the bubble center
-    val radius: Float, // Radius of the bubble
-)

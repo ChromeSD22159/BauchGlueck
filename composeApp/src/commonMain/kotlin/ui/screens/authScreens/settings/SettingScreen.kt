@@ -27,6 +27,7 @@ import bauchglueck.composeapp.generated.resources.ic_grid_2_2
 import bauchglueck.composeapp.generated.resources.ic_info
 import bauchglueck.composeapp.generated.resources.ic_mail
 import bauchglueck.composeapp.generated.resources.ic_star
+import data.model.firebase.UserRole
 import de.frederikkohler.bauchglueck.R
 import ui.components.profileSlider.ProfileSlider
 import ui.components.profileSlider.ProfileSliderUnit
@@ -36,6 +37,7 @@ import ui.components.FormScreens.PlusMinusButtonForms
 import ui.components.theme.SectionLink
 import ui.components.theme.Section
 import ui.components.theme.ScreenHolder
+import ui.components.theme.button.TextButton
 import util.appVersion
 import viewModel.FirebaseAuthViewModel
 
@@ -63,6 +65,12 @@ fun NavGraphBuilder.settingsComposable(navController: NavHostController, firebas
             ) {
 
                 currentProfile.let { profile ->
+
+                    if(profile.role == UserRole.admin) {
+                        TextButton(text = "Zum Admin Panel") {
+                            navController.navigate(Destination.AdminPanel.route)
+                        }
+                    }
 
                     InfoCard(profile.firstName, profile.surgeryDateTimeStamp)
 
