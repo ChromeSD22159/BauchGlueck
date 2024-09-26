@@ -16,6 +16,7 @@ import org.lighthousegames.logging.logging
 import viewModel.SyncWorkerViewModel
 import ui.screens.authScreens.addNote
 import ui.screens.authScreens.addRecipe.addRecipe
+import ui.screens.authScreens.admin.adminPanelComposable
 import ui.screens.authScreens.home.home
 import ui.screens.authScreens.mealPlan.mealPlan
 import ui.screens.authScreens.medication.addMedication
@@ -126,4 +127,5 @@ fun NavGraphBuilder.authScreens(
     //recipesComposable(navController)
 
     settingsComposable(navController, firebaseAuthViewModel)
+    adminPanelComposable(navController)
 }

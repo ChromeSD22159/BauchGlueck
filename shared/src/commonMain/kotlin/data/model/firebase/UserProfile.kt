@@ -18,7 +18,8 @@ data class UserProfile(
     var startWeight: Double  = 100.0,
     val waterIntake: Double = 0.25,
     val waterDayIntake: Double = 2.0,
-    val userNotifierToken: String = ""
+    val userNotifierToken: String = "",
+    val role: UserRole = UserRole.user,
 ) {
     var surgeryDate: LocalDateTime
         get() = surgeryDateTimeStamp.toLocalDateTime()
@@ -41,3 +42,6 @@ data class UserProfile(
         }
 }
 
+enum class UserRole {
+    user, admin
+}

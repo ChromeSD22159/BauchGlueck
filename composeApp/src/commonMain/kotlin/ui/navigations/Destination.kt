@@ -29,4 +29,5 @@ sealed class Destination(val route: String, val title: String) {
     data object ShoppingListDetail: Destination("ShoppingListDetail", "Shoppinglist Detail")
     data object ShoppingListGenerate: Destination("ShoppingListGenerate", "Shopping Liste erstellen")
     data object Settings : Destination("Settings", "Einstellungen")
+    data object AdminPanel : Destination("AdminPanel", "Admin Panel")
 }
