@@ -49,6 +49,10 @@ kotlin {
             implementation(libs.coil.mp)
             implementation(libs.coil.network.ktor)
             implementation(libs.coil.compose.core)
+
+            implementation("io.github.mirzemehdi:kmpauth-google:2.1.0-alpha02")
+            implementation("io.github.mirzemehdi:kmpauth-firebase:2.1.0-alpha02")
+            implementation("io.github.mirzemehdi:kmpauth-uihelper:2.1.0-alpha02")
         }
     }
 }
@@ -92,6 +96,8 @@ android {
         debugImplementation(libs.androidx.ui.test.manifest)
     }
 }
+
+apply(plugin = "com.google.gms.google-services")
 
 dependencies {
     implementation(projects.shared)

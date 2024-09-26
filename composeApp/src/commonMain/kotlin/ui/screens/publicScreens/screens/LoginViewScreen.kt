@@ -14,6 +14,8 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,6 +32,17 @@ import androidx.navigation.compose.composable
 import bauchglueck.composeapp.generated.resources.Res
 import bauchglueck.composeapp.generated.resources.ic_mail_fill
 import bauchglueck.composeapp.generated.resources.magen
+import com.mmk.kmpauth.firebase.apple.AppleButtonUiContainer
+import com.mmk.kmpauth.firebase.apple.AppleSignInRequestScope
+import com.mmk.kmpauth.firebase.google.GoogleButtonUiContainerFirebase
+import com.mmk.kmpauth.google.GoogleAuthCredentials
+import com.mmk.kmpauth.google.GoogleAuthProvider
+import com.mmk.kmpauth.google.GoogleButtonUiContainer
+import com.mmk.kmpauth.uihelper.apple.AppleButtonMode
+import com.mmk.kmpauth.uihelper.apple.AppleSignInButton
+import com.mmk.kmpauth.uihelper.apple.AppleSignInButtonIconOnly
+import com.mmk.kmpauth.uihelper.google.GoogleSignInButton
+import com.mmk.kmpauth.uihelper.google.GoogleSignInButtonIconOnly
 import org.jetbrains.compose.resources.painterResource
 import org.lighthousegames.logging.logging
 import ui.components.FormScreens.FormPasswordTextFieldWithIcon
@@ -174,10 +187,10 @@ fun NavGraphBuilder.login(
                     text = "Passwort vergessen?",
                 )
 
-                LoginProviderRow(
-                    onContinueWithGoogle = {},
-                    onContinueWithApple = {}
-                )
+
+                LoginProviderRow() { destination, _ ->
+                    navController.navigate(destination.route)
+                }
 
                 Spacer(modifier = Modifier)
             }

@@ -279,10 +279,9 @@ fun NavGraphBuilder.signUp(navController: NavHostController, firebaseAuthViewMod
                     }
                 }
 
-                LoginProviderRow(
-                    onContinueWithGoogle = {},
-                    onContinueWithApple = {}
-                )
+                LoginProviderRow { destination, _ ->
+                    navController.navigate(destination.route)
+                }
 
                 Spacer(modifier = Modifier.height(48.dp))
             }

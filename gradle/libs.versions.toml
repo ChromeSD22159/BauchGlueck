@@ -12,13 +12,10 @@ androidx-material = "1.12.0"
 androidx-test-junit = "1.2.1"
 compose-plugin = "1.6.11"
 composeVectorizeCore = "1.0.0"
-firebaseAnalytics = "1.13.0"
-firebaseAuth = "1.13.0"
-firebaseAuthJvm = "1.13.0"
-firebaseFirestoreVersion = "1.13.0"
+gitlive-firebase = "1.13.0"
 firebaseMessage = "2.1.0"
 firebaseJavaSdk = "0.4.3"
-firebaseStorageVersion = "1.13.0"
+playServicesAuth = "21.0.0"
 flywayCore = "9.16.0"
 hikaricp = "5.1.0"
 junit = "4.13.2"
@@ -66,14 +63,18 @@ androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-
 androidx-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "uiTestManifest" }
 androidx-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "uiTooling" }
 compose-vectorize-core = { module = "dev.sergiobelda.compose.vectorize:compose-vectorize-core", version.ref = "composeVectorizeCore" }
-firebase-analytics = { module = "dev.gitlive:firebase-analytics", version.ref = "firebaseAnalytics" }
-firebase-auth = { module = "dev.gitlive:firebase-auth", version.ref = "firebaseAuth" }
-firebase-database = { module = "dev.gitlive:firebase-database", version.ref = "firebaseAnalytics" }
-firebase-storage = { module = "dev.gitlive:firebase-storage", version.ref = "firebaseStorageVersion" }
+firebase-analytics = { module = "dev.gitlive:firebase-analytics", version.ref = "gitlive-firebase" }
+firebase-auth = { module = "dev.gitlive:firebase-auth", version.ref = "gitlive-firebase" }
+firebase-database = { module = "dev.gitlive:firebase-database", version.ref = "gitlive-firebase" }
+firebase-storage = { module = "dev.gitlive:firebase-storage", version.ref = "gitlive-firebase" }
 firebase-java-sdk = { module = "dev.gitlive:firebase-java-sdk", version.ref = "firebaseJavaSdk" }
-firebase-auth-jvm = { module = "dev.gitlive:firebase-auth-jvm", version.ref = "firebaseAuthJvm" }
-firebase-firestore = { module = "dev.gitlive:firebase-firestore", version.ref = "firebaseFirestoreVersion" }
+firebase-auth-jvm = { module = "dev.gitlive:firebase-auth-jvm", version.ref = "gitlive-firebase" }
+firebase-firestore = { module = "dev.gitlive:firebase-firestore", version.ref = "gitlive-firebase" }
 firebase-message = { module = "dev.gitlive:firebase-messaging" , version.ref = "firebaseMessage" }
+
+firebase-gitlive-common = { module = "dev.gitlive:firebase-common", version.ref = "gitlive-firebase" }
+play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuth" }
+
 flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flywayCore" }
 hikaricp = { module = "com.zaxxer:HikariCP", version.ref = "hikaricp" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "androidx-appcompat" }

@@ -6,7 +6,7 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.google.services)
+    //alias(libs.plugins.google.services)
     alias(libs.plugins.ksp)
     alias(libs.plugins.room)
     id("com.codingfeline.buildkonfig") version "0.15.2"
@@ -64,6 +64,8 @@ kotlin {
             implementation(libs.room.runtime.android)
 
             implementation(libs.koin.android)
+
+            implementation(libs.play.services.auth)
         }
         commonMain.dependencies {
             // sharedViewModel
@@ -76,15 +78,22 @@ kotlin {
 
             // new Firebase
             implementation(libs.bundles.firebase.services)
+            implementation(libs.firebase.gitlive.common)
             implementation(libs.room.common)
             implementation(libs.room.runtime)
             implementation(libs.sqlite.bundled)
 
             implementation(libs.multiplatform.settings)
 
+
+            implementation("io.github.mirzemehdi:kmpauth-google:2.1.0-alpha02")
+            implementation("io.github.mirzemehdi:kmpauth-firebase:2.1.0-alpha02")
+            implementation("io.github.mirzemehdi:kmpauth-uihelper:2.1.0-alpha02")
+
             implementation(libs.koin.core)
             api(libs.logging)
             api(libs.kmpnotifier)
+
         }
         iosMain.dependencies {
             // sharedViewModel
