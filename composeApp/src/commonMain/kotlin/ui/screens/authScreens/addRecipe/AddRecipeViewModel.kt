@@ -54,16 +54,14 @@ class AddRecipeViewModel : ViewModel() {
                             mainImage(null)
                             _isUploading.value = false
 
-                            _error.value = it.name
-                            delay(3000)
-                            _error.value = null
+                            setErrorMessage(it.name)
                         }
                         .onSuccess {
                             mainImage(it.first())
                         }
                 }
             } else {
-                printError("Bitte wählen Sie ein Bild aus")
+                setErrorMessage("Bitte wählen Sie ein Bild aus")
             }
         }
     }
@@ -84,21 +82,19 @@ class AddRecipeViewModel : ViewModel() {
                 res.onError {
                     _isUploading.value = false
 
-                    _error.value = it.name
-                    delay(3000)
-                    _error.value = null
+                    setErrorMessage(it.name)
                 }.onSuccess {
                     _isUploading.value = false
 
                     // save to local db
                 }
             } else {
-                printError("Bitte füllen Sie alle Felder aus")
+                setErrorMessage("Bitte füllen Sie alle Felder aus")
             }
         }
     }
 
-    private fun printError(msg: String) {
+    fun setErrorMessage(msg: String) {
         viewModelScope.launch {
             _error.value = msg
             delay(3000)
