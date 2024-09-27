@@ -11,18 +11,30 @@ import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.lifecycle.lifecycleScope
 import coil3.annotation.ExperimentalCoilApi
 import coil3.compose.setSingletonImageLoaderFactory
 import com.mmk.kmpnotifier.notification.NotifierManager
 import com.mmk.kmpnotifier.notification.configuration.NotificationPlatformConfiguration
 import com.mmk.kmpnotifier.permission.permissionUtil
+import data.repositories.FirebaseRepository
+import dev.gitlive.firebase.Firebase
+import dev.gitlive.firebase.initialize
 import di.KoinInject
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import org.lighthousegames.logging.logging
 import util.ApplicationContextHolder
 
 class MainActivity : ComponentActivity() {
 
+    private val firebaseRepository = FirebaseRepository()
+    private lateinit var onlineUserCountJob: Job
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        Firebase.initialize(this)
 
         NotifierManager.initialize(
             configuration = NotificationPlatformConfiguration.Android(
@@ -40,9 +52,9 @@ class MainActivity : ComponentActivity() {
     override fun onStart() {
         super.onStart()
 
-        KoinInject(applicationContext).init()
-
         setSystemBars()
+
+        KoinInject(applicationContext).init()
 
         setContent {
             ApplicationContextHolder.context = applicationContext
@@ -56,6 +68,25 @@ class MainActivity : ComponentActivity() {
                 Toast.makeText(applicationContext, "Keine Serververbindung", Toast.LENGTH_SHORT).show()
             }
         }
+
+        lifecycleScope.launch {
+            firebaseRepository.markUserOnline()
+
+            firebaseRepository.getOnlineUserCount {
+                logging().info {"Aktuelle Online-Benutzer: $it"}
+            }
+        }
+
+        startObservingOnlineUserCount()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        lifecycleScope.launch {
+            firebaseRepository.markUserOffline()
+        }
+
+        stopObservingOnlineUserCount()
     }
 
     private fun setSystemBars() {
@@ -85,6 +116,18 @@ class MainActivity : ComponentActivity() {
                 controller.isAppearanceLightStatusBars = false // or true based on preference
                 controller.isAppearanceLightNavigationBars = false // or true based on preference
             }
+        }
+    }
+
+    private fun startObservingOnlineUserCount() {
+        onlineUserCountJob = firebaseRepository.observeOnlineUserCount { count ->
+            logging().info {"Aktuelle Online-Benutzer: $count"}
+        }
+    }
+
+    private fun stopObservingOnlineUserCount() {
+        if (::onlineUserCountJob.isInitialized) {
+            onlineUserCountJob.cancel()
         }
     }
 }
