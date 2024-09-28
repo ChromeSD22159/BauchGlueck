@@ -15,6 +15,9 @@ composeVectorizeCore = "1.0.0"
 gitlive-firebase = "1.13.0"
 firebaseMessage = "2.1.0"
 firebaseJavaSdk = "0.4.3"
+kmpauthGoogle = "2.1.0-alpha02"
+kmpauthFirebase = "2.1.0-alpha02"
+kmpauthUihelper = "2.1.0-alpha02"
 playServicesAuth = "21.0.0"
 flywayCore = "9.16.0"
 hikaricp = "5.1.0"
@@ -73,6 +76,9 @@ firebase-firestore = { module = "dev.gitlive:firebase-firestore", version.ref = 
 firebase-message = { module = "dev.gitlive:firebase-messaging" , version.ref = "firebaseMessage" }
 
 firebase-gitlive-common = { module = "dev.gitlive:firebase-common", version.ref = "gitlive-firebase" }
+kmpauth-uihelper = { module = "io.github.mirzemehdi:kmpauth-uihelper", version.ref = "kmpauthUihelper" }
+kmpauth-firebase = { module = "io.github.mirzemehdi:kmpauth-firebase", version.ref = "kmpauthFirebase" }
+kmpauth-google = { module = "io.github.mirzemehdi:kmpauth-google", version.ref = "kmpauthGoogle" }
 play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuth" }
 
 flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flywayCore" }

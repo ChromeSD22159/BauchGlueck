@@ -24,13 +24,12 @@ kotlin {
         
         androidMain.dependencies {
             implementation(compose.preview)
-            implementation("androidx.compose.animation:animation:1.5.4")
-            implementation("androidx.core:core-splashscreen:1.0.0")
+            implementation("androidx.compose.animation:animation:1.7.2")
+            implementation("androidx.core:core-splashscreen:1.0.1")
             implementation(libs.androidx.activity.compose)
             implementation(libs.ktor.client.okhttp)
             implementation(libs.koin.android)
             implementation(libs.koin.androidx.compose)
-
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -50,9 +49,9 @@ kotlin {
             implementation(libs.coil.network.ktor)
             implementation(libs.coil.compose.core)
 
-            implementation("io.github.mirzemehdi:kmpauth-google:2.1.0-alpha02")
-            implementation("io.github.mirzemehdi:kmpauth-firebase:2.1.0-alpha02")
-            implementation("io.github.mirzemehdi:kmpauth-uihelper:2.1.0-alpha02")
+            implementation(libs.kmpauth.google)
+            implementation(libs.kmpauth.firebase)
+            implementation(libs.kmpauth.uihelper)
         }
     }
 }
@@ -116,5 +115,6 @@ dependencies {
     implementation(libs.compose.vectorize.core)
     implementation(libs.kotlinx.datetime)
     implementation(libs.koin.androidx.compose)
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.30.0")
 }
 

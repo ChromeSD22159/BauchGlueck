@@ -16,13 +16,12 @@ import kotlinx.datetime.Clock
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.koin.core.component.KoinComponent
-import util.DateRepository
 import util.utcMillis
 
-class AddNodeViewModel: ViewModel(), KoinComponent {
+class AddNoteViewModel: ViewModel(), KoinComponent {
     private val repository: Repository by inject()
 
-    private var _allMoods = MutableStateFlow(Moods.list.toMutableList())
+    private var _allMoods: MutableStateFlow<List<Mood>> = MutableStateFlow(emptyList())
     val allMoods = _allMoods.asStateFlow()
 
     private var _currentMoods = MutableStateFlow(mutableListOf<Mood>())
@@ -37,7 +36,8 @@ class AddNodeViewModel: ViewModel(), KoinComponent {
     val textFieldDisplayLength : String
         get() = "${_node.value.count()}/${maxCharacters}"
 
-    val userNodes = repository.nodeRepository.getAllNodes()
+    private val _currentNote = MutableStateFlow<Node?>(null)
+    val currentNote = _currentNote.asStateFlow()
 
     private val maxCharacters = 512
 
@@ -61,13 +61,34 @@ class AddNodeViewModel: ViewModel(), KoinComponent {
 
     fun saveNode(finished: () -> Unit = {}) {
         viewModelScope.launch {
-            repository.nodeRepository.insert(
+            repository.noteRepository.insert(
                 Node(
                     text = node.value,
                     moodsRawValue = Json.encodeToString(currentMoods.value),
                     date = Clock.System.utcMillis
                 )
             )
+
+            showMessage("Gespeichert")
+
+            delay(1000)
+
+            finished()
+        }
+    }
+
+    fun saveUpdatedNote(finished: () -> Unit = {}) {
+        viewModelScope.launch {
+            currentNote.value?.let {
+                repository.noteRepository.insert(
+                    Node(
+                        id = it.id,
+                        text = node.value,
+                        moodsRawValue = Json.encodeToString(currentMoods.value),
+                        date = it.date,
+                    )
+                )
+            }
 
             showMessage("Gespeichert")
 
@@ -111,5 +132,27 @@ class AddNodeViewModel: ViewModel(), KoinComponent {
 
     private fun updateMoodFromDataList(moodIndex: Int, value: Boolean) {
         _allMoods.value[moodIndex].isOnList = value
+    }
+
+    fun setNoteId(noteId: String) {
+        viewModelScope.launch {
+            try {
+                val note = repository.noteRepository.getNode(noteId)
+                _node.value = note?.text ?: ""
+
+                _currentNote.value = note
+
+                note?.let {
+                    val noteMoods = Json.decodeFromString<List<Mood>>(it.moodsRawValue)
+                    _currentMoods.value = noteMoods.toMutableList()
+
+                    _allMoods.value = _allMoods.value.map { mood ->
+                        mood.copy(isOnList = noteMoods.contains(mood))
+                    }
+                }
+            } catch (e: Exception) {
+                e.message
+            }
+        }
     }
 }

@@ -11,9 +11,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -25,19 +22,15 @@ import androidx.navigation.compose.composable
 import bauchglueck.composeapp.generated.resources.Res
 import bauchglueck.composeapp.generated.resources.ic_gear
 import data.local.entitiy.TimerState
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collect
 import ui.navigations.Destination
 import kotlinx.coroutines.launch
+import org.lighthousegames.logging.logging
 import ui.components.theme.IconCard
 import ui.components.theme.button.IconButton
 import ui.components.theme.button.TextButton
 import ui.components.theme.ScreenHolder
 import viewModel.FirebaseAuthViewModel
 import viewModel.HomeViewModel
-import viewModel.TimerScreenViewModel
-import viewModel.WeightScreenViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 fun NavGraphBuilder.home(
@@ -45,14 +38,14 @@ fun NavGraphBuilder.home(
     showContentInDevelopment: Boolean,
     firebaseAuthViewModel: FirebaseAuthViewModel
 ) {
-    composable(Destination.Home.route) {
+    composable(Destination.Home.route) {backStackEntry ->
 
         val scope = rememberCoroutineScope()
         val viewModel = viewModel<HomeViewModel>()
         val medications by viewModel.medicationsWithIntakeDetailsForToday.collectAsStateWithLifecycle()
-        val medicationListNotTakenToday by viewModel.medicationListNotTakenToday.collectAsStateWithLifecycle()
         val weeklyAverage by viewModel.weeklyAverage.collectAsStateWithLifecycle()
         val timers by viewModel.allTimers.collectAsStateWithLifecycle()
+        val nextMedication by viewModel.nextMedicationIntake.collectAsStateWithLifecycle()
 
         ScreenHolder(
             title = Destination.Home.title,
@@ -109,21 +102,26 @@ fun NavGraphBuilder.home(
                     TextButton(
                         text = "Alle Notizen"
                     ) {
-                        navController.navigate(Destination.AddNote.route)
+                        navController.navigate(Destination.ShowAllNotes.route)
                     }
                 }
             }
 
-            LastNotesCalendar {
-                navController.navigate(it.route)
-            }
+            LastNotesCalendar(
+                onNavigate = { destination, node ->
+                    logging().info { "navigate to $destination" }
+                    logging().info { "node: $node" }
+                    navController.navigate(destination.route)
+                    navController.currentBackStackEntry?.savedStateHandle?.set("noteId", "${node?.id}" )
+                }
+            )
 
             WaterIntakeCard(firebaseAuthViewModel = firebaseAuthViewModel)
 
             NextMedicationCard(
                 navController = navController,
                 medications = medications,
-                medicationListNotTakenToday = medicationListNotTakenToday
+                nextMedication = nextMedication
             )
 
             Spacer(Modifier.height(20.dp))

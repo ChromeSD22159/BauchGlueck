@@ -24,7 +24,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,7 +35,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
@@ -46,7 +44,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import bauchglueck.composeapp.generated.resources.Res
 import bauchglueck.composeapp.generated.resources.ic_description
-import bauchglueck.composeapp.generated.resources.icon_sync
 import data.local.entitiy.IntakeTime
 import data.local.entitiy.IntakeTimeWithStatus
 import data.local.entitiy.Medication
@@ -62,7 +59,9 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import org.lighthousegames.logging.logging
 import ui.components.theme.sectionShadow
+import ui.components.theme.text.BodyText
 import ui.navigations.NavigationTransition
 import util.UUID
 import viewModel.MedicationViewModel
@@ -208,26 +207,78 @@ fun IntakeTimeTextField(
     onValueChange: (String) -> Unit = {},
     onRemove: () -> Unit
 ) {
+    // Extrahiere Stunden und Minuten aus dem initialen Wert
+    val (initialHour, initialMinute) = remember(initialValue) {
+        val parts = initialValue.split(":")
+        parts.getOrElse(0) { "00" } to parts.getOrElse(1) { "00" }
+    }
+
+    // Verwende State-Variablen für Stunden und Minuten
+    var hourInput by remember { mutableStateOf(initialHour) }
+    var minuteInput by remember { mutableStateOf(initialMinute) }
+
+    // Aktualisiere den vollständigen Wert bei Änderungen
+    LaunchedEffect(hourInput, minuteInput) {
+        logging().info {
+            "hourInput: $hourInput, minuteInput: $minuteInput"
+        }
+        onValueChange("$hourInput:$minuteInput")
+    }
+
+
     Box(
         modifier = modifier
     ) {
-        TextField(
-            value = initialValue,
-            onValueChange = onValueChange,
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(8.dp))
                 .background(Color.White),
-            placeholder = {
-                Text(text = placeholder)
-            },
-            singleLine = true,
-            colors = TextFieldDefaults.textFieldColors(
-                backgroundColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
-                focusedIndicatorColor = Color.Transparent,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            TextField(
+                value = hourInput,
+                onValueChange = {
+                    if (it.length <= 2 && it.toIntOrNull() in 0..23) {
+                        hourInput = it
+                    }
+                },
+                modifier = Modifier
+                    .weight(1f),
+                placeholder = {
+                    Text(text = placeholder)
+                },
+                singleLine = true,
+                colors = TextFieldDefaults.textFieldColors(
+                    backgroundColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent,
+                )
             )
-        )
+
+            BodyText(":")
+
+            TextField(
+                value = minuteInput,
+                onValueChange = {
+                    if (it.length <= 2 && it.toIntOrNull() in 0..59) {
+                        minuteInput = it
+                    }
+
+                },
+                modifier = Modifier
+                    .weight(1f),
+                placeholder = {
+                    Text(text = placeholder)
+                },
+                singleLine = true,
+                colors = TextFieldDefaults.textFieldColors(
+                    backgroundColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent,
+                )
+            )
+        }
 
         Icon(
             imageVector = Icons.Default.Close,

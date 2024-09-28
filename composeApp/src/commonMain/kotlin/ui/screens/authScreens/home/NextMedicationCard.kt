@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import data.local.entitiy.MedicationWithIntakeDetailsForToday
+import data.model.NextMedication
 import ui.components.theme.Section
 import ui.components.theme.clickableWithRipple
 import ui.components.theme.text.BodyText
@@ -23,13 +24,14 @@ import ui.components.theme.text.FooterText
 import ui.components.theme.text.HeadlineText
 import ui.navigations.Destination
 import util.DateRepository
+import util.displayTime
 import util.toDateString
 
 @Composable
 fun NextMedicationCard(
     navController: NavHostController,
     medications: List<MedicationWithIntakeDetailsForToday> = emptyList(),
-    medicationListNotTakenToday: List<MedicationWithIntakeDetailsForToday> = emptyList()
+    nextMedication: NextMedication? = null
 ) {
     Section(
         sectionModifier = Modifier
@@ -48,37 +50,17 @@ fun NextMedicationCard(
                 text = "Medikamente für heute ${DateRepository.today.toDateString()}"
             )
 
-            val nextMedication = medicationListNotTakenToday
-                .flatMap { medication ->
-                    medication.intakeTimesWithStatus.map { intakeTimeWithStatus ->
-                        Pair(medication.medication.name, intakeTimeWithStatus)
-                    }
-                }
-                .filter { (_, intakeTimeWithStatus) ->
-                    // Filter only those intake times that are not yet taken
-                    intakeTimeWithStatus.intakeStatuses.none { it.isTaken }
-                }
-                .minByOrNull { (_, intakeTimeWithStatus) ->
-                    // Find the minimum (next) intake time
-                    val (hour, minute) = intakeTimeWithStatus.intakeTime.intakeTime.split(":")
-                        .map { it.toInt() }
-                    hour * 60 + minute // Convert time to total minutes
-                }
-
             if (nextMedication != null) {
-                val (nextMedicationName, nextIntakeTimeWithStatus) = nextMedication
-                val nextIntakeTime = nextIntakeTimeWithStatus.intakeTime.intakeTime
+                val string = """
+                    Nächstes Medikament für heute:
+                    ${nextMedication.medication.name} um ${nextMedication.intakeTime.displayTime} Uhr
+                """.trimIndent()
 
                 FooterText(
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Center,
                     size = 12.sp,
-                    text = "Nächstes Medikament für heute:\n ${
-                        nextMedicationName.replace(
-                            " ",
-                            ""
-                        )
-                    } um $nextIntakeTime Uhr"
+                    text = string
                 )
             } else {
                 FooterText(
