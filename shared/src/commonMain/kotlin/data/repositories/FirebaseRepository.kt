@@ -17,6 +17,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
 import util.FirebaseCloudMessagingResponse
 import util.NetworkError
 import util.NotificationCronJobRequest
@@ -128,8 +129,12 @@ class FirebaseRepository() {
 
     suspend fun markUserOnline() {
         val userId = auth.currentUser?.uid ?: return
+        val userProfile = readUserProfileById(userId) ?: return
+        val token = NotifierManager.getPushNotifier().getToken() ?: return
         val userReference = Firebase.database.reference("${Collection.OnlineUsers.part}/$userId")
-        userReference.setValue(true)
+        userReference.setValue(
+            AppUser(userId, userProfile.firstName, token)
+        )
         userReference.onDisconnect().removeValue()
     }
 
@@ -139,3 +144,10 @@ class FirebaseRepository() {
         userReference.removeValue()
     }
 }
+
+@Serializable
+data class AppUser(
+    var name: String = "",
+    var email: String = "",
+    var appToken: String = "",
+)
