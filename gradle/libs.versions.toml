@@ -60,6 +60,7 @@ koinCompose = "3.6.0-alpha3"
 coreI18n = "1.0.0-alpha01"
 coil3 = "3.0.0-alpha06"
 uiDesktop = "1.7.0"
+lifecycleProcess = "2.8.6"
 
 [libraries]
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleLivedataKtx" }
@@ -141,6 +142,7 @@ room-common = { group="androidx.room", name="room-common", version.ref="room" }
 
 sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqlite" }
 androidx-core-i18n = { group = "androidx.core", name = "core-i18n", version.ref = "coreI18n" }
+androidx-lifecycle-process = { group = "androidx.lifecycle", name = "lifecycle-process", version.ref = "lifecycleProcess" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

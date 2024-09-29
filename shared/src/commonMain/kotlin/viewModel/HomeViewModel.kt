@@ -125,48 +125,48 @@ class HomeViewModel: ViewModel(), KoinComponent {
 
     private fun observeAndFindNextMedication() {
         viewModelScope.launch {
-            medicationsWithIntakeDetailsForToday.collect { medicationWithIntake ->
+            try {
+                medicationsWithIntakeDetailsForToday.collect { medicationWithIntake ->
 
-                if(medicationWithIntake.isEmpty()) return@collect
+                    if(medicationWithIntake.isEmpty()) return@collect
 
+                    val medication = medicationWithIntake
+                        .flatMap {
+                            it.intakeTimesWithStatus.mapNotNull { intakeTimeWithStatus ->
+                                val (hour, minute) = intakeTimeWithStatus.intakeTime.intakeTime.split(":").map { string -> string.toInt() }
 
+                                val status = intakeTimeWithStatus.intakeStatuses.filter { intakeStatus ->
+                                    intakeStatus.date in (today.start + 1)..<today.end
+                                }
 
-                val medication = medicationWithIntake
-                    .flatMap {
-                        it.intakeTimesWithStatus.mapNotNull { intakeTimeWithStatus ->
-                            val (hour, minute) = intakeTimeWithStatus.intakeTime.intakeTime.split(":").map { string -> string.toInt() }
-
-                            val status = intakeTimeWithStatus.intakeStatuses.filter { intakeStatus ->
-                                intakeStatus.date in (today.start + 1)..<today.end
-                            }
-
-                            if(status.isEmpty()) {
-                                NextMedication(
-                                    medication = it.medication,
-                                    intakeTime = dateRepository.createLocalDateTime(
-                                        year = currentDate.year,
-                                        month = currentDate.monthNumber,
-                                        day = currentDate.dayOfMonth,
-                                        hour = hour,
-                                        minute = minute,
-                                        second = 0,
-                                        nanosecond = 0
+                                if(status.isEmpty()) {
+                                    NextMedication(
+                                        medication = it.medication,
+                                        intakeTime = dateRepository.createLocalDateTime(
+                                            year = currentDate.year,
+                                            month = currentDate.monthNumber,
+                                            day = currentDate.dayOfMonth,
+                                            hour = hour,
+                                            minute = minute,
+                                            second = 0,
+                                            nanosecond = 0
+                                        )
                                     )
-                                )
-                            } else {
-                                null
+                                } else {
+                                    null
+                                }
                             }
                         }
+
+                    medication.minByOrNull { it.intakeTime }!!.let { nextMedication ->
+                        _nextMedicationIntake.value = nextMedication
                     }
 
-
-
-                medication.minByOrNull { it.intakeTime }!!.let { nextMedication ->
-                    _nextMedicationIntake.value = nextMedication
                 }
-
+            } catch (e: Exception) {
 
             }
+
         }
     }
 }

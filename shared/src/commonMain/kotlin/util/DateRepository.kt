@@ -13,6 +13,7 @@ import kotlinx.datetime.plus
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.datetime.todayIn
+import kotlinx.serialization.Serializable
 
 object DateRepository {
     val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
@@ -180,6 +181,13 @@ val LocalDateTime.displayDate: String
 val Int.toTwoDigits: String
     get() = this.toString().padStart(2, '0')
 
+fun LocalDateTime.startEndTodayIn(timeZone: TimeZone = TimeZone.currentSystemDefault()): StartEndOfDay {
+    val todayStartLocal = this.date.atStartOfDayIn(timeZone).toEpochMilliseconds()
+    val todayEndLocal = todayStartLocal + 86_400_000
+
+    return StartEndOfDay(todayStartLocal, todayEndLocal)
+}
+
 enum class Weekday(val displayName: String) {
     Montag("Montag"),
     Dienstag("Dienstag"),
@@ -195,3 +203,8 @@ enum class Weekday(val displayName: String) {
         }
     }
 }
+
+@Serializable  data class StartEndOfDay(
+    val start: Long,
+    val end: Long
+)

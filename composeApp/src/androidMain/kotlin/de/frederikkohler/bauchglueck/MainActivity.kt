@@ -1,6 +1,7 @@
 package de.frederikkohler.bauchglueck
 
 import App
+import android.app.Application
 import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Build
@@ -14,6 +15,7 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.lifecycleScope
 import coil3.annotation.ExperimentalCoilApi
 import coil3.compose.setSingletonImageLoaderFactory
+import com.google.android.gms.ads.MobileAds
 import com.mmk.kmpnotifier.notification.NotifierManager
 import com.mmk.kmpnotifier.notification.configuration.NotificationPlatformConfiguration
 import com.mmk.kmpnotifier.permission.permissionUtil
@@ -128,6 +130,18 @@ class MainActivity : ComponentActivity() {
     private fun stopObservingOnlineUserCount() {
         if (::onlineUserCountJob.isInitialized) {
             onlineUserCountJob.cancel()
+        }
+    }
+}
+
+class AppStartAdApp : Application(){
+    override fun onCreate() {
+        super.onCreate()
+        try {
+            MobileAds.initialize(this) {}
+            AppOpenManager(this)
+        }catch (e:Exception){
+            e.printStackTrace()
         }
     }
 }

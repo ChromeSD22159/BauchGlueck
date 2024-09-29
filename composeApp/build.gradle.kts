@@ -26,6 +26,8 @@ kotlin {
             implementation(compose.preview)
             implementation("androidx.compose.animation:animation:1.7.2")
             implementation("androidx.core:core-splashscreen:1.0.1")
+            implementation("com.google.android.gms:play-services-ads:22.6.0")
+            implementation("com.google.android.gms:play-services-base:18.5.0")
             implementation(libs.androidx.activity.compose)
             implementation(libs.ktor.client.okhttp)
             implementation(libs.koin.android)
@@ -116,5 +118,6 @@ dependencies {
     implementation(libs.kotlinx.datetime)
     implementation(libs.koin.androidx.compose)
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.30.0")
+    implementation(libs.androidx.lifecycle.process)
 }
 
