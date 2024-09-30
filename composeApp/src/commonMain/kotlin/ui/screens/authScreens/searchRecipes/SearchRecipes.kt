@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntSize
@@ -61,6 +62,8 @@ import ui.components.theme.clickableWithRipple
 import ui.components.theme.text.BodyText
 import ui.components.theme.text.FooterText
 import ui.navigations.Destination
+import util.findActivity
+import util.hideKeyboard
 import viewModel.RecipeViewModel
 import kotlin.math.ceil
 
@@ -70,6 +73,8 @@ fun NavGraphBuilder.searchRecipes(
     recipeViewModel: RecipeViewModel
 ) {
     composable(Destination.SearchRecipe.route) {  backStackEntry ->
+        val context = LocalContext.current
+
         val destination = backStackEntry.savedStateHandle.get<String>("destination")
         val searchQuery by recipeViewModel.searchQuery.collectAsStateWithLifecycle()
         val recipes by recipeViewModel.foundRecipes.collectAsStateWithLifecycle()
@@ -90,7 +95,6 @@ fun NavGraphBuilder.searchRecipes(
 
         val size = remember { mutableStateOf(IntSize.Zero) }
 
-        // In deinem composable Funktionskörper
         val itemsPerRow = 2
         val gap = 16.dp
         val cardSizePx = (size.value.width / itemsPerRow)
@@ -99,6 +103,8 @@ fun NavGraphBuilder.searchRecipes(
         // Umrechnung von Pixel in dp
         val cardSizeDp = with(LocalDensity.current) { cardSizePx.toDp() }
         val gridSizeDp = (cardSizeDp + gap) * cardRows
+
+
 
         ScreenHolder(
             title = Destination.SearchRecipe.title,
@@ -109,6 +115,7 @@ fun NavGraphBuilder.searchRecipes(
             },
             optionsRow = {}
         ) {
+
             FormTextFieldWithIconAndDeleteButton(
                 icon = Res.drawable.ic_search,
                 inputValue = searchQuery,
@@ -116,6 +123,8 @@ fun NavGraphBuilder.searchRecipes(
                     recipeViewModel.updateSearchQuery(it)
                 },
                 onClickAction = {
+
+                    hideKeyboard(context)
                     recipeViewModel.updateSearchQuery("")
                 }
             )
