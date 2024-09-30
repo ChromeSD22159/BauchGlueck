@@ -35,6 +35,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
@@ -45,7 +46,7 @@ import bauchglueck.composeapp.generated.resources.ic_protein
 import bauchglueck.composeapp.generated.resources.ic_search
 import bauchglueck.composeapp.generated.resources.placeholder_image
 import coil3.compose.AsyncImage
-import data.remote.model.ApiRecipesResponse
+import data.local.entitiy.MealWithCategories
 import di.serverHost
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
@@ -68,20 +69,20 @@ fun NavGraphBuilder.searchRecipes(
     navController: NavHostController,
     recipeViewModel: RecipeViewModel
 ) {
-    composable(Destination.SearchRecipe.route) {
+    composable(Destination.SearchRecipe.route) {  backStackEntry ->
+        val destination = backStackEntry.savedStateHandle.get<String>("destination")
         val searchQuery by recipeViewModel.searchQuery.collectAsStateWithLifecycle()
-        val recipes by recipeViewModel.recipes.collectAsStateWithLifecycle()
+        val recipes by recipeViewModel.foundRecipes.collectAsStateWithLifecycle()
         var searchJob: Job? = remember { null }
 
         LaunchedEffect(Unit) {
             snapshotFlow { searchQuery }
-                .debounce(500) // Verwende eine Debounce-Zeit von 500ms
+                .debounce(200)
                 .collect { query ->
-                    // Überprüfe, ob der Suchbegriff nicht leer ist
                     if (query.isNotEmpty()) {
-                        searchJob?.cancel() // Storniere den vorherigen Job, falls vorhanden
+                        searchJob?.cancel()
                         searchJob = recipeViewModel.scope.launch {
-                            recipeViewModel.searchRecipes(query) // Führe die Suche durch
+                            recipeViewModel.updateSearchQuery(query)
                         }
                     }
                 }
@@ -103,7 +104,8 @@ fun NavGraphBuilder.searchRecipes(
             title = Destination.SearchRecipe.title,
             showBackButton = true,
             onNavigate = {
-                navController.navigate(Destination.MealPlanCalendar.route)
+                recipeViewModel.clearSearchQuery()
+                destination?.let { destination -> navController.navigate(destination) }
             },
             optionsRow = {}
         ) {
@@ -114,7 +116,6 @@ fun NavGraphBuilder.searchRecipes(
                     recipeViewModel.updateSearchQuery(it)
                 },
                 onClickAction = {
-                    recipeViewModel.resetRecipeList()
                     recipeViewModel.updateSearchQuery("")
                 }
             )
@@ -132,7 +133,7 @@ fun NavGraphBuilder.searchRecipes(
             ) {
                 items(recipes.size) {
                     Card(
-                        meal = recipes[it],
+                        recipe = recipes[it],
                         onClickCard = {
                             recipeViewModel.setSelectedRecipe(recipes[it])
                             navController.navigate(Destination.RecipeDetailScreen.route)
@@ -153,7 +154,7 @@ fun NavGraphBuilder.searchRecipes(
 
 @Composable
 fun Card(
-    meal: ApiRecipesResponse,
+    recipe: MealWithCategories,
     onClickIcon: () -> Unit = {},
     onClickCard: () -> Unit = {}
 ) {
@@ -164,9 +165,9 @@ fun Card(
             .clip(RoundedCornerShape(8.dp))
     ) {
         // Background image
-        if (meal.mainImage?.formats?.small?.url != null) {
+        if (recipe.meal.mainImage?.formats?.small?.url != null) {
             AsyncImage(
-                model = serverHost + meal.mainImage?.formats?.small?.url,
+                model = serverHost + recipe.meal.mainImage?.formats?.small?.url,
                 placeholder = painterResource(Res.drawable.placeholder_image),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
@@ -208,7 +209,7 @@ fun Card(
                     .padding(8.dp),
             ) {
                 BodyText(
-                    text = meal.name,
+                    text = recipe.meal.name,
                     maxLines = 1,
                 )
 
@@ -221,8 +222,8 @@ fun Card(
                     IconListWithText(
                         rowModifier = Modifier.weight(1f),
                         items = listOf(
-                            Pair(Res.drawable.ic_protein, "${meal.protein}g"),
-                            Pair(Res.drawable.ic_fat, "${meal.fat}g")
+                            Pair(Res.drawable.ic_protein, "${recipe.meal.protein}g"),
+                            Pair(Res.drawable.ic_fat, "${recipe.meal.fat}g")
                         )
                     )
                 }

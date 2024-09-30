@@ -26,11 +26,10 @@ fun NavGraphBuilder.recipesComposable(navController: NavHostController) {
     composable(Destination.Recipes.route) {
         val recipeViewModel = viewModel<RecipeViewModel>()
 
-        val localMealsCount by recipeViewModel.localMealCount.collectAsStateWithLifecycle(initialValue = 0)
-        val localMealsState by recipeViewModel.localMeals.collectAsStateWithLifecycle(initialValue = emptyList())
+        val localRecipe by recipeViewModel.recipes.collectAsStateWithLifecycle(initialValue = emptyList())
 
-        LaunchedEffect(localMealsCount) {
-            logging().info { "localMealsState: $localMealsCount" }
+        LaunchedEffect(localRecipe) {
+            logging().info { "localMealsState: ${localRecipe.size}" }
         }
 
         Column(
@@ -48,8 +47,8 @@ fun NavGraphBuilder.recipesComposable(navController: NavHostController) {
                 contentPadding = PaddingValues(horizontal = 10.dp, vertical = 0.dp),
                 verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                items(localMealsState) { meal ->
-                    RecipeCard(meal)
+                items(localRecipe.size) { meal ->
+                    RecipeCard(localRecipe[meal])
                 }
             }
         }

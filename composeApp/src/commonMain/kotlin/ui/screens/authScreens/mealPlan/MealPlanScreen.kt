@@ -79,7 +79,10 @@ fun NavGraphBuilder.mealPlan(
                     contentDescription = "",
                     modifier = Modifier
                         .size(24.dp)
-                        .clickableWithRipple { navController.navigate(Destination.SearchRecipe.route) },
+                        .clickableWithRipple {
+                            navController.navigate(Destination.SearchRecipe.route)
+                            navController.currentBackStackEntry?.savedStateHandle?.set("destination", Destination.MealPlanCalendar.route)
+                         },
                 )
 
                 Icon(

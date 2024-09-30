@@ -9,9 +9,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -38,6 +40,7 @@ import org.jetbrains.compose.resources.vectorResource
 import ui.navigations.Destination
 import ui.components.theme.ScreenHolder
 import ui.components.theme.clickableWithRipple
+import ui.components.theme.text.FooterText
 import ui.screens.authScreens.medication.components.MedicationHistory
 import viewModel.MedicationViewModel
 
@@ -119,59 +122,58 @@ fun NavigationOverlay(
     currentViewType: MediationViewType = MediationViewType.Today,
     onTab: (MediationViewType) -> Unit = {}
 ) {
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize(),
-        horizontalAlignment = Alignment.End
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp, alignment = Alignment.CenterHorizontally),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp, alignment = Alignment.CenterHorizontally),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            MediationViewType.entries.forEach { medicationViewType ->
-                val iconTintColor by animateColorAsState(
-                    targetValue = if (medicationViewType == currentViewType) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface.copy(0.9f),
-                    label = ""
-                )
+        MediationViewType.entries.forEach { medicationViewType ->
+            val iconTintColor by animateColorAsState(
+                targetValue = if (medicationViewType == currentViewType) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface.copy(0.9f),
+                label = ""
+            )
 
-                val backgroundColorTop by animateColorAsState(
-                    targetValue = if (medicationViewType == currentViewType) MaterialTheme.colorScheme.primary else Color.Gray.copy(0.3f),
-                    label = ""
-                )
+            val backgroundColorTop by animateColorAsState(
+                targetValue = if (medicationViewType == currentViewType) MaterialTheme.colorScheme.primary else Color.Gray.copy(0.4f),
+                label = ""
+            )
 
-                val backgroundColorButton by animateColorAsState(
-                    targetValue = if (medicationViewType == currentViewType) MaterialTheme.colorScheme.primaryContainer else Color.Gray.copy(0.1f),
-                    label = ""
-                )
+            val backgroundColorButton by animateColorAsState(
+                targetValue = if (medicationViewType == currentViewType) MaterialTheme.colorScheme.primaryContainer else Color.Gray.copy(0.1f),
+                label = ""
+            )
 
-                Box(
-                    modifier = Modifier
-                        .background(
-                            brush = Brush.verticalGradient(
-                                colors = listOf(
-                                    backgroundColorTop,
-                                    backgroundColorButton
-                                )
-                            ),
-                            shape = CircleShape
-                        )
-                        .padding(8.dp)
-                        .clickableWithRipple { onTab(medicationViewType) },
-                ) {
-                    Icon(
-                        modifier = Modifier.size(20.dp),
-                        imageVector = vectorResource(resource = medicationViewType.icon),
-                        contentDescription = "",
-                        tint = iconTintColor
+            Row(
+                modifier = Modifier
+                    .weight(1f)
+                    .background(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                backgroundColorTop,
+                                backgroundColorButton
+                            )
+                        ),
+                        shape = RoundedCornerShape(8.dp)
                     )
-                }
+                    .padding(8.dp)
+                    .clickableWithRipple { onTab(medicationViewType) },
+                horizontalArrangement = Arrangement.spacedBy(8.dp, alignment = Alignment.CenterHorizontally),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    modifier = Modifier.size(20.dp),
+                    imageVector = vectorResource(resource = medicationViewType.icon),
+                    contentDescription = "",
+                    tint = iconTintColor
+                )
+
+                FooterText(text = medicationViewType.text)
             }
         }
     }
 }
 
-enum class MediationViewType(val icon: DrawableResource) {
-    Today(icon = Res.drawable.ic_pills_fill),
-    History(icon = Res.drawable.ic_grid_2_2)
+enum class MediationViewType(val icon: DrawableResource, val text: String) {
+    Today(icon = Res.drawable.ic_pills_fill, text = "Einnahme"),
+    History(icon = Res.drawable.ic_grid_2_2, text = "Verlauf")
 }
