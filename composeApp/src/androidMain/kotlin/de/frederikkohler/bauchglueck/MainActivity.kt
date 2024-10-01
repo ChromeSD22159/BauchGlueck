@@ -140,6 +140,7 @@ class AppStartAdApp : Application(){
         try {
             MobileAds.initialize(this) {}
             AppOpenManager(this)
+            KoinInject(this).init()
         }catch (e:Exception){
             e.printStackTrace()
         }

@@ -20,9 +20,10 @@ kotlin {
     }
 
     androidTarget {
-        @OptIn(ExperimentalKotlinGradlePluginApi::class)
-        compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_11)
+        compilations.all {
+            kotlinOptions {
+                jvmTarget = "11"
+            }
         }
     }
 
@@ -44,12 +45,11 @@ kotlin {
         }
     }
 
-    jvm()
+    sourceSets.all {
+        languageSettings.optIn("kotlin.experimental.ExperimentalObjCName")
+    }
     
     sourceSets {
-        jvmMain.dependencies {
-
-        }
         androidMain.dependencies {
             implementation(project.dependencies.platform("com.google.firebase:firebase-bom:33.1.2"))
 
@@ -140,6 +140,7 @@ dependencies {
     implementation(libs.androidx.ui.text.android)
     implementation(libs.koin.androidx.compose)
     implementation(libs.androidx.core.i18n)
+    implementation("co.touchlab:stately-common:1.2.1")
     // Room
     add("kspCommonMainMetadata", libs.room.compiler)
 

@@ -2,7 +2,7 @@ package di
 
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
-import viewModel.MealViewModel
+import viewModel.MealPlanViewModel
 import viewModel.MedicationViewModel
 import viewModel.RecipeViewModel
 import viewModel.SyncWorkerViewModel
