@@ -33,9 +33,9 @@ import org.jetbrains.compose.resources.vectorResource
 import org.koin.java.KoinJavaComponent.inject
 import ui.components.theme.SliderItemAddCard
 import ui.components.theme.clickableWithRipple
-import ui.components.theme.sectionShadow
+import ui.components.extentions.sectionShadow
 import ui.components.theme.text.FooterText
-import ui.components.theme.truncate
+import ui.components.extentions.truncate
 import ui.navigations.Destination
 import util.DateRepository
 import util.isTimestampOnDate

@@ -1,6 +1,5 @@
 package ui.components.FormScreens
 
-import android.service.autofill.OnClickAction
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -21,7 +20,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -33,7 +31,7 @@ import bauchglueck.composeapp.generated.resources.ic_lock_fill
 import bauchglueck.composeapp.generated.resources.ic_pills_fill
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.vectorResource
-import ui.components.theme.sectionShadow
+import ui.components.extentions.sectionShadow
 
 /**
  * A Composable function that displays a text field with a leading icon.

@@ -11,7 +11,7 @@ import androidx.compose.ui.unit.dp
 import ui.screens.publicScreens.model.SignInProvider
 import org.jetbrains.compose.resources.vectorResource
 import ui.components.theme.clickableWithRipple
-import ui.components.theme.sectionShadow
+import ui.components.extentions.sectionShadow
 import ui.components.theme.text.FooterText
 
 @Composable

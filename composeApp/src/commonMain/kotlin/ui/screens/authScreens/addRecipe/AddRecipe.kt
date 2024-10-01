@@ -84,7 +84,7 @@ import ui.components.FullSizeRow
 import ui.components.theme.ScreenHolder
 import ui.components.theme.Section
 import ui.components.theme.clickableWithRipple
-import ui.components.theme.sectionShadow
+import ui.components.extentions.sectionShadow
 import ui.components.theme.text.BodyText
 import ui.components.theme.text.ErrorText
 import ui.components.theme.text.FooterText
