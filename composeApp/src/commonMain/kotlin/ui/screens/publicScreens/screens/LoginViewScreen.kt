@@ -174,7 +174,6 @@ fun NavGraphBuilder.login(
                     text = "Passwort vergessen?",
                 )
 
-
                 LoginProviderRow() { destination, _ ->
                     navController.navigate(destination.route)
                 }
