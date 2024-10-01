@@ -20,6 +20,7 @@ fun BodyText(
     weight: FontWeight = FontWeight.Normal,
     size: TextUnit = 12.sp,
     maxLines: Int = Int.MAX_VALUE,
+    lineHeight: TextUnit = TextUnit.Unspecified,
     textDecoration: TextDecoration = TextDecoration.None
 ) {
     Text(
@@ -30,6 +31,7 @@ fun BodyText(
         fontFamily = MaterialTheme.typography.bodyMedium.fontFamily,
         fontSize = size,
         fontWeight = weight,
+        lineHeight = lineHeight,
         maxLines = maxLines,
         textDecoration = textDecoration
     )

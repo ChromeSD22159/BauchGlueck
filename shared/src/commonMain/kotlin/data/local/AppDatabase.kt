@@ -7,7 +7,7 @@ import data.local.dao.CountdownTimerDao
 import data.local.dao.MealDao
 import data.local.dao.MealPlanDao
 import data.local.dao.MedicationDao
-import data.local.dao.NodeDao
+import data.local.dao.NoteDao
 import data.local.dao.ShoppingListDao
 import data.local.dao.SyncHistoryDao
 import data.local.dao.WaterIntakeDao
@@ -59,7 +59,7 @@ abstract class LocalDatabase: RoomDatabase(), DB {
     abstract val mealPlanDao: MealPlanDao
     abstract val shoppingListDao: ShoppingListDao
     abstract val changeLogDao: ChangeLogDao
-    abstract val nodeDao: NodeDao
+    abstract val noteDao: NoteDao
 
      override fun clearAllTables() {
          super.clearAllTables()

@@ -9,7 +9,7 @@ import data.local.getDatabase
 import data.repositories.CountdownTimerRepository
 import data.repositories.MealPlanRepository
 import data.repositories.MealRepository
-import data.repositories.NodeRepository
+import data.repositories.NoteRepository
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 import util.KeyValueStorage
@@ -26,6 +26,6 @@ actual val repositoriesModule = module {
     single { WeightRepository( get(), serverHost = serverHost, deviceID = KeyValueStorage(androidContext()).getOrCreateDeviceId() ) }
     single { MealRepository( get(), serverHost = serverHost, deviceID = KeyValueStorage(androidContext()).getOrCreateDeviceId() ) }
     single { MealPlanRepository( get(), serverHost = serverHost, deviceID = KeyValueStorage(androidContext()).getOrCreateDeviceId() ) }
-    single { NodeRepository(get(), serverHost = serverHost, deviceID = KeyValueStorage(androidContext()).getOrCreateDeviceId() ) }
+    single { NoteRepository(get(), serverHost = serverHost, deviceID = KeyValueStorage(androidContext()).getOrCreateDeviceId() ) }
 }
 

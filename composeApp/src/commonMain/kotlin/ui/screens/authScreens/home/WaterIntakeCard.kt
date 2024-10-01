@@ -92,7 +92,6 @@ fun WaterIntakeCard(
                         text = "%.2fL".format(totalIntakeInLiter)
                     )
 
-                    // Glasses
                     FlowRow(
                         modifier = Modifier.fillMaxWidth().padding(vertical = 20.dp),
                         horizontalArrangement = Arrangement.spacedBy(10.dp, alignment = Alignment.CenterHorizontally),
@@ -110,30 +109,6 @@ fun WaterIntakeCard(
                                 },
                                 animationDelay = index * 100L
                             )
-                        }
-                    }
-
-
-                    // AddWater
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Row(
-                            modifier = Modifier.clickableWithRipple { waterIntakeViewModel.insertIntake() },
-                            horizontalArrangement = Arrangement.spacedBy(10.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                modifier = Modifier
-                                    .size(15.dp),
-                                imageVector = vectorResource(resource = Res.drawable.icon_plus),
-                                contentDescription = "",
-                                tint = MaterialTheme.colorScheme.onBackground
-                            )
-
-                            FooterText(text = "Wasser hinzufügen")
                         }
                     }
                 }

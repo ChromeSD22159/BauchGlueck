@@ -5,9 +5,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -19,8 +20,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import data.remote.StrapiApiClient
 import data.remote.model.ApiBackendStatistic
+import data.repositories.FirebaseRepository
 import kotlinx.coroutines.delay
-import okhttp3.internal.wait
 import ui.components.theme.ScreenHolder
 import ui.components.theme.text.BodyText
 import ui.components.theme.text.HeadlineText
@@ -33,10 +34,16 @@ fun NavGraphBuilder.adminPanelComposable(
 ) {
     composable(Destination.AdminPanel.route) {
         val remote = StrapiApiClient()
+        val firebase = FirebaseRepository()
+
         val backendStatistics = remember {
             mutableStateOf<ApiBackendStatistic?>(null)
         }
+
+        val userCount = remember { mutableIntStateOf(0) }
+        val userOnlineCount = remember { mutableIntStateOf(0) }
         val isLoading = remember { mutableStateOf(false) }
+
         LaunchedEffect(Unit) {
             isLoading.value = true
             val result = remote.getBackendStatistics()
@@ -47,7 +54,13 @@ fun NavGraphBuilder.adminPanelComposable(
             }.onError {
                 isLoading.value = false
             }
+
+            userCount.intValue = firebase.getUserProfilesCount()
+            firebase.getOnlineUserCount {
+                userOnlineCount.intValue = it
+            }
         }
+
         ScreenHolder(
             title = Destination.AdminPanel.title,
             showBackButton = true,
@@ -64,6 +77,12 @@ fun NavGraphBuilder.adminPanelComposable(
                 }
             } else {
                 backendStatistics.value?.let {
+                    Column {
+                        HeadlineText(size = 18.sp, text = "Total User Statistics")
+                        StatisticItem(item = "TotalRegisteredUsers", value = userCount.intValue.toLong())
+                        StatisticItem(item = "TotalOnlineUsers", value = userOnlineCount.intValue.toLong())
+                    }
+
                     Column {
                         HeadlineText(size = 18.sp, text = "MealPlan Statistics")
                         StatisticItem(item = "totalMealPlansSpots", value = it.mealPlan.totalMealPlansSpots)

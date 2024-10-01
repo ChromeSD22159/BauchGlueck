@@ -1,4 +1,6 @@
+import UIKit
 import SwiftUI
+import shared
 
 @main
 struct iOSApp: App {
@@ -6,10 +8,23 @@ struct iOSApp: App {
     
     var body: some Scene {
         WindowGroup {
-            ContentView()
-                .onAppear {
-                    Helper.shared.printFonts(false)
-                }
+            ComposeView().ignoresSafeArea(.all, edges: .bottom)
         }
     }
+}
+
+/*
+ContentView()
+    .onAppear {
+        Helper.shared.printFonts(false)
+    }
+ */
+
+
+struct ComposeView: UIViewControllerRepresentable {
+    func makeUIViewController(context: Context) -> UIViewController {
+        MainViewControllerKt.MainViewController()
+    }
+
+    func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}
 }

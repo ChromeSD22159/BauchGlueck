@@ -5,6 +5,7 @@ import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.Month
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.minus
@@ -12,6 +13,7 @@ import kotlinx.datetime.plus
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.datetime.todayIn
+import kotlinx.serialization.Serializable
 
 object DateRepository {
     val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
@@ -91,6 +93,26 @@ object DateRepository {
 
     val todayDateString: String
         get() = today.dayOfMonth.toString().padStart(2,'0')
+
+    fun createLocalDateTime(
+        year: Int,
+        month: Int,
+        day: Int,
+        hour: Int,
+        minute: Int,
+        second: Int = 0,
+        nanosecond: Int = 0
+    ): LocalDateTime {
+        return LocalDateTime(
+            year = year,
+            month = Month(month),
+            dayOfMonth = day,
+            hour = hour,
+            minute = minute,
+            second = second,
+            nanosecond = nanosecond
+        )
+    }
 }
 
 val Clock.System.utcMillis: Long
@@ -150,6 +172,22 @@ fun LocalDateTime.toEpochMillis(timeZone: TimeZone = TimeZone.UTC): Long {
     return instant.toEpochMilliseconds()
 }
 
+val LocalDateTime.displayTime: String
+    get() = "${this.hour.toTwoDigits}:${this.minute.toTwoDigits}"
+
+val LocalDateTime.displayDate: String
+    get() = "${this.dayOfMonth.toTwoDigits}.${this.monthNumber.toTwoDigits}.${this.year}"
+
+val Int.toTwoDigits: String
+    get() = this.toString().padStart(2, '0')
+
+fun LocalDateTime.startEndTodayIn(timeZone: TimeZone = TimeZone.currentSystemDefault()): StartEndOfDay {
+    val todayStartLocal = this.date.atStartOfDayIn(timeZone).toEpochMilliseconds()
+    val todayEndLocal = todayStartLocal + 86_400_000
+
+    return StartEndOfDay(todayStartLocal, todayEndLocal)
+}
+
 enum class Weekday(val displayName: String) {
     Montag("Montag"),
     Dienstag("Dienstag"),
@@ -158,4 +196,15 @@ enum class Weekday(val displayName: String) {
     Freitag("Freitag"),
     Samstag("Samstag"),
     Sonntag("Sonntag");
+
+    companion object {
+        fun fromInt(value: Int): Weekday {
+            return values()[value]
+        }
+    }
 }
+
+@Serializable  data class StartEndOfDay(
+    val start: Long,
+    val end: Long
+)

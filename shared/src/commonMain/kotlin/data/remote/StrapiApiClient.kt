@@ -60,6 +60,7 @@ open class BaseApiClient(
 
     enum class FetchAfterTimestampEndpoint(override var urlPath: String, override val method: HttpMethod): BaseApiEndpoint {
         WATER_INTAKE("/api/water-intake/fetchItemsAfterTimeStamp?timeStamp={timestamp}&userId={userID}", HttpMethod.Get),
+        Recipe("/api/recipes/getUpdatedRecipesEntries?timeStamp={timestamp}", HttpMethod.Get),
         WEIGHT("/api/weight/fetchItemsAfterTimeStamp?timeStamp={timestamp}&userId={userID}", HttpMethod.Get),
         MEDICATION("/api/medication/getUpdatedMedicationEntries?timeStamp={timestamp}&userId={userID}", HttpMethod.Get),
         COUNTDOWN_TIMER("/api/timer/fetchItemsAfterTimeStamp?timeStamp={timestamp}&userId={userID}", HttpMethod.Get),

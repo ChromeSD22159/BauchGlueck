@@ -7,13 +7,18 @@ import android.os.Build
 import android.provider.MediaStore
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -25,7 +30,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -36,6 +40,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -48,6 +53,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
@@ -67,6 +73,10 @@ import data.remote.model.CategoryUpload
 import data.remote.model.Ingredient
 import data.remote.model.MainImageUpload
 import data.remote.model.RecipeUpload
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import ui.components.FormScreens.FormControlButtons
 import ui.components.FormScreens.FormTextFieldWithoutIcons
@@ -79,6 +89,8 @@ import ui.components.theme.text.BodyText
 import ui.components.theme.text.ErrorText
 import ui.components.theme.text.FooterText
 import ui.navigations.Destination
+import ui.screens.authScreens.addRecipe.components.IconErrorRow
+import ui.screens.authScreens.addRecipe.components.IconRow
 import ui.screens.authScreens.medication.AddButton
 import util.UUID
 
@@ -87,156 +99,172 @@ fun NavGraphBuilder.addRecipe(
     navController: NavHostController,
 ) {
     composable(Destination.AddRecipe.route) {
-        ScreenHolder(
-            title = Destination.AddRecipe.title,
-            showBackButton = true,
-            onNavigate = {
-                navController.navigate(Destination.MealPlanCalendar.route)
-            },
-            optionsRow = {},
-            itemSpacing = 24.dp
-        ) {
-            val viewModel = viewModel<AddRecipeViewModel>()
-            val selectedImage by viewModel.selectedImage.collectAsStateWithLifecycle()
-            val isUploading by viewModel.isUploading.collectAsStateWithLifecycle()
-            val error by viewModel.error.collectAsStateWithLifecycle()
+        // Overlay
+        val uploadImageState = remember { mutableStateOf(SaveRecipeState.NotStarted) }
+        val isAnimating = remember { mutableStateOf(false) }
 
-            val name = remember { mutableStateOf("") }
-            val description = remember { mutableStateOf("") }
-            val preperation = remember { mutableStateOf("") }
-            val preparationTimeInMinutes = remember { mutableStateOf("") }
-            val caregory = remember { mutableStateOf(RecipeCategory.SNACK.categoryId) }
-            var isPrivate by remember { mutableStateOf(false) }
+        val overlayBackgroundAlpha by animateFloatAsState(
+            targetValue = if (isAnimating.value) 0.5f else 0f,
+            animationSpec = tween(
+                durationMillis = 350,
+                easing = LinearOutSlowInEasing
+            ),
+            label = "Overlay Alpha"
+        )
 
-            val nameFocusRequester = remember { FocusRequester() }
-            val descriptionFocusRequester = remember { FocusRequester() }
-            val preperationFocusRequester = remember { FocusRequester() }
-            val preparationTimeInMinutesFocusRequester = remember { FocusRequester() }
-            val focusManager = LocalFocusManager.current
-
-            val ingredients = remember { mutableStateListOf<Ingredient>() }
-
-            ImageUploadScreen(selectedImage = selectedImage) { bitMap ->
-                bitMap?.let {
-                    viewModel.setSelectedImage(it)
-                }
+        LaunchedEffect(uploadImageState.value) {
+            if (uploadImageState.value == SaveRecipeState.Done) {
+                isAnimating.value = false
             }
+        }
 
-            RowTextField(
-                title = "Rezept Name:",
-                value = name,
-                focusRequester = nameFocusRequester,
-                keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
-                keyboardActions = KeyboardActions(onNext = { descriptionFocusRequester.requestFocus() }),
-                onValueChange = { name.value = it }
-            )
+        Box(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            // Content
+            ScreenHolder(
+                title = Destination.AddRecipe.title,
+                showBackButton = true,
+                onNavigate = {
+                    navController.navigate(Destination.MealPlanCalendar.route)
+                },
+                optionsRow = {},
+                itemSpacing = 24.dp
+            ) {
+                val viewModel = viewModel<AddRecipeViewModel>()
+                val selectedImage by viewModel.selectedImage.collectAsStateWithLifecycle()
+                //val isUploading by viewModel.isUploading.collectAsStateWithLifecycle()
+                val error by viewModel.error.collectAsStateWithLifecycle()
 
-            RowTextField(
-                title = "Rezept beschreibung:",
-                value = description,
-                focusRequester = descriptionFocusRequester,
-                keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
-                keyboardActions = KeyboardActions(onNext = { preperationFocusRequester.requestFocus() }),
-                onValueChange = { description.value = it }
-            )
+                val name = remember { mutableStateOf("") }
+                val description = remember { mutableStateOf("") }
+                val preparation = remember { mutableStateOf("") }
+                val preparationTimeInMinutes = remember { mutableStateOf("") }
+                val category = remember { mutableStateOf(RecipeCategory.SNACK.categoryId) }
+                var isPrivate by remember { mutableStateOf(false) }
 
-            RowTextField(
-                title = "Zubereitung:",
-                value = preperation,
-                focusRequester = preperationFocusRequester,
-                keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
-                keyboardActions = KeyboardActions(onNext = { preparationTimeInMinutesFocusRequester.requestFocus() }),
-                onValueChange = { preperation.value = it }
-            )
+                val nameFocusRequester = remember { FocusRequester() }
+                val descriptionFocusRequester = remember { FocusRequester() }
+                val preperationFocusRequester = remember { FocusRequester() }
+                val preparationTimeInMinutesFocusRequester = remember { FocusRequester() }
+                val focusManager = LocalFocusManager.current
 
-            RowTextField(
-                title = "Zubereitungsdauer:",
-                value = preparationTimeInMinutes,
-                focusRequester = preparationTimeInMinutesFocusRequester,
-                keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
-                keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
-                onValueChange = { preparationTimeInMinutes.value = it }
-            )
+                val ingredients = remember { mutableStateListOf<Ingredient>() }
 
-            // INGREDIENTS
-            Column {
-                Row { BodyText(modifier = Modifier.fillMaxWidth(), text = "Zutaten") }
-
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    for (ingredient in ingredients) {
-                        IngredientRow(
-                            ingredient = ingredient,
-                            onIngredientChange = { updatedIngredient ->
-                                val index = ingredients.indexOf(ingredient)
-                                if (index != -1) {
-                                    ingredients[index] = updatedIngredient
-                                }
-                            }
-                        )
+                ImageUploadScreen(selectedImage = selectedImage) { bitMap ->
+                    bitMap?.let {
+                        viewModel.setSelectedImage(it)
                     }
                 }
-            }
 
-            // ADD INGREDIENTS
-            AddButton("Hinzufügen") {
-                ingredients.add(
-                    Ingredient(
-                        id = ingredients.size + 1,
-                        name = "",
-                        unit = IngredientUnit.Gramm.unit,
-                        amount = ""
-                    )
-                )
-            }
-
-
-            Section {
-                MenuCategoryDropdownMenu() {
-                    caregory.value = it
-                }
-            }
-
-
-            // TOGGEL
-            FullSizeRow {
-                BodyText(
-                    modifier = Modifier.weight(1f),
-                    text = "Privates Rezept?"
+                RowTextField(
+                    title = "Rezept Name:",
+                    value = name,
+                    focusRequester = nameFocusRequester,
+                    keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
+                    keyboardActions = KeyboardActions(onNext = { descriptionFocusRequester.requestFocus() }),
+                    onValueChange = { name.value = it }
                 )
 
-                Switch(
-                    checked = isPrivate,
-                    onCheckedChange = {
-                        isPrivate = it
-                    },
-                    thumbContent = if (isPrivate) {
-                        {
-                            Icon(
-                                imageVector = Icons.Filled.Check,
-                                contentDescription = null,
-                                modifier = Modifier.size(SwitchDefaults.IconSize),
+                RowTextField(
+                    title = "Rezept beschreibung:",
+                    value = description,
+                    focusRequester = descriptionFocusRequester,
+                    keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
+                    keyboardActions = KeyboardActions(onNext = { preperationFocusRequester.requestFocus() }),
+                    onValueChange = { description.value = it }
+                )
+
+                RowTextField(
+                    title = "Zubereitung:",
+                    value = preparation,
+                    focusRequester = preperationFocusRequester,
+                    keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
+                    keyboardActions = KeyboardActions(onNext = { preparationTimeInMinutesFocusRequester.requestFocus() }),
+                    onValueChange = { preparation.value = it }
+                )
+
+                RowTextField(
+                    title = "Zubereitungsdauer:",
+                    value = preparationTimeInMinutes,
+                    focusRequester = preparationTimeInMinutesFocusRequester,
+                    keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
+                    onValueChange = { preparationTimeInMinutes.value = it }
+                )
+
+                // INGREDIENTS
+                Column {
+                    Row { BodyText(modifier = Modifier.fillMaxWidth(), text = "Zutaten") }
+
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        for (ingredient in ingredients) {
+                            IngredientRow(
+                                ingredient = ingredient,
+                                onIngredientChange = { updatedIngredient ->
+                                    val index = ingredients.indexOf(ingredient)
+                                    if (index != -1) {
+                                        ingredients[index] = updatedIngredient
+                                    }
+                                }
                             )
                         }
-                    } else {
-                        null
                     }
-                )
-            }
+                }
+
+                // ADD INGREDIENTS
+                AddButton("Hinzufügen") {
+                    ingredients.add(
+                        Ingredient(
+                            id = ingredients.size + 1,
+                            name = "",
+                            unit = IngredientUnit.Gramm.unit,
+                            amount = ""
+                        )
+                    )
+                }
 
 
-            // BUTTONS
-            FullSizeRow {
-                if (isUploading) {
-                    Spacer(modifier = Modifier.weight(1f))
-                    CircularProgressIndicator()
-                    Spacer(modifier = Modifier.weight(1f))
-                } else {
-                    FormControlButtons(
-                        onCancel = {
-                            navController.navigate(Destination.MealPlanCalendar.route)
+                Section {
+                    MenuCategoryDropdownMenu() {
+                        category.value = it
+                    }
+                }
+
+
+                // TOGGEL
+                FullSizeRow {
+                    BodyText(
+                        modifier = Modifier.weight(1f),
+                        text = "Privates Rezept?"
+                    )
+
+                    Switch(
+                        checked = isPrivate,
+                        onCheckedChange = {
+                            isPrivate = it
                         },
+                        thumbContent = if (isPrivate) {
+                            {
+                                Icon(
+                                    imageVector = Icons.Filled.Check,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(SwitchDefaults.IconSize),
+                                )
+                            }
+                        } else {
+                            null
+                        }
+                    )
+                }
+
+
+                // BUTTONS
+                FullSizeRow {
+                    FormControlButtons(
+                        onCancel = { /*TODO*/ },
                         onSave = {
 
                             val recipe = RecipeUpload(
@@ -247,7 +275,7 @@ fun NavGraphBuilder.addRecipe(
                                 isSnack = false,
                                 isPrivate = isPrivate,
                                 isDeleted = false,
-                                preparation = preperation.value,
+                                preparation = preparation.value,
                                 preparationTimeInMinutes = preparationTimeInMinutes.value,
                                 ingredients = ingredients.filter { it.name.isNotBlank() && it.amount.isNotBlank() && it.unit.isNotBlank() },
                                 protein = 0.0,
@@ -258,46 +286,169 @@ fun NavGraphBuilder.addRecipe(
                                     id = 0
                                 ),
                                 category= CategoryUpload(
-                                    categoryId = caregory.value,
-                                    name = caregory.value
+                                    categoryId = category.value,
+                                    name = category.value
                                 ),
                                 updatedAtOnDevice = Clock.System.now().toEpochMilliseconds(),
                             )
 
-                            if(
-                                recipe.name.length > 3 &&
-                                recipe.description.length > 3 &&
-                                recipe.preparation.length > 3 &&
-                                recipe.preparationTimeInMinutes.isNotEmpty() &&
-                                recipe.mainImage.id != 0
-                            ) {
-                                viewModel.uploadImage {
-                                    val mainImage = it
+                            isAnimating.value = true
+                            viewModel.viewModelScope.launch {
+                                delay(500)
+                                uploadImageState.value = SaveRecipeState.UploadingImage
+                                delay(1500)
 
-                                    mainImage?.let {
-                                        viewModel.uploadRecipe(recipe.copy(mainImage = MainImageUpload(mainImage.id.toInt())))
+                                if(selectedImage != null) {
+                                    viewModel.uploadImage {
+                                        val mainImage = it
+                                        mainImage?.let {
+                                            viewModel.viewModelScope.launch {
+                                                uploadImageState.value = SaveRecipeState.AiCorrection
+                                                delay(1500)
 
-                                        navController.navigate(Destination.MealPlanCalendar.route)
+                                                uploadImageState.value = SaveRecipeState.UploadingRecipe
+                                                delay(1500)
+                                                if(
+                                                    recipe.name.length > 3 &&
+                                                    recipe.description.length > 3 &&
+                                                    recipe.preparation.length > 3 &&
+                                                    recipe.preparationTimeInMinutes.isNotEmpty()
+                                                ) {
+                                                    // START UPLOADING RECIPE
+                                                    viewModel.uploadRecipe(
+                                                        recipe.copy(
+                                                            mainImage = MainImageUpload(mainImage.id.toInt())
+                                                        )
+                                                    )
+
+                                                    // FINISEHD UPLOADING
+                                                    uploadImageState.value = SaveRecipeState.Done
+                                                    delay(3500)
+                                                    isAnimating.value = false
+                                                    delay(1000)
+                                                    navController.navigate(Destination.MealPlanCalendar.route)
+
+                                                } else {
+                                                    delay(500)
+                                                    uploadImageState.value = SaveRecipeState.Failed
+                                                    delay(3000)
+                                                    isAnimating.value = false
+                                                }
+                                            }
+                                        }
                                     }
+                                } else {
+                                    delay(500)
+                                    uploadImageState.value = SaveRecipeState.Failed
+                                    delay(3000)
+                                    isAnimating.value = false
                                 }
                             }
-
 
                         }
                     )
                 }
+
+                ErrorText(
+                    modifier = Modifier.alpha(if (error == null) 0f else 1f),
+                    text = error ?: "",
+                    color = MaterialTheme.colorScheme.error
+                )
             }
 
-            ErrorText(
-                modifier = Modifier.alpha(if (error == null) 0f else 1f),
-                text = error ?: "",
-                color = MaterialTheme.colorScheme.error
-            )
+
+            // Overlay anzeigen
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = overlayBackgroundAlpha))
+                    .padding(16.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                val contentAlpha by animateFloatAsState(
+                    targetValue = if (isAnimating.value) 1f else 0f,
+                    animationSpec = tween(
+                        durationMillis = 350,
+                        easing = LinearOutSlowInEasing
+                    ),
+                    label = "Overlay Content Alpha"
+                )
+
+                Column(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .fillMaxWidth()
+                        .alpha(contentAlpha)
+                        .background(
+                            brush = Brush.verticalGradient(
+                                colors = listOf(
+                                    MaterialTheme.colorScheme.primary,
+                                    MaterialTheme.colorScheme.primaryContainer
+                                )
+                            ),
+                            shape = MaterialTheme.shapes.medium
+                        )
+                        .padding(16.dp)
+                ) {
+                    when (uploadImageState.value) {
+                        SaveRecipeState.UploadingImage -> {
+                            IconRow(isActive = true, text = "Hochladen des Bildes.")
+                            IconRow(isActive = false, text = "KI-Korrektur läuft.")
+                            IconRow(isActive = false, text = "Hochladen des Rezepts.")
+                            IconErrorRow(isError = false, text = "Error")
+                        }
+                        SaveRecipeState.AiCorrection -> {
+                            IconRow(isDone = false, text = "Hochladen des Bildes.")
+                            IconRow(isActive = true, text = "KI-Korrektur läuft.")
+                            IconRow(isActive = false, text = "Hochladen des Rezepts.")
+                            IconErrorRow(isError = false, text = "Error")
+                        }
+                        SaveRecipeState.UploadingRecipe -> {
+                            IconRow(isDone = false, text = "Hochladen des Bildes.")
+                            IconRow(isDone = false, text = "KI-Korrektur läuft.")
+                            IconRow(isActive = true, text = "Hochladen des Rezepts.")
+                            IconErrorRow(isError = false, text = "Error")
+                        }
+                        SaveRecipeState.Done -> {
+                            IconRow(isDone = false, text = "Hochladen des Bildes.")
+                            IconRow(isDone = false, text = "KI-Korrektur läuft.")
+                            IconRow(isDone = true, text = "Hochladen des Rezepts.")
+                            IconErrorRow(isError = false, text = "Error")
+                        }
+                        SaveRecipeState.Failed -> {
+                            IconRow(isDone = false, text = "Hochladen des Bildes.")
+                            IconRow(isDone = false, text = "KI-Korrektur läuft.")
+                            IconRow(isDone = false, text = "Hochladen des Rezepts.")
+                            IconErrorRow(isError = true, text = "Error")
+                        }
+                        else -> {
+                            IconRow(text = "Hochladen des Bildes.")
+                            IconRow(text = "KI-Korrektur läuft.")
+                            IconRow(text = "Hochladen des Rezepts.")
+                            IconErrorRow(isError = false, text = "Error")
+                        }
+                    }
+                }
+            }
         }
     }
 }
 
+enum class SaveRecipeState {
+    NotStarted,
+    UploadingImage,
+    UploadingRecipe,
+    AiCorrection,
+    Failed,
+    Done
+}
 
+fun CoroutineScope.updateState(uploadImageState: MutableState<SaveRecipeState>, newState: SaveRecipeState) {
+    CoroutineScope(Dispatchers.Main).launch {
+        delay(500)
+        uploadImageState.value = SaveRecipeState.Failed
+    }
+}
 
 
 

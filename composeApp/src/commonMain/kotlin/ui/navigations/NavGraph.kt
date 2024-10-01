@@ -17,6 +17,7 @@ import viewModel.SyncWorkerViewModel
 import ui.screens.authScreens.addNote
 import ui.screens.authScreens.addRecipe.addRecipe
 import ui.screens.authScreens.admin.adminPanelComposable
+import ui.screens.authScreens.editNote
 import ui.screens.authScreens.home.home
 import ui.screens.authScreens.mealPlan.mealPlan
 import ui.screens.authScreens.medication.addMedication
@@ -25,6 +26,7 @@ import ui.screens.authScreens.medication.medication
 import ui.screens.authScreens.recipeDetail.recipeDetails
 import ui.screens.authScreens.searchRecipes.searchRecipes
 import ui.screens.authScreens.settings.settingsComposable
+import ui.screens.authScreens.showAllNotes
 import ui.screens.authScreens.timer.addTimerComposable
 import ui.screens.authScreens.timer.editTimerComposable
 import ui.screens.authScreens.timer.timerComposable
@@ -108,7 +110,9 @@ fun NavGraphBuilder.authScreens(
     recipeDetails(navController, recipeViewModel)
     addRecipe(navController)
 
-    addNote(navController, firebaseAuthViewModel)
+    addNote(navController)
+    editNote(navController)
+    showAllNotes(navController)
 
     weight(navController)
     addWeight(navController)

@@ -7,6 +7,7 @@ enum class RoomTable(val tableName: String) {
     WATER_INTAKE("waterIntake"),
     MEDICATION("medication"),
     Meal("meal"),
+    Recipe("meal"),
     MEAL_PLAN("mealPlan");
 
     fun getTableName(name: String): RoomTable {

@@ -45,7 +45,25 @@ class FirebaseAuthViewModel : ViewModel() {
                     profile?.let {
                         _userFormState.value.userProfile.emit(it)
                     }
+
+                    val res = firebaseRepository.saveDeviceToken(firebaseRepository.user?.uid ?: "", NotifierManager.getPushNotifier().getToken() ?: "")
+
+                    res.onSuccess {
+                        logging().info { "saved deviceToken: $it" }
+                    }.onError {
+                        logging().error { "e save deviceToken: $it" }
+                    }
+
                 } else {
+
+                    val res = firebaseRepository.deleteDeviceToken(firebaseRepository.user?.uid ?: "", NotifierManager.getPushNotifier().getToken() ?: "")
+
+                    res.onSuccess {
+                        logging().info { "i delete deviceToken: $it" }
+                    }.onError {
+                        logging().error { "e delete deviceToken: $it" }
+                    }
+
                     _userFormState.value = _userFormState.value.copy(currentUser = null)
                 }
             }
@@ -75,14 +93,6 @@ class FirebaseAuthViewModel : ViewModel() {
                 )
 
                 if(authResult.user != null) {
-
-                    val res = firebaseRepository.saveDeviceToken(firebaseRepository.user?.uid ?: "", NotifierManager.getPushNotifier().getToken() ?: "")
-
-                    res.onSuccess {
-                        logging().info { "i deviceToken: $it" }
-                    }.onError {
-                        logging().error { "e deviceToken: $it" }
-                    }
                     resetLoginState()
                     result(authResult)
                 } else {

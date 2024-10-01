@@ -15,6 +15,9 @@ composeVectorizeCore = "1.0.0"
 gitlive-firebase = "1.13.0"
 firebaseMessage = "2.1.0"
 firebaseJavaSdk = "0.4.3"
+kmpauthGoogle = "2.1.0-alpha02"
+kmpauthFirebase = "2.1.0-alpha02"
+kmpauthUihelper = "2.1.0-alpha02"
 playServicesAuth = "21.0.0"
 flywayCore = "9.16.0"
 hikaricp = "5.1.0"
@@ -57,6 +60,7 @@ koinCompose = "3.6.0-alpha3"
 coreI18n = "1.0.0-alpha01"
 coil3 = "3.0.0-alpha06"
 uiDesktop = "1.7.0"
+lifecycleProcess = "2.8.6"
 
 [libraries]
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleLivedataKtx" }
@@ -73,6 +77,9 @@ firebase-firestore = { module = "dev.gitlive:firebase-firestore", version.ref = 
 firebase-message = { module = "dev.gitlive:firebase-messaging" , version.ref = "firebaseMessage" }
 
 firebase-gitlive-common = { module = "dev.gitlive:firebase-common", version.ref = "gitlive-firebase" }
+kmpauth-uihelper = { module = "io.github.mirzemehdi:kmpauth-uihelper", version.ref = "kmpauthUihelper" }
+kmpauth-firebase = { module = "io.github.mirzemehdi:kmpauth-firebase", version.ref = "kmpauthFirebase" }
+kmpauth-google = { module = "io.github.mirzemehdi:kmpauth-google", version.ref = "kmpauthGoogle" }
 play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuth" }
 
 flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flywayCore" }
@@ -135,6 +142,7 @@ room-common = { group="androidx.room", name="room-common", version.ref="room" }
 
 sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqlite" }
 androidx-core-i18n = { group = "androidx.core", name = "core-i18n", version.ref = "coreI18n" }
+androidx-lifecycle-process = { group = "androidx.lifecycle", name = "lifecycle-process", version.ref = "lifecycleProcess" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

@@ -5,9 +5,12 @@ import data.local.LocalDatabase
 import data.local.RoomTable
 import data.local.dao.MealDao
 import data.local.dao.SyncHistoryDao
+import data.local.entitiy.CountdownTimer
 import data.local.entitiy.MealCategoryCrossRef
 import data.local.entitiy.MealWithCategories
+import data.remote.BaseApiClient
 import data.remote.StrapiApiClient
+import data.remote.model.ApiRecipesResponse
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.FirebaseUser
 import dev.gitlive.firebase.auth.auth
@@ -42,8 +45,12 @@ class MealSyncManager(
             var savedCategoryCount = 0
 
             if(it.length != localChangedMeals.size) {
-                apiService.fetchStartUpMeals()
-                    .onSuccess {responseMealList ->
+                val response = apiService.fetchItemsAfterTimestamp<List<ApiRecipesResponse>>(
+                    BaseApiClient.FetchAfterTimestampEndpoint.Recipe,
+                    lastSync,
+                    user!!.uid
+                )
+                response.onSuccess {responseMealList ->
                         responseMealList.forEach { responseMeal ->
                             val cat = responseMeal.category.toRoomCategory()
                             val meal = responseMeal.toRoomMeal()

@@ -7,6 +7,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import data.local.entitiy.MealCategory
 import data.local.entitiy.CategoryWithMeals
+import data.local.entitiy.CountdownTimer
 import data.local.entitiy.Meal
 import data.local.entitiy.MealCategoryCrossRef
 import data.local.entitiy.MealWithCategories

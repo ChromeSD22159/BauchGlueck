@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -25,7 +24,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,9 +31,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -45,26 +41,17 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import bauchglueck.composeapp.generated.resources.Res
 import bauchglueck.composeapp.generated.resources.ic_add_calendar
-import bauchglueck.composeapp.generated.resources.ic_add_timer
 import bauchglueck.composeapp.generated.resources.ic_clock
 import bauchglueck.composeapp.generated.resources.ic_fat
 import bauchglueck.composeapp.generated.resources.ic_kcal
 import bauchglueck.composeapp.generated.resources.ic_protein
-import bauchglueck.composeapp.generated.resources.ic_sugar
-import bauchglueck.composeapp.generated.resources.icon_calendar
 import bauchglueck.composeapp.generated.resources.placeholder_image
 import coil3.compose.AsyncImage
-import data.remote.model.ApiRecipesResponse
-import data.remote.model.Category
-import data.remote.model.Ingredient
-import de.frederikkohler.bauchglueck.R
+import data.local.entitiy.MealWithCategories
 import di.serverHost
 import org.jetbrains.compose.resources.DrawableResource
-import org.jetbrains.compose.resources.Resource
-import org.jetbrains.compose.resources.imageResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.vectorResource
-import org.lighthousegames.logging.logging
 import ui.components.theme.AppBackground
 import ui.components.theme.clickableWithRipple
 import ui.components.theme.text.BodyText
@@ -72,7 +59,6 @@ import ui.components.theme.text.FooterText
 import ui.components.theme.text.HeadlineText
 import ui.navigations.Destination
 import ui.theme.AppTheme
-import util.debugJsonHelper
 import viewModel.RecipeViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -102,7 +88,7 @@ fun NavGraphBuilder.recipeDetails(
 
 @Composable
 fun Recipe(
-    meal: ApiRecipesResponse,
+    recipe: MealWithCategories,
     share: Dp = 40.dp,
     onAddToMealPlan: () -> Unit = {},
     onClose: () -> Unit = {}
@@ -136,36 +122,58 @@ fun Recipe(
         AppBackground {
             Box {
                 // Hintergrundbild mit Parallax-Effekt
-                if(meal.mainImage?.formats?.medium?.url != null) {
-                    AsyncImage(
-                        model = serverHost + meal.mainImage?.formats?.medium?.url,
-                        placeholder = painterResource(Res.drawable.placeholder_image),
-                        contentDescription = "",
-                        contentScale = ContentScale.Crop,
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(300.dp)
+                ) {
+                    if(recipe.meal.mainImage?.formats?.medium?.url != null) {
+                        AsyncImage(
+                            model = serverHost + recipe.meal.mainImage?.formats?.medium?.url,
+                            placeholder = painterResource(Res.drawable.placeholder_image),
+                            contentDescription = "",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(300.dp)
+                                .alpha(alphaImage)
+                                .graphicsLayer {
+                                    // Parallax-Effekt basierend auf der Scrollposition
+                                    scaleX = 1 + (scrollState.value / 5000f)
+                                    scaleY = 1 + (scrollState.value / 5000f)
+                                }
+                        )
+                    } else {
+                        Image(
+                            painter = painterResource(Res.drawable.placeholder_image), // Platzhalterbild
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(300.dp)
+                                .graphicsLayer {
+                                    // Parallax-Effekt basierend auf der Scrollposition
+                                    translationY = 0.5f * scrollState.value
+                                    scaleX = 1 + (scrollState.value / 5000f)
+                                    scaleY = 1 + (scrollState.value / 5000f)
+                                }
+                        )
+                    }
+
+                    Box(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .height(300.dp)
-                            .alpha(alphaImage)
-                            .graphicsLayer {
-                                // Parallax-Effekt basierend auf der Scrollposition
-                                scaleX = 1 + (scrollState.value / 5000f)
-                                scaleY = 1 + (scrollState.value / 5000f)
-                            }
-                    )
-                } else {
-                    Image(
-                        painter = painterResource(Res.drawable.placeholder_image), // Platzhalterbild
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(300.dp)
-                            .graphicsLayer {
-                                // Parallax-Effekt basierend auf der Scrollposition
-                                translationY = 0.5f * scrollState.value
-                                scaleX = 1 + (scrollState.value / 5000f)
-                                scaleY = 1 + (scrollState.value / 5000f)
-                            }
+                            .fillMaxSize()
+                            .background(
+                                brush = Brush.verticalGradient(
+                                    colors = listOf(
+                                        Color.Black.copy(alpha = 0.4f),
+                                        Color.Transparent,
+                                        Color.Transparent,
+                                        Color.Transparent,
+                                        Color.Black.copy(alpha = 0.4f),
+                                    )
+                                )
+                            )
                     )
                 }
 
@@ -194,7 +202,7 @@ fun Recipe(
                     ) {
                         // Restlicher Inhalt des Overlays
                         HeadlineText(
-                            text = meal.name,
+                            text = recipe.meal.name,
                             size = 16.sp,
                         )
 
@@ -205,19 +213,19 @@ fun Recipe(
                         ) {
                             NutrinIcon(
                                 icon = Res.drawable.ic_kcal,
-                                text = "${meal.kcal.toInt()}g",
+                                text = "${recipe.meal.kcal.toInt()}g",
                                 rowScope = this
                             )
 
                             NutrinIcon(
                                 icon = Res.drawable.ic_protein,
-                                text = "${meal.protein.toInt()}g",
+                                text = "${recipe.meal.protein.toInt()}g",
                                 rowScope = this
                             )
 
                             NutrinIcon(
                                 icon = Res.drawable.ic_fat,
-                                text = "${meal.fat.toInt()}g",
+                                text = "${recipe.meal.fat.toInt()}g",
                                 rowScope = this
                             )
                         }
@@ -235,7 +243,7 @@ fun Recipe(
                                     contentDescription = "share",
                                     tint = MaterialTheme.colorScheme.primary
                                 )
-                                FooterText( "${meal.preparationTimeInMinutes} Minuten" )
+                                FooterText( "${recipe.meal.preparationTimeInMinutes} Minuten" )
                             }
 
                             Row(
@@ -247,16 +255,16 @@ fun Recipe(
                                     contentDescription = "share",
                                     tint = MaterialTheme.colorScheme.primary
                                 )
-                                FooterText(meal.category.name)
+                                FooterText(recipe.categories.first().name)
                             }
                         }
 
                         Column {
-                            BodyText(meal.description)
+                            BodyText(recipe.meal.description)
                         }
 
                         // Zutatenliste
-                        meal.ingredients.forEach {
+                        recipe.meal.ingredients.forEach {
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -274,7 +282,7 @@ fun Recipe(
 
                         // Rezeptbeschreibung
                         Column {
-                            BodyText(meal.preparation)
+                            BodyText(recipe.meal.preparation)
                         }
 
                         Spacer(modifier = Modifier.height(50.dp))

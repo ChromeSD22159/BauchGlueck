@@ -24,14 +24,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import bauchglueck.composeapp.generated.resources.Res
-import bauchglueck.composeapp.generated.resources.ic_seal_check
 import bauchglueck.composeapp.generated.resources.ic_seal_xmark
 import data.Repository
 import data.local.entitiy.Node
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.atStartOfDayIn
-import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.vectorResource
 import org.koin.java.KoinJavaComponent.inject
 import ui.components.theme.SliderItemAddCard
@@ -43,16 +40,15 @@ import ui.navigations.Destination
 import util.DateRepository
 import util.isTimestampOnDate
 import util.toCurrentLocalDateFromUTC
-import util.toCurrentTimeZone
 
 @Composable
 fun LastNotesCalendar(
     title: String = "Medikation",
     horizontalSpacing: Dp = 10.dp,
-    onNavigate: (Destination) -> Unit
+    onNavigate: (Destination, Node?) -> Unit
 ) {
     val repository: Repository by inject(Repository::class.java)
-    val nodeList by repository.nodeRepository.getAllNodes().collectAsState(initial = emptyList())
+    val nodeList by repository.noteRepository.getAllNotes().collectAsState(initial = emptyList())
 
     val dates = DateRepository.getTheLastMonthDaysUTC
     val height = 80.dp
@@ -70,14 +66,14 @@ fun LastNotesCalendar(
                 it.date.isTimestampOnDate(date, TimeZone.UTC)
             }
 
-            CalendarItem(date, height, notes) {
-                onNavigate(Destination.AddNote)
+            CalendarItem(date, height, notes) { destination, node ->
+                onNavigate(destination, node)
             }
         }
 
         item {
             SliderItemAddCard(Destination.AddNote) {
-                onNavigate(it)
+                onNavigate(it, null)
             }
         }
     }
@@ -90,7 +86,7 @@ fun CalendarItem(
     localDate: LocalDate,
     height: Dp,
     node: Node? = null,
-    onNavigate: (Destination) -> Unit
+    onNavigate: (Destination, Node?) -> Unit
 ) {
 
     val date = localDate.toCurrentLocalDateFromUTC
@@ -105,7 +101,9 @@ fun CalendarItem(
             .sectionShadow()
             .clickableWithRipple {
                 if(node != null) {
-                    onNavigate(Destination.AddNote)
+                    onNavigate(Destination.EditNote, node)
+                } else {
+                    onNavigate(Destination.AddNote, null)
                 }
             }
     ) {
@@ -136,7 +134,6 @@ fun CalendarItem(
                     tint = Color.Gray
                 )
             }
-
         }
     }
 }

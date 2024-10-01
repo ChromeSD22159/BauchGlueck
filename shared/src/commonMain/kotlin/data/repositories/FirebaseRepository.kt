@@ -9,20 +9,29 @@ import data.remote.model.SyncResponse
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.AuthResult
 import dev.gitlive.firebase.auth.auth
+import dev.gitlive.firebase.database.database
 import dev.gitlive.firebase.firestore.firestore
 import dev.gitlive.firebase.messaging.messaging
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
 import util.FirebaseCloudMessagingResponse
 import util.NetworkError
 import util.NotificationCronJobRequest
 import util.Result
 
-enum class Collection {
-    UserProfile,
-    UserNode
+enum class Collection(var part: String) {
+    UserProfile("UserProfile"),
+    UserNode("UserNode"),
+    OnlineUsers("bauchglueck-6c1cf/onlineUsers")
 }
 
 class FirebaseRepository() {
     private val firestore = Firebase.firestore
+    private val database = Firebase.database
     private val auth = Firebase.auth
     private val messaging = Firebase.messaging
     private val strapi = StrapiApiClient()
@@ -92,7 +101,53 @@ class FirebaseRepository() {
         }
     }
 
+    suspend fun getUserProfilesCount(): Int {
+        val querySnapshot = firestore.collection(Collection.UserProfile.name).get()
+        return querySnapshot.documents.size
+    }
+
     suspend fun sendScheduleRemoteNotification(notification: NotificationCronJobRequest): Result<FirebaseCloudMessagingResponse, NetworkError> {
         return strapi.sendScheduleRemoteNotification(notification)
     }
+
+    fun observeOnlineUserCount(onUserCountChange: (Int) -> Unit): Job {
+        val onlineUsersReference = Firebase.database.reference(Collection.OnlineUsers.part)
+
+        return CoroutineScope(Dispatchers.IO).launch {
+            onlineUsersReference.valueEvents.collect { snapshot ->
+                onUserCountChange(snapshot.children.count())
+            }
+        }
+    }
+
+    suspend fun getOnlineUserCount(onUserCount: (Int) -> Unit) {
+        val onlineUsersReference = Firebase.database.reference(Collection.OnlineUsers.part)
+        onlineUsersReference.valueEvents.collect {
+            onUserCount(it.children.count())
+        }
+    }
+
+    suspend fun markUserOnline() {
+        val userId = auth.currentUser?.uid ?: return
+        val userProfile = readUserProfileById(userId) ?: return
+        val token = NotifierManager.getPushNotifier().getToken() ?: return
+        val userReference = Firebase.database.reference("${Collection.OnlineUsers.part}/$userId")
+        userReference.setValue(
+            AppUser(userId, userProfile.firstName, token)
+        )
+        userReference.onDisconnect().removeValue()
+    }
+
+    suspend fun markUserOffline() {
+        val userId = auth.currentUser?.uid ?: return
+        val userReference = Firebase.database.reference("${Collection.OnlineUsers.part}/$userId")
+        userReference.removeValue()
+    }
 }
+
+@Serializable
+data class AppUser(
+    var name: String = "",
+    var email: String = "",
+    var appToken: String = "",
+)

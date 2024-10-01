@@ -1,5 +1,6 @@
 package ui.screens.publicScreens.components
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.Composable
@@ -14,6 +15,7 @@ import com.mmk.kmpauth.google.GoogleAuthCredentials
 import com.mmk.kmpauth.google.GoogleAuthProvider
 import com.mmk.kmpauth.uihelper.apple.AppleButtonMode
 import com.mmk.kmpauth.uihelper.apple.AppleSignInButtonIconOnly
+import com.mmk.kmpauth.uihelper.google.GoogleButtonMode
 import com.mmk.kmpauth.uihelper.google.GoogleSignInButtonIconOnly
 import org.lighthousegames.logging.logging
 import ui.navigations.Destination
@@ -47,6 +49,7 @@ fun LoginProviderRow(
                 }
             ) {
                 GoogleSignInButtonIconOnly(
+                    mode = if(isSystemInDarkTheme()) GoogleButtonMode.Dark else GoogleButtonMode.Light,
                     onClick = { this.onClick() }
                 )
             }
@@ -68,7 +71,7 @@ fun LoginProviderRow(
             }
         ) {
             AppleSignInButtonIconOnly(
-                mode = AppleButtonMode.WhiteWithOutline,
+                mode = if(isSystemInDarkTheme()) AppleButtonMode.Black else AppleButtonMode.WhiteWithOutline,
                 onClick = { this.onClick() }
             )
         }
