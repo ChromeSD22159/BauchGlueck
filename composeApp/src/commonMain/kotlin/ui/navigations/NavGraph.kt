@@ -13,6 +13,7 @@ import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
 import org.koin.compose.KoinContext
 import org.lighthousegames.logging.logging
+import ui.screens.authScreens.recipeCategories.recipeCategories
 import viewModel.SyncWorkerViewModel
 import ui.screens.authScreens.addNote
 import ui.screens.authScreens.addRecipe.addRecipe
@@ -24,6 +25,7 @@ import ui.screens.authScreens.medication.addMedication
 import ui.screens.authScreens.medication.editMedication
 import ui.screens.authScreens.medication.medication
 import ui.screens.authScreens.recipeDetail.recipeDetails
+import ui.screens.authScreens.recipeList.recipesList
 import ui.screens.authScreens.searchRecipes.searchRecipes
 import ui.screens.authScreens.settings.settingsComposable
 import ui.screens.authScreens.showAllNotes
@@ -107,6 +109,8 @@ fun NavGraphBuilder.authScreens(
 
     mealPlan(navController, firebaseAuthViewModel)
     searchRecipes(navController, recipeViewModel)
+    recipeCategories(navController, recipeViewModel)
+    recipesList(navController, recipeViewModel)
     recipeDetails(navController, recipeViewModel)
     addRecipe(navController)
 

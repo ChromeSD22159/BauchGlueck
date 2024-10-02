@@ -100,8 +100,7 @@ fun NavGraphBuilder.home(
                 offset = DpOffset(0.dp, 0.dp),
                 description = "Stöbere durch rezepte und füge sie zu deinem Meal plan hinzu.",
                 onNavigate = {
-                    navController.navigate(Destination.SearchRecipe.route)
-                    navController.setNavKey(NavKeys.Destination, Destination.Home.route)
+                    navController.navigate(Destination.RecipeCategories.route)
                 }
             )
 
@@ -141,17 +140,6 @@ fun NavGraphBuilder.home(
                     }
                 }
             }
-
-            /*
-            LastNotesCalendar(
-                onNavigate = { destination, node ->
-                    logging().info { "navigate to $destination" }
-                    logging().info { "node: $node" }
-                    navController.navigate(destination.route)
-                    navController.currentBackStackEntry?.savedStateHandle?.set("noteId", "${node?.id}" )
-                }
-            )
-             */
 
             WaterIntakeCard(firebaseAuthViewModel = firebaseAuthViewModel)
 

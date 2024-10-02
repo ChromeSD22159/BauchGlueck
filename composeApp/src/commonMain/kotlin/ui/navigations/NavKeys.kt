@@ -11,6 +11,7 @@ sealed class NavKeys(val key: String) {
     data object MealPlanId : NavKeys("mealPlanId")
     data object MealPlanSpotId : NavKeys("mealPlanSpotId")
     data object MealPlanDayId : NavKeys("mealPlanDayId")
+    data object RecipeCategory : NavKeys("recipeCategory")
     data object Destination: NavKeys("destination")
     data object Date: NavKeys("date")
     data class CustomKey(val customId: String) : NavKeys(customId)

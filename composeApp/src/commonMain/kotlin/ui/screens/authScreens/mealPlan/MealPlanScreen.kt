@@ -226,8 +226,6 @@ fun HeaderRow(
         horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         Text(text = "${selectedDate.dayOfMonth.toDigits()}.${selectedDate.monthNumber.toDigits()}.${selectedDate.year}")
-
-        Text(text = "MealPlan: (${mealPlan?.spots?.size ?: 0})")
     }
 }
 
@@ -283,7 +281,7 @@ fun CalendarDayCard(
     Column(
         modifier = Modifier
             .padding(start = if (ifDateIsNotTodayAndIsFirstOfMonth) 20.dp else 0.dp)
-            .size(60.dp)
+            .size(70.dp)
             .sectionShadow()
             .border(
                 width = 1.dp,
@@ -296,10 +294,12 @@ fun CalendarDayCard(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        BodyText(
+
+        HeadlineText(
             modifier = Modifier.fillMaxWidth(),
             textAlign = TextAlign.Center,
-            text = date.dayOfMonth.toDigits(),
+            text = "${date.dayOfMonth.toDigits()}.${date.monthNumber.toDigits()}",
+            size = 16.sp,
             weight = if (isToday) FontWeight.Bold else FontWeight.Normal
         )
         FooterText(text = "$isPlanedValue / $shouldPlanedValue")
