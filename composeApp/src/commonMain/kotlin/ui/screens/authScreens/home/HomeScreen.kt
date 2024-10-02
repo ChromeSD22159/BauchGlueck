@@ -49,6 +49,8 @@ import ui.components.theme.Section
 import ui.components.theme.clickableWithRipple
 import ui.components.theme.text.BodyText
 import ui.components.theme.text.HeadlineText
+import ui.navigations.NavKeys
+import ui.navigations.setNavKey
 import viewModel.FirebaseAuthViewModel
 import viewModel.HomeViewModel
 
@@ -99,7 +101,7 @@ fun NavGraphBuilder.home(
                 description = "Stöbere durch rezepte und füge sie zu deinem Meal plan hinzu.",
                 onNavigate = {
                     navController.navigate(Destination.SearchRecipe.route)
-                    navController.currentBackStackEntry?.savedStateHandle?.set("destination", Destination.Home.route)
+                    navController.setNavKey(NavKeys.Destination, Destination.Home.route)
                 }
             )
 

@@ -20,6 +20,8 @@ class MealRepository(
 
     fun getAllMealsMeals(): Flow<List<MealWithCategories>> = localService.getMealWithCategories()
 
+    suspend fun getMealWithCategoryById(mealId: String): MealWithCategories? = localService.getMealWithCategoryById(mealId)
+
     suspend fun syncLocalStartUpMeals() {
         syncManager.syncStartUpMeals()
     }

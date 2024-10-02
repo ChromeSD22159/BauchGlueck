@@ -50,7 +50,7 @@ fun NavGraphBuilder.medication(navController: NavHostController){
         val viewModel: MedicationViewModel = viewModel<MedicationViewModel>()
         val allMedications by viewModel.medicationsWithIntakeDetailsForToday.collectAsStateWithLifecycle(initialValue = emptyList())
         val allMedicationHistory by viewModel.medicationHistory.collectAsStateWithLifecycle(initialValue = emptyList())
-        val viewType = rememberSaveable { mutableStateOf(MediationViewType.History) }
+        val viewType = rememberSaveable { mutableStateOf(MediationViewType.Today) }
 
         Box {
             ScreenHolder(

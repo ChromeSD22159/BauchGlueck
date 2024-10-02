@@ -10,6 +10,7 @@ import data.remote.model.Ingredient
 import data.remote.model.MainImage
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Serializer
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 
@@ -64,6 +65,12 @@ data class Meal(
             null
         }
         set(value) { }
+
+    val toJsonString: String
+        get() {
+            val json = Json { ignoreUnknownKeys = true }
+            return json.encodeToString(this)
+        }
 }
 
 
