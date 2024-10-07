@@ -22,6 +22,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,8 +52,12 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.imageResource
 import org.jetbrains.compose.resources.painterResource
+import org.lighthousegames.logging.logging
 import ui.components.FormScreens.FormTextFieldWithIconAndDeleteButton
 import ui.components.IconListWithText
 import ui.components.extentions.getSize
@@ -63,6 +68,7 @@ import ui.components.theme.text.FooterText
 import ui.navigations.Destination
 import ui.navigations.NavKeys
 import ui.navigations.setNavKey
+import ui.screens.authScreens.recipeCategories.DatePickerOverLay
 import util.hideKeyboard
 import util.parseToLocalDate
 import viewModel.RecipeViewModel
@@ -78,6 +84,8 @@ fun NavGraphBuilder.searchRecipes(
 
         val selectedDate = backStackEntry.savedStateHandle.get<String>(NavKeys.Date.key)?.parseToLocalDate()
         val destination = backStackEntry.savedStateHandle.get<String>("destination")
+
+        var showDatePicker by remember { mutableStateOf(false) }
 
         val searchQuery by recipeViewModel.searchQuery.collectAsStateWithLifecycle()
         val recipes by recipeViewModel.foundRecipes.collectAsStateWithLifecycle()
@@ -148,9 +156,16 @@ fun NavGraphBuilder.searchRecipes(
                             navController.navigate(Destination.RecipeDetailScreen.route)
                         },
                         onClickIcon = {
-                            navController.navigate(Destination.MealPlanCalendar.route)
-                            navController.setNavKey(NavKeys.RecipeId, recipes[it].meal.mealId)
-                            navController.setNavKey(NavKeys.Date, selectedDate.toString())
+                            if(selectedDate == null) {
+                                // SELECTED DATE FROM NAVSTACK
+                                recipeViewModel.setSelectedRecipe(recipes[it])
+                                showDatePicker = true
+                            } else {
+                                // NONE SELECTED DATE FROM NAVSTACK
+                                navController.navigate(Destination.MealPlanCalendar.route)
+                                navController.setNavKey(NavKeys.Date, selectedDate.toString())
+                                navController.setNavKey(NavKeys.RecipeId, recipes[it].meal.mealId)
+                            }
                         }
                     )
                 }
@@ -162,6 +177,25 @@ fun NavGraphBuilder.searchRecipes(
                 text = "${recipes.size} Ergebnisse gefunden}"
             )
         }
+
+        // WHEN NONE DATE IS GIVEN FROM NAVSTACK AND ADD
+        DatePickerOverLay(
+            showDatePicker,
+            onDatePickerStateChange = { showDatePicker = it },
+            onConformDate = { timeStamp ->
+                recipeViewModel.selectedRecipe.value?.meal?.mealId?.let { mealId ->
+                    navController.navigate(Destination.MealPlanCalendar.route)
+                    navController.setNavKey(NavKeys.RecipeId, mealId)
+                    val localDate = timeStamp?.let { it1 ->
+                        Instant.fromEpochMilliseconds(it1)
+                            .toLocalDateTime(TimeZone.currentSystemDefault())
+                            .date
+                    }
+                    navController.setNavKey(NavKeys.Date, localDate.toString())
+                    logging().info { "Date: $timeStamp" }
+                }
+            }
+        )
     }
 }
 
@@ -264,3 +298,15 @@ fun Card(
         }
     }
 }
+
+data class ApiResponse(
+    val date: String = "",
+    val time: String = "",
+    val listPerson: List<Person>
+)
+
+data class Person(
+    val vorname: String = "Unknown Firstname",
+    val nachname: String = "Unknown Lastname",
+    val alter: Int = 0
+)

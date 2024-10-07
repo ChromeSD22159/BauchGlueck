@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
@@ -17,11 +18,17 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
+import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
+import org.lighthousegames.logging.logging
 import ui.components.extentions.getSize
 import ui.components.theme.ScreenHolder
 import ui.components.theme.text.FooterText
 import ui.navigations.Destination
 import ui.navigations.NavKeys
+import ui.navigations.setNavKey
+import ui.screens.authScreens.recipeCategories.DatePickerOverLay
 import ui.screens.authScreens.searchRecipes.Card
 import viewModel.RecipeViewModel
 import kotlin.math.ceil
@@ -38,6 +45,8 @@ fun NavGraphBuilder.recipesList(
         val recipes = recipesList.filter { it.meal.categoryId?.lowercase() == selectedCategory }
 
         val size = remember { mutableStateOf(IntSize.Zero) }
+
+        var showDatePicker by remember { mutableStateOf(false) }
 
         val itemsPerRow = 2
         val gap = 16.dp
@@ -77,7 +86,8 @@ fun NavGraphBuilder.recipesList(
                             navController.navigate(Destination.RecipeDetailScreen.route)
                         },
                         onClickIcon = {
-                            // TODO Navigate to MealPlan
+                            recipeViewModel.setSelectedRecipe(recipes[it])
+                            showDatePicker = !showDatePicker
                         }
                     )
                 }
@@ -89,5 +99,22 @@ fun NavGraphBuilder.recipesList(
                 text = "${recipes.size} Ergebnisse gefunden}"
             )
         }
+
+        DatePickerOverLay(
+            showDatePicker,
+            onDatePickerStateChange = { showDatePicker = it },
+            onConformDate = { timeStamp ->
+                recipeViewModel.selectedRecipe.value?.meal?.mealId?.let { mealId ->
+                    navController.navigate(Destination.MealPlanCalendar.route)
+                    navController.setNavKey(NavKeys.RecipeId, mealId)
+                    val localDate = timeStamp?.let { it1 ->
+                        Instant.fromEpochMilliseconds(it1)
+                            .toLocalDateTime(TimeZone.currentSystemDefault())
+                            .date
+                    }
+                    navController.setNavKey(NavKeys.Date, localDate.toString())
+                }
+            }
+        )
     }
 }

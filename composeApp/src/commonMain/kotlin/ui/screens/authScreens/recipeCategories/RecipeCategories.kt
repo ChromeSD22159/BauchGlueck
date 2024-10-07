@@ -5,27 +5,46 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsIgnoringVisibility
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.Card
+import androidx.compose.material3.DatePickerDefaults
+import androidx.compose.material3.DatePickerState
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SelectableDates
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -51,12 +70,20 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.vectorResource
+import org.lighthousegames.logging.logging
 import ui.components.FormScreens.FormTextFieldWithIconAndDeleteButton
 import ui.components.extentions.getSize
 import ui.components.extentions.sectionShadow
 import ui.components.theme.ScreenHolder
+import ui.components.theme.Section
+import ui.components.theme.button.TextButton
 import ui.components.theme.clickableWithRipple
 import ui.components.theme.text.FooterText
 import ui.components.theme.text.HeadlineText
@@ -64,6 +91,7 @@ import ui.navigations.Destination
 import ui.navigations.NavKeys
 import ui.navigations.setNavKey
 import util.ApplicationContextHolder.context
+import util.DateRepository
 import util.hideKeyboard
 import viewModel.RecipeViewModel
 import kotlin.math.ceil
@@ -74,6 +102,8 @@ fun NavGraphBuilder.recipeCategories(
     recipeViewModel: RecipeViewModel
 ) {
     composable(Destination.RecipeCategories.route) {
+        var showDatePicker by remember { mutableStateOf(false) }
+
         val searchInput = remember { mutableStateOf(false) }
         val searchQuery by recipeViewModel.searchQuery.collectAsStateWithLifecycle()
         val foundRecipes by recipeViewModel.foundRecipes.collectAsStateWithLifecycle()
@@ -253,10 +283,7 @@ fun NavGraphBuilder.recipeCategories(
                                 recipeViewModel.setSelectedRecipe(foundRecipes[it])
                                 navController.navigate(Destination.RecipeDetailScreen.route)
                             },
-                            onClickIcon = {
-                                navController.navigate(Destination.MealPlanCalendar.route)
-                                navController.setNavKey(NavKeys.RecipeId, foundRecipes[it].meal.mealId)
-                            }
+                            onClickIcon = {}
                         )
                     }
                 }
@@ -269,6 +296,81 @@ fun NavGraphBuilder.recipeCategories(
                 FooterText(text = "${foundRecipes.size} Rezepte")
             }
 
+
+            DatePickerOverLay(
+                showDatePicker,
+                onDatePickerStateChange = { showDatePicker = it },
+                onConformDate = { timeStamp ->
+                    recipeViewModel.selectedRecipe.value?.meal?.mealId?.let { mealId ->
+                        navController.navigate(Destination.MealPlanCalendar.route)
+                        navController.setNavKey(NavKeys.RecipeId, mealId)
+                        val localDate = timeStamp?.let { it1 ->
+                            Instant.fromEpochMilliseconds(it1)
+                                .toLocalDateTime(TimeZone.currentSystemDefault())
+                                .date
+                        }
+                        navController.setNavKey(NavKeys.Date, localDate.toString())
+                        logging().info { "Date: $timeStamp" }
+                    }
+                }
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@Composable
+fun DatePickerOverLay(
+    showDatePicker: Boolean,
+    onDatePickerStateChange: (Boolean) -> Unit,
+    onConformDate: (selectedDateMillis: Long?) -> Unit
+) {
+
+    val modalBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val datePickerState = rememberDatePickerState(
+        initialSelectedDateMillis = Clock.System.now().toEpochMilliseconds(),
+        selectableDates = object : SelectableDates {
+            val today = Clock.System.now().toEpochMilliseconds()
+            val fourteenDaysLater = today.plus(14 * 24 * 60 * 60 * 1000)
+            override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+                return utcTimeMillis in today..fourteenDaysLater
+            }
+        }
+    )
+
+    if (showDatePicker) {
+        ModalBottomSheet(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .padding(
+                    bottom = WindowInsets
+                        .navigationBarsIgnoringVisibility
+                        .asPaddingValues()
+                        .calculateBottomPadding()
+                ),
+            onDismissRequest = { onDatePickerStateChange(false) },
+            sheetState = modalBottomSheetState
+        ) {
+            androidx.compose.material3.DatePicker(
+                state = datePickerState,
+                modifier = Modifier.fillMaxWidth(),
+                colors = DatePickerDefaults.colors(
+                    containerColor = MaterialTheme.colorScheme.background,
+                    titleContentColor = MaterialTheme.colorScheme.primary,
+                    headlineContentColor = MaterialTheme.colorScheme.onBackground,
+                )
+            )
+
+            TextButton(
+                modifier = Modifier
+                    .padding(8.dp)
+                    .fillMaxWidth(),
+                text = "Bestätigen"
+            ) {
+                onDatePickerStateChange(false)
+                onConformDate(datePickerState.selectedDateMillis)
+            }
         }
     }
 }
