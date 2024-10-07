@@ -119,24 +119,13 @@ fun NavGraphBuilder.mealPlan(
             },
             optionsRow = {
                 Icon(
-                    imageVector = vectorResource(resource = Res.drawable.ic_plus),
-                    contentDescription = "",
-                    modifier = Modifier
-                        .size(24.dp)
-                        .clickableWithRipple { navController.navigate(Destination.AddRecipe.route) },
-                )
-
-                Icon(
                     imageVector = vectorResource(resource = Res.drawable.ic_search),
                     contentDescription = "",
                     modifier = Modifier
                         .size(24.dp)
                         .clickableWithRipple {
                             navController.navigate(Destination.SearchRecipe.route)
-                            navController.currentBackStackEntry?.savedStateHandle?.set(
-                                "destination",
-                                Destination.MealPlanCalendar.route
-                            )
+                            navController.setNavKey(NavKeys.Destination, Destination.MealPlanCalendar.route)
                         },
                 )
 

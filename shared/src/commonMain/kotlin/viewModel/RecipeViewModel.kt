@@ -5,8 +5,10 @@ import data.local.entitiy.MealWithCategories
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.flatMap
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -27,12 +29,16 @@ class RecipeViewModel: ViewModel(), KoinComponent {
     private var _selectedRecipe: MutableStateFlow<MealWithCategories?> = MutableStateFlow(null)
     val selectedRecipe = _selectedRecipe.asStateFlow()
 
+    private val _recipeForCategories: MutableStateFlow<List<MealWithCategories>> = MutableStateFlow(emptyList())
+    val recipeForCategories = _recipeForCategories.asStateFlow()
+
     init {
         viewModelScope.launch {
             val localMeals: Flow<List<MealWithCategories>> = repository.mealRepository.getAllMealsMeals()
 
             localMeals.collect { meals ->
                 _recipes.emit(meals)
+                _recipeForCategories.emit(meals)
 
                 searchRecipes("")
             }

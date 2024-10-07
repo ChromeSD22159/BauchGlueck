@@ -56,6 +56,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
@@ -67,6 +68,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
+import bauchglueck.composeapp.generated.resources.Res
+import bauchglueck.composeapp.generated.resources.placeholder_image
 import data.model.IngredientUnit
 import data.model.RecipeCategory
 import data.remote.model.CategoryUpload
@@ -78,6 +81,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.vectorResource
 import ui.components.FormScreens.FormControlButtons
 import ui.components.FormScreens.FormTextFieldWithoutIcons
 import ui.components.FullSizeRow
@@ -89,6 +94,7 @@ import ui.components.theme.text.BodyText
 import ui.components.theme.text.ErrorText
 import ui.components.theme.text.FooterText
 import ui.navigations.Destination
+import ui.navigations.NavKeys
 import ui.screens.authScreens.addRecipe.components.IconErrorRow
 import ui.screens.authScreens.addRecipe.components.IconRow
 import ui.screens.authScreens.medication.AddButton
@@ -99,7 +105,6 @@ fun NavGraphBuilder.addRecipe(
     navController: NavHostController,
 ) {
     composable(Destination.AddRecipe.route) {
-        // Overlay
         val uploadImageState = remember { mutableStateOf(SaveRecipeState.NotStarted) }
         val isAnimating = remember { mutableStateOf(false) }
 
@@ -126,7 +131,7 @@ fun NavGraphBuilder.addRecipe(
                 title = Destination.AddRecipe.title,
                 showBackButton = true,
                 onNavigate = {
-                    navController.navigate(Destination.MealPlanCalendar.route)
+                    navController.navigate(Destination.RecipeCategories.route)
                 },
                 optionsRow = {},
                 itemSpacing = 24.dp
@@ -151,11 +156,16 @@ fun NavGraphBuilder.addRecipe(
 
                 val ingredients = remember { mutableStateListOf<Ingredient>() }
 
-                ImageUploadScreen(selectedImage = selectedImage) { bitMap ->
-                    bitMap?.let {
-                        viewModel.setSelectedImage(it)
+                ImageUploadScreen(
+                    selectedImage = selectedImage,
+                    imageToUpload = { bitMap ->
+                        if (bitMap != null) {
+                            viewModel.setSelectedImage(bitMap)
+                        } else {
+                            viewModel.clearSelectedImage()
+                        }
                     }
-                }
+                )
 
                 RowTextField(
                     title = "Rezept Name:",
@@ -631,7 +641,7 @@ fun MenuCategoryDropdownMenu(
 fun ImageUploadScreen(
     modifier: Modifier = Modifier,
     selectedImage: Bitmap?,
-    updateImage: (Bitmap?) -> Unit
+    imageToUpload: (Bitmap?) -> Unit
 ) {
     val context = LocalContext.current
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
@@ -642,45 +652,65 @@ fun ImageUploadScreen(
                 val source = ImageDecoder.createSource(context.contentResolver, uri)
                 ImageDecoder.decodeBitmap(source)
             }
-            updateImage(bitmap)
+            imageToUpload(bitmap)
         }
     }
-
-    Column(modifier = modifier.padding(16.dp)) {
-        selectedImage?.let { image ->
-            Spacer(modifier = Modifier.height(16.dp))
-            Image(
-                bitmap = image.asImageBitmap(),
-                contentDescription = "Selected Image",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .border(2.dp, Color.Gray)
-            )
-        }
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+    Section {
+        Column(
+            modifier = modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Button(
-                modifier = Modifier.weight(1f),
-                onClick = { launcher.launch("image/*") }
-            ) {
-                Text("Bild auswählen")
+            if(selectedImage != null) {
+                Image(
+                    bitmap = selectedImage.asImageBitmap(),
+                    contentDescription = "Selected Image",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(300.dp)
+                        .border(
+                            width = 1.dp,
+                            color = Color.Gray,
+                            shape = RoundedCornerShape(8.dp)
+                        )
+                )
+            } else {
+                Image(
+                    painter = painterResource(Res.drawable.placeholder_image),
+                    contentDescription = "Selected Image",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(300.dp)
+                        .border(
+                            width = 1.dp,
+                            color = Color.Gray,
+                            shape = RoundedCornerShape(8.dp)
+                        )
+                )
             }
 
-            if(selectedImage != null) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
                 Button(
                     modifier = Modifier.weight(1f),
-                    onClick = {
-                        // TODO Bild an Server senden
-                        updateImage(null)
-                    }
+                    onClick = { launcher.launch("image/*") }
                 ) {
-                    Text("Bild Entfernen")
+                    Text("Bild auswählen")
+                }
+
+                if(selectedImage != null) {
+                    Button(
+                        modifier = Modifier.weight(1f),
+                        onClick = {
+                            imageToUpload(null)
+                        }
+                    ) {
+                        Text("Bild Entfernen")
+                    }
                 }
             }
         }

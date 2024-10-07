@@ -124,7 +124,6 @@ fun NavGraphBuilder.searchRecipes(
                     recipeViewModel.updateSearchQuery(it)
                 },
                 onClickAction = {
-
                     hideKeyboard(context)
                     recipeViewModel.updateSearchQuery("")
                 }
@@ -168,12 +167,13 @@ fun NavGraphBuilder.searchRecipes(
 
 @Composable
 fun Card(
+    modifier: Modifier = Modifier,
     recipe: MealWithCategories,
     onClickIcon: () -> Unit = {},
     onClickCard: () -> Unit = {}
 ) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .aspectRatio(1f)
             .clip(RoundedCornerShape(8.dp))

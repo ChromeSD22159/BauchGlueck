@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -36,7 +37,7 @@ fun ScreenHolder(
     foreground: Color = MaterialTheme.colorScheme.onBackground,
     pageSpacing: Dp = 10.dp,
     itemSpacing: Dp = 10.dp,
-    optionsRow: @Composable (Color) -> Unit = {},
+    optionsRow: @Composable (Color) -> Unit = { },
     contentColumn: @Composable () -> Unit = {}
 ) {
     LazyColumn(
