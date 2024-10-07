@@ -28,6 +28,9 @@ import ui.screens.authScreens.recipeDetail.recipeDetails
 import ui.screens.authScreens.recipeList.recipesList
 import ui.screens.authScreens.searchRecipes.searchRecipes
 import ui.screens.authScreens.settings.settingsComposable
+import ui.screens.authScreens.shoppingList.shoppingListDetail
+import ui.screens.authScreens.shoppingList.shoppingListGenerate
+import ui.screens.authScreens.shoppingList.shoppingLists
 import ui.screens.authScreens.showAllNotes
 import ui.screens.authScreens.timer.addTimerComposable
 import ui.screens.authScreens.timer.editTimerComposable
@@ -133,6 +136,10 @@ fun NavGraphBuilder.authScreens(
     editTimerComposable(navController)
 
     //recipesComposable(navController)
+    shoppingListDetail(navController)
+    shoppingLists(navController)
+    shoppingListGenerate(navController)
+
 
     settingsComposable(navController, firebaseAuthViewModel)
     adminPanelComposable(navController)

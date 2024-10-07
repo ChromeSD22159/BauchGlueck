@@ -7,7 +7,6 @@ import data.local.entitiy.MealPlanDay
 import data.local.entitiy.MealPlanDayWithSpots
 import data.local.entitiy.MealPlanSpot
 import data.remote.syncManager.MealPlanSyncManager
-import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
 
 class MealPlanRepository(

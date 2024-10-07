@@ -58,6 +58,7 @@ import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.imageResource
 import org.jetbrains.compose.resources.painterResource
 import org.lighthousegames.logging.logging
+import ui.components.DatePickerOverLay
 import ui.components.FormScreens.FormTextFieldWithIconAndDeleteButton
 import ui.components.IconListWithText
 import ui.components.extentions.getSize
@@ -68,7 +69,6 @@ import ui.components.theme.text.FooterText
 import ui.navigations.Destination
 import ui.navigations.NavKeys
 import ui.navigations.setNavKey
-import ui.screens.authScreens.recipeCategories.DatePickerOverLay
 import util.hideKeyboard
 import util.parseToLocalDate
 import viewModel.RecipeViewModel
@@ -298,15 +298,3 @@ fun Card(
         }
     }
 }
-
-data class ApiResponse(
-    val date: String = "",
-    val time: String = "",
-    val listPerson: List<Person>
-)
-
-data class Person(
-    val vorname: String = "Unknown Firstname",
-    val nachname: String = "Unknown Lastname",
-    val alter: Int = 0
-)

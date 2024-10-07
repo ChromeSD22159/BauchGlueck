@@ -9,7 +9,6 @@ import androidx.room.Relation
 import data.remote.model.Ingredient
 import data.remote.model.MainImage
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.Serializer
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 

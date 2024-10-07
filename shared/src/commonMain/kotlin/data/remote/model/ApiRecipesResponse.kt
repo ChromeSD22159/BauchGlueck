@@ -66,7 +66,7 @@ data class ApiRecipesResponse(
 data class Ingredient(
     @SerialName("id") val id: Int,
     @SerialName("name") val name: String,
-    @SerialName("amount") val amount: String,
+    @SerialName("amount") var amount: String,
     @SerialName("unit") var unit: String
 )
 
