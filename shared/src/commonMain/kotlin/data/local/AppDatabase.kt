@@ -46,7 +46,7 @@ import data.local.entitiy.ShoppingList
         ChangeLog::class,
         Node::class
    ],
-    version = 11,
+    version = 12,
     exportSchema = false
 )
 abstract class LocalDatabase: RoomDatabase(), DB {

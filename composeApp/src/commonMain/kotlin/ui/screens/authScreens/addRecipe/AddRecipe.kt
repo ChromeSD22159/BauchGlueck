@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -50,7 +49,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Brush
@@ -72,17 +70,15 @@ import bauchglueck.composeapp.generated.resources.Res
 import bauchglueck.composeapp.generated.resources.placeholder_image
 import data.model.IngredientUnit
 import data.model.RecipeCategory
+import data.model.SaveRecipeState
 import data.remote.model.CategoryUpload
 import data.remote.model.Ingredient
 import data.remote.model.MainImageUpload
 import data.remote.model.RecipeUpload
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import org.jetbrains.compose.resources.painterResource
-import org.jetbrains.compose.resources.vectorResource
 import ui.components.FormScreens.FormControlButtons
 import ui.components.FormScreens.FormTextFieldWithoutIcons
 import ui.components.FullSizeRow
@@ -94,7 +90,6 @@ import ui.components.theme.text.BodyText
 import ui.components.theme.text.ErrorText
 import ui.components.theme.text.FooterText
 import ui.navigations.Destination
-import ui.navigations.NavKeys
 import ui.screens.authScreens.addRecipe.components.IconErrorRow
 import ui.screens.authScreens.addRecipe.components.IconRow
 import ui.screens.authScreens.medication.AddButton
@@ -443,24 +438,6 @@ fun NavGraphBuilder.addRecipe(
         }
     }
 }
-
-enum class SaveRecipeState {
-    NotStarted,
-    UploadingImage,
-    UploadingRecipe,
-    AiCorrection,
-    Failed,
-    Done
-}
-
-fun CoroutineScope.updateState(uploadImageState: MutableState<SaveRecipeState>, newState: SaveRecipeState) {
-    CoroutineScope(Dispatchers.Main).launch {
-        delay(500)
-        uploadImageState.value = SaveRecipeState.Failed
-    }
-}
-
-
 
 @Composable
 fun RowTextField(

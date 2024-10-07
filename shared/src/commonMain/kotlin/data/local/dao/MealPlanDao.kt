@@ -36,8 +36,6 @@ interface MealPlanDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCategory(mealCategory: MealCategory)
 
-
-
     @Transaction
     @Query("SELECT * FROM mealPlanDay WHERE date = :date")
     suspend fun getMealPlanDayWithSpotsForDate(date: String): MealPlanDayWithSpots?
