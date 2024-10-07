@@ -44,7 +44,7 @@ import kotlinx.datetime.minus
 import kotlinx.datetime.todayIn
 import org.jetbrains.compose.resources.vectorResource
 import ui.components.theme.clickableWithRipple
-import ui.components.theme.sectionShadow
+import ui.components.extentions.sectionShadow
 import ui.components.theme.text.FooterText
 import ui.navigations.Destination
 

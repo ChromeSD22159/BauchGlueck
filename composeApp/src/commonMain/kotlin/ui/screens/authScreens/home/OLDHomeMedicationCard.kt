@@ -14,25 +14,19 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import data.local.entitiy.MedicationWithIntakeDetailsForToday
 import ui.components.theme.SliderItemAddCard
 import ui.components.theme.clickableWithRipple
-import ui.components.theme.sectionShadow
+import ui.components.extentions.sectionShadow
 import ui.components.theme.text.FooterText
 import ui.components.theme.text.HeadlineText
 import ui.navigations.Destination
-import viewModel.MedicationViewModel
 
 @Composable
 fun OLDHomeMedicationCard(

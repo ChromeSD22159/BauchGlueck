@@ -60,7 +60,7 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.lighthousegames.logging.logging
-import ui.components.theme.sectionShadow
+import ui.components.extentions.sectionShadow
 import ui.components.theme.text.BodyText
 import ui.navigations.NavigationTransition
 import util.UUID

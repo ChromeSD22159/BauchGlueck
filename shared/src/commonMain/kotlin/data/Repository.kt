@@ -10,6 +10,7 @@ import data.repositories.FirebaseRepository
 import data.repositories.MealPlanRepository
 import data.repositories.MealRepository
 import data.repositories.NoteRepository
+import data.repositories.ShoppingListRepository
 
 class Repository(
     val countdownTimerRepository: CountdownTimerRepository,
@@ -19,6 +20,7 @@ class Repository(
     val mealRepository: MealRepository,
     val mealPlanRepository: MealPlanRepository,
     val noteRepository: NoteRepository,
+    val shoppingListRepository: ShoppingListRepository
 ) {
     val firebaseRepository: FirebaseRepository = FirebaseRepository()
     val recipeRepository: StrapiRecipeApiClient = StrapiRecipeApiClient()

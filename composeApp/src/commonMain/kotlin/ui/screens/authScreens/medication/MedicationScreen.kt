@@ -6,13 +6,10 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -50,7 +47,7 @@ fun NavGraphBuilder.medication(navController: NavHostController){
         val viewModel: MedicationViewModel = viewModel<MedicationViewModel>()
         val allMedications by viewModel.medicationsWithIntakeDetailsForToday.collectAsStateWithLifecycle(initialValue = emptyList())
         val allMedicationHistory by viewModel.medicationHistory.collectAsStateWithLifecycle(initialValue = emptyList())
-        val viewType = rememberSaveable { mutableStateOf(MediationViewType.History) }
+        val viewType = rememberSaveable { mutableStateOf(MediationViewType.Today) }
 
         Box {
             ScreenHolder(

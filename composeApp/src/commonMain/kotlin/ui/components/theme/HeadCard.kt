@@ -21,6 +21,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.vectorResource
+import ui.components.extentions.backgroundVerticalGradient
+import ui.components.extentions.sectionShadow
 import ui.components.theme.text.BodyText
 
 @Composable

@@ -37,7 +37,7 @@ import kotlinx.datetime.Clock
 import ui.components.theme.DropDownMenu
 import ui.components.theme.DropdownMenuRow
 import ui.components.theme.button.IconButton
-import ui.components.theme.sectionShadow
+import ui.components.extentions.sectionShadow
 import ui.components.theme.text.HeadlineText
 import ui.theme.AppTheme
 import util.formatTimeToMMSS

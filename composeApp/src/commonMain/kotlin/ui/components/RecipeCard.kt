@@ -29,7 +29,7 @@ import coil3.compose.AsyncImage
 import data.local.entitiy.MealWithCategories
 import di.serverHost
 import org.jetbrains.compose.resources.painterResource
-import ui.components.theme.decimal
+import ui.components.extentions.decimal
 
 @Composable
 fun RecipeCard(

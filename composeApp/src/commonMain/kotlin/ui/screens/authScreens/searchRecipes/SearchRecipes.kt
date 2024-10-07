@@ -22,6 +22,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,14 +30,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
@@ -53,17 +52,25 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.imageResource
 import org.jetbrains.compose.resources.painterResource
+import org.lighthousegames.logging.logging
+import ui.components.DatePickerOverLay
 import ui.components.FormScreens.FormTextFieldWithIconAndDeleteButton
 import ui.components.IconListWithText
+import ui.components.extentions.getSize
 import ui.components.theme.ScreenHolder
 import ui.components.theme.clickableWithRipple
 import ui.components.theme.text.BodyText
 import ui.components.theme.text.FooterText
 import ui.navigations.Destination
-import util.findActivity
+import ui.navigations.NavKeys
+import ui.navigations.setNavKey
 import util.hideKeyboard
+import util.parseToLocalDate
 import viewModel.RecipeViewModel
 import kotlin.math.ceil
 
@@ -75,7 +82,11 @@ fun NavGraphBuilder.searchRecipes(
     composable(Destination.SearchRecipe.route) {  backStackEntry ->
         val context = LocalContext.current
 
+        val selectedDate = backStackEntry.savedStateHandle.get<String>(NavKeys.Date.key)?.parseToLocalDate()
         val destination = backStackEntry.savedStateHandle.get<String>("destination")
+
+        var showDatePicker by remember { mutableStateOf(false) }
+
         val searchQuery by recipeViewModel.searchQuery.collectAsStateWithLifecycle()
         val recipes by recipeViewModel.foundRecipes.collectAsStateWithLifecycle()
         var searchJob: Job? = remember { null }
@@ -104,8 +115,6 @@ fun NavGraphBuilder.searchRecipes(
         val cardSizeDp = with(LocalDensity.current) { cardSizePx.toDp() }
         val gridSizeDp = (cardSizeDp + gap) * cardRows
 
-
-
         ScreenHolder(
             title = Destination.SearchRecipe.title,
             showBackButton = true,
@@ -123,7 +132,6 @@ fun NavGraphBuilder.searchRecipes(
                     recipeViewModel.updateSearchQuery(it)
                 },
                 onClickAction = {
-
                     hideKeyboard(context)
                     recipeViewModel.updateSearchQuery("")
                 }
@@ -147,7 +155,18 @@ fun NavGraphBuilder.searchRecipes(
                             recipeViewModel.setSelectedRecipe(recipes[it])
                             navController.navigate(Destination.RecipeDetailScreen.route)
                         },
-                        onClickIcon = {}
+                        onClickIcon = {
+                            if(selectedDate == null) {
+                                // SELECTED DATE FROM NAVSTACK
+                                recipeViewModel.setSelectedRecipe(recipes[it])
+                                showDatePicker = true
+                            } else {
+                                // NONE SELECTED DATE FROM NAVSTACK
+                                navController.navigate(Destination.MealPlanCalendar.route)
+                                navController.setNavKey(NavKeys.Date, selectedDate.toString())
+                                navController.setNavKey(NavKeys.RecipeId, recipes[it].meal.mealId)
+                            }
+                        }
                     )
                 }
             }
@@ -158,17 +177,37 @@ fun NavGraphBuilder.searchRecipes(
                 text = "${recipes.size} Ergebnisse gefunden}"
             )
         }
+
+        // WHEN NONE DATE IS GIVEN FROM NAVSTACK AND ADD
+        DatePickerOverLay(
+            showDatePicker,
+            onDatePickerStateChange = { showDatePicker = it },
+            onConformDate = { timeStamp ->
+                recipeViewModel.selectedRecipe.value?.meal?.mealId?.let { mealId ->
+                    navController.navigate(Destination.MealPlanCalendar.route)
+                    navController.setNavKey(NavKeys.RecipeId, mealId)
+                    val localDate = timeStamp?.let { it1 ->
+                        Instant.fromEpochMilliseconds(it1)
+                            .toLocalDateTime(TimeZone.currentSystemDefault())
+                            .date
+                    }
+                    navController.setNavKey(NavKeys.Date, localDate.toString())
+                    logging().info { "Date: $timeStamp" }
+                }
+            }
+        )
     }
 }
 
 @Composable
 fun Card(
+    modifier: Modifier = Modifier,
     recipe: MealWithCategories,
     onClickIcon: () -> Unit = {},
     onClickCard: () -> Unit = {}
 ) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .aspectRatio(1f)
             .clip(RoundedCornerShape(8.dp))
@@ -205,14 +244,14 @@ fun Card(
                             Color.Black.copy(alpha = 0.3f)
                         )
                     )
-                )
-                .clickableWithRipple {
-                    onClickCard()
-                },
+                ),
             contentAlignment = Alignment.BottomStart
         ) {
             Column(
                 modifier = Modifier
+                    .clickableWithRipple {
+                        onClickCard()
+                    }
                     .fillMaxWidth()
                     .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.9f))
                     .padding(8.dp),
@@ -243,25 +282,19 @@ fun Card(
         Box(
             modifier = Modifier
                 .align(Alignment.TopEnd)
-                .padding(8.dp),
-            contentAlignment = Alignment.TopEnd
+                .size(48.dp),
+            contentAlignment = Alignment.Center
         ) {
             Icon(
                 painter = painterResource(Res.drawable.ic_add_calendar),
                 contentDescription = null,
                 tint = Color.White,
                 modifier = Modifier
-                    .size(24.dp)
+                    .size(24.dp) // Adjust size to increase clickable area
                     .clickableWithRipple {
                         onClickIcon()
-                    }
+                    },
             )
         }
-    }
-}
-
-fun Modifier.getSize(size: (IntSize) -> Unit): Modifier {
-    return this.onGloballyPositioned { coordinates ->
-        size(coordinates.size)
     }
 }

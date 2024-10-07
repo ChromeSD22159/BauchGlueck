@@ -8,10 +8,11 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import androidx.room.Relation
 import kotlinx.datetime.Clock
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
-
+@Serializable
 @Entity(tableName = "mealPlanDay")
 data class MealPlanDay(
     @PrimaryKey val mealPlanDayId: String = "", // KPYT-EPTZ-SADL-FTLS
@@ -21,7 +22,7 @@ data class MealPlanDay(
     val updatedAtOnDevice: Long = Clock.System.now().toEpochMilliseconds()
 )
 
-
+@Serializable
 @Entity(
     tableName = "mealPlanSpot",
     foreignKeys = [
@@ -63,7 +64,7 @@ data class MealPlanSpot(
         }
 }
 
-
+@Serializable
 data class MealPlanDayWithSpots(
     @Embedded val mealPlanDay: MealPlanDay,
     @Relation(
@@ -73,6 +74,7 @@ data class MealPlanDayWithSpots(
     val spots: List<MealPlanSpot>
 )
 
+@Serializable
 data class MealPlanSpotWithMeal(
     @Embedded val mealPlanSpot: MealPlanSpot,
     @Relation(

@@ -1,6 +1,7 @@
-package ui.components.theme
+package ui.components.extentions
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -8,6 +9,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -22,6 +26,18 @@ fun Modifier.backgroundVerticalGradient(): Modifier {
     )
 }
 
+fun Modifier.onLongPress(
+    onLongPress: () -> Unit
+): Modifier {
+    return this.pointerInput(Unit) {
+        detectTapGestures(
+            onLongPress = {
+                onLongPress()
+            }
+        )
+    }
+}
+
 @Composable
 fun Modifier.sectionShadow(color: Color? = null): Modifier {
     return this.shadow(
@@ -32,6 +48,12 @@ fun Modifier.sectionShadow(color: Color? = null): Modifier {
         color = color ?: MaterialTheme.colorScheme.surface,
         shape = MaterialTheme.shapes.medium
     )
+}
+
+fun Modifier.getSize(size: (IntSize) -> Unit): Modifier {
+    return this.onGloballyPositioned { coordinates ->
+        size(coordinates.size)
+    }
 }
 
 fun String.truncate(maxLength: Int, suffix: String = "..."): String {

@@ -208,3 +208,7 @@ enum class Weekday(val displayName: String) {
     val start: Long,
     val end: Long
 )
+
+fun String.parseToLocalDate(): LocalDate {
+    return LocalDate.parse(this)
+}

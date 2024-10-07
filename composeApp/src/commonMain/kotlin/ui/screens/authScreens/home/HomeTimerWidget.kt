@@ -35,7 +35,7 @@ import data.local.entitiy.TimerState
 import org.jetbrains.compose.resources.vectorResource
 import ui.components.theme.SliderItemAddCard
 import ui.components.theme.clickableWithRipple
-import ui.components.theme.sectionShadow
+import ui.components.extentions.sectionShadow
 import ui.components.theme.text.FooterText
 import ui.components.theme.text.HeadlineText
 import ui.navigations.Destination

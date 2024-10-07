@@ -45,6 +45,10 @@ interface MealDao {
     fun getMealWithCategories(): Flow<List<MealWithCategories>>
 
     @Transaction
+    @Query("SELECT * FROM meals WHERE mealId = :mealId")
+    suspend fun getMealWithCategoryById(mealId: String): MealWithCategories?
+
+    @Transaction
     @Query("SELECT * FROM meals WHERE updatedAtOnDevice > :timeStamp")
     suspend fun getMealsWithCategoriesAfterTimeStamp(timeStamp: Long): List<MealWithCategories>
 }
