@@ -3,14 +3,18 @@ package ui.screens.authScreens.shoppingList
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenu
@@ -27,31 +31,45 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import bauchglueck.composeapp.generated.resources.Res
+import bauchglueck.composeapp.generated.resources.bubble_right_dark
+import bauchglueck.composeapp.generated.resources.bubble_right_light
+import bauchglueck.composeapp.generated.resources.ic_arrow_down
+import bauchglueck.composeapp.generated.resources.ic_arrow_up
 import bauchglueck.composeapp.generated.resources.ic_ellipsis
 import bauchglueck.composeapp.generated.resources.ic_gear
-import bauchglueck.composeapp.generated.resources.ic_info
 import bauchglueck.composeapp.generated.resources.ic_plus
 import bauchglueck.composeapp.generated.resources.ic_seal_check
 import bauchglueck.composeapp.generated.resources.ic_trash
 import data.local.entitiy.ShoppingList
 import data.model.GenerateShoppingListState
+import org.jetbrains.compose.resources.DrawableResource
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.vectorResource
 import ui.components.DateRangePickerOverLay
+import ui.components.extentions.sectionShadow
 import ui.components.theme.ScreenHolder
 import ui.components.theme.Section
 import ui.components.theme.button.IconButton
+import ui.components.theme.button.TextButton
 import ui.components.theme.clickableWithRipple
 import ui.components.theme.text.BodyText
+import ui.components.theme.text.FooterText
+import ui.components.theme.text.HeadlineText
 import ui.navigations.Destination
+import ui.navigations.NavKeys
+import ui.navigations.setNavKey
 import ui.screens.authScreens.addRecipe.components.IconErrorRow
 import ui.screens.authScreens.addRecipe.components.IconRow
 import viewModel.ShoppingListViewModel
@@ -63,6 +81,16 @@ fun NavGraphBuilder.shoppingLists(
         val viewModel: ShoppingListViewModel = viewModel<ShoppingListViewModel>()
         val showDatePicker by viewModel.showDatePicker.collectAsState()
         val shoppingLists by viewModel.shoppingLists.collectAsState()
+
+        val sortDirection = remember {
+            mutableStateOf(Sorting.ASC)
+        }
+
+        val sortedShoppingList: List<ShoppingList> = if(sortDirection.value == Sorting.ASC) {
+            shoppingLists.sortedBy { it.updatedAtOnDevice }
+        } else {
+            shoppingLists.sortedByDescending { it.updatedAtOnDevice }
+        }
 
         Box(
             modifier = Modifier.fillMaxSize()
@@ -85,6 +113,50 @@ fun NavGraphBuilder.shoppingLists(
                 itemSpacing = 12.dp
             ) {
 
+                Row(
+                    modifier = Modifier
+                        .padding(horizontal = 10.dp)
+                        .sectionShadow()
+                ) {
+                    Box(
+                        contentAlignment = Alignment.BottomCenter
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .height(150.dp)
+                                .fillMaxWidth(),
+                            contentAlignment = Alignment.BottomEnd
+                        ) {
+                            Image(
+                                painter = painterResource(if (isSystemInDarkTheme()) Res.drawable.bubble_right_dark else Res.drawable.bubble_right_light),
+                                contentDescription = "bubble_right_light",
+                                contentScale = ContentScale.FillHeight,
+                            )
+                        }
+
+                        Row(
+                            modifier = Modifier
+                                .padding(bottom = 8.dp)
+                                .clickableWithRipple { viewModel.toggleDatePicker() },
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(15.dp)
+                        ) {
+                            Icon(
+                                modifier = Modifier
+                                    .background(Color.White.copy(0.2f), shape = CircleShape)
+                                    .padding(2.dp),
+                                imageVector = vectorResource(resource = Res.drawable.ic_plus),
+                                contentDescription = ""
+                            )
+
+                            FooterText(
+                                modifier = Modifier.clickableWithRipple { viewModel.toggleDatePicker() },
+                                text = "Erstelle deine erste Einkaufsliste\nbasierend auf deinen Mealplan!"
+                            )
+                        }
+                    }
+                }
+
                 if (shoppingLists.isEmpty()) {
                     NoShoppingList(
                         "Erstelle deine erste Einkaufsliste basierend auf deinen Mealplan!"
@@ -92,15 +164,17 @@ fun NavGraphBuilder.shoppingLists(
                         viewModel.toggleDatePicker()
                     }
                 } else {
-                    NoShoppingList(
-                        "Ein neuen Einkaufsliste erstellen!"
+                    SortableButton(
+                        modifier = Modifier.padding(top = 5.dp),
+                        sortDirection.value
                     ) {
-                        viewModel.toggleDatePicker()
+                        sortDirection.value = it
                     }
 
-                    shoppingLists.forEach { shoppingList ->
+                    sortedShoppingList.forEach { shoppingList ->
                         ShoppingListItem(
                             shoppingList,
+                            navController =  navController,
                             onComplete = {
                                 viewModel.markListAsComplete(shoppingList)
                             },
@@ -112,6 +186,8 @@ fun NavGraphBuilder.shoppingLists(
                             }
                         )
                     }
+
+                    InfomationCard()
                 }
             }
 
@@ -166,8 +242,41 @@ fun NoShoppingList(
 }
 
 @Composable
+fun SortableButton(
+    modifier: Modifier = Modifier,
+    sortDirection: Sorting,
+    onChangeSorting: (Sorting) -> Unit = {}
+) {
+    Row(
+        modifier = modifier
+            .clickableWithRipple {
+                when (sortDirection) {
+                    Sorting.ASC -> onChangeSorting(Sorting.DESC)
+                    Sorting.DESC -> onChangeSorting(Sorting.ASC)
+                }
+            }
+            .padding(horizontal = 10.dp)
+            .fillMaxSize(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(5.dp)
+    ) {
+        Icon(
+            modifier = Modifier.size(14.dp),
+            imageVector = vectorResource(resource = sortDirection.icon),
+            contentDescription = ""
+        )
+
+        FooterText(
+            size = 14.sp,
+            text = "Sortierung"
+        )
+    }
+}
+
+@Composable
 fun ShoppingListItem(
     shoppingList: ShoppingList,
+    navController: NavHostController,
     onComplete: () -> Unit = {},
     onInComplete: () -> Unit = {},
     onDelete: () -> Unit = {},
@@ -179,11 +288,15 @@ fun ShoppingListItem(
     ) {
         Row(
             modifier = Modifier
+                .clickableWithRipple {
+                    navController.navigate(Destination.ShoppingListDetail.route)
+                    navController.setNavKey(NavKeys.RecipeId, shoppingList.shoppingListId)
+                    navController.setNavKey(NavKeys.Destination, Destination.ShoppingLists.route)
+                }
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-
             BodyText(
                 modifier = Modifier,
                 text = "${shoppingList.startDate} - ${shoppingList.endDate}"
@@ -198,7 +311,6 @@ fun ShoppingListItem(
                 contentDescription = "",
                 tint = Color.White.copy(if(shoppingList.isComplete) 1.0f else 0.5f)
             )
-
 
             Box {
                 Icon(
@@ -325,5 +437,19 @@ fun GenerateShoppingListOverlay(
                 }
             }
         }
+    }
+}
+
+enum class Sorting(val icon: DrawableResource) {
+    ASC(Res.drawable.ic_arrow_up),
+    DESC(Res.drawable.ic_arrow_down)
+}
+
+@Composable
+fun InfomationCard() {
+    Section(
+        sectionModifier = Modifier.padding(horizontal = 10.dp)
+    ) {
+        FooterText(text = "🔔 Wichtiger Hinweis: Ihre Einkaufsliste wird nicht automatisch aktualisiert, wenn Sie Änderungen an Ihrem Mealplan vornehmen oder einen neuen Mealplan erstellen.\nUm sicherzustellen, dass Ihre Einkaufsliste alle benötigten Zutaten enthält, überprüfen Sie diese bitte regelmäßig und passen Sie sie manuell an.\nFür Fragen oder Unterstützung stehen wir Ihnen jederzeit zur Verfügung!")
     }
 }

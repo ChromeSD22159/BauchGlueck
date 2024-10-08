@@ -15,5 +15,9 @@ enum class IngredientUnit(val displayName: String, val unit: String) {
         fun fromStrong(string: String): IngredientUnit? {
             return entries.find { it.displayName.equals(string, ignoreCase = true) }
         }
+
+        fun fromUnitString(string: String): IngredientUnit? {
+            return entries.find { it.unit.equals(string, ignoreCase = true) }
+        }
     }
 }

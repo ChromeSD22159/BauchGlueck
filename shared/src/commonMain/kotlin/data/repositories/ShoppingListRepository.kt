@@ -28,4 +28,8 @@ class ShoppingListRepository(
         val user = user ?: return
         localService.insertShoppingList(shoppingList.copy(userId = user.uid, updatedAtOnDevice = Clock.System.now().toEpochMilliseconds()))
     }
+
+    suspend fun getShoppingList(shoppingListId: String): ShoppingList? {
+        return localService.getShoppingList(shoppingListId)
+    }
 }

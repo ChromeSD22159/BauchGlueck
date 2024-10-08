@@ -12,6 +12,7 @@ data class ShoppingListItem(
     var amount: String = "",
     val unit: String = "",
     val note: String = "",
+    var isComplete: Boolean = false,
     val isDeleted: Boolean = false,
     val updatedAtOnDevice: Long? = Clock.System.now().toEpochMilliseconds()
 )

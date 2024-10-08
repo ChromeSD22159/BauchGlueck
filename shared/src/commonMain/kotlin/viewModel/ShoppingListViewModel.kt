@@ -15,6 +15,8 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import util.UUID
@@ -34,6 +36,8 @@ class ShoppingListViewModel: ViewModel(), KoinComponent {
     private val _isAnimating = MutableStateFlow(false)
     val isAnimating = _isAnimating.asStateFlow()
 
+    private val _currentShoppingList = MutableStateFlow<ShoppingList?>(null)
+    val currentShoppingList = _currentShoppingList.asStateFlow()
 
     fun toggleDatePicker() {
         _showDatePicker.value = !_showDatePicker.value
@@ -85,13 +89,14 @@ class ShoppingListViewModel: ViewModel(), KoinComponent {
                delay(2000)
 
                viewModelScope.launch {
+
                    repository.shoppingListRepository.insertShoppingList(
                        ShoppingList(
                            shoppingListId = UUID.randomUUID(),
                            name = start.toString() + end.toString(),
                            startDate = start.toString(),
                            endDate = end.toString(),
-                           itemsString = shoppingList.toString()
+                           itemsString = Json.encodeToString(shoppingList)
                        )
                    )
 
@@ -100,6 +105,20 @@ class ShoppingListViewModel: ViewModel(), KoinComponent {
                }
            }
        }
+    }
+
+    fun loadShoppingListByID(shoppingListId: String) {
+        viewModelScope.launch {
+            val result = repository.shoppingListRepository.getShoppingList(shoppingListId)
+
+            if(result != null) {
+                _currentShoppingList.value = result
+            }
+        }
+    }
+
+    fun clearCurrentShoppingList() {
+        _currentShoppingList.value = null
     }
 
     fun markListAsComplete(shoppingList: ShoppingList) {
@@ -132,6 +151,28 @@ class ShoppingListViewModel: ViewModel(), KoinComponent {
                     updatedAtOnDevice = Clock.System.now().toEpochMilliseconds()
                 )
             )
+        }
+    }
+
+    fun updateIsCompleteFromShoppingListItem(shoppingListItemId: String, newState: Boolean) {
+        val updatedShoppingList = currentShoppingList.value?.items?.map { item ->
+            if (item.shoppingListItemId == shoppingListItemId) {
+                item.copy(isComplete = newState)
+            } else {
+                item
+            }
+        } ?: emptyList()
+
+        val new = _currentShoppingList.value.let { it?.copy(itemsString = Json.encodeToString(updatedShoppingList)) }
+
+        viewModelScope.launch {
+            if(new != null) {
+                _currentShoppingList.emit(new)
+            }
+
+            currentShoppingList.value?.let {
+                repository.shoppingListRepository.insertShoppingList(it)
+            }
         }
     }
 }
