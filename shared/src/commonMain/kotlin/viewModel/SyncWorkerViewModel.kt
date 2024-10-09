@@ -34,7 +34,7 @@ class SyncWorkerViewModel: ViewModel(), KoinComponent {
                 repository.firebaseRepository.user?.let {
                     repository.countdownTimerRepository.syncDataWithRemote()
                     repository.weightRepository.syncDataWithRemote()
-                    repository.medicationRepository.syncDataWithRemote()
+                    repository.mealRepository.syncLocalStartUpMeals()
                     repository.mealRepository.syncLocalStartUpMeals()
                     repository.mealPlanRepository.syncMealPlan()
                     repository.waterIntakeRepository.syncWaterIntakes()

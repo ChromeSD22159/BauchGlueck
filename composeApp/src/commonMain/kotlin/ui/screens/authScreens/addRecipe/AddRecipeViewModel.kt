@@ -85,8 +85,6 @@ class AddRecipeViewModel : ViewModel() {
                     setErrorMessage(it.name)
                 }.onSuccess {
                     _isUploading.value = false
-
-                    // save to local db
                 }
             } else {
                 setErrorMessage("Bitte füllen Sie alle Felder aus")

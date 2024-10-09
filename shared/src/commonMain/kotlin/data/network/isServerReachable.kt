@@ -14,11 +14,9 @@ suspend fun isServerReachable(): Result<String> {
     val httpClient: HttpClient = createHttpClient()
 
     return try {
-        val response: HttpResponse =  httpClient.get {
+        val response =  httpClient.get {
             url(url)
         }
-
-        debugJsonHelper(response)
 
         logging().info {
             "response: ${response.toString()}"

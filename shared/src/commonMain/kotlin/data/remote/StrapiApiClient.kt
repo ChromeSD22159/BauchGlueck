@@ -9,13 +9,11 @@ import data.remote.model.ApiRecipesResponse
 import data.remote.model.ApiAppStatistics
 import data.remote.model.ApiBackendStatistic
 import data.remote.model.ApiUploadImageResponse
-import data.remote.model.MainImage
 import data.remote.model.RecipeUpload
 import de.frederikkohler.bauchglueck.shared.BuildKonfig
 import io.ktor.client.HttpClient
 import io.ktor.client.call.NoTransformationFoundException
 import io.ktor.client.call.body
-import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.forms.submitFormWithBinaryData
 import io.ktor.client.request.get
@@ -32,6 +30,7 @@ import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.datetime.Clock
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import org.lighthousegames.logging.logging
 import util.FirebaseCloudMessagingResponse
@@ -39,7 +38,6 @@ import util.NetworkError
 import util.NotificationCronJobRequest
 import util.Result
 import util.UUID
-import util.debugJsonHelper
 
 class StrapiApiClient(
     override val httpClient: HttpClient = createHttpClient()
@@ -54,7 +52,6 @@ open class BaseApiClient(
         WATER_INTAKE("/api/water-intake/updateRemoteData", HttpMethod.Post),
         WEIGHT("/api/weight/updateRemoteData", HttpMethod.Post),
         MEDICATION("/api/medication/syncDeviceMedicationData", HttpMethod.Post),
-        STARTUP_MEALS("/api/weight/updateRemoteData", HttpMethod.Post),
         COUNTDOWN_TIMER("/api/timer/updateRemoteData", HttpMethod.Post),
     }
 
@@ -65,7 +62,8 @@ open class BaseApiClient(
         MEDICATION("/api/medication/getUpdatedMedicationEntries?timeStamp={timestamp}&userId={userID}", HttpMethod.Get),
         COUNTDOWN_TIMER("/api/timer/fetchItemsAfterTimeStamp?timeStamp={timestamp}&userId={userID}", HttpMethod.Get),
         MealPlan("/api/mealPlan/getUpdatedMealPlanDayEntries?timeStamp={timestamp}&userId={userID}", HttpMethod.Get),
-        GenerateRecipe("/api/recipes/generateRecipe?category={RecipeKind}", HttpMethod.Get)
+        GenerateRecipe("/api/recipes/generateRecipe?category={RecipeKind}", HttpMethod.Get),
+        LoadAllRecipes("/api/meal/getUpdatedMealEntries?timeStamp={timestamp}", HttpMethod.Get)
     }
 
     enum class RemoteNotificationEndpoint(override var urlPath: String, override val method: HttpMethod): BaseApiEndpoint {
@@ -191,6 +189,12 @@ open class BaseApiClient(
             apiEndpoint = ApiEndpoint.UPLOAD_RECIPE,
             entities = recipe
         )
+    }
+
+    suspend fun updateRecipes(timestamp: Long): Result<List<ApiRecipesResponse>, NetworkError> {
+        val endpoint = FetchAfterTimestampEndpoint.LoadAllRecipes
+        endpoint.replacePlaceholders("{timestamp}", timestamp.toString())
+        return apiCall(endpoint.generateRequestURL(serverHost), httpClient)
     }
 
 
