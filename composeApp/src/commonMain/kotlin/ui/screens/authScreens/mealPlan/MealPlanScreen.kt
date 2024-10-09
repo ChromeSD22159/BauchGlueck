@@ -75,6 +75,7 @@ import ui.navigations.NavKeys
 import ui.navigations.getNavKey
 import ui.navigations.setNavKey
 import util.DateRepository
+import util.debugJsonHelper
 import util.parseToLocalDate
 import util.toLong
 import viewModel.FirebaseAuthViewModel
@@ -96,6 +97,8 @@ fun NavGraphBuilder.mealPlan(
         val countOfMealsPerDay by viewModel.countOfMealsPerDay.collectAsState()
         val mealPlan by viewModel.mealPlanForSelectedDate.collectAsState()
         val shouldPlanedValue = userFormState?.userProfile?.value?.totalMeals ?: 0
+
+        debugJsonHelper(mealPlan)
 
         // WORKS
         LaunchedEffect(Unit) {
@@ -186,8 +189,7 @@ fun NavGraphBuilder.mealPlan(
                             onLongPress = {
                                 viewModel.removeFromMealPlan(
                                     mealPlanDayId = mealOrNull.mealPlanDayId,
-                                    mealPlanSpotId = mealOrNull.mealPlanSpotId,
-                                    mealId = mealOrNull.mealId
+                                    mealPlanSpotId = mealOrNull.mealPlanSpotId
                                 )
                             }
                         )
@@ -542,13 +544,6 @@ fun ProgressComponent(
             text = description
         )
     }
-}
-
-sealed class KcalLevel(val kcal: Int) {
-    data object Junior : KcalLevel(800)
-    data object Mid : KcalLevel(1000)
-    data object SeniorKcalLevel : KcalLevel(1200)
-    data class CustomKcalLevel(val customKcal: Int) : KcalLevel(customKcal)
 }
 
 fun calculateKcalLevelSafely(operationTimestamp: Long): KcalLevel? {

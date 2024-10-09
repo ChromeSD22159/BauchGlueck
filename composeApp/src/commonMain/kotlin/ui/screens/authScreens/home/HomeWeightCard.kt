@@ -55,9 +55,13 @@ fun WeightCardChartCard(
     navController: NavHostController,
 ) {
     if (hasValidData) {
-        HomeWeightCard(weeklyAverage) { navController.navigate(Destination.Weight.route) }
+        HomeWeightCard(weeklyAverage) {
+            navController.navigate(Destination.Weight.route)
+        }
     } else {
-        HomeWeightMockCard { navController.navigate(Destination.Weight.route) }
+        HomeWeightMockCard {
+            navController.navigate(Destination.Weight.route)
+        }
     }
 }
 

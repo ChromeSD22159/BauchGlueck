@@ -37,11 +37,15 @@ interface MealPlanDao {
     suspend fun insertCategory(mealCategory: MealCategory)
 
     @Transaction
-    @Query("SELECT * FROM mealPlanDay WHERE date = :date")
+    @Query("SELECT * FROM mealPlanDay WHERE date = :date AND isDeleted is 0")
     suspend fun getMealPlanDayWithSpotsForDate(date: String): MealPlanDayWithSpots?
 
     @Transaction
-    @Query("SELECT * FROM mealPlanDay WHERE date >= :startDate AND date <= :endDate")
+    @Query("SELECT * FROM mealPlanDay WHERE date >= :startDate AND date <= :endDate AND isDeleted is 0")
+    suspend fun getMealPlanDaysWithSpotsForDateRange(startDate: String, endDate: String): List<MealPlanDayWithSpots>
+
+    @Transaction
+    @Query("SELECT * FROM mealPlanDay WHERE date >= :startDate AND date <= :endDate AND isDeleted is 0")
     fun getMealPlanDaysWithSpotsForDateRangeAsFlow(startDate: String, endDate: String): Flow<List<MealPlanDayWithSpots>>
 
     @Transaction

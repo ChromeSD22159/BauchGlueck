@@ -3,6 +3,7 @@ package data.local.entitiy
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import data.remote.model.ChangeLogItem
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
@@ -16,7 +17,7 @@ class ChangeLog(
     var toChangeLogItem: List<ChangeLogItem>
         get() = try {
             featuresString?.let {
-                Json.decodeFromString(it)
+                Json.decodeFromString<List<ChangeLogItem>>(it)
             } ?: emptyList()
         } catch (e: Exception) {
             emptyList()

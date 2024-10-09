@@ -6,24 +6,21 @@ import data.local.entitiy.MealPlanDay
 import data.local.entitiy.MealPlanDayWithSpots
 import data.local.entitiy.MealPlanSpot
 import dev.icerock.moko.mvvm.viewmodel.ViewModel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.lighthousegames.logging.logging
 import util.DateRepository
 import util.UUID
-import util.debugJsonHelper
 
 class MealPlanViewModel: ViewModel(), KoinComponent {
     private val repository: Repository by inject()
@@ -32,7 +29,7 @@ class MealPlanViewModel: ViewModel(), KoinComponent {
 
     val calendarDays = dateRepository.getTheNextMonthDaysLocalDate
 
-    val mealPlans: StateFlow<List<MealPlanDayWithSpots>> = repository.mealPlanRepository.getMealPlanDaysWithSpotsForDateRangeAsFlow(calendarDays.first(),calendarDays.last())
+    private val mealPlans = repository.mealPlanRepository.getMealPlanDaysWithSpotsForDateRangeAsFlow(calendarDays.first(),calendarDays.last())
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(1000), emptyList())
 
     private val _mealPlanForSelectedDate: MutableStateFlow<MealPlanDayWithSpots?> = MutableStateFlow(null)
@@ -125,43 +122,36 @@ class MealPlanViewModel: ViewModel(), KoinComponent {
         }
     }
 
-    fun removeFromMealPlan(mealPlanDayId: String, mealPlanSpotId: String, mealId: String) {
-        val user = repository.firebaseRepository.user ?: return
-
+    fun removeFromMealPlan(mealPlanDayId: String, mealPlanSpotId: String) {
         viewModelScope.launch {
-            // Fetch the meal from the repository
-            val foundModel = repository.mealRepository.getMealWithCategoryById(mealId)
+            val foundMealPlan = mealPlans.value.find { it.mealPlanDay.mealPlanDayId == mealPlanDayId }
 
-            foundModel?.let { mealPlan ->
-                // Find the corresponding MealPlanDay
-                val foundMealPlan = mealPlans.value.find { it.mealPlanDay.mealPlanDayId == mealPlanDayId }
+            if (foundMealPlan != null) {
+                val updatedMealPlan = foundMealPlan.copy()
+                val foundSpotIndex = updatedMealPlan.spots.indexOfFirst { it.mealPlanSpotId == mealPlanSpotId }
 
-                // If MealPlanDay is found, proceed
-                if (foundMealPlan != null) {
-                    // Find the corresponding MealPlanSpot by mealPlanSpotId
+                if (foundSpotIndex != -1) {
+                    val updatedSpot = updatedMealPlan.spots[foundSpotIndex].copy(isDeleted = true, updatedAtOnDevice = Clock.System.now().toEpochMilliseconds())
+                    mealPlanRepository.insertMealPlanSpot(updatedSpot)
 
-                    val updatedMealPlan = foundMealPlan.mealPlanDay.copy(updatedAtOnDevice = Clock.System.now().toEpochMilliseconds())
-                    val foundSpot = foundMealPlan.spots.find { it.mealPlanSpotId == mealPlanSpotId }
-
-                    // If MealPlanSpot is found, perform a soft delete
-                    if (foundSpot != null) {
-                        // Update the MealPlanSpot in the database (perform the soft delete)
-                        val updatedSpot = foundSpot.copy(isDeleted = true, updatedAtOnDevice = Clock.System.now().toEpochMilliseconds())
-                        mealPlanRepository.insertMealPlanSpot(updatedSpot)
-                        mealPlanRepository.insertMealPlanDay(updatedMealPlan)
-                    }
-
-                    // Reload the updated meal plans and sync with the remote
-                    loadMealPlanForDate(selectedDate.value)
-                    syncDataWithRemote()
+                    logging().info { "Updated MealPlan: $updatedMealPlan" }
                 }
             }
+
+            loadMealPlanForDate(selectedDate.value)
+            syncDataWithRemote()
         }
     }
 
     private fun loadMealPlanForDate(date: LocalDate) {
         viewModelScope.launch {
-            _mealPlanForSelectedDate.value = mealPlans.value.find { LocalDate.parse(it.mealPlanDay.date) == date }
+            val data = mealPlans.value.find { LocalDate.parse(it.mealPlanDay.date) == date }
+            data?.let { dayPlan ->
+                _mealPlanForSelectedDate.value = MealPlanDayWithSpots(
+                    mealPlanDay = dayPlan.mealPlanDay,
+                    spots = dayPlan.spots.filter { !it.isDeleted }
+                )
+            }
         }
     }
 
@@ -176,7 +166,9 @@ class MealPlanViewModel: ViewModel(), KoinComponent {
             val planDay = planList.find { it.mealPlanDay.date == date.toString() }
             val count = planDay?.spots?.count { spot ->
                 val mealJson = spot.meal
-                val meal = mealJson?.let { Json.decodeFromString<Meal>(it) }
+                val meal = mealJson?.let { string ->
+                    Json.decodeFromString<Meal>(string)
+                }
 
                 val mealIsValid = meal != null && !meal.isDeleted
                 val spotIsValid = !spot.isDeleted

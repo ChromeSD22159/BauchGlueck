@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -31,7 +32,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -52,6 +52,7 @@ import bauchglueck.composeapp.generated.resources.ic_gear
 import bauchglueck.composeapp.generated.resources.ic_plus
 import bauchglueck.composeapp.generated.resources.ic_seal_check
 import bauchglueck.composeapp.generated.resources.ic_trash
+import bauchglueck.composeapp.generated.resources.magen
 import data.local.entitiy.ShoppingList
 import data.model.GenerateShoppingListState
 import org.jetbrains.compose.resources.DrawableResource
@@ -62,7 +63,6 @@ import ui.components.extentions.sectionShadow
 import ui.components.theme.ScreenHolder
 import ui.components.theme.Section
 import ui.components.theme.button.IconButton
-import ui.components.theme.button.TextButton
 import ui.components.theme.clickableWithRipple
 import ui.components.theme.text.BodyText
 import ui.components.theme.text.FooterText
@@ -136,23 +136,52 @@ fun NavGraphBuilder.shoppingLists(
 
                         Row(
                             modifier = Modifier
-                                .padding(bottom = 8.dp)
+                                .padding(horizontal = 10.dp)
                                 .clickableWithRipple { viewModel.toggleDatePicker() },
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(15.dp)
+                            horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Icon(
+                            Column(
                                 modifier = Modifier
-                                    .background(Color.White.copy(0.2f), shape = CircleShape)
-                                    .padding(2.dp),
-                                imageVector = vectorResource(resource = Res.drawable.ic_plus),
-                                contentDescription = ""
-                            )
+                                    .fillMaxHeight()
+                                    .weight(1f),
+                                verticalArrangement = Arrangement.Bottom,
+                                horizontalAlignment = Alignment.Start
+                            ) {
+                                Image(
+                                    modifier = Modifier.size(80.dp),
+                                    painter = painterResource(Res.drawable.magen),
+                                    contentDescription = "magen",
+                                    contentScale = ContentScale.FillHeight,
+                                )
+                            }
 
-                            FooterText(
-                                modifier = Modifier.clickableWithRipple { viewModel.toggleDatePicker() },
-                                text = "Erstelle deine erste Einkaufsliste\nbasierend auf deinen Mealplan!"
-                            )
+                            
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxHeight()
+                                    .weight(2f),
+                                verticalArrangement = Arrangement.Bottom,
+                                horizontalAlignment = Alignment.End
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    FooterText(
+                                        modifier = Modifier.clickableWithRipple { viewModel.toggleDatePicker() },
+                                        text = "Einkaufsliste erstellen"
+                                    )
+
+                                    Icon(
+                                        modifier = Modifier
+                                            .background(Color.White.copy(0.2f), shape = CircleShape)
+                                            .padding(2.dp),
+                                        imageVector = vectorResource(resource = Res.drawable.ic_plus),
+                                        contentDescription = ""
+                                    )
+                                }
+                            }
                         }
                     }
                 }

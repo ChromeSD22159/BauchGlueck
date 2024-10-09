@@ -52,6 +52,58 @@ class ShoppingListViewModel: ViewModel(), KoinComponent {
         val end = Instant.fromEpochMilliseconds(endDate).toLocalDateTime(timeZone).date
 
         viewModelScope.launch {
+            val shoppingList = mutableListOf<ShoppingListItem>()
+
+            val result = repository.mealPlanRepository.getMealPlanDaysWithSpotsForDateRange(
+                start, end
+            )
+
+            _isAnimating.value = true
+            _inProgress.value = GenerateShoppingListState.AnalyseMealPlans
+            delay(2000)
+
+            result.forEach { day ->
+                day.spots.forEach { mealPlanSpot ->
+                    mealPlanSpot.mealObject?.ingredients?.forEach {ingredient ->
+                        val amountAsInt = ingredient.amount.toIntOrNull()
+                        if (amountAsInt != null) {
+
+                            val existingItem = shoppingList.find { it.name == ingredient.name }
+                            if (existingItem != null) {
+                                val currentAmount = existingItem.amount.toIntOrNull() ?: 0
+                                existingItem.amount = (currentAmount + amountAsInt).toString()
+                            } else {
+                                shoppingList.add(
+                                    ShoppingListItem(
+                                        name = ingredient.name,
+                                        amount = amountAsInt.toString(),
+                                        unit = ingredient.unit,
+                                        note = "",
+                                    )
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            _inProgress.value = GenerateShoppingListState.Calculate
+            delay(2000)
+
+            repository.shoppingListRepository.insertShoppingList(
+                ShoppingList(
+                    shoppingListId = UUID.randomUUID(),
+                    name = start.toString() + end.toString(),
+                    startDate = start.toString(),
+                    endDate = end.toString(),
+                    itemsString = Json.encodeToString(shoppingList)
+                )
+            )
+
+            _inProgress.value = GenerateShoppingListState.Done
+            _isAnimating.value = false
+
+           /*
            repository.mealPlanRepository.getMealPlanDaysWithSpotsForDateRangeAsFlow(
                start, end
            ).collect { dayPlans ->
@@ -104,6 +156,7 @@ class ShoppingListViewModel: ViewModel(), KoinComponent {
                    _isAnimating.value = false
                }
            }
+            */
        }
     }
 

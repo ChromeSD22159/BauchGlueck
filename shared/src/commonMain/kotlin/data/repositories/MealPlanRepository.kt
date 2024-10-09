@@ -19,6 +19,8 @@ class MealPlanRepository(
 
     fun getMealPlanDaysWithSpotsForDateRangeAsFlow(startDate: LocalDate, endDate: LocalDate) = localService.getMealPlanDaysWithSpotsForDateRangeAsFlow(startDate.toString(), endDate.toString())
 
+    suspend fun getMealPlanDaysWithSpotsForDateRange(startDate: LocalDate, endDate: LocalDate) = localService.getMealPlanDaysWithSpotsForDateRange(startDate.toString(), endDate.toString())
+
     suspend fun getMealPlanDayWithSpotsForDate(date: String): MealPlanDayWithSpots? = localService.getMealPlanDayWithSpotsForDate(date)
 
     suspend fun insertMealPlanDay(mealPlanDay: MealPlanDay) = localService.insertMealPlanDay(mealPlanDay)
