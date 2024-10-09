@@ -25,6 +25,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -49,22 +52,28 @@ import bauchglueck.composeapp.generated.resources.placeholder_image
 import coil3.compose.AsyncImage
 import data.local.entitiy.MealWithCategories
 import di.serverHost
+import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.vectorResource
+import ui.components.DatePickerOverLay
 import ui.components.theme.AppBackground
 import ui.components.theme.clickableWithRipple
 import ui.components.theme.text.BodyText
 import ui.components.theme.text.FooterText
 import ui.components.theme.text.HeadlineText
 import ui.navigations.Destination
+import ui.navigations.NavKeys
+import ui.navigations.setNavKey
 import ui.theme.AppTheme
 import viewModel.RecipeViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 fun NavGraphBuilder.recipeDetails(
     navController: NavHostController,
-    recipeViewModel: RecipeViewModel
+    recipeViewModel: RecipeViewModel,
 ) {
     composable(
         Destination.RecipeDetailScreen.route,
@@ -74,13 +83,12 @@ fun NavGraphBuilder.recipeDetails(
         recipeOrNull?.let { recipe ->
             Recipe(
                 recipe,
+                navController = navController,
                 onClose = {
                     recipeViewModel.clearSelectedRecipe()
                     navController.navigate(Destination.SearchRecipe.route)
                 },
-                onAddToMealPlan = {
-
-                }
+                recipeViewModel = recipeViewModel
             )
         }
     }
@@ -89,8 +97,9 @@ fun NavGraphBuilder.recipeDetails(
 @Composable
 fun Recipe(
     recipe: MealWithCategories,
+    navController: NavHostController,
     share: Dp = 40.dp,
-    onAddToMealPlan: () -> Unit = {},
+    recipeViewModel: RecipeViewModel,
     onClose: () -> Unit = {}
 ) {
     // Definiere den ScrollState
@@ -117,6 +126,8 @@ fun Recipe(
         },
         label = "Animate Control Button Opacity"
     )
+
+    var showDatePicker by remember { mutableStateOf(false) }
 
     AppTheme {
         AppBackground {
@@ -259,29 +270,43 @@ fun Recipe(
                             }
                         }
 
-                        Column {
+                        Column(
+                            modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+                            verticalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            HeadlineText("Beschreibung:", size = 14.sp)
                             BodyText(recipe.meal.description)
                         }
 
                         // Zutatenliste
-                        recipe.meal.ingredients.forEach {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .background(
-                                        color = Color.White.copy(alpha = 0.3f),
-                                        shape = RoundedCornerShape(50.dp)
-                                    )
-                                    .padding(horizontal = 10.dp, vertical = 5.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                BodyText("${it.amount} ${it.unit}")
-                                BodyText(it.name)
+                        Column(
+                            modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+                            verticalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            HeadlineText("Zutatenliste:", size = 14.sp)
+                            recipe.meal.ingredients.forEach {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .background(
+                                            color = Color.White.copy(alpha = 0.3f),
+                                            shape = RoundedCornerShape(50.dp)
+                                        )
+                                        .padding(horizontal = 10.dp, vertical = 5.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    BodyText("${it.amount} ${it.unit}")
+                                    BodyText(it.name)
+                                }
                             }
                         }
 
                         // Rezeptbeschreibung
-                        Column {
+                        Column(
+                            modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+                            verticalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            HeadlineText("Zubereitung:", size = 14.sp)
                             BodyText(recipe.meal.preparation)
                         }
 
@@ -300,7 +325,8 @@ fun Recipe(
                 ) {
                     Icon(
                         modifier = Modifier.clickableWithRipple {
-                            onAddToMealPlan()
+                            recipeViewModel.setSelectedRecipe(recipe)
+                            showDatePicker = !showDatePicker
                         },
                         imageVector = vectorResource(resource = Res.drawable.ic_add_calendar),
                         contentDescription = "AddToMealPlan",
@@ -317,6 +343,21 @@ fun Recipe(
                     )
                 }
             }
+
+            DatePickerOverLay(
+                showDatePicker,
+                onDatePickerStateChange = { showDatePicker = it },
+                onConformDate = { timeStamp ->
+                    navController.navigate(Destination.MealPlanCalendar.route)
+                    navController.setNavKey(NavKeys.RecipeId, recipe.meal.mealId)
+                    val localDate = timeStamp?.let { it1 ->
+                        Instant.fromEpochMilliseconds(it1)
+                            .toLocalDateTime(TimeZone.currentSystemDefault())
+                            .date
+                    }
+                    navController.setNavKey(NavKeys.Date, localDate.toString())
+                }
+            )
         }
     }
 }

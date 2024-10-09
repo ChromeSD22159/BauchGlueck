@@ -16,6 +16,7 @@ import androidx.lifecycle.lifecycleScope
 import coil3.annotation.ExperimentalCoilApi
 import coil3.compose.setSingletonImageLoaderFactory
 import com.google.android.gms.ads.MobileAds
+import com.google.android.gms.security.ProviderInstaller
 import com.mmk.kmpnotifier.notification.NotifierManager
 import com.mmk.kmpnotifier.notification.configuration.NotificationPlatformConfiguration
 import com.mmk.kmpnotifier.permission.permissionUtil
@@ -25,8 +26,11 @@ import dev.gitlive.firebase.initialize
 import di.KoinInject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import org.lighthousegames.logging.Log
 import org.lighthousegames.logging.logging
 import util.ApplicationContextHolder
+import java.net.HttpURLConnection
+import java.net.URL
 
 class MainActivity : ComponentActivity() {
 
@@ -47,6 +51,12 @@ class MainActivity : ComponentActivity() {
 
         val permissionUtil by permissionUtil()
         permissionUtil.askNotificationPermission()
+
+        try {
+            ProviderInstaller.installIfNeeded(this)
+        } catch (e: Exception) {
+            logging().info { e.message }
+        }
     }
 
     @OptIn(ExperimentalCoilApi::class)

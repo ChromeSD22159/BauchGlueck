@@ -38,6 +38,7 @@ class FirebaseAuthViewModel : ViewModel() {
     private fun authStateChanged() {
         viewModelScope.launch {
             Firebase.auth.authStateChanged.collect {
+
                 if (it != null) {
                     val profile = firebaseRepository.readUserProfileById(it.uid)
                     _userFormState.value = _userFormState.value.copy(currentUser = it,)

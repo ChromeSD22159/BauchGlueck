@@ -91,7 +91,7 @@ fun NavGraphBuilder.recipeCategories(
         val predicate =  !searchInput.value || searchQuery.isEmpty()
 
         val categories = recipeForCategories.flatMap { it.categories }
-            .map { it.name }
+            .map { it.categoryId }
             .distinct() // Remove duplicates
             .map { name ->
                 name
@@ -254,6 +254,7 @@ fun NavGraphBuilder.recipeCategories(
                         }
                     }
                 } else {
+                    // SEARCH RECIPES
                     items(foundRecipes.size) {
                         ui.screens.authScreens.searchRecipes.Card(
                             recipe = foundRecipes[it],

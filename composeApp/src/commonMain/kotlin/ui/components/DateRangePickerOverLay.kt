@@ -86,7 +86,6 @@ fun DateRangePickerOverLay(
                         )
                     }
                 },
-                showModeToggle = false,
                 state = dateRangePickerState,
                 modifier = Modifier.fillMaxWidth(),
                 colors = DatePickerDefaults.colors(

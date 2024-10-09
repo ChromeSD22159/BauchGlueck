@@ -9,6 +9,7 @@ import dev.gitlive.firebase.auth.FirebaseUser
 import dev.gitlive.firebase.auth.auth
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.datetime.Clock
 
 class ShoppingListRepository(
     db: LocalDatabase,
@@ -25,6 +26,10 @@ class ShoppingListRepository(
 
     suspend fun insertShoppingList(shoppingList: ShoppingList) {
         val user = user ?: return
-        localService.insertShoppingList(shoppingList.copy(userId = user.uid))
+        localService.insertShoppingList(shoppingList.copy(userId = user.uid, updatedAtOnDevice = Clock.System.now().toEpochMilliseconds()))
+    }
+
+    suspend fun getShoppingList(shoppingListId: String): ShoppingList? {
+        return localService.getShoppingList(shoppingListId)
     }
 }

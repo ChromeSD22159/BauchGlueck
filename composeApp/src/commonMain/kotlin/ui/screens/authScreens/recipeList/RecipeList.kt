@@ -21,6 +21,7 @@ import androidx.navigation.compose.composable
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import org.lighthousegames.logging.logging
 import ui.components.DatePickerOverLay
 import ui.components.extentions.getSize
 import ui.components.theme.ScreenHolder
@@ -39,6 +40,8 @@ fun NavGraphBuilder.recipesList(
     composable(Destination.RecipeList.route) { backStackEntry ->
         val selectedCategory = backStackEntry.savedStateHandle.get<String>(NavKeys.RecipeCategory.key)
         val destination = backStackEntry.savedStateHandle.get<String>("destination")
+
+        logging().info { "Selected category: $selectedCategory" }
 
         val recipesList by recipeViewModel.foundRecipes.collectAsStateWithLifecycle()
         val recipes = recipesList.filter { it.meal.categoryId?.lowercase() == selectedCategory }

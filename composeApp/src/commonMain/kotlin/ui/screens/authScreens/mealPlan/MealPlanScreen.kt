@@ -60,16 +60,15 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.vectorResource
-import org.lighthousegames.logging.logging
 import ui.components.theme.ScreenHolder
 import ui.components.theme.Section
-import ui.components.theme.button.TextButton
 import ui.components.theme.clickableWithRipple
 import ui.components.extentions.onLongPress
 import ui.components.extentions.sectionShadow
 import ui.components.theme.text.BodyText
 import ui.components.theme.text.HeadlineText
 import ui.components.extentions.toDigits
+import ui.components.theme.button.IconButton
 import ui.components.theme.text.FooterText
 import ui.navigations.Destination
 import ui.navigations.NavKeys
@@ -99,6 +98,8 @@ fun NavGraphBuilder.mealPlan(
         val mealPlan by viewModel.mealPlanForSelectedDate.collectAsState()
         val shouldPlanedValue = userFormState?.userProfile?.value?.totalMeals ?: 0
 
+        debugJsonHelper(mealPlan)
+
         // WORKS
         LaunchedEffect(Unit) {
             if (selectedRecipeId != null) {
@@ -125,7 +126,10 @@ fun NavGraphBuilder.mealPlan(
                         .size(24.dp)
                         .clickableWithRipple {
                             navController.navigate(Destination.SearchRecipe.route)
-                            navController.setNavKey(NavKeys.Destination, Destination.MealPlanCalendar.route)
+                            navController.setNavKey(
+                                NavKeys.Destination,
+                                Destination.MealPlanCalendar.route
+                            )
                         },
                 )
 
@@ -185,8 +189,7 @@ fun NavGraphBuilder.mealPlan(
                             onLongPress = {
                                 viewModel.removeFromMealPlan(
                                     mealPlanDayId = mealOrNull.mealPlanDayId,
-                                    mealPlanSpotId = mealOrNull.mealPlanSpotId,
-                                    mealId = mealOrNull.mealId
+                                    mealPlanSpotId = mealOrNull.mealPlanSpotId
                                 )
                             }
                         )
@@ -420,7 +423,9 @@ fun NoMeal(
             text = "Keine Mahlzeit zugewiesen"
         )
 
-        TextButton(text = "add") {
+        IconButton(
+            resource = Res.drawable.ic_plus
+        ) {
             onClick()
         }
     }
@@ -541,14 +546,7 @@ fun ProgressComponent(
     }
 }
 
-sealed class Kcal(val kcal: Int) {
-    data object Junior : Kcal(800)
-    data object Mid : Kcal(1000)
-    data object SeniorKcal : Kcal(1200)
-    data class CustomKcal(val customKcal: Int) : Kcal(customKcal)
-}
-
-fun calculateKcalLevelSafely(operationTimestamp: Long): Kcal? {
+fun calculateKcalLevelSafely(operationTimestamp: Long): KcalLevel? {
     val currentTimestamp: Long = Clock.System.now().toEpochMilliseconds()
 
     val operationInstant = try {
@@ -566,8 +564,8 @@ fun calculateKcalLevelSafely(operationTimestamp: Long): Kcal? {
     val monthsElapsed = (currentDate.year - operationDate.year) * 12 + (currentDate.monthNumber - operationDate.monthNumber)
 
     return when {
-        monthsElapsed <= 3 -> Kcal.Junior
-        monthsElapsed <= 6 -> Kcal.Mid
-        else -> Kcal.SeniorKcal
+        monthsElapsed <= 3 -> KcalLevel.Junior
+        monthsElapsed <= 6 -> KcalLevel.Mid
+        else -> KcalLevel.SeniorKcalLevel
     }
 }

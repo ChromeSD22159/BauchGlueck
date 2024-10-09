@@ -14,7 +14,7 @@ import util.UUID
     tableName = "shoppingList"
 )
 data class ShoppingList(
-    @PrimaryKey var id: Int = 0,
+    @PrimaryKey(autoGenerate = true) var id: Int = 0,
     val name: String = "",
     val shoppingListId: String = UUID.randomUUID(),
     val userId: String = "",
@@ -22,6 +22,7 @@ data class ShoppingList(
     val startDate: String = "",
     val endDate: String = "",
     val note: String = "",
+    val isComplete: Boolean = false,
     val isDeleted: Boolean = false,
     val updatedAtOnDevice: Long? = Clock.System.now().toEpochMilliseconds(),
     var itemsString: String = ""
