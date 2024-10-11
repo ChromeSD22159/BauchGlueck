@@ -49,8 +49,8 @@ import bauchglueck.composeapp.generated.resources.ic_fat
 import bauchglueck.composeapp.generated.resources.ic_kcal
 import bauchglueck.composeapp.generated.resources.ic_protein
 import bauchglueck.composeapp.generated.resources.placeholder_image
-import coil3.compose.AsyncImage
 import data.local.entitiy.MealWithCategories
+import data.model.RecipeCategory
 import di.serverHost
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
@@ -58,6 +58,7 @@ import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.vectorResource
+import ui.components.theme.CoilImage
 import ui.components.DatePickerOverLay
 import ui.components.theme.AppBackground
 import ui.components.theme.clickableWithRipple
@@ -79,14 +80,15 @@ fun NavGraphBuilder.recipeDetails(
         Destination.RecipeDetailScreen.route,
     ) {
         val recipeOrNull by recipeViewModel.selectedRecipe.collectAsStateWithLifecycle()
-
+        
         recipeOrNull?.let { recipe ->
             Recipe(
                 recipe,
                 navController = navController,
                 onClose = {
                     recipeViewModel.clearSelectedRecipe()
-                    navController.navigate(Destination.SearchRecipe.route)
+                    // NAVIGATE BACK TO THE PREVIEW SITE
+                    navController.navigate(Destination.RecipeCategories.route)
                 },
                 recipeViewModel = recipeViewModel
             )
@@ -139,10 +141,8 @@ fun Recipe(
                         .height(300.dp)
                 ) {
                     if(recipe.meal.mainImage?.formats?.medium?.url != null) {
-                        AsyncImage(
-                            model = serverHost + recipe.meal.mainImage?.formats?.medium?.url,
-                            placeholder = painterResource(Res.drawable.placeholder_image),
-                            contentDescription = "",
+                        CoilImage(
+                            url = serverHost + recipe.meal.mainImage?.formats?.medium?.url,
                             contentScale = ContentScale.Crop,
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -266,12 +266,15 @@ fun Recipe(
                                     contentDescription = "share",
                                     tint = MaterialTheme.colorScheme.primary
                                 )
-                                FooterText(recipe.categories.first().name)
+
+                                FooterText(text = RecipeCategory.fromStrong(recipe.meal.categoryId ?: "")?.name ?: "No Category")
                             }
                         }
 
                         Column(
-                            modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 16.dp),
                             verticalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
                             HeadlineText("Beschreibung:", size = 14.sp)
@@ -280,7 +283,9 @@ fun Recipe(
 
                         // Zutatenliste
                         Column(
-                            modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 16.dp),
                             verticalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
                             HeadlineText("Zutatenliste:", size = 14.sp)
@@ -303,7 +308,9 @@ fun Recipe(
 
                         // Rezeptbeschreibung
                         Column(
-                            modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 16.dp),
                             verticalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
                             HeadlineText("Zubereitung:", size = 14.sp)

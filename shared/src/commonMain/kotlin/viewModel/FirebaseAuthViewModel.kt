@@ -41,10 +41,10 @@ class FirebaseAuthViewModel : ViewModel() {
 
                 if (it != null) {
                     val profile = firebaseRepository.readUserProfileById(it.uid)
-                    _userFormState.value = _userFormState.value.copy(currentUser = it,)
+                    _userFormState.value = _userFormState.value.copy(currentUser = it)
 
-                    profile?.let {
-                        _userFormState.value.userProfile.emit(it)
+                    profile?.let { userProfile ->
+                        _userFormState.value.userProfile.emit(userProfile)
                     }
 
                     val res = firebaseRepository.saveDeviceToken(firebaseRepository.user?.uid ?: "", NotifierManager.getPushNotifier().getToken() ?: "")
@@ -244,6 +244,20 @@ class FirebaseAuthViewModel : ViewModel() {
                 confirmPassword = "",
                 firstName = "",
             )
+        }
+    }
+
+    fun firebaseUserExist(user: FirebaseUser, userExist: (Boolean) -> Unit = {}) {
+        viewModelScope.launch {
+            userExist(firebaseRepository.readUserProfileById(user.uid) != null)
+        }
+    }
+
+    fun createUserProfile(userProfile: UserProfile, newUserProfile: (userProfile: UserProfile?) -> Unit = {}) {
+        viewModelScope.launch {
+            firebaseRepository.saveUserProfile(userProfile)
+
+            newUserProfile(firebaseRepository.readUserProfileById(userProfile.uid))
         }
     }
 }

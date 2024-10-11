@@ -8,6 +8,9 @@
 
     <domain-config cleartextTrafficPermitted="false">
         <domain includeSubdomains="true">bauchglueck.appsbyfrederikkohler.de</domain>
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
     </domain-config>
 
     <domain-config cleartextTrafficPermitted="true">
