@@ -64,7 +64,11 @@ fun NavGraphBuilder.recipesList(
             showBackButton = true,
             onNavigate = {
                 recipeViewModel.clearSearchQuery()
-                destination?.let { destination -> navController.navigate(destination) }
+                if(destination != null) {
+                    navController.navigate(destination)
+                } else {
+                    navController.navigate(Destination.RecipeCategories.route)
+                }
             },
             optionsRow = {}
         ) {

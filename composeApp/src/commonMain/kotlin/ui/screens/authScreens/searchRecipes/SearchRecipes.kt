@@ -69,6 +69,7 @@ import ui.components.theme.text.FooterText
 import ui.navigations.Destination
 import ui.navigations.NavKeys
 import ui.navigations.setNavKey
+import ui.screens.authScreens.recipeDetail.coilImageRequest
 import util.hideKeyboard
 import util.parseToLocalDate
 import viewModel.RecipeViewModel
@@ -214,12 +215,9 @@ fun Card(
     ) {
         // Background image
         if (recipe.meal.mainImage?.formats?.small?.url != null) {
-            AsyncImage(
-                model = serverHost + recipe.meal.mainImage?.formats?.small?.url,
-                placeholder = painterResource(Res.drawable.placeholder_image),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
+            ui.screens.authScreens.recipeDetail.Image(
+                url = serverHost + recipe.meal.mainImage?.formats?.small?.url,
+                contentScale = ContentScale.Crop
             )
         } else {
             Image(

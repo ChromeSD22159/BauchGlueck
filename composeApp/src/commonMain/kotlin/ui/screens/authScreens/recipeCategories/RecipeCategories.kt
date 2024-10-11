@@ -90,12 +90,14 @@ fun NavGraphBuilder.recipeCategories(
 
         val predicate =  !searchInput.value || searchQuery.isEmpty()
 
-        val categories = recipeForCategories.flatMap { it.categories }
-            .map { it.categoryId }
+        val categories = recipeForCategories
+            .map { it.meal.categoryId }
             .distinct() // Remove duplicates
             .map { name ->
                 name
             }
+
+        logging().info { "Categories: $categories" }
 
         LaunchedEffect(Unit) {
             snapshotFlow { searchQuery }
@@ -201,7 +203,7 @@ fun NavGraphBuilder.recipeCategories(
                 if(predicate) {
                     items(categories.size) {
                         val category = categories[it]
-                        val image = when (RecipeCategory.fromStrong(category)) {
+                        val image = when (RecipeCategory.fromStrong(category ?: "")) {
                             RecipeCategory.HAUPTGERICHT -> Res.drawable.img_hauptgericht
                             RecipeCategory.BEILAGE -> Res.drawable.img_beilage
                             RecipeCategory.DESSERT -> Res.drawable.img_dessert
@@ -224,10 +226,12 @@ fun NavGraphBuilder.recipeCategories(
                                     .fillMaxWidth()
                                     .clickableWithRipple {
                                         navController.navigate(Destination.RecipeList.route)
-                                        navController.setNavKey(
-                                            NavKeys.RecipeCategory,
-                                            category.lowercase()
-                                        )
+                                        if (category != null) {
+                                            navController.setNavKey(
+                                                NavKeys.RecipeCategory,
+                                                category.lowercase()
+                                            )
+                                        }
                                         navController.setNavKey(
                                             NavKeys.Destination,
                                             Destination.RecipeCategories.route
@@ -248,7 +252,7 @@ fun NavGraphBuilder.recipeCategories(
                                         .padding(4.dp),
                                     horizontalArrangement = Arrangement.Center
                                 ) {
-                                    HeadlineText(text = category, size = 16.sp)
+                                    HeadlineText(text = category ?: "Kein Titel", size = 16.sp)
                                 }
                             }
                         }

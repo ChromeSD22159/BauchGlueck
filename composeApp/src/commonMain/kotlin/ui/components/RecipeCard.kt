@@ -22,14 +22,12 @@ import bauchglueck.composeapp.generated.resources.ic_fat
 import bauchglueck.composeapp.generated.resources.ic_grid_2_2
 import bauchglueck.composeapp.generated.resources.ic_kcal
 import bauchglueck.composeapp.generated.resources.ic_stopwatch
-import bauchglueck.composeapp.generated.resources.placeholder_image
 import bauchglueck.composeapp.generated.resources.ic_protein
 import bauchglueck.composeapp.generated.resources.ic_sugar
-import coil3.compose.AsyncImage
 import data.local.entitiy.MealWithCategories
 import di.serverHost
-import org.jetbrains.compose.resources.painterResource
 import ui.components.extentions.decimal
+import ui.screens.authScreens.recipeDetail.Image
 
 @Composable
 fun RecipeCard(
@@ -47,15 +45,10 @@ fun RecipeCard(
                     .weight(1.75f)
                     .fillMaxHeight() 
             ) {
-
-                AsyncImage(
-                    model = serverHost + mealWithCategories.meal.mainImage?.formats?.small?.url,
-                    placeholder = painterResource(Res.drawable.placeholder_image),
-                    contentDescription = null,
-                    contentScale = ContentScale.FillHeight,
-                    modifier = Modifier.fillMaxHeight()
+                Image(
+                    url = serverHost + mealWithCategories.meal.mainImage?.formats?.small?.url,
+                    contentScale = ContentScale.FillHeight
                 )
-
             }
 
             // Right Text Section

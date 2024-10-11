@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -50,7 +51,13 @@ import bauchglueck.composeapp.generated.resources.ic_kcal
 import bauchglueck.composeapp.generated.resources.ic_protein
 import bauchglueck.composeapp.generated.resources.placeholder_image
 import coil3.compose.AsyncImage
+import coil3.compose.LocalPlatformContext
+import coil3.network.ktor.KtorNetworkFetcherFactory
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 import data.local.entitiy.MealWithCategories
+import data.model.RecipeCategory
+import data.network.createHttpClient
 import di.serverHost
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
@@ -58,6 +65,7 @@ import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.vectorResource
+import org.lighthousegames.logging.logging
 import ui.components.DatePickerOverLay
 import ui.components.theme.AppBackground
 import ui.components.theme.clickableWithRipple
@@ -68,6 +76,7 @@ import ui.navigations.Destination
 import ui.navigations.NavKeys
 import ui.navigations.setNavKey
 import ui.theme.AppTheme
+import util.debugJsonHelper
 import viewModel.RecipeViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -79,14 +88,15 @@ fun NavGraphBuilder.recipeDetails(
         Destination.RecipeDetailScreen.route,
     ) {
         val recipeOrNull by recipeViewModel.selectedRecipe.collectAsStateWithLifecycle()
-
+        
         recipeOrNull?.let { recipe ->
             Recipe(
                 recipe,
                 navController = navController,
                 onClose = {
                     recipeViewModel.clearSelectedRecipe()
-                    navController.navigate(Destination.SearchRecipe.route)
+                    // NAVIGATE BACK TO THE PREVIEW SITE
+                    navController.navigate(Destination.RecipeCategories.route)
                 },
                 recipeViewModel = recipeViewModel
             )
@@ -139,20 +149,9 @@ fun Recipe(
                         .height(300.dp)
                 ) {
                     if(recipe.meal.mainImage?.formats?.medium?.url != null) {
-                        AsyncImage(
-                            model = serverHost + recipe.meal.mainImage?.formats?.medium?.url,
-                            placeholder = painterResource(Res.drawable.placeholder_image),
-                            contentDescription = "",
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(300.dp)
-                                .alpha(alphaImage)
-                                .graphicsLayer {
-                                    // Parallax-Effekt basierend auf der Scrollposition
-                                    scaleX = 1 + (scrollState.value / 5000f)
-                                    scaleY = 1 + (scrollState.value / 5000f)
-                                }
+                        Image(
+                            url = serverHost + recipe.meal.mainImage?.formats?.medium?.url,
+                            contentScale = ContentScale.Crop
                         )
                     } else {
                         Image(
@@ -266,12 +265,15 @@ fun Recipe(
                                     contentDescription = "share",
                                     tint = MaterialTheme.colorScheme.primary
                                 )
-                                FooterText(recipe.categories.first().name)
+
+                                FooterText(text = RecipeCategory.fromStrong(recipe.meal.categoryId ?: "")?.name ?: "No Category")
                             }
                         }
 
                         Column(
-                            modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 16.dp),
                             verticalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
                             HeadlineText("Beschreibung:", size = 14.sp)
@@ -280,7 +282,9 @@ fun Recipe(
 
                         // Zutatenliste
                         Column(
-                            modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 16.dp),
                             verticalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
                             HeadlineText("Zutatenliste:", size = 14.sp)
@@ -303,7 +307,9 @@ fun Recipe(
 
                         // Rezeptbeschreibung
                         Column(
-                            modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 16.dp),
                             verticalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
                             HeadlineText("Zubereitung:", size = 14.sp)
@@ -382,4 +388,32 @@ fun NutrinIcon(
             Text(text)
         }
     }
+}
+
+// TODO REFACTOR
+@Composable
+fun coilImageRequest(url: String): ImageRequest {
+    val client = createHttpClient()
+    return ImageRequest.Builder(LocalPlatformContext.current)
+        .fetcherFactory(
+            KtorNetworkFetcherFactory(client)
+        )
+        .data(url)
+        .crossfade(true)
+        .build()
+}
+
+// TODO REFACTOR
+@Composable
+fun Image(
+    url: String,
+    contentScale: ContentScale = ContentScale.FillHeight
+) {
+    AsyncImage(
+        model = coilImageRequest(url),
+        placeholder = painterResource(Res.drawable.placeholder_image),
+        contentDescription = null,
+        contentScale = contentScale,
+        modifier = Modifier.fillMaxHeight()
+    )
 }
