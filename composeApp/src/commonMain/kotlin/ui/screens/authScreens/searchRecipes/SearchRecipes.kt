@@ -45,7 +45,6 @@ import bauchglueck.composeapp.generated.resources.ic_fat
 import bauchglueck.composeapp.generated.resources.ic_protein
 import bauchglueck.composeapp.generated.resources.ic_search
 import bauchglueck.composeapp.generated.resources.placeholder_image
-import coil3.compose.AsyncImage
 import data.local.entitiy.MealWithCategories
 import di.serverHost
 import kotlinx.coroutines.FlowPreview
@@ -69,7 +68,7 @@ import ui.components.theme.text.FooterText
 import ui.navigations.Destination
 import ui.navigations.NavKeys
 import ui.navigations.setNavKey
-import ui.screens.authScreens.recipeDetail.coilImageRequest
+import ui.components.theme.CoilImage
 import util.hideKeyboard
 import util.parseToLocalDate
 import viewModel.RecipeViewModel
@@ -215,7 +214,7 @@ fun Card(
     ) {
         // Background image
         if (recipe.meal.mainImage?.formats?.small?.url != null) {
-            ui.screens.authScreens.recipeDetail.Image(
+            CoilImage(
                 url = serverHost + recipe.meal.mainImage?.formats?.small?.url,
                 contentScale = ContentScale.Crop
             )

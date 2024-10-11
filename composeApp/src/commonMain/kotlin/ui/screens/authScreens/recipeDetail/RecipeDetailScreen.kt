@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -50,14 +49,8 @@ import bauchglueck.composeapp.generated.resources.ic_fat
 import bauchglueck.composeapp.generated.resources.ic_kcal
 import bauchglueck.composeapp.generated.resources.ic_protein
 import bauchglueck.composeapp.generated.resources.placeholder_image
-import coil3.compose.AsyncImage
-import coil3.compose.LocalPlatformContext
-import coil3.network.ktor.KtorNetworkFetcherFactory
-import coil3.request.ImageRequest
-import coil3.request.crossfade
 import data.local.entitiy.MealWithCategories
 import data.model.RecipeCategory
-import data.network.createHttpClient
 import di.serverHost
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
@@ -65,7 +58,7 @@ import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.vectorResource
-import org.lighthousegames.logging.logging
+import ui.components.theme.CoilImage
 import ui.components.DatePickerOverLay
 import ui.components.theme.AppBackground
 import ui.components.theme.clickableWithRipple
@@ -76,7 +69,6 @@ import ui.navigations.Destination
 import ui.navigations.NavKeys
 import ui.navigations.setNavKey
 import ui.theme.AppTheme
-import util.debugJsonHelper
 import viewModel.RecipeViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -149,9 +141,18 @@ fun Recipe(
                         .height(300.dp)
                 ) {
                     if(recipe.meal.mainImage?.formats?.medium?.url != null) {
-                        Image(
+                        CoilImage(
                             url = serverHost + recipe.meal.mainImage?.formats?.medium?.url,
-                            contentScale = ContentScale.Crop
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(300.dp)
+                                .alpha(alphaImage)
+                                .graphicsLayer {
+                                    // Parallax-Effekt basierend auf der Scrollposition
+                                    scaleX = 1 + (scrollState.value / 5000f)
+                                    scaleY = 1 + (scrollState.value / 5000f)
+                                }
                         )
                     } else {
                         Image(
@@ -388,32 +389,4 @@ fun NutrinIcon(
             Text(text)
         }
     }
-}
-
-// TODO REFACTOR
-@Composable
-fun coilImageRequest(url: String): ImageRequest {
-    val client = createHttpClient()
-    return ImageRequest.Builder(LocalPlatformContext.current)
-        .fetcherFactory(
-            KtorNetworkFetcherFactory(client)
-        )
-        .data(url)
-        .crossfade(true)
-        .build()
-}
-
-// TODO REFACTOR
-@Composable
-fun Image(
-    url: String,
-    contentScale: ContentScale = ContentScale.FillHeight
-) {
-    AsyncImage(
-        model = coilImageRequest(url),
-        placeholder = painterResource(Res.drawable.placeholder_image),
-        contentDescription = null,
-        contentScale = contentScale,
-        modifier = Modifier.fillMaxHeight()
-    )
 }

@@ -27,7 +27,7 @@ import bauchglueck.composeapp.generated.resources.ic_sugar
 import data.local.entitiy.MealWithCategories
 import di.serverHost
 import ui.components.extentions.decimal
-import ui.screens.authScreens.recipeDetail.Image
+import ui.components.theme.CoilImage
 
 @Composable
 fun RecipeCard(
@@ -45,7 +45,7 @@ fun RecipeCard(
                     .weight(1.75f)
                     .fillMaxHeight() 
             ) {
-                Image(
+                CoilImage(
                     url = serverHost + mealWithCategories.meal.mainImage?.formats?.small?.url,
                     contentScale = ContentScale.FillHeight
                 )
