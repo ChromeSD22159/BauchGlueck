@@ -7,26 +7,37 @@
 
 BauchGlück unterstützt Menschen nach einer Magenbypass-Operation. Die App bietet Countdown-Timer zur Erinnerung an Ess- und Trinkzeiten, dokumentiert die Wasseraufnahme und den Gewichtsverlust, verwaltet Medikamente und Erinnerungen ähnlich einer To-Do-App und ermöglicht die Mahlzeitenplanung. Eine Community-Funktion erlaubt den Austausch von Rezepten.
 
+
+## UX/UI
+> [Figma Case Study](https://www.figma.com/design/FMorQUMx5iu7ysW2AuTS1x/Project-MagenApp?node-id=40-29&t=7M0qex8nEc9LTMWf-1)
+
+> [Figma UX/UI Design](https://www.figma.com/design/FMorQUMx5iu7ysW2AuTS1x/Project-MagenApp?node-id=40-29&t=7M0qex8nEc9LTMWf-1)
+
+> [Figma Pitch Presentation](https://www.figma.com/design/FMorQUMx5iu7ysW2AuTS1x/Project-MagenApp?node-id=40-29&t=7M0qex8nEc9LTMWf-1)
+
+
 ## App Design
 <p>
-  <img src="./images/screen_home.png" width="200">
-  <img src="./images/screen_home1.png" width="200">
-  <img src="./images/screen_mealplan.png" width="200">
+    <img src="./images/screen_home.png" width="200">
+    <img src="./images/screen_home1.png" width="200">
+    <img src="./images/screen_mealplan.png" width="200">
+</p>
+
+<p>
     <img src="./images/screen_recipe.png" width="200">
-  <img src="./images/screen_recipe_categories.png" width="200">
-  <img src="./images/screen_shoppinglist.png" width="200">
+    <img src="./images/screen_recipe_categories.png" width="200">
+    <img src="./images/screen_shoppinglist.png" width="200">
 </p>
 
 ## Features
-- [ ] Verwaltung und Erstellung von CountdownTimer mit Notification
-- [ ] Eingabe und Anzeige des Gewichtsverlaufs
-- [ ] Eingabe und Anzeige von Wasseraufnahme
-- [ ] Verwaltung und Erstellung von CountdownTimer mit Notification
-- [ ] Verwaltung und Erstellung von Rezepten
-- [ ] Verwaltung und Erstellung von Medication mit Einnameverlauf
-- [ ] Verwaltung und Planen von Ernährungsplan
-- [ ] Erstellung von Einkaufslisten
-- [ ] Einstellungen & Rechtliches
+- [x] Verwaltung und Erstellung von Countdown-Timern mit Benachrichtigungen (z.B. für Ess- und Trinkzeiten)
+- [x] Dokumentation und Anzeige des Gewichtsverlaufs
+- [x] Eingabe und Nachverfolgung der täglichen Wasseraufnahme
+- [x] Verwaltung und Erstellung von Rezepten
+- [x] Verwaltung von Medikamenten mit Verfolgung der Einnahmezeiten
+- [x] Planung und Verwaltung von Mahlzeitenplänen
+- [x] Erstellung und Verwaltung von Einkaufslisten
+- [x] Einstellungen zur Personalisierung der App und rechtliche Hinweise
 
 ## Technischer Aufbau
 
