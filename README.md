@@ -1,3 +1,5 @@
+![https://play.google.com/store/apps/details?id=de.frederikkohler.bauchglueck](./images/play_console_badge_de.svg)
+
 # BauchGlück
 
 **Nützliche Tools zur unterstützt von Menschen, nach ihrer Magenbypass-Operation.**
