@@ -1,4 +1,5 @@
-![https://play.google.com/store/apps/details?id=de.frederikkohler.bauchglueck](./images/play_console_badge_de.svg)
+
+[![Play Store Badge](./images/play_console_badge_de.svg)](https://play.google.com/store/apps/details?id=de.frederikkohler.bauchglueck)
 
 # BauchGlück
 
