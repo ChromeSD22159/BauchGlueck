@@ -174,7 +174,9 @@ fun NavGraphBuilder.login(
                     text = "Passwort vergessen?",
                 )
 
-                LoginProviderRow() { destination, _ ->
+                LoginProviderRow(
+                    firebaseAuthViewModel
+                ) { destination, _ ->
                     navController.navigate(destination.route)
                 }
 

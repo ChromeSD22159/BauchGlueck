@@ -36,20 +36,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import bauchglueck.composeapp.generated.resources.Res
-import bauchglueck.composeapp.generated.resources.ic_mail_fill
 import bauchglueck.composeapp.generated.resources.ic_person_fill_view
 import bauchglueck.composeapp.generated.resources.magen
+import data.model.firebase.UserProfile
 import org.jetbrains.compose.resources.painterResource
-import ui.components.FormScreens.FormPasswordTextFieldWithIcon
 import ui.components.FormScreens.FormTextFieldWithIcon
 import ui.components.theme.AppBackground
 import ui.components.theme.background.AppBackgroundWithImage
@@ -60,15 +57,14 @@ import ui.components.theme.text.BodyText
 import ui.components.theme.text.ErrorText
 import ui.components.theme.text.HeadlineText
 import ui.navigations.Destination
-import ui.screens.publicScreens.components.LoginProviderRow
 import viewModel.FirebaseAuthViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
-fun NavGraphBuilder.signUp(navController: NavHostController, firebaseAuthViewModel: FirebaseAuthViewModel) {
-    composable(Destination.SignUp.route) {
+fun NavGraphBuilder.createUserProfile(navController: NavHostController, firebaseAuthViewModel: FirebaseAuthViewModel) {
+    composable(Destination.CreateUserProfile.route) {
         val state = firebaseAuthViewModel.userFormState.collectAsStateWithLifecycle()
 
         val modalBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -77,9 +73,6 @@ fun NavGraphBuilder.signUp(navController: NavHostController, firebaseAuthViewMod
 
         val nameRequester = remember { FocusRequester() }
         val emailFocusRequester = remember { FocusRequester() }
-        val passwordFocusRequester = remember { FocusRequester() }
-        val confirmPasswordFocusRequester = remember { FocusRequester() }
-        val focusManager = LocalFocusManager.current
 
         AppBackground {
             AppBackgroundWithImage()
@@ -117,7 +110,7 @@ fun NavGraphBuilder.signUp(navController: NavHostController, firebaseAuthViewMod
                         text = "Hallo!",
                         color = MaterialTheme.colorScheme.primary,
                     )
-                    BodyText("Erstelle dein Konto!")
+                    BodyText("Erstelle dein User Profile!")
                 }
 
                 Column {
@@ -140,28 +133,6 @@ fun NavGraphBuilder.signUp(navController: NavHostController, firebaseAuthViewMod
                     )
                 }
 
-
-                Column {
-                    Row { BodyText(modifier = Modifier.fillMaxWidth(),text = "Deine E-Mail:") }
-                    FormTextFieldWithIcon(
-                        modifier = Modifier
-                            .focusRequester(emailFocusRequester)
-                            .clickableWithRipple { emailFocusRequester.requestFocus() },
-                        inputValue = state.value.email,
-                        leadingIcon = Res.drawable.ic_mail_fill,
-                        onValueChange = {
-                            firebaseAuthViewModel.onChangeEmail(it)
-                        },
-                        keyboardOptions = KeyboardOptions(
-                            imeAction = ImeAction.Next,
-                            keyboardType = KeyboardType.Email
-                        ),
-                        keyboardActions = KeyboardActions(
-                            onNext = { passwordFocusRequester.requestFocus() }
-                        ),
-                    )
-                }
-
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -179,44 +150,6 @@ fun NavGraphBuilder.signUp(navController: NavHostController, firebaseAuthViewMod
                     TextButton(text = formattedDate) { showDatePicker = true }
                 }
 
-                Column {
-                    Row { BodyText(modifier = Modifier.fillMaxWidth(),text = "Deine Passwort:") }
-                    FormPasswordTextFieldWithIcon(
-                        modifier =Modifier
-                            .focusRequester(passwordFocusRequester)
-                            .clickableWithRipple { passwordFocusRequester.requestFocus() },
-                        inputValue = state.value.password,
-                        onValueChange = {
-                            firebaseAuthViewModel.onChangePassword(it)
-                        },
-                        keyboardOptions = KeyboardOptions.Default.copy(
-                            imeAction = ImeAction.Next
-                        ),
-                        keyboardActions = KeyboardActions(
-                            onNext = { confirmPasswordFocusRequester.requestFocus() }
-                        ),
-                    )
-                }
-
-                Column {
-                    Row { BodyText(modifier = Modifier.fillMaxWidth(),text = "Passwort wiederholen:") }
-                    FormPasswordTextFieldWithIcon(
-                        modifier =Modifier
-                            .focusRequester(confirmPasswordFocusRequester)
-                            .clickableWithRipple { confirmPasswordFocusRequester.requestFocus() },
-                        inputValue = state.value.confirmPassword,
-                        onValueChange = {
-                            firebaseAuthViewModel.onChangeConfirmPassword(it)
-                        },
-                        keyboardOptions = KeyboardOptions.Default.copy(
-                            imeAction = ImeAction.Done
-                        ),
-                        keyboardActions = KeyboardActions(
-                            onDone = { focusManager.clearFocus() }
-                        ),
-                    )
-                }
-
                 if (state.value.isProcessing) {
                     CircularProgressIndicator()
                 } else {
@@ -224,17 +157,22 @@ fun NavGraphBuilder.signUp(navController: NavHostController, firebaseAuthViewMod
                         modifier = Modifier.align(Alignment.End),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-
-                        TextButton("Zur Anmeldung") {
-                            firebaseAuthViewModel.resetLoginState()
-                            navController.navigate(Destination.Login.route)
-                        }
-
                         IconButton(
                             onClick = {
-                                firebaseAuthViewModel.onSignUp { success ->
-                                    if (success) {
-                                        navController.navigate(Destination.Login.route)
+                                firebaseAuthViewModel.user?.let {
+
+                                    val userProfile = UserProfile(
+                                        firstName = firebaseAuthViewModel.userFormState.value.firstName,
+                                        email = firebaseAuthViewModel.userFormState.value.email,
+                                        surgeryDateTimeStamp = datePickerState.selectedDateMillis ?: System.currentTimeMillis(),
+                                        userNotifierToken = "",
+                                        uid = it.uid,
+                                    )
+
+                                    firebaseAuthViewModel.createUserProfile(userProfile) { savedProfile ->
+                                        if (savedProfile != null) {
+                                            navController.navigate(Destination.Home.route)
+                                        }
                                     }
                                 }
                             }
@@ -277,12 +215,6 @@ fun NavGraphBuilder.signUp(navController: NavHostController, firebaseAuthViewMod
                             showDatePicker = false
                         }
                     }
-                }
-
-                LoginProviderRow(
-                    firebaseAuthViewModel
-                ) { destination, _ ->
-                    navController.navigate(destination.route)
                 }
 
                 Spacer(modifier = Modifier.height(48.dp))

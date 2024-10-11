@@ -19,9 +19,11 @@ import com.mmk.kmpauth.uihelper.google.GoogleButtonMode
 import com.mmk.kmpauth.uihelper.google.GoogleSignInButtonIconOnly
 import org.lighthousegames.logging.logging
 import ui.navigations.Destination
+import viewModel.FirebaseAuthViewModel
 
 @Composable
 fun LoginProviderRow(
+    firebaseAuthViewModel: FirebaseAuthViewModel,
     service: String = "842780509257-talp7l10pf0jkolerevtqhppbg6dnddr.apps.googleusercontent.com",
     onNavigate: (Destination, FirebaseUserId) -> Unit
 ) {
@@ -43,7 +45,13 @@ fun LoginProviderRow(
                     result.onSuccess {
                         val tokenId = it?.uid
                         if (tokenId != null) {
-                            onNavigate(Destination.Home, FirebaseUserId(tokenId))
+                            firebaseAuthViewModel.firebaseUserExist(user = it) { foundProfile ->
+                                if (!foundProfile) {
+                                    onNavigate(Destination.CreateUserProfile, FirebaseUserId(tokenId))
+                                } else {
+                                    onNavigate(Destination.Home, FirebaseUserId(tokenId))
+                                }
+                            }
                         }
                     }
                 }
@@ -61,7 +69,13 @@ fun LoginProviderRow(
                 result.onSuccess {
                     val tokenId = it?.uid
                     if (tokenId != null) {
-                        onNavigate(Destination.Home, FirebaseUserId(tokenId))
+                        firebaseAuthViewModel.firebaseUserExist(user = it) { foundProfile ->
+                            if (!foundProfile) {
+                                onNavigate(Destination.CreateUserProfile, FirebaseUserId(tokenId))
+                            } else {
+                                onNavigate(Destination.Home, FirebaseUserId(tokenId))
+                            }
+                        }
                     }
                 }.onFailure {
                     if (it.message != null) {

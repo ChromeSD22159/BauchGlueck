@@ -38,7 +38,6 @@ import viewModel.HomeViewModel
 @RequiresApi(Build.VERSION_CODES.O)
 fun NavGraphBuilder.home(
     navController: NavHostController,
-    showContentInDevelopment: Boolean,
     firebaseAuthViewModel: FirebaseAuthViewModel
 ) {
     composable(Destination.Home.route) {backStackEntry ->

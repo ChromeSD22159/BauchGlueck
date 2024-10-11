@@ -39,6 +39,7 @@ import ui.screens.authScreens.weights.addWeight.addWeight
 import ui.screens.authScreens.weights.showAllWeights.showAllWeights
 import ui.screens.authScreens.weights.weight
 import ui.screens.launchScreen
+import ui.screens.publicScreens.screens.createUserProfile
 import ui.screens.publicScreens.screens.forgotPassword
 import ui.screens.publicScreens.screens.login
 import ui.screens.publicScreens.screens.signUp
@@ -63,8 +64,6 @@ fun NavGraph(
     val isFinishedSyncing by syncWorker.uiState.value.isFinishedSyncing.collectAsState()
     val hasError by syncWorker.uiState.value.hasError.collectAsState()
 
-    val showContentInDevelopment: Boolean = true
-
     KoinContext {
 
         LaunchScreenDataSyncController(
@@ -78,8 +77,8 @@ fun NavGraph(
         }
 
         NavHost(navController = navController, startDestination = Destination.Launch.route) {
-            publicScreens(navController, firebaseAuthViewModel, showContentInDevelopment)
-            authScreens(navController, firebaseAuthViewModel, recipeViewModel, showContentInDevelopment)
+            publicScreens(navController, firebaseAuthViewModel)
+            authScreens(navController, firebaseAuthViewModel, recipeViewModel)
         }
     }
 }
@@ -90,13 +89,13 @@ fun NavGraph(
 
 fun NavGraphBuilder.publicScreens(
     navController: NavHostController,
-    firebaseAuthViewModel: FirebaseAuthViewModel,
-    showContentInDevelopment: Boolean
+    firebaseAuthViewModel: FirebaseAuthViewModel
 ) {
     launchScreen()
     login(navController, firebaseAuthViewModel)
     forgotPassword(navController, firebaseAuthViewModel)
     signUp(navController, firebaseAuthViewModel)
+    createUserProfile(navController, firebaseAuthViewModel)
 }
 
 
@@ -104,10 +103,9 @@ fun NavGraphBuilder.publicScreens(
 fun NavGraphBuilder.authScreens(
     navController: NavHostController,
     firebaseAuthViewModel: FirebaseAuthViewModel,
-    recipeViewModel: RecipeViewModel,
-    showContentInDevelopment: Boolean
+    recipeViewModel: RecipeViewModel
 ) {
-    home(navController, showContentInDevelopment, firebaseAuthViewModel)
+    home(navController, firebaseAuthViewModel)
 
     mealPlan(navController, firebaseAuthViewModel)
     searchRecipes(navController, recipeViewModel)
