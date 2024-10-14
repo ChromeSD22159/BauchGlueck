@@ -6,7 +6,6 @@ import android.os.Build
 import android.os.Bundle
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.FullScreenContentCallback
@@ -14,12 +13,12 @@ import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.appopen.AppOpenAd
 import kotlinx.datetime.Clock
 import org.lighthousegames.logging.logging
+import util.BuildConfig
 import util.KeyValueStorage
-
-const val appStartId = "ca-app-pub-5150691613384490/4093140987"
 
 @RequiresApi(Build.VERSION_CODES.Q)
 class AppOpenManager(private val myApp: Application) : Application.ActivityLifecycleCallbacks, DefaultLifecycleObserver {
+
         private var appOpenAd : AppOpenAd? = null
         private var currentActivity : Activity? = null
         private var isShowingAd = false
@@ -38,7 +37,7 @@ class AppOpenManager(private val myApp: Application) : Application.ActivityLifec
             val numHours = 4
             val dateDifference: Long = Clock.System.now().toEpochMilliseconds() - lastLoading
             val numMilliSecondsPerHour: Long = 3600000
-            //val numMilliSecondsPerMinute: Long = 60000
+            val numMilliSecondsPerMinute: Long = 60000
             return dateDifference >= numMilliSecondsPerHour * numHours
         }
 
@@ -49,10 +48,9 @@ class AppOpenManager(private val myApp: Application) : Application.ActivityLifec
 
             val loadCallback = object : AppOpenAd.AppOpenAdLoadCallback() {
                 override fun onAdLoaded(ad: AppOpenAd) {
-                        appOpenAd = ad
-                        logging().info { "App-Open-Anzeige erfolgreich geladen" }
-                        showAdIfAvailable()
-                    }
+                    appOpenAd = ad
+                    showAdIfAvailable()
+                }
 
                 override fun onAdFailedToLoad(loadAdError: LoadAdError) {
                         logging().error { "Fehler beim Laden der App-Open-Anzeige: ${loadAdError.message}" }
@@ -62,7 +60,7 @@ class AppOpenManager(private val myApp: Application) : Application.ActivityLifec
             val request = AdRequest.Builder().build()
             AppOpenAd.load(
                 myApp,
-                appStartId,
+                BuildConfig.APP_START_AD_ID,
                 request,
                 AppOpenAd.APP_OPEN_AD_ORIENTATION_PORTRAIT,
                 loadCallback

@@ -131,6 +131,9 @@ buildkonfig {
 
         val isDEV: String = gradleLocalProperties(rootDir).getProperty("DEV") ?: ""
         buildConfigField(com.codingfeline.buildkonfig.compiler.FieldSpec.Type.BOOLEAN, "DEV", isDEV)
+
+        val appStartAdId: String = gradleLocalProperties(rootDir).getProperty("APP_START_AD_ID")
+        buildConfigField(com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING, "APP_START_AD_ID", appStartAdId)
     }
 }
 
