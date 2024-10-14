@@ -13,7 +13,6 @@ import androidx.annotation.RequiresApi
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.lifecycleScope
-import coil3.ImageLoader
 import coil3.annotation.ExperimentalCoilApi
 import coil3.compose.setSingletonImageLoaderFactory
 import com.google.android.gms.ads.MobileAds
@@ -27,12 +26,10 @@ import dev.gitlive.firebase.initialize
 import di.KoinInject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import org.lighthousegames.logging.Log
 import org.lighthousegames.logging.logging
 import util.ApplicationContextHolder
-import java.net.HttpURLConnection
-import java.net.URL
 
+@RequiresApi(Build.VERSION_CODES.Q)
 class MainActivity : ComponentActivity() {
 
     private val firebaseRepository = FirebaseRepository()
@@ -145,14 +142,14 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-class AppStartAdApp : Application(){
+class AppStartAdApp : Application() {
     override fun onCreate() {
         super.onCreate()
         try {
             MobileAds.initialize(this) {}
             AppOpenManager(this)
             KoinInject(this).init()
-        }catch (e:Exception){
+        } catch (e:Exception){
             e.printStackTrace()
         }
     }
