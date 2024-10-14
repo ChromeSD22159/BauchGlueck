@@ -3,7 +3,6 @@ package ui.navigations
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 
-// TODO REFACTOR
 sealed class NavKeys(val key: String) {
     data object RecipeId : NavKeys("recipeId")
     data object UserId : NavKeys("userId")

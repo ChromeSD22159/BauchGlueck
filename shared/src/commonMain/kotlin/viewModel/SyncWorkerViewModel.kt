@@ -38,6 +38,8 @@ class SyncWorkerViewModel: ViewModel(), KoinComponent {
                     repository.mealRepository.syncLocalStartUpMeals()
                     repository.mealPlanRepository.syncMealPlan()
                     repository.waterIntakeRepository.syncWaterIntakes()
+                    // TODO Note Sync
+                    // TODO ShoppingPlan Sync
                 }
 
                 _uiState.value.isFinishedSyncing.value = true
