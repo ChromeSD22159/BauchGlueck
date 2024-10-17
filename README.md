@@ -123,3 +123,8 @@ To ensure the application runs correctly, you need to configure both the `API_KE
   - Restart the application to apply the changes.
 
 These configurations ensure that the application can correctly interact with your Strapi API.
+
+
+## License
+
+This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
