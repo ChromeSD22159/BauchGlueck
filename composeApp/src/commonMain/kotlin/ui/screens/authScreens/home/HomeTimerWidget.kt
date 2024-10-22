@@ -165,14 +165,14 @@ fun NoTimerCard(
             HeadlineText(
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Start,
-                text = "Noch keinen Timer",
+                text = "Noch keinen Timer!",
                 size = 16.sp,
                 color = MaterialTheme.colorScheme.onBackground
             )
             FooterText(
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Start,
-                text = "trage dein ersten Timer ein",
+                text = "Trage dein ersten Timer ein.",
                 color = MaterialTheme.colorScheme.onBackground
             )
         }

@@ -77,9 +77,9 @@ fun NavGraphBuilder.home(
             SectionImageCard(
                 image = Res.drawable.ic_kochhut,
                 title = "Rezepte",
+                description = "Stöbere durch rezepte und füge sie zu deinem Meal plan hinzu.",
                 offset = DpOffset(0.dp, 0.dp),
                 scale = 1.9f,
-                description = "Stöbere durch rezepte und füge sie zu deinem Meal plan hinzu.",
                 onNavigate = {
                     navController.navigate(Destination.RecipeCategories.route)
                 }
